@@ -3,6 +3,9 @@
 #   Xstart file -- to be launched by xsession or xinitrc
 #   Man page: Xsession
 #
+#   TODO: This file really need some cleaning up!
+#
+
 
 # https://wiki.archlinux.org/index.php/ConsoleKit
 
