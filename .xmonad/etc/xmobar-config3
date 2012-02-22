@@ -1,0 +1,31 @@
+-- config
+Config { font = "-misc-fixed-*-*-*-*-10-*-*-*-*-*-*-*"
+       , bgColor = "#222"
+       , fgColor = "#eee"
+       , position = TopW L 100
+       , commands = [ Run Network "wlan0" [
+			"-L","0","-H","32",
+			"--normal","green",
+			"--high","purple"
+			] 10
+                    , Run Cpu [
+			"-t","c:<total>",
+			"-L","15","-H","50",
+			"--normal","green",
+			"--high","purple"
+			] 10
+                    , Run Memory [
+			"-t","u:<used>M c:<cache>M"
+			] 10
+                    , Run Swap [
+			"-t","s:<usedratio>"
+			] 10
+                    , Run Date 
+			"%a %b %_d %Y %H:%M" "date"
+			10
+                    , Run StdinReader
+                    ]
+       , sepChar = "%"
+       , alignSep = "}{"
+       , template = "%StdinReader% }{ %cpu% | %memory% | %swap% | %wlan0% | %date%"
+       }

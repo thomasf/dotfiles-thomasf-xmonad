@@ -1,0 +1,147 @@
+!
+!   .Xresources file
+!   Man pages: xrdb, Xsession
+!
+! --------------------------------------------
+! Note that $HOME/.Xdefaults is a relic from
+! X Version 10 (and  X11R1)  days, before
+! app-defaults  files were implemented.
+! It has been deprecated for over ten years
+! .Xresources should be used instead.
+! --------------------------------------------
+
+
+! --[ Font Rendering ]-------------------------------------
+Xft.antialias: true
+Xft.hinting: true
+Xft.hintstyle: hintslight
+!Xft.hintstyle: hintfull
+Xft.rgba: rgb
+Xft.embolden: false
+Xft.lcdfilter: lcddefault
+
+
+! --[ Emacs ]-------------------------------------
+!Emacs.font: Anonymous Pro:pixelsize=12:foundry=unknown:weight=normal:slant=normal:width=normal:spacing=100:scalable=true
+Emacs*.font: Consolas-10
+Emacs*.FontBackend: xft
+Emacs*.menuBar: off
+Emacs*.toolBar: -1
+Emacs*.verticalScrollBars: off
+Emacs*background: rgb:00/00/00
+Emacs*foreground: rgb:ff/ff/ff
+!Emacs*Xft.embolden: true
+
+
+! --[ URxvt - General ]-------------------------------------
+URxvt*cursorBlink: true
+URxvt*font: terminus-12
+URxvt*jumpScroll: true
+URxvt*scrollBar: false
+URxvt*scrollTtyOutput: false
+URxvt*scrollTtyKeypress: true
+URxvt*perl-ext-common: default,matcher
+URxvt*urlLauncher: google-chrome
+URxvt*matcher.button: 1
+URxvt*:borderLess: true
+URxvt*urgentOnBell: true
+
+! --[ URxvt - Large term ]-------------------------------------
+large_term*font: xft:Consolas-16
+
+! --[ URxvt - Light term ]-------------------------------------
+white_term*background: rgb:95/95/95
+white_term*foreground: rgb:00/00/00
+white_term*color0:     rgb:7f/7f/7f
+white_term*color1:     rgb:cd/00/00
+white_term*color2:     rgb:00/8b/00
+white_term*color3:     rgb:ee/ee/00
+white_term*color4:     rgb:00/00/cd
+white_term*color5:     rgb:cd/00/cd
+white_term*color6:     rgb:00/ee/ee
+white_term*color7:     rgb:fa/eb/d7
+white_term*color8:     rgb:e5/e5/e5
+white_term*color9:     rgb:80/00/00
+white_term*color10:    rgb:00/50/20
+white_term*color11:    rgb:99/55/00
+white_term*color12:    rgb:00/40/80
+white_term*color13:    rgb:44/33/00
+white_term*color14:    rgb:30/60/80
+white_term*color15:    rgb:ff/ff/ff
+
+
+! --[ URxvt - Default term ]-------------------------------------
+
+!! drop in Solarized colorscheme for Xresources/Xdefaults
+
+#define S_base03 #002b36
+#define S_base02 #073642
+#define S_base01 #586e75
+#define S_base00 #657b83
+#define S_base0 #839496
+#define S_base1 #93a1a1
+#define S_base2 #eee8d5
+#define S_base3 #fdf6e3
+#define S_yellow #b58900
+#define S_orange #cb4b16
+#define S_red #dc322f
+#define S_magenta #d33682
+#define S_violet #6c71c4
+#define S_blue #268bd2
+#define S_cyan #2aa198
+#define S_green #859900
+
+URxvt*background:            S_base03
+URxvt*foreground:            S_base00
+URxvt*fading:                30
+URxvt*fadeColor:             S_base03
+URxvt*cursorColor:           S_base1
+URxvt*pointerColorBackground:S_base01
+URxvt*pointerColorForeground:S_base1
+!! black dark/light
+URxvt*color0:                S_base02
+URxvt*color8:                S_base03
+!! red dark/light
+URxvt*color1:                S_red
+URxvt*color9:                S_orange
+!! green dark/light
+URxvt*color2:                S_green
+URxvt*color10:               S_base01
+!! yellow dark/light
+URxvt*color3:                S_yellow
+URxvt*color11:               S_base00
+!! blue dark/light
+URxvt*color4:                S_blue
+URxvt*color12:               S_base0
+!! magenta dark/light
+URxvt*color5:                S_magenta
+URxvt*color13:               S_violet
+!! cyan dark/light
+URxvt*color6:                S_cyan
+URxvt*color14:               S_base1
+!! white dark/light
+URxvt*color7:                S_base2
+URxvt*color15:               S_base3
+
+! --[ URxvt - Scratcpad terminal - bottom quaketerm style ]-------------------------------------
+
+scratchpad_terminal*perl-ext-common: default,matcher,tabbed
+scratchpad_terminal*background: rgb:1a/1a/1a
+scratchpad_terminal*foreground: rgb:d6/d6/d6
+scratchpad_terminal*color0:     rgb:1a/1a/1a
+scratchpad_terminal*color1:     rgb:98/56/5e
+scratchpad_terminal*color2:     rgb:66/82/5d
+scratchpad_terminal*color3:     rgb:96/91/76
+scratchpad_terminal*color4:     rgb:4d/65/85
+scratchpad_terminal*color5:     rgb:96/73/95
+scratchpad_terminal*color6:     rgb:5f/7f/7b
+scratchpad_terminal*color7:     rgb:b3/b3/b3
+scratchpad_terminal*color8:     rgb:73/73/73
+scratchpad_terminal*color9:     rgb:cf/a3/a9
+scratchpad_terminal*color10:    rgb:ca/f7/bb
+scratchpad_terminal*color11:    rgb:ff/f8/bc
+scratchpad_terminal*color12:    rgb:83/a3/be
+scratchpad_terminal*color13:    rgb:bb/a9/cf
+scratchpad_terminal*color14:    rgb:96/cc/cc
+scratchpad_terminal*color15:    rgb:ff/ff/ff
+

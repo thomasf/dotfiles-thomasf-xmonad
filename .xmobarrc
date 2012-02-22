@@ -1,0 +1,18 @@
+Config { font = "-misc-fixed-*-*-*-*-12-*-*-*-*-*-*-*"
+       , bgColor = "black"
+       , fgColor = "grey"
+       , position = TopW L 85
+       , commands = [ Run Network "eth0" ["-L","0","-H","32","--normal","green","--high","red"] 10
+                    , Run Cpu ["-L","15","-H","50","--normal","green","--high","red"] 10
+                    , Run Memory ["-t","Mem: <usedratio>% (<cache>M)"] 10
+                    , Run Swap [] 10
+                    , Run Date "%a %b %_d %Y %H:%M" "date" 10
+	            , Run Battery [] 10
+                    , Run CpuFreq ["-t","<cpu0>|<cpu1>|<cpu2>|<cpu3>", "-L","0", "-H","2", "-l","lightblue", "-n","white", "-h","red"] 50
+                    , Run StdinReader
+                     
+                    ]
+       , sepChar = "%"
+       , alignSep = "}{"
+       , template = "%StdinReader% }{ %cpu% (%cpufreq%) (%battery%) | %memory% * %swap% | %eth0% | %battery%| %date%"
+       }

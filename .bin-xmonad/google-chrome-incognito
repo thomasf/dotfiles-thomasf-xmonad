@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# Start a new google chrome incognito browser
+#
+# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
+# Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
+#
+
+set -e
+
+exec google-chrome --incognito

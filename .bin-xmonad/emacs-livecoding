@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# Opens emacs with the liveconfig configuration
+#
+# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
+# Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
+#
+
+set -e
+
+exec emacs -q -l ~/.emacs.d-livecoding/init.el $*

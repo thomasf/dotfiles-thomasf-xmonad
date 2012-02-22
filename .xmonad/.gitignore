@@ -1,0 +1,10 @@
+history
+xmonad-*
+*.errors
+*.o
+*.hi
+#*#
+nohup.out
+a.out
+sendCommand
+repos/

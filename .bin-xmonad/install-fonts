@@ -1,0 +1,51 @@
+#!/bin/bash
+#
+# This script installs all fonts from a directory, hard coded at the moment
+#
+# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
+# Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
+#
+
+# set -x
+set -e
+
+if [ "z${1}" = "z" ]; then
+    echo "This command must be run with -f (force)"
+    exit
+fi
+
+DIR="$HOME/repos/private/home/blobs/fonts/ttf"
+DEST="/usr/share/fonts/truetype/font-install"
+
+
+if [ ! -d "$DIR" ]; then
+    echo "Directory ${DIR} does not exist. Exiting..."
+fi
+
+if [ ! -d "$DEST" ]; then
+    echo "Directory ${DEST} does not exist. Creating it..."
+    sudo mkdir -p ${DEST}
+fi
+
+IFS="$(echo -e "\n\r")"
+for i in $(find ${DIR} -name "*.ttf"); do
+    sudo cp -v "${i}" "${DEST}"
+done
+
+echo
+echo
+echo "Updating the font cache..."
+sudo fc-cache -fv
+
+if [ $? != 0 ]; then
+    echo "Error updating the font cache. Your fonts haven't been completely installed. Try running sudo fc-cache -fv manually. Exiting..."
+    exit $?
+fi
+
+echo
+echo
+echo "Finished."
+echo
+echo "You will probably need to restart running programs to use the new fonts."
+
+exit 0

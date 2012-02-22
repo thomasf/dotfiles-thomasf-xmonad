@@ -1,0 +1,97 @@
+#!/bin/bash
+#
+#   Xstart file -- to be launched by xsession or xinitrc
+#   Man page: Xsession
+#
+
+# https://wiki.archlinux.org/index.php/ConsoleKit
+
+[ -f "${HOME}/.bashrc" ] && . "${HOME}/.bashrc"
+
+## test for an existing bus daemon, just to be safe
+if test -z "$DBUS_SESSION_BUS_ADDRESS" ; then
+    ## if not found, launch a new one
+    eval `dbus-launch --sh-syntax --exit-with-session`
+    echo "D-Bus per-session daemon address is: $DBUS_SESSION_BUS_ADDRESS"
+fi
+
+[ -f "${HOME}/bin/home-fix" ] && . "${HOME}/bin/home-fix"
+
+# maybe Kill processes
+
+#pidof gpg-agent >/dev/null && kill $(pidof gpg-agent)
+#pidof ssh-agent >/dev/null && kill $(pidof ssh-agent)
+# choosewm
+wm_selection() {
+    avail_vms=""
+    for candidate in xmonad wmii pekwm awesome xfce4-session gnome-session openbox blackbox startfluxbox; do
+        which $candidate && avail_vms="$avail_vms $candidate"
+    done
+
+    WM=$( zenity --list --title "ACTION?!?" --text "re-launch vm?" --column "Available window managers" $avail_vms )
+}
+
+
+# Set configurations
+[ -f "${HOME}/.Xresources" ] && xrdb -merge "${HOME}/.Xresources"
+[ -f "${HOME}/.gtkrc-2.0" ] && export GTK2_RC_FILES="${HOME}/.gtkrc-2.0"
+
+
+if [ $(which gpg-agent) ]; then
+    [ -z "$GPG_AGENT_INFO" ] && eval $(gpg-agent --daemon --enable-ssh-support)
+elif [ $(which ssh-agent) ]; then
+    [ -z "$SSH_AGENT_PID" ] && eval $(ssh-agent -s)
+fi
+
+[ $(which gnome-settings-daemon) ] && pidof gnome-settings-daemon >/dev/null || gnome-settings-daemon &
+
+if [ $(which gconftool-2) ]; then
+    # disable gnome services
+    gconftool-2 -t bool -s /apps/nautilus/preferences/show_desktop false
+    gconftool-2 -t bool -s /desktop/gnome/volume_manager/automount_drives false
+    gconftool-2 -t bool -s /apps/gnome_settings_daemon/screensaver/start_screensaver false
+    gconftool-2 -t bool -s /apps/gnome-keyring/daemon-components/ssh false
+    gconftool-2 -t bool -s /desktop/gnome/background/draw_background false
+    gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/background/active false
+    gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/ubuntuone/active false
+    # unbind mod4-p that collides with my xmonad launcher
+    gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/xrandr/active false
+fi
+
+[ -x ~/.dropbox-dist/dropboxd ] && ~/.dropbox-dist/dropboxd &
+
+[ $(which nm-applet) ] && pidof nm-applet >/dev/null || nm-applet --sm-disable &
+
+# [ $(which uiLooks) ] && uiLooks
+xsetroot -cursor_name left_ptr
+
+if [ $(which google-chrome) ]; then
+    BROWSER=`which google-chrome`
+    export BROWSER
+elif [ $(which midori) ]; then
+    BROWSER=`which midori`
+    export BROWSER
+elif [ $(which firefox) ]; then
+    BROWSER=`which firefox`
+    export BROWSER
+fi
+
+# Select a window manager to run
+WM=""
+if [ $(which xmonad) ]; then
+    WM="xmonad"
+else
+    wm_selection
+fi
+
+[ "z" = "z$WM" ] && xmessage "!!! No window manager found/selected !!!"
+
+# Start the window manager
+while [ ! "" = "$WM" ]; do
+    ${WM}
+    wm_selection
+done
+
+
+
+

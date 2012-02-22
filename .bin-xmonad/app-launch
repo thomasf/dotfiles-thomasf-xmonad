@@ -1,0 +1,24 @@
+#!/bin/bash
+#
+# Launcher wrapper
+#
+# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
+# Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
+#
+
+set -e
+
+tr=urxvt
+normbgcolor="#303030"
+normfgcolor="#FFFFFF"
+selbgcolor="#3465A4"
+selfgcolor="#FFFFFF"
+
+cmd=$(dmenu_path | dmenu -i -nb $normbgcolor -nf $normfgcolor -sb $selbgcolor -sf $selfgcolor)
+
+case $cmd in
+    alsamixer|htop|irssi|weechat-curses)     exec $tr -name $cmd -e $cmd ;;
+    wireshark|synaptic) exec gksudo $cmd ;;
+    apt-update-upgrade) exec gksudo tr -e $cmd ;;
+    *)                  exec $cmd
+esac

@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# Lock the desktop and turn off screen
+#
+# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
+# Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
+#
+
+set -e
+
+# Unload any loaded agent keys
+[ -z "$GPG_AGENT_INFO" ] || kill -HUP $(echo $GPG_AGENT_INFO | awk -F: '{print $2}')
+
+# Drop sudo authentications
+[ -x "$(which sudo)" ] && sudo -K
+
+gnome-screensaver-command --lock
+sleep 20
+xset dpms force off

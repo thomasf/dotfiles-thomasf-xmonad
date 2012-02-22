@@ -1,0 +1,47 @@
+#!/bin/sh
+#
+# This script does the following
+# * ensures a sane build environment for xmonad on ubuntu
+# * fetches/updates xmonad and xmonad contrib from  darcs repositories
+# * applies custom patches
+# * compiles and installs xmonad and xmonad contrib
+# * recompiles xmonad
+#
+# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
+# Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
+#
+mkdir -p repos
+
+set +e
+
+[ ! $(which darcs) ] && echo no darcs installed && exit
+[ ! $(which cabal) ] && echo no cabal installed && exit
+
+cd repos
+if [ ! -d xmonad ]; then
+    darcs get http://code.haskell.org/xmonad
+fi
+
+cd xmonad
+darcs pull
+[ -d ../../patches/xmonad ] && for F in ../../patches/xmonad/*; do darcs apply $F; done
+cd ..
+
+if [ ! -d XMonadContrib ]; then
+    darcs get http://code.haskell.org/XMonadContrib
+fi
+
+cd XMonadContrib
+darcs pull
+[ -d ../../patches/XMonadContrib ] && for F in ../../patches/XMonadContrib/*; do darcs apply $F; done
+cd ..
+
+cd xmonad
+cabal install
+cd ..
+
+cd XMonadContrib
+cabal install
+cd ..
+
+~/.cabal/bin/xmonad --recompile

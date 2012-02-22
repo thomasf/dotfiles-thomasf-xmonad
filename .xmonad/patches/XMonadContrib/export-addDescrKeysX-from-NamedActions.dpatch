@@ -1,0 +1,1434 @@
+1 patch for repository http://code.haskell.org/XMonadContrib:
+
+Tue May 17 17:04:39 CEST 2011  thomasf@jossystem.se
+  * Export addDescrKeys' from NamedActions
+
+New patches:
+
+[Export addDescrKeys' from NamedActions
+thomasf@jossystem.se**20110517150439
+ Ignore-this: e2db97a930dd1680b2519e8aa707a809
+] hunk ./XMonad/Util/NamedActions.hs 24
+     spawn',
+     submapName,
+     addDescrKeys,
++    addDescrKeys',
+     xMessage,
+ 
+     showKmSimple,
+
+Context:
+
+[add-willhook-function
+Ben Boeckel <mathstuf@gmail.com>**20110515191718
+ Ignore-this: 9db50eec5b91baa973b4a92c72aeceaf
+ 
+ Adds a function that hooks into whether the hook will be triggered on the next
+ request.
+] 
+[use-map-in-toggle-hook
+Ben Boeckel <mathstuf@gmail.com>**20110515191418
+ Ignore-this: 2bf69aa1a875e7ef1748a5ab51b33daa
+ 
+ Use "Data.Map String (Bool, Bool)" instead of "[(String, (Bool, Bool))]" in
+ X.H.ToggleHook.
+] 
+[Extend GridSelect navigation
+Ilya Portnov <portnov84@rambler.ru>**20110515154246
+ Ignore-this: f2d279b8e46e6eaf3477fdc5cf77be63
+ Add moveNext and movePrev, which move selection to next/previous item. 
+] 
+[Generalize X.L.AutoMaster modifier
+Ilya Portnov <portnov84@rambler.ru>**20110514132549
+ Ignore-this: 481c35dd721405bab8b085c45cb983ce
+ Enable it to work not only with Windows, but with any (Eq) type.
+] 
+[Aesthetics on Flexiblemanipulate
+Mats Rauhala <mats.rauhala@gmail.com>**20110506094431
+ Ignore-this: 8864c1ba9723ebcc3b183ea9d636a203
+ 
+ Based on Adam Vogts recommendation on the mailing list. I had to give explicit
+ type signatures to get rid of warnings, but nearly verbatim to his version.
+] 
+[Add new layout combinator: LayoutBuilderP.
+Ilya Portnov <portnov84@rambler.ru>**20110511154010
+ Ignore-this: 377b748cb6b84ef7c9f7cde1d4ebd535
+ 
+ LayoutBuilderP is similar to LayoutBuilder (and is based on it), but LayoutBuilderP places windows matching given X.U.WindowProperties.Property (or any other predicate) into one rectangle, instead of fixed number of windows.
+] 
+[Compile with ghc7
+Mats Rauhala <mats.rauhala@gmail.com>**20110504192455
+ Ignore-this: 218d2e19835f1e4315c01bd6214899ce
+] 
+[Action search autocomplete based on whole line
+Mats Rauhala <mats.rauhala@gmail.com>**20110504215201
+ Ignore-this: 869cf6954be97ea05cbcf7457ab430b7
+ 
+ The previous version autocompleted based on words, but when searching from web
+ sites, it makes more sense to autocomplete based on the entire search.
+] 
+[documentation: tell where to find a few auxiliary functions that might be useful in conjunction with X.A.DynamicWorkspaces
+Daniel Wagner <daniel@wagner-home.com>**20110415224846
+ Ignore-this: 1bd2232081ba045582d230b632c5bd08
+] 
+[Typo in window-properties.sh
+Brandon S Allbery KF8NH <allbery.b@gmail.com>**20110413053002
+ Ignore-this: 4b3d4ef6ba7229f11d93b3cf66055698
+ Somewhere between my creating the original version of this script and
+ adding it to the tree, a backslash got lost.  It appears to have been
+ lost in the version I put on the wiki, so I suspect a copy-paste
+ problem at that point.
+] 
+[XMonad.Hooks.FadeWindows: A generalized window fading hook
+Brandon S Allbery KF8NH <allbery.b@gmail.com>**20110226002436
+ Ignore-this: f21d1085ecca26602631f46c45bc198b
+] 
+[Script to simplify getting ManageHook information from a window
+Brandon S Allbery KF8NH <allbery.b@gmail.com>**20110224024937
+ Ignore-this: ef0e0089dca94c7c2321f791d5d7ffe
+] 
+[XMonad/Hooks/DebugKeyEvents - debug helper to see what keys xmonad sees
+Brandon S Allbery KF8NH <allbery.b@gmail.com>**20110224023613
+ Ignore-this: 5a6a99b7fcc31236152a82aa9c2cda16
+] 
+[Prevent non-default XUtils windows from being composited
+Brandon S Allbery KF8NH <allbery.b@gmail.com>**20110224003224
+ Ignore-this: 41a67b8504c412e2754085eb0038f416
+] 
+[XMonad.Hooks.FloatNext: issue #406, make FloatNext use ToggleHook
+gwern0@gmail.com**20110412015217
+ Ignore-this: d06aecd03be0cbd507d3738dfde6eee7
+] 
+[issue #406: ben boeckel <mathstuf@gmail.com> +XMonad.Hooks.ToggleHook
+gwern0@gmail.com**20110412015127
+ Ignore-this: 125891614da94a5ac0e66e39932aa17e
+] 
+[Fix xinerama workspace swapping with A.CopyWindow.killAllOtherCopies
+Adam Vogt <vogt.adam@gmail.com>**20110301033736
+ Ignore-this: de5727d1248d94447c4634a05a90d1cc
+ 
+ Spotted by arlinius in #xmonad, and this only shows up for xinerama setups.
+ Using an algorithm that scales better with number of workspaces would probably
+ be shorter too (visiting them in turn, rather than doing random access), but
+ probably not worth the effort.
+] 
+[XMonad.Util.Run: resolve issue #441
+gwern0@gmail.com**20110411163740
+ Ignore-this: 9e3da81df65f6750c822a5044952f1a1
+ See <http://code.google.com/p/xmonad/issues/detail?id=441>
+ 
+ > I have run into programs that fail when run by safeSpawn but succeed with spawn.
+ > I tracked it down in one (python) and it seems to be due to uninstallSignalHandlers.
+ > When run by safeSpawn, the program reports errors from wait.
+ 
+ dylan did not supply a patch and his version doesn't match the declared type signature;
+ since I don't want to break every `safeSpawn` user, I tossed a `>> return ()` in to make
+ the type right, although I'm troubled at removing the exception functions.
+] 
+[AppendFile: additional example of usage
+gwern0@gmail.com**20110126201018
+ Ignore-this: 2ba40977463ff15140067ef73947785c
+] 
+[Fix A.Gridselect image links (thanks dobblego)
+Adam Vogt <vogt.adam@gmail.com>**20110119230113
+ Ignore-this: e2b334e13c5900a72daff866270b13db
+] 
+[Bump version to 0.10 to help keep the correct contrib/core versions together.
+Adam Vogt <vogt.adam@gmail.com>**20110115180553
+ Ignore-this: c3f3bf382225ec14477ed9298aea89af
+] 
+[H.ICCCMFocus had atom_WM_TAKE_FOCUS incorrectly removed
+Adam Vogt <vogt.adam@gmail.com>**20110106192052
+ Ignore-this: c566320f252d9fe717080e2da37ff262
+ 
+ It is possible that this atom should be defined in the X11 library, but fix the
+ build of contrib for now. In any case, this would have to wait for a change and
+ release of the X11 binding.
+ 
+ rolling back:
+ 
+ Wed Jan  5 22:38:39 EST 2011  Adam Vogt <vogt.adam@gmail.com>
+   * Remove accidental atom_WM_TAKE_FOCUS from H.ICCCMFocus
+   
+   The XMonad module exports this already
+ 
+     M ./XMonad/Hooks/ICCCMFocus.hs -7 +1
+] 
+[Remove accidental atom_WM_TAKE_FOCUS from H.ICCCMFocus
+Adam Vogt <vogt.adam@gmail.com>**20110106033839
+ Ignore-this: 318d60c8cf4ae4f22a7500948a40ebaf
+ 
+ The XMonad module exports this already
+] 
+[Java swing application focus patch
+haskell@tmorris.net**20110105032535
+ Ignore-this: 301805eb559489d34d984dc13c0fa5d0
+] 
+[fix X.L.Gaps documentation, thanks to Carl Mueller for the report
+Brent Yorgey <byorgey@cis.upenn.edu>**20101223010744
+ Ignore-this: d60b64676668d5b82efb9215ac5605f6
+] 
+[Fix A.OnScreen example code typo
+Adam Vogt <vogt.adam@gmail.com>**20101212161850
+ Ignore-this: 486bfc9edc38913c8863e2d5581359eb
+] 
+[fix up funny unicode whitespace in Fullscreen
+Brent Yorgey <byorgey@cis.upenn.edu>**20101212142241
+ Ignore-this: 406c4eec83838923edfbf0dfc554cbb7
+] 
+[Add X.L.Fullscreen
+Audun Skaugen <audunskaugen@gmail.com**20101116221611
+ Ignore-this: 4b460e9a25abbb4f988801052232147a
+] 
+[Close the display correctly after counting the number of screens
+quesel@informatik.uni-oldenburg.de**20101116081449
+ Ignore-this: 6fbc269e34770935fed7d4fd9494154b
+ 
+ This patch adds support for calling countScreens in arbitrary places. Prior to
+ this patch one would end up with an open display for each call of the
+ countScreens function with would eventually mess up X. This patch ensures that
+ the display that is no longer needed is closed after the operation and thus
+ using the function without side effects.
+] 
+[Compatibility with mtl-1 and mtl-2
+Adam Vogt <vogt.adam@gmail.com>**20101115232654
+ Ignore-this: 4fb7f279365992fe9e73388b0f4001ac
+] 
+[Rename state in A.Gridselect to avoid name shadowing (mtl-2)
+Adam Vogt <vogt.adam@gmail.com>**20101115232222
+ Ignore-this: cd81e11ae9f5372ddd71f0c2b60675d5
+] 
+[Substring search support for X.A.GridSelect. As keymaps get more complicated to support different styles, the gs_navigate element is fundamentially changed.
+Clemens Fruhwirth <clemens@endorphin.org>**20101102211213
+ Ignore-this: 95610ac8eb781cd74f6c3ce9e36ec039
+] 
+[Make substring search case insensitive
+Clemens Fruhwirth <clemens@endorphin.org>**20101016212904
+ Ignore-this: dce1ae9e4164c24447ae9c79c4557f11
+] 
+[Introduce grayoutAllElements in X.A.GridSelect
+Clemens Fruhwirth <clemens@endorphin.org>**20101016212559
+ Ignore-this: 78ca0416b12a49965db876c77e02387f
+] 
+[Add substring filter to td_elementmap
+Clemens Fruhwirth <clemens@endorphin.org>**20101016183644
+ Ignore-this: d28b7173095c504ae0e9209303e4468a
+] 
+[Refactor for ad-hoc element and position matching turning td_elementmap into a function using the new td_availSlot and td_elements fields
+Clemens Fruhwirth <clemens@endorphin.org>**20101016183554
+ Ignore-this: 85e644a27395e97315efd1ed7a926da8
+] 
+[Remove nub from diamondLayer in X.A.GridSelect
+Clemens Fruhwirth <clemens@endorphin.org>**20101016183132
+ Ignore-this: fe290f3712fa1e122e0123d3f87f418b
+] 
+[Convert access of td_elementmap from field styled to function call styled in X.A.GridSelect
+Clemens Fruhwirth <clemens@endorphin.org>**20101016164757
+ Ignore-this: b46942bf7ca0bd451b0b402ea8b01bf7
+] 
+[Make use of field names when constructing TwoDState in X.A.GridSelect
+Clemens Fruhwirth <clemens@endorphin.org>**20101016164151
+ Ignore-this: 17d947c11e6cb4c64e04fd4754568337
+] 
+[Pointfree and -XRank2Types don't mix in X.L.Groups.Helpers
+Adam Vogt <vogt.adam@gmail.com>**20101113022839
+ Ignore-this: 21aa9b687179c5622dc6fae749c7872
+ 
+ It used to work with ghc-6.12 (and earlier?), but ghc-7RC2 type inference
+ doesn't work with . instead of it's definition.
+] 
+[Restrict dependencies, since mtl-2 is incompatible
+Adam Vogt <vogt.adam@gmail.com>**20101113022204
+ Ignore-this: d6565f9033cc40fd177a20d1688f3ed7
+ 
+ A couple removed constructors need to be replaced by the lowercase versions
+ (ex. State = StateT Identity now). But it isn't clear that mtl-1 should be
+ dropped.
+] 
+[X.L.TrackFloating docs and help nested layouts
+Adam Vogt <vogt.adam@gmail.com>**20101030175615
+ Ignore-this: a4362384ff8baab896715226772edf62
+ 
+ Now TrackFloating remembers focus for the given layout when the other window is
+ also tiled, but not fed to the given layout: this helps with X.L.IM, among
+ others.
+] 
+[X.L.Maximize: Make layout forget maximized window when it is closed
+Norbert Zeh <nzeh@cs.dal.ca>**20101029221551
+ Ignore-this: 9e8bfacce7f90634532078584c82940a
+ 
+ The X.L.Maximize layout modifier does not track whether the window it stores as
+ maximized does still exist.  The X server reuses window IDs.  As a result, I
+ was able to reproduce the following behaviour (e.g., by opening and closing
+ xpdf windows): Create a window, maximize it, close it without restoring it to
+ its normal state.  Open a new window with the same window ID (e.g., an xpdf
+ window after just closing an xpdf window).  The new window will open maximized,
+ which is not what one would expect.  This patch addresses this problem,
+ removing the ID of the maximized window from the layout when the maximized
+ window is closed.
+] 
+[Fix bug in L.TrackFloating
+Adam Vogt <vogt.adam@gmail.com>**20101030000620
+ Ignore-this: 2c3902ea9f1d70a7043965c8aa99891d
+ 
+ Addresses the comment that:
+ 
+ If the focus goes from the floating layer to tiling by deleting a floating
+ window, it's again the master window that gets focus, not the remembered
+ window.
+] 
+[Add X.L.Groups.Helpers to other-modules
+Daniel Schoepe <daniel.schoepe@googlemail.com>**20101024191850
+ Ignore-this: eb000855e28c39140762f09ce02dd35
+ 
+ Not listing aforementioned module can cause build failures in libaries
+ that depend on xmonad-contrib.
+] 
+[windowbringer-menu-choice
+mathstuf@gmail.com**20100905013522
+ Ignore-this: 3f57b88d725b04f07ce6a43b8d0f56ff
+ 
+ Add functions to allow users to use a menu other than dmenu and pass arguments
+ to the menu.
+] 
+[Add X.L.TrackFloating for tiled-floating focus issues (#4)
+Adam Vogt <vogt.adam@gmail.com>**20101016165536
+ Ignore-this: 19a4a81601c23900d78d85bd0627d5bb
+] 
+[minor documentation fixes
+Daniel Wagner <daniel@wagner-home.com>**20101007011957
+ Ignore-this: c5c046933f318f5a14f063ca387601b9
+] 
+[Minor documentation fixes in X.U.ExtensibleState
+Daniel Schoepe <daniel.schoepe@googlemail.com>**20101004120509
+ Ignore-this: 36a36d6e38f812744f8ec3df9bb56ffe
+] 
+[Clarify the note on -XRank2Types in L.Groups
+Adam Vogt <vogt.adam@gmail.com>**20101002020841
+ Ignore-this: 4ffe5d2d0be1e8b8a8c151b134e963f2
+] 
+[Mention X.L.Groups.ModifySpec's rank-2 type in the doc
+quentin.moser@unifr.ch**20100117115601
+ Ignore-this: 2061238abf835cb20579a4899655cec2
+] 
+[Orphan my modules
+moserq@gmail.com**20101001104300
+ Ignore-this: 781ebf36f25a94df96fde5f7bb7bc53e
+] 
+[Split X.L.Groups.Examples
+moserq@gmail.com**20101001104142
+ Ignore-this: 4d3bc3c44b1c0233d59c6ce5eefcc587
+ 
+ X.L.G.Examples : rowOfColumns and tiled tabs layouts
+ X.L.G.Helpers : helper actions
+ X.L.G.Wmii : wmii layout
+] 
+[X.L.G.Examples: improve the tabs of tiledTabs
+moserq@gmail.com**20100120103240
+ Ignore-this: 58a449c35e1d4a30ecfdf80f015d2dee
+] 
+[X.L.G.Examples: improve the tabs of wmiiLike
+moserq@gmail.com**20100120101746
+ Ignore-this: 1519338158025fb580cac523e4a41b88
+] 
+[X.L.Groups: Always keep one group, even if empty.
+quentin.moser@unifr.ch**20100118021526
+ Ignore-this: 22d7f9b92484c3411ecba66b06f69821
+] 
+[Do not duplicate layouts in X.L.Groups
+quentin.moser@unifr.ch**20100117114708
+ Ignore-this: 100f8ccfbbcda9e8f5cc2b1470772928
+ 
+ I liked the idea, but it completey messes up Decoration layouts.
+] 
+[Add missing module re-export (issue 366)
+Adam Vogt <vogt.adam@gmail.com>**20100930002046
+ Ignore-this: ecd6e4ff54d41f37a75be72f3d0e4a59
+] 
+[X.H.ManageDocks: event hook to refresh on new docks
+Tomas Janousek <tomi@nomi.cz>**20100706185834
+ Ignore-this: 96f931aa19c45acd28bdc2319c6a0cb6
+] 
+[This patch adds support for multiple master windows to X.L.Master
+quesel@informatik.uni-oldenburg.de**20100518060557
+ Ignore-this: 5c62202575966ee65e9b41ef41c30f94
+] 
+[X.L.LayoutHints: event hook to refresh on hints change
+Tomas Janousek <tomi@nomi.cz>**20100706185925
+ Ignore-this: 54eba739c76db176cbb4ef66e30c201f
+] 
+[Remove last excess definition of `fi' (fromIntegral)
+Adam Vogt <vogt.adam@gmail.com>**20100913233850
+ Ignore-this: 42d9282697573b361d763d980b816465
+] 
+[Explain fields added for "XMonad.Layout.ImageButtonDecoration"
+Adam Vogt <vogt.adam@gmail.com>**20100913232720
+ Ignore-this: 8eae99afb2857a91aabbf3b7f27c784e
+] 
+[Adjust X.C.Desktop documentation content.
+Adam Vogt <vogt.adam@gmail.com>**20100803141117
+ Ignore-this: 9c2616514be4dbb722958bc5a11357b1
+ 
+ Correct errors regarding a description of `mappend' for X
+ 
+ Use <+> more often since that's `consistent', and there is no difference since
+ it's the same as >> when all arguments have the same type (which they do...
+ otherwise people aren't just combining valid values for that field of the
+ config).
+] 
+[Minimize: Replaced calls to 'sendMessage' (BW.focusDown) and 'windows' with alternative methods
+Jan Vornberger <jan.vornberger@informatik.uni-oldenburg.de>**20100727224841
+ Ignore-this: 67257480b7b93181967a806fedf6fbc5
+ Calling these functions during message handling results in the loss of layout state.
+ This fixes a number of bugs related to the combination of X.L.Minimize with a decoration.
+] 
+[CurrentWorkspaceOnTop: proper reimplementation of XMonad.Operation
+Jan Vornberger <jan.vornberger@informatik.uni-oldenburg.de>**20100727194154
+ Ignore-this: 101f55913bf836d1d87863b4c05d0665
+ Fixes bugs in combination with stateful layouts and floating windows
+] 
+[A hook to handle minimize/restore window manager hints.
+Justin Bogner <mail@justinbogner.com>**20100616051124
+ Ignore-this: c562ce1df81bce9a7dc5e7fe2dc67a43
+ 
+ XMonad.Hooks.Minimize handles both minimize and restore
+ messages. Handling restore messages was already done in
+ RestoreMinimized, which this module intends to replace.
+] 
+[WindowGo: bulk up 'runOrRaise' doc to point to 'raiseMaybe' for shell scripting
+gwern0@gmail.com**20100712045632
+ Ignore-this: f8f2b04fe7c49827b935ada1345d2ce8
+] 
+[WindowGo: fmt & sp
+gwern0@gmail.com**20100712042915
+ Ignore-this: dc733961f0308815fa2ec0afe118f9cb
+] 
+[Note that Simplest works well with BoringWindows
+Adam Vogt <vogt.adam@gmail.com>**20100622030850
+ Ignore-this: b9b6060842651c0df47b23dddb3bf54a
+] 
+[XMonad.Util.Run: improve linking and rearrange docs
+gwern0@gmail.com**20100620175215
+ Ignore-this: d7b76532309237ddfa22c31a1f1ef5a4
+] 
+[XMonad.Util.Run: correct broken example
+gwern0@gmail.com**20100620175158
+ Ignore-this: b390fa0e36b0bd629e7016797e316760
+] 
+[XMonad.Util.Run: fix unicode char
+gwern0@gmail.com**20100620175140
+ Ignore-this: 3e524f9d8a96cb47c2c8c7c265d8e649
+] 
+[XSelection.hs: update docs w/r/t unicode
+gwern0@gmail.com**20100615000902
+ Ignore-this: 26042b8d27bed602c1844181036a9bb
+ see http://code.google.com/p/xmonad/issues/detail?id=348
+] 
+[encode string of bytes not list of chars
+Khudyakov Alexey <alexey.skladnoy@gmail.com>**20100613113341
+ Ignore-this: bd03772f1e1ab303646f36c28944b43
+] 
+[GroupNavigation.hs: clean up imports
+gwern0@gmail.com**20100608203832
+ Ignore-this: 166ad0b78d8be8453339c7dd5e5cc266
+] 
+[remove decodeInput/encodeOutput
+gwern0@gmail.com**20100614232300
+ Ignore-this: 2ed6a014130dba95c6b0a6fcac055110
+ see http://code.google.com/p/xmonad/issues/detail?id=348
+ they are just synonyms for 2 utf8-string functions, and don't really help
+] 
+[Developing: be good to mention hlint in a hacking guide
+gwern0@gmail.com**20100506160535
+ Ignore-this: d86ab58539dd6c09a43789b9a549aa9d
+] 
+[Fix bug in history maintenance of X.A.GroupNavigation
+Norbert Zeh <nzeh@cs.dal.ca>**20100604081431
+ Ignore-this: 84a22797ec1b76a9b9805af3272911b0
+ 
+ When the focused window was closed without a new window receiving focus, the
+ closed window was not removed from the history database, making for example
+ "nextMatch History (return True)" misbehave.  This patch fixes this.
+] 
+[PositionStoreHook: take decoration into account
+Jan Vornberger <jan.vornberger@informatik.uni-oldenburg.de>**20100602223015
+ Ignore-this: 72192c7cabeaeb744711b651ac3ffc65
+] 
+[PositionStoreHook: take docks into account
+Jan Vornberger <jan.vornberger@informatik.uni-oldenburg.de>**20100602215048
+ Ignore-this: 6ffa63f22e9b511a9d28bc1c04195a08
+] 
+[TopicSpace: +reverseLastFocusedTopics
+Nicolas Pouillard <nicolas.pouillard@gmail.com>**20100520072844
+ Ignore-this: 97c860fb139269cd592beab275f78d57
+] 
+[TopicSpace: improve the lastFocusedTopic handling
+Nicolas Pouillard <nicolas.pouillard@gmail.com>**20091220212813
+ Ignore-this: 9ad30b815e8a9cf002c8b17c07f05dc2
+ 
+ Now the list of last topics is internally kept but
+ only visually truncated.
+] 
+[X.A.GroupNavigation with containers < 0.3.0.0 compatibility
+Norbert Zeh <nzeh@cs.dal.ca>**20100514222153
+ Ignore-this: e0cf2a784ff02829ad10962863fd50ed
+ 
+ This patch replaces the use of Seq.filter and Seq.breakl with two
+ functions flt and brkl that do the same.  This is necessary to
+ keep compatibility with containers < 0.3.0.0 because Seq.filter and
+ Seq.breakl were introduced only in containers 0.3.0.0.
+] 
+[New module XMonad.Actions.GroupNavigation
+Norbert Zeh <nzeh@cs.dal.ca>**20100510081412
+ Ignore-this: c286dbd1b365326fa25a9c5c0e564af7
+ 
+ This module adds two related facilities.  The first one allows cycling through
+ the windows in a window group.  A group is defined as the set of windows for
+ which a given Boolean Query returns True.  The second one keeps track of the
+ history of focused windows and allows returning to the most recently focused
+ window in a given window group before the currently focused window.
+] 
+[Add a way to update the modifier in X.L.LayoutModifier
+Daniel Schoepe <daniel.schoepe@gmail.com>**20090822213958
+ Ignore-this: f257a376bef57689287b68ed21ec903d
+ 
+ This patch adds the possibility to update the state of a layout modifier when
+ modifying the underlying layout before it is run(i.e. using modifyLayout). 
+ The modified state is also passed to the subsequent call of redoLayout, whose 
+ return takes precedence if both functions return modified states of the layout 
+ modifier.
+] 
+[Remove trailing whitespace in A.KeyRemap
+Adam Vogt <vogt.adam@gmail.com>**20100503153258
+ Ignore-this: 59d38be8462d50c298f590d55ebda910
+] 
+[Adding XMonad.Actions.KeyRemap for mapping single keys
+stettberger@dokucode.de**20100502152322
+ Ignore-this: 113f6ef92fd31134fb6752a8b8253c3a
+ 
+ With KeyRemap it is possible to emit different keys to client windows, when 
+ pressing some key. For example having dvorak layout for typing, but us for 
+ keybindings.
+] 
+[Move Util.Font to .hs, and enable -XCPP
+Adam Vogt <vogt.adam@gmail.com>**20100429140744
+ Ignore-this: 1e60993426bf8e146c9440e2dbb0f764
+ 
+ As the CPP pass was the only feature being used in Font.hsc (no other FFI)
+ it's better to avoid hsc2hs, if only to make the purpose of the module
+ clearer from the filename.
+] 
+[A.Search: Remove unnecessary `do'
+Adam Vogt <vogt.adam@gmail.com>**20100429134749
+ Ignore-this: 2fc31d045a57ccd01f3af03cb46440c2
+] 
+[Fix escaping of URI
+Khudyakov Alexey <alexey.skladnoy@gmail.com>**20100423204707
+ Ignore-this: 7dad15752eb106d8bc6cd50ffd2e8d3a
+] 
+[Prompt: handle case of historySize=0 better.
+Adam Vogt <vogt.adam@gmail.com>**20100421183006
+ Ignore-this: e4a74e905677649ddde36385a9ed47a2
+] 
+[Rearrange tests. See test/genMain.hs for instructions.
+Adam Vogt <vogt.adam@gmail.com>**20100419014946
+ Ignore-this: 1745e6f1052e84e40153b5b1c0a6e15a
+] 
+[Use CPP to add to exports for Selective tests (L.LimitWindows)
+Adam Vogt <vogt.adam@gmail.com>**20100419014344
+ Ignore-this: 74c228892f07bb827e4b419f4efdb04
+] 
+[Use imported `fi' alias for fromIntegral more often.
+Adam Vogt <vogt.adam@gmail.com>**20100416212939
+ Ignore-this: 51040e693066fd7803cc1b108c1a13d5
+ 
+ Also moves `fi' into U.Image to avoid cyclic imports,
+ though XUtils sill exports that definition.
+] 
+[Note that mouseResizableTileMirrored may be removed.
+Adam Vogt <vogt.adam@gmail.com>**20100416161118
+ Ignore-this: 2b005aa36abe224f97062f80e8558af7
+] 
+[Structure L.MouseResizableTile documentation.
+Adam Vogt <vogt.adam@gmail.com>**20100416160641
+ Ignore-this: c285ac8a4663bdd2ae957b3c198094da
+] 
+[X.L.MouseResizableTile: make everything configurable
+Tomas Janousek <tomi@nomi.cz>**20100415214609
+ Ignore-this: f8164dc63242c7e32210c9577a254bf7
+] 
+[X.L.MouseResizableTile: configurable gaps (dragger size and position)
+Tomas Janousek <tomi@nomi.cz>**20100415213813
+ Ignore-this: 5803861bbfecbc8c946b817b98909647
+ 
+ (with the option of putting the draggers over window borders with no gaps at
+ all)
+] 
+[Remove unnecessary imports.
+Adam Vogt <vogt.adam@gmail.com>**20100416160239
+ Ignore-this: 11beb14b87e294dafb54cc3764393c5b
+] 
+[update module imports
+gwern0@gmail.com**20100414211947
+ Ignore-this: 804bee14960064b4e4efd33d07a60a2b
+] 
+[tests/test_XPrompt can build now.
+Adam Vogt <vogt.adam@gmail.com>**20100414204612
+ Ignore-this: ded6711134658fe371f19a909037c9cb
+] 
+[prettier haddock markup for L.NoBorders
+Adam Vogt <vogt.adam@gmail.com>**20100405184020
+ Ignore-this: 1a9862e6e7ec0e965201a65a68314680
+] 
+[ImageButtonDecoration: new image for menu button
+Jan Vornberger <jan.vornberger@informatik.uni-oldenburg.de>**20100402174910
+ Ignore-this: 3977c4bfcb4052e07321ec9e83f917c6
+] 
+[image_buttons
+trupill@gmail.com**20100331093808
+ Ignore-this: 418dbf488435c7c803695407557eecfb
+ 
+ * Added a XMonad.Util.Image module to manipulate simple images
+   and show them into an X drawable
+ * Added the possibility of using image buttons instead of plain
+   text buttons into the title bar
+ * Added a XMonad.Layout.ImageButtonDecoration as an example of
+   how to use the image buttons
+ 
+] 
+[WindowMenu: own colorizer that works better with Bluetile's new theme
+Jan Vornberger <jan.vornberger@informatik.uni-oldenburg.de>**20100402184119
+ Ignore-this: 708e1ad1654165fc5da5efc943a2a6b9
+] 
+[X.L.Named deprecate and implement using X.L.Renamed
+Anders Engstrom <ankaan@gmail.com>**20100401212403
+ Ignore-this: a74963ef4990c9e845b9142b8648cf26
+ nameTail behaves slightly different if there are whitespace before the first word or the name contains tabs or other such whitespace. But I expect few users are affected since the only usecase where nameTail is actually needed is to remove automatically added prefixes. These prefixes will be removed as they should by the new implementation.
+] 
+[X.L.Minimize remove redundant imports
+Anders Engstrom <ankaan@gmail.com>**20100401204400
+ Ignore-this: f7bbfe96c8d08955fc845318f918ec86
+] 
+[Correct module header.
+Adam Vogt <vogt.adam@gmail.com>**20100330181029
+ Ignore-this: 53edd88f94f0b7d54fc350c47c38898c
+] 
+[minimize_ewmh
+trupill@gmail.com**20100330183616
+ Ignore-this: 4d14b74192af503c4b2e28ea877c85f5
+] 
+[Use more monoid instances to clean up U.WorkspaceCompare
+Adam Vogt <vogt.adam@gmail.com>**20100222151710
+ Ignore-this: ab7089175a7486144e01b706de04036e
+] 
+[Note that Groups has redundancies and the interface may change.
+Adam Vogt <vogt.adam@gmail.com>**20100330175945
+ Ignore-this: 2f4dc5a2355ace4005dd07fc5d459f1a
+ 
+ Refer to:
+ http://www.haskell.org/pipermail/xmonad/2010-January/009585.html
+] 
+[X.H.UrgencyHook: performance fix
+Tomas Janousek <tomi@nomi.cz>**20100330141341
+ Ignore-this: b626166259858f16bc5051c67b498c68
+ 
+ cleanupUrgents would update the Map in extensible state 2-times the number of
+ visible windows, resulting in excessive memory usage and garbage collection.
+ This seems to make it behave correctly.
+] 
+[Update my e-mail address
+quentin.moser@unifr.ch**20100117011109
+ Ignore-this: f5efc4d494cb001d3cfbe2b2e169cbe5
+] 
+[New module: X.L.Groups.Examples
+quentin.moser@unifr.ch**20100117010236
+ Ignore-this: 8fc40821759d7ed439ecc6726417f52d
+ 
+ Utility functions and examples using X.L.Groups.
+] 
+[New module: X.L.Groups
+quentin.moser@unifr.ch**20100117005301
+ Ignore-this: 167e191d520a36b94cf24121ead67dae
+ 
+ The mother of all layout combinators.
+] 
+[New module: X.L.ZoomRow
+quentin.moser@unifr.ch**20100117003939
+ Ignore-this: c464ae1005679484e364eb6ece31d9fc
+ 
+ Row layout with individually resizable elements.
+] 
+[New module: X.L.Renamed
+quentin.moser@unifr.ch**20100117002612
+ Ignore-this: 38a5c638e36090c746356390c09d3479
+] 
+[New module: X.U.Stack
+quentin.moser@unifr.ch**20100117002104
+ Ignore-this: e0c3969042ca5e1e8b9e50436519e52a
+ 
+ Utility functions for working with Maybe Stacks, including:
+   - useful conversions to and from lists
+   - insertUp/Down, swapUp/Down, focusUp/Down, etc
+   - maps, filters and folds
+] 
+[bugfix: removeKeys should remove all keys in the provided list
+Daniel Wagner <daniel@wagner-home.com>**20100327192541
+ Ignore-this: 711c776a19d428a2ab4614ee82641de4
+] 
+[fixed argument order to isPrefixOf in a couple of places in X.A.Search
+Jurgen Doser <jurgen.doser@gmail.com>**20100316122010
+ Ignore-this: 1a613748778d07de1b459a4268ff8d55
+ In some places, ((!>), prefixAware, and one place in the documentation),
+ isPrefixOf was used with wrong argument order.  In particular, this made
+ combining search engines not work as advertised, for example, the predefined
+ search engine "multi".
+] 
+[X.P.Ssh: add entries from .ssh/config to ssh prompt completion
+Brent Yorgey <byorgey@cis.upenn.edu>**20091229171346
+ Ignore-this: fa638a0af4cb71be91f6c90bdf6d5513
+] 
+[X.H.DynamicLog: let the user of xmonadPropLog choose property name
+Tomas Janousek <tomi@nomi.cz>**20100319214631
+ Ignore-this: 17c0cac2a469e0b70b0cea86f3aeed51
+] 
+[Replace.hs: rm trailing whitespace
+gwern0@gmail.com**20100314210109
+ Ignore-this: ee951e62c1de753907f77a8a6bac7cae
+] 
+[Workspace.hs: rm trailing whitespace
+gwern0@gmail.com**20100314210101
+ Ignore-this: c2888dc8aa919ce6da706ba8ea1c523a
+] 
+[Layout.hs: rm trailing whitespace
+gwern0@gmail.com**20100314210054
+ Ignore-this: 5ad02e9c968bb49773e2bf05310a3754
+] 
+[Directory.hs: rm trailing whitespace
+gwern0@gmail.com**20100314210047
+ Ignore-this: 1e83cd71f6439603b577874317cac8bb
+] 
+[MessageControl: rm trailing whitespace
+gwern0@gmail.com**20100314210038
+ Ignore-this: d4dc93a8a68847123918db416080e018
+] 
+[LimitWindows.hs: rm trailing whitespace
+gwern0@gmail.com**20100314210030
+ Ignore-this: 7d138a5903d45ffeeb4e89f1b8923382
+] 
+[LayoutCombinators.hs: rm trailing whitespace
+gwern0@gmail.com**20100314210021
+ Ignore-this: e387bdea6c346fc8a892b06294995442
+] 
+[DecorationAddons.hs: rm trailing whitespace
+gwern0@gmail.com**20100314210012
+ Ignore-this: 2f54649e43ebf11e35bd8764d1a44675
+] 
+[Column.hs: rm whitespace
+gwern0@gmail.com**20100314210001
+ Ignore-this: 6cfd701babde42d5dc61bfbe95305b20
+] 
+[DynamicWorkspaces.hs: rm whitespace
+gwern0@gmail.com**20100314205951
+ Ignore-this: 9d64301708cb1702b9b46f1068efa891
+] 
+[Fix bugs with nested drawers in X.L.Drawer
+Max Rabkin <max.rabkin@gmail.com>**20100310170159
+ Ignore-this: 5c7665f3f3ea2c629deb0cca3715bb8d
+ There were two bugs:
+ 1. The layout modifier assumed the rect's x was zero.
+ 2. The layout modifier assumed that the stackset's focus actually had focus.
+] 
+[Correct L.Drawer haddock markup and re-export required module.
+Adam Vogt <vogt.adam@gmail.com>**20100308225258
+ Ignore-this: 1cc5675a68a66cf436817137a478b747
+] 
+[Added X.L.Drawer
+Max Rabkin <max.rabkin@gmail.com>**20100308212752
+ Ignore-this: c7973679b7b2702178ae06fc45396dda
+ X.L.Drawer provides a layout modifier for retracting windows which roll down
+ (like the Quake console) when they gain focus.
+] 
+[X.U.WorkspaceCompare xinerama compare with physical order
+Anders Engstrom <ankaan@gmail.com>**20100308115402
+ Ignore-this: 49296fb6e09717f38db28beb66bc2c80
+ Like the old xinerama workspace comparison, but order by physical location just like X.A.PhysicalScreens. Useful if using xinerama sort for statusbar together with physicalscreens.
+] 
+[X.U.Dmenu helpers to run dmenu with arguments
+Anders Engstrom <ankaan@gmail.com>**20100308115022
+ Ignore-this: 7d582e06d0e393c717f43e0729306fbf
+] 
+[X.L.LayoutScreens split current screen
+Anders Engstrom <ankaan@gmail.com>**20100308114318
+ Ignore-this: e7bd1ef63aee3f736e12e109cabb839
+ This patch will allow the user to split the currently focused screen instead of all screens together. This is usefull for multiscreen users who have functioning xinerama, but wish to split one of the screens.
+] 
+[X.A.PhysicalScreens cleaning and allow cycling
+Anders Engstrom <ankaan@gmail.com>**20100308113704
+ Ignore-this: 3a9a3554cda29f976df646b38b56e8e7
+ Remove redundant import to supress warning, did some refactoring to use xmonad internal things to find screens instead of using X11-stuff. Also added ability to cycle between screens in physical order.
+] 
+[Use imported 'fi' in H.ScreenCorners
+Adam Vogt <vogt.adam@gmail.com>**20100222150633
+ Ignore-this: 45ceb91d6c39f29bb937aa29c0bc2e66
+] 
+[X.H.ScreenCorners typos
+Nils Schweinsberg <mail@n-sch.de>**20100222115142
+ Ignore-this: 805ba06f6215bb83a68631f750743830
+] 
+[X.H.ScreenCorners rewritten to use InputOnly windows instead of waiting for MotionEvents on the root window
+Nils Schweinsberg <mail@n-sch.de>**20100222112459
+ Ignore-this: f9866d3e3f1ea09ff9e9bb593146f0b3
+] 
+[[patch] X.H.ScreenCorners: move the mouse cursor to avoid loops
+Nils Schweinsberg <mail@n-sch.de>**20100221231550
+ Ignore-this: c8d2ece0f6e75aba1b091d5f9de371dc
+] 
+[Prevent possible pattern match failure in X.A.UpdateFocus
+Daniel Schoepe <daniel.schoepe@gmail.com>**20100221234735
+ Ignore-this: fe132d248db01076a1038e9e8acbdf42
+] 
+[New extension: XMonad.Hooks.ScreenCorners
+Nils Schweinsberg <mail@n-sch.de>**20100221230259
+ Ignore-this: c3a715e2590ed094ed5908bd225b185e
+] 
+[documentation for marshallPP
+daniel@wagner-home.com**20100215000731
+ Ignore-this: efa38829b40dc1586f5f18c4bab21f7d
+] 
+[DynamicLog support for IndependentScreens
+Daniel Wagner <daniel@wagner-home.com>**20100104054251
+ Ignore-this: 16fe32f1d66abf4a79f8670131663a60
+] 
+[minor style changes
+Daniel Wagner <daniel@wagner-home.com>**20091228173016
+ Ignore-this: 605de753d6a5007751de9d7b9f8ab9ca
+] 
+[XMonad.Prompt: remove white border from greenXPConfig
+gwern0@gmail.com**20100211163641
+ Ignore-this: 1cd9a6de02419b7747eab98eb4e84c35
+] 
+[Fixed reversed history searching direction in X.P.history(Up|Down)Matching
+Daniel Schoepe <daniel.schoepe@gmail.com>**20100208162901
+ Ignore-this: 61b9907318d18ef2fb5bc633048d3afc
+] 
+[Compatibility for rename of XMonad.numlockMask
+Adam Vogt <vogt.adam@gmail.com>**20100124201955
+ Ignore-this: 765c58a8b77ca0b54f05fd69a9bba714
+] 
+[Use extensible-exceptions to allow base-3 or base-4
+Adam Vogt <vogt.adam@gmail.com>**20100124203324
+ Ignore-this: 136f35fcc0f3a824b96eea0f4e04f276
+] 
+[suppress some warnings under ghc 6.12.1 and clean up redundant imports to get rid of some others.
+Brent Yorgey <byorgey@cis.upenn.edu>**20100112172507
+ Ignore-this: bf3487b27036b02797d9f528a078d006
+] 
+[Corrected documentation in X.Prompt
+Daniel Schoepe <daniel.schoepe@gmail.com>**20100201204522
+ Ignore-this: 98f9889a4844bc765cbb9e43bd83bc05
+] 
+[Use Stack instead of list in X.Prompt.history*Matching
+Daniel Schoepe <daniel.schoepe@gmail.com>**20100201202839
+ Ignore-this: 45d03c7096949bd250dd1c5c2d3646d4
+] 
+[BluetileConfig: Fullscreen tweaks and border color change
+Jan Vornberger <jan.vornberger@informatik.uni-oldenburg.de>**20100131233347
+ Ignore-this: 2a10959bed0f3fb9985e3dd1010f123b
+] 
+[A.CycleWindows replace partial rotUp and rotDown with safer versions
+Wirt Wolff <wirtwolff@gmail.com>**20100123231912
+ Ignore-this: 6b4e40c15b66fc53096910e85e736c23
+ Rather than throw exceptions, handle null and singleton lists, i.e.
+ f [] gives [] and f [x] gives [x].
+] 
+[Use <+> instead of explicit M.union to merge keybindings in X.C.*
+Adam Vogt <vogt.adam@gmail.com>**20100124202136
+ Ignore-this: e7bfd99eb4d3e6735153d1d5ec00a885
+] 
+[Fix incorrect import suggestion in L.Tabbed (issue 362)
+Adam Vogt <vogt.adam@gmail.com>**20100121182501
+ Ignore-this: 5e46f140a7e8c2abf0ac75b3262a7da4
+] 
+[Swap window ordering in L.Accordion (closes Issue 358). Thanks rsaarelm.
+Adam Vogt <vogt.adam@gmail.com>**20100121154344
+ Ignore-this: cd06b0f4fc85f857307aaae8f6e40af7
+ 
+ This change keeps windows in the same ordering when focus is changed.
+] 
+[use restart to restart xmonad (no longer bluetile)
+Jens Petersen <petersen@haskell.org>**20100116105935
+ Ignore-this: e6e27c65e25201fc84bfaf092dad48ac
+] 
+[X.L.Decoration: avoid flicker by not showing decowins without rectangles
+Tomas Janousek <tomi@nomi.cz>**20100116112054
+ Ignore-this: 6f38634706c3f35272670b969fc6cc96
+ 
+ These would be hidden by updateDecos immediately after being shown. This
+ caused flicker with simpleTabbed and only one window on a workspace.
+] 
+[Add a way to cycle only through matching history entries in X.Prompt
+Daniel Schoepe <daniel.schoepe@gmail.com>**20100113233036
+ Ignore-this: d67aedb25f2cc6f329a78d5d3eebdd2b
+ 
+ This patch adds a way go up through X.Prompt's history using
+ only those entries that start with the current input, similar
+ to zsh's `history-search-backward'.
+] 
+[Style changes in L.Minimize
+Adam Vogt <vogt.adam@gmail.com>**20100104144448
+ Ignore-this: 5f64c0717e24ed6cbe2c9fad50bf78a3
+] 
+[minimize_floating
+konstantin.sobolev@gmail.com**20091230070105
+ Ignore-this: 2c0e1b94f123a869fb4e72a802e59c2
+ Adds floating windows support to X.L.Minimize
+] 
+[Use more imported cursor constants.
+Adam Vogt <vogt.adam@gmail.com>**20091230220927
+ Ignore-this: 91e55c63a1d020fafb6b53e6abf9766c
+] 
+[import new contrib module, X.A.DynamicWorkspaceOrder
+Brent Yorgey <byorgey@cis.upenn.edu>**20091230192350
+ Ignore-this: bba2c0c30d5554612cc6e8bd59fee205
+] 
+[X.A.CycleWS: export generalized 'doTo' function for performing an action on a workspace relative to the current one
+Brent Yorgey <byorgey@cis.upenn.edu>**20091230191953
+ Ignore-this: 7cf8efe7c45b501cbcea0943f667b77e
+] 
+[new contrib module, X.A.DynamicWorkspaceGroups, for managing groups of workspaces on multi-head setups
+Brent Yorgey <byorgey@cis.upenn.edu>**20091229165702
+ Ignore-this: fc3e6932a95f57b36b4d8d4cc7f3e2d7
+] 
+[new contrib module from Tomas Janousek, X.A.WorkspaceNames
+Brent Yorgey <byorgey@cis.upenn.edu>**20091229163915
+ Ignore-this: 5bc7caaf38647de51949a24498001474
+] 
+[X.P.Shell, filter empty string from PATH
+Tim Horton <tmhorton@gmail.com>**20091224033217
+ Ignore-this: 1aec55452f917d0be2bff7fcf5937766
+ 
+ doesDirectoryExist returns True if given an empty string using ghc <= 6.10.4.
+ This causes getDirectoryContents to raise an exception and X.P.Shell does not
+ render. This is only an issue if you have an empty string in your PATH.
+ 
+ Using ghc == 6.12.1, doesDirectoryExist returns False given an empty string, so
+ this should not be an issue in the future.
+ 
+] 
+[small tweak to battery logger
+Brent Yorgey <byorgey@cis.upenn.edu>**20091227085641
+ Ignore-this: 350dfed0cedd250cd9d4bd3391cbe034
+] 
+[Use imported xC_bottom_right_corner in A.MouseResize
+Adam Vogt <vogt.adam@gmail.com>**20091227233705
+ Ignore-this: 52794f788255159b91e68f2762c5f6a1
+] 
+[X.A.MouseResize: assign an appropriate cursor for the resizing inpuwin
+Tomas Janousek <tomi@nomi.cz>**20091227212140
+ Ignore-this: d9ce96c2cd0312b6b5be4acee30a1da3
+] 
+[Fix the createSession bug in spawnPipe
+Spencer Janssen <spencerjanssen@gmail.com>**20091227003501
+ Ignore-this: 2d7f8746eb657036d39f3b9aac22b3c9
+ Both the new XMonad.Core.xfork function and spawnPipe call createSession, calling
+ this function twice results in an error.
+] 
+[Let the core know about MouseResizableTile's draggers, so they are stacked correctly
+Jan Vornberger <jan.vornberger@informatik.uni-oldenburg.de>**20091223145428
+ Ignore-this: 7c096aba6b540ccf9b49c4ee86c6091a
+] 
+[Update all uses of forkProcess to xfork
+Spencer Janssen <spencerjanssen@gmail.com>**20091223064558
+ Ignore-this: 963a4ddf1d2f4096bbb8969b173cd0c1
+] 
+[Make X.L.Minimize explicitly mark minimized windows as boring
+Jan Vornberger <jan.vornberger@informatik.uni-oldenburg.de>**20091222214529
+ Ignore-this: b1e8adf26ac87dede6c1b7a7d687411c
+] 
+[Actions/Search: added openstreetmap
+intrigeri@boum.org**20091222114545
+ Ignore-this: fafc4680c8b59b7a044d995c1dacec9a
+] 
+[Add a search predicate option to XMonad.Prompt
+Mike Lundy <mike@fluffypenguin.org>**20091221025408
+ Ignore-this: 8e8804eeb9650d38bc225e15887310da
+] 
+[In D.Extending note how <+> can be used with keybindings.
+Adam Vogt <vogt.adam@gmail.com>**20091220190739
+ Ignore-this: ebea8ef8a835ed368fa06621add6519f
+] 
+[Fix MultiToggle crashes with decorated layouts
+Tomas Janousek <tomi@nomi.cz>**20091220004733
+ Ignore-this: 9208f5da9f0de95464ea62cb45e8f291
+ 
+ The problem was that certain layouts keep their "world" state in their value,
+ which was thrown away and forgotten after ReleaseResources during toggle.
+ 
+ In particular, decorated layouts store some X11 handles in them and
+ allocate/deallocate it as appropriate. If any modification to their state is
+ ignored, they may try to deallocate already deallocated memory, which results
+ in a crash somewhere inside Xlib.
+ 
+ This patch makes Transformers reversible so that nothing is ever ignored. As a
+ side effect, layout transformers now do receive messages and messages for the
+ base layout do not need the undo/reapply cycle -- we just pass messages to the
+ current transformed layout and unapply the transformer when needed.
+ (This, however, doesn't mean that the base layout is not asked to release
+ resources on a transformer change -- we still need the transformer to release
+ its resources and there's no way to do this without asking the base layout as
+ well.)
+] 
+[Golf / style change in U.ExtensibleState
+Adam Vogt <vogt.adam@gmail.com>**20091208010506
+ Ignore-this: c35bd85baae4700e14417ac7e07de959
+] 
+[Style changes in EwmhDesktops
+Adam Vogt <vogt.adam@gmail.com>**20091219003824
+ Ignore-this: 905eff9ed951955c8f62617b2d82302e
+] 
+[Add support for fullscreen through the _NET_WM_STATE protocol
+audunskaugen@gmail.com**20091214135119
+ Ignore-this: 430ca3c6779e36383f8ce8e477ee9622
+ 
+ This patch adds support for applications using the
+ gtk_window_fullscreen function, and other applications using
+ _NET_WM_STATE for the same purpose.
+] 
+[TAG 0.9.1
+Spencer Janssen <spencerjanssen@gmail.com>**20091216233651
+ Ignore-this: 713d9dd89d775e30346f57a61038d308
+] 
+[Bump version to 0.9.1
+Spencer Janssen <spencerjanssen@gmail.com>**20091216232634
+ Ignore-this: bcd799c3341ee6c69a259e1dca747cac
+] 
+[Match X11 dependencies with xmonad's
+Spencer Janssen <spencerjanssen@gmail.com>**20091216012630
+ Ignore-this: bcbd6e3e5e2675cdac6f1d1b1bc09853
+] 
+[Safer X11 version dependency
+Spencer Janssen <spencerjanssen@gmail.com>**20091216005916
+ Ignore-this: 6dc805a8a0c7a3d3369bc1d6d97d4f56
+] 
+[Update Prompt for numlockMask changes
+Spencer Janssen <spencerjanssen@gmail.com>**20091103222621
+ Ignore-this: 4980e2fdf4c296a266590cc4acf76e1e
+] 
+[X.L.MouseResizableTile: change description for mirrored variant
+Tomas Janousek <tomi@nomi.cz>**20091211124218
+ Ignore-this: dbc02fb777e35cdc15fb11979c1e983e
+ 
+ The description for mirrored MouseResizableTile is now "Mirror
+ MouseResizableTile", to follow the standard of other layouts that can be
+ mirrored using the Mirror modifier.
+] 
+[X.A.GridSelect: documentation typo fix
+Tomas Janousek <tomi@nomi.cz>**20091211182515
+ Ignore-this: 521bef2a73a9e969d7a96defb555177b
+ 
+ spotted by Justin on IRC
+] 
+[A.GridSelect shouldn't grab keys if there are no choices.
+Adam Vogt <vogt.adam@gmail.com>**20091210183038
+ Ignore-this: 48509f780120014a10b32e7289369f32
+ 
+ Thanks thermal2008 in #xmonad for bringing up the corner case when gridselect
+ is run with an empty list of choices.
+] 
+[onScreen' variation for X () functions
+Nils Schweinsberg <mail@n-sch.de>**20091209003717
+ Ignore-this: 6a9644c729c2b60f94398260f3640e4d
+] 
+[Added Bluetile's config
+Jan Vornberger <jan.vornberger@informatik.uni-oldenburg.de>**20091209150309
+ Ignore-this: 641ae527ca6f615e81822b6f38f827e7
+] 
+[BluetileCommands - a list of commands that Bluetile uses to communicate with its dock
+Jan Vornberger <jan.vornberger@informatik.uni-oldenburg.de>**20091208234431
+ Ignore-this: 1a5a5e69c7c37d3ffe8d8e09496568de
+] 
+[Use lookup instead of find in A.PerWorkspaceKeys
+Adam Vogt <vogt.adam@gmail.com>**20091129032650
+ Ignore-this: 7ecb043df4317365ff3d25b17303eed8
+] 
+[Change of X.A.OnScreen, more simple and predictable behaviour of onScreen, new functions: toggle(Greedy)OnScreen
+Nils Schweinsberg <mail@n-sch.de>**20091207155050
+ Ignore-this: c375250778758e401217bcad83567d3b
+] 
+[Module to ensure that a dragged window always stays in front of all other windows
+Jan Vornberger <jan.vornberger@informatik.uni-oldenburg.de>**20091129004506
+ Ignore-this: a8a389198ccc28a66686561d4d17e91b
+] 
+[Decoration that allows to switch the position of windows by dragging them onto each other.
+Jan Vornberger <jan.vornberger@informatik.uni-oldenburg.de>**20091129003431
+ Ignore-this: 38aff0f3beb1a1eb304219c4f3e85593
+] 
+[A decoration with small buttons and a supporting module
+Jan Vornberger <jan.vornberger@informatik.uni-oldenburg.de>**20091129002416
+ Ignore-this: 2d65133bc5b9ad29bad7d06780bdaa4
+] 
+[XMonad.Actions.Search: finally fixed the internet archive search plugin
+gwern0@gmail.com**20091205033435
+ Ignore-this: c78ecebced9bc8e39e6077ffa9f9f182
+] 
+[XMonad.Actions.Search: in retrospect, a bit silly to make everyone go through SSL
+gwern0@gmail.com**20091205033318
+ Ignore-this: 452b4e6efb83935fc1063ab695ae074d
+] 
+[Prompt.hs: Corrected quit keybindings
+Tim Horton <tmhorton@gmail.com>**20091203050041
+ Ignore-this: e8cd2cd1d41f6807f68157ef37c631ea
+] 
+[Extended decoration module with more hooks and consolidated some existing ones
+Jan Vornberger <jan.vornberger@informatik.uni-oldenburg.de>**20091128234310
+ Ignore-this: 5a23af3009ecca2feb9a84f8c6f8ac33
+] 
+[Extended decoration theme to contain extra static text that always appears in the title bar
+Jan Vornberger <jan.vornberger@informatik.uni-oldenburg.de>**20091024213928
+ Ignore-this: 95f46d6b9ff716a2d8002a426c1012c8
+] 
+[Extended paintAndWrite to allow for multiple strings to be written into the rectangle
+Jan Vornberger <jan.vornberger@informatik.uni-oldenburg.de>**20091024205111
+ Ignore-this: eb7d32284b7f98145038dcaa14f8075e
+] 
+[Added the alignment option 'AlignRightOffset'
+Jan Vornberger <jan.vornberger@informatik.uni-oldenburg.de>**20091024204513
+ Ignore-this: 58cc00e1be669877e38a97e36b924969
+] 
+[Prevent windows from being decorated that are too small to contain decoration.
+Jan Vornberger <jan.vornberger@informatik.uni-oldenburg.de>**20090627094316
+ Ignore-this: 39b806462bbd424f1206b635e9d506e1
+] 
+[X.L.MouseResizableTile: keep draggers on the bottom of the window stack.
+Tomas Janousek <tomi@nomi.cz>**20091126173413
+ Ignore-this: 8089cf8ce53580090b045f4aebb1b899
+] 
+[Implemented smarter system of managing borders for BorderResize
+Jan Vornberger <jan.vornberger@informatik.uni-oldenburg.de>**20091122233651
+ Ignore-this: 4775c082249e598a84c79b2e819f28b0
+] 
+[X.H.DynamicLog: fix xmonadPropLog double-encoding of UTF-8
+Tomas Janousek <tomi@nomi.cz>**20091121004829
+ Ignore-this: bde612bbd1a19951f9718a03e737c4ac
+ 
+ dynamicLogString utf-8 encodes its output, xmonadPropLog shouldn't do that
+ again.
+] 
+[X.H.DynamicLog: make documentation for 'dzen' and 'xmobar' slightly more clear
+Brent Yorgey <byorgey@cis.upenn.edu>**20091121170739
+ Ignore-this: c9a241677fda21ef93305fc3882f102e
+] 
+[X.H.ManageDocks: ignore struts that cover an entire screen on that screen
+Tomas Janousek <tomi@nomi.cz>**20091119145043
+ Ignore-this: ad7bbf10c49c9f3e938cdc3d8588e202
+ 
+ Imagine a screen layout like this:
+ 
+   11111111
+   11111111
+   11111111
+    222222    <--- xmobar here
+    222222
+    222222
+ 
+ When placing xmobar as indicated, the partial strut property indicates that an
+ entire height of screen 1 is covered by the strut, as well as a few lines at
+ the top of screen 2. The original code would create a screen rectangle of
+ negative height and wreak havoc. This patch causes such strut to be ignored on
+ the screen it covers entirely, resulting in the desired behaviour of a small
+ strut at the top of screen 2.
+ 
+ Please note that this semantics of _NET_WM_STRUT and _NET_WM_STRUT_PARTIAL is
+ different to what is in wm-spec. The "correct" thing to do would be to discard
+ the covered portion of screen 1 leaving two narrow areas at the sides, but
+ this new behaviour is probably more desirable in many cases, at least for
+ xmonad/xmobar users.
+ 
+ The correct solution of having separate _NET_WM_STRUT_PARTIAL for each
+ Xinerama screen was mentioned in wm-spec maillist in 2007, but has never
+ really been proposed, discussed and included in wm-spec. Hence this "hack".
+] 
+[Use imported 'fi' in PositionStoreHooks
+Adam Vogt <vogt.adam@gmail.com>**20091119103112
+ Ignore-this: 6563a3093083667c79aa491a6f59b805
+] 
+[Changed interface of X.U.ExtensibleState
+Daniel Schoepe <daniel.schoepe@gmail.com>**20091116171013
+ Ignore-this: 9a830f9341e461628974890bab0bd65b
+ 
+ Changed the interface of X.U.ExtensibleState to resemble that of
+ Control.Monad.State and modified the modules that use it accordingly.
+] 
+[PositionStoreFloat - a floating layout with support hooks
+Jan Vornberger <jan.vornberger@informatik.uni-oldenburg.de>**20091115184833
+ Ignore-this: 8b1d0fcef1465356d72cb5f1f32413b6
+] 
+[PositionStore utility to store information about position and size of a window
+Jan Vornberger <jan.vornberger@informatik.uni-oldenburg.de>**20091108195735
+ Ignore-this: 2f6e68a490deb75cba5d007b30c93fb2
+] 
+[X.H.Urgencyhook fix minor doc bug
+Anders Engstrom <ankaan@gmail.com>**20091115131121
+ Ignore-this: 18b63bccedceb66c77b345a9300f1ac3
+] 
+[X.H.DynamicLog fix minor indentation oddness
+Anders Engstrom <ankaan@gmail.com>**20091115130707
+ Ignore-this: 7f2c49eae5527874ca4499767f4167c4
+] 
+[X.A.CycleWS cycle by tag group
+Anders Engstrom <ankaan@gmail.com>**20091115130217
+ Ignore-this: 909da8c00b47a31d04f59bd3751c60bc
+ Allow grouping of workspaces, so that a user can cycle through those in the same group. Grouping is done by using a special character in the tag.
+] 
+[Use less short names in X.Prompt
+Adam Vogt <vogt.adam@gmail.com>**20091115025647
+ Ignore-this: 1d27b8efc4d829a5642717c6f6426336
+] 
+[Use io instead of liftIO in Prompt
+Adam Vogt <vogt.adam@gmail.com>**20091115025301
+ Ignore-this: cd4031b74cd5bb874cd2c3cc2cb087f2
+] 
+['io' and 'fi' are defined outside of Prompt
+Adam Vogt <vogt.adam@gmail.com>**20091115024001
+ Ignore-this: 3426056362db9cbfde7d2f4edbfe6f36
+] 
+[Use zipWithM_ instead of recursion in Prompt.printComplList
+Adam Vogt <vogt.adam@gmail.com>**20091115023451
+ Ignore-this: 2457500ed871ef120653a3d4ada13441
+] 
+[Minor style changes in DynamicWorkspaces
+Adam Vogt <vogt.adam@gmail.com>**20091115022751
+ Ignore-this: 1a6018ab134e4420a949354575a8a110
+] 
+[X.A.DynamicWorkspaces fix doc and add behaviour
+Anders Engstrom <ankaan@gmail.com>**20091113233903
+ Ignore-this: ab7c20a9c1b43ebc6a7f4700d988fb73
+ Before this patch the documentation claims that it won't do anything on non-empty workspaces when it actually does. This patch fixes the documentation to reflect the actual behaviour, but also adds the behaviour promised by the documentation in other functions. It does not break configs. In addition it also provides functions to help removing empty workspaces when leaving them.
+] 
+[rework XMonad.Util.Dzen
+daniel@wagner-home.com**20091114051509
+ Ignore-this: 16d93f91c54f7d195b1a418e6c0351c5
+] 
+[generalize IO actions to MonadIO m => m actions
+daniel@wagner-home.com**20091114023616
+ Ignore-this: 2c801a27b0ffee34a2f0daca3778613a
+ 
+ This should not cause any working configs to stop working, because IO is an instance of MonadIO, and because complete configs will pin down the type of the call to IO.  Note that XMonad.Config.Arossato is not a complete config, and so it needed some tweaks; with a main function, this should not be a problem.
+] 
+[fix documentation to match implementation
+daniel@wagner-home.com**20091114021328
+ Ignore-this: 6dbbb118b139f443c40a573445a48d07
+] 
+[Bypass more of stringToKeysym in U.Paste
+Adam Vogt <vogt.adam@gmail.com>**20091114223726
+ Ignore-this: 617c922647e9f49f5ecefa0eb1c65d3c
+] 
+[Don't erase floating information with H.InsertPosition (Issue 334)
+Adam Vogt <vogt.adam@gmail.com>**20091113161402
+ Ignore-this: de1c03eb860ea25b390ee5c756b02997
+] 
+[Rename gridselectViewWorkspace to gridselectWorkspace, add another example.
+Adam Vogt <vogt.adam@gmail.com>**20091112211435
+ Ignore-this: 462cf1c7f66ab97a1ce642977591a910
+ 
+ The name should be more general to suggest uses other than just viewing other
+ workspaces.
+] 
+[X.A.DynamicWorkspaces: fix addWorkspace and friends so they never add another copy of an existing workspace
+Brent Yorgey <byorgey@cis.upenn.edu>**20091112201351
+ Ignore-this: 5bfe8129707b038ed04383b7566b2323
+] 
+[Trim whitespace in H.FloatNext
+Adam Vogt <vogt.adam@gmail.com>**20091111022702
+ Ignore-this: 1ad52678246fa1ac951169c2356ce10b
+] 
+[Use ExtensibleState in H.FloatNext
+Adam Vogt <vogt.adam@gmail.com>**20091111022513
+ Ignore-this: 760d95a685af080466cb4164d1096423
+] 
+[Make a haddock link direct in C.Desktop.
+Adam Vogt <vogt.adam@gmail.com>**20091111013810
+ Ignore-this: da724a7974c3de60f49996c1fe92d3fb
+] 
+[Change A.TopicSpace haddocks to use block quotes.
+Adam Vogt <vogt.adam@gmail.com>**20091111013241
+ Ignore-this: 6f7f43d2715cfde62b9c05c7d9a0da2
+] 
+[Add defaultTopicConfig, to allow adding more fields to TopicSpace later.
+Adam Vogt <vogt.adam@gmail.com>**20091111012915
+ Ignore-this: 6dad95769651a9a1ef8d771f81c91f8e
+] 
+[X.A.WindowGo: fix haddock markup
+Spencer Janssen <spencerjanssen@gmail.com>**20091111003256
+ Ignore-this: c6a06de900ca8b67498abf5152e3d9ea
+] 
+[Minor style corrections in X.U.SpawnOnce
+Daniel Schoepe <daniel.schoepe@gmail.com>**20091109201543
+ Ignore-this: 1264852c23b4f84b2580bf4567529c68
+] 
+[Add gridselectViewWorkspace in X.A.GridSelect
+Daniel Schoepe <daniel.schoepe@gmail.com>**20091109155815
+ Ignore-this: 5543211e9e3fd325cb798b004635a525
+] 
+[minor-doc-fix-in-ManageHelpers
+`Henrique Abreu <hgabreu@gmail.com>'**20091104172727
+ Ignore-this: 231ad417541bc3c17a1cb2dff139d55d
+] 
+[Set buffering to LineBuffering in scripts/xmonadpropread.hs
+Daniel Schoepe <daniel.schoepe@gmail.com>**20091108204106
+ Ignore-this: 4e593fc1461fbbfb5b147c7c7702584e
+ 
+ (Required for the script to work properly with tools like dzen)
+] 
+[X.U.ExtensibleState: style
+Spencer Janssen <spencerjanssen@gmail.com>**20091108182858
+ Ignore-this: f189da75ad2c57ae9cca48eaf69a6bad
+] 
+[X.A.DynamicWorkspaces: new 'addWorkspacePrompt' method
+Brent Yorgey <byorgey@cis.upenn.edu>**20091108170503
+ Ignore-this: a3992b1b7938be80d8fd2a5a503a4042
+] 
+[Remove defaulting when using NoMonomorphismRestriction in H.EwmhDesktops
+Adam Vogt <vogt.adam@gmail.com>**20091107195255
+ Ignore-this: ca3939842639c94ca4fd1ff6624319c1
+] 
+[Update A.TopicSpace to use extensible state. No config changes required.
+Adam Vogt <vogt.adam@gmail.com>**20091107194502
+ Ignore-this: 7a82aad512bb727b3447de0faa4a210f
+] 
+[Inline tupadd function in A.GridSelect
+Adam Vogt <vogt.adam@gmail.com>**20091101190312
+ Ignore-this: 458968154303ab865c304f387d6ac83b
+] 
+[Alphabetize exposed-modules
+Spencer Janssen <spencerjanssen@gmail.com>**20091107174946
+ Ignore-this: 919684aea7747a756b303f9b34a2870b
+] 
+[Use X.U.SpawnOnce in my config
+Spencer Janssen <spencerjanssen@gmail.com>**20091107174615
+ Ignore-this: fe8f5f75136128280942771ec429f09a
+] 
+[Add XMonad.Util.SpawnOnce
+Spencer Janssen <spencerjanssen@gmail.com>**20091107173820
+ Ignore-this: 8d4657bbaa8dbeb1d0f9d22293bfef19
+] 
+[Store deserialized data after reading in X.U.ExtensibleState
+Daniel Schoepe <daniel.schoepe@gmail.com>**20091107103832
+ Ignore-this: 192beca56e9437292bd3f16451ae9e66
+] 
+[Fixed conflict between X.U.ExtensibleState and X.C.Sjanssen
+Daniel Schoepe <daniel.schoepe@gmail.com>**20091107103619
+ Ignore-this: 80f4bb218574d7c528af17473c6e4f66
+] 
+[Use X.U.ExtensibleState instead of IORefs
+Daniel Schoepe <daniel.schoepe@gmail.com>**20091106115601
+ Ignore-this: e0e80e31e51dfe76f2b2ed597892cbba
+   
+ This patch changes SpawnOn, DynamicHooks and UrgencyHooks to
+ use X.U.ExtensibleState instead of IORefs. This simplifies the
+ usage of those modules thus also breaking current configs.
+] 
+[Add X.U.ExtensibleState
+Daniel Schoepe <daniel.schoepe@gmail.com>**20091106115336
+ Ignore-this: d80d9d0c10a53fb71a375e432bd29344
+] 
+[My config uses xmonadPropLog now
+Spencer Janssen <spencerjanssen@gmail.com>**20091107005230
+ Ignore-this: 8f16b8bea86dfcd3739f1566f5897578
+] 
+[Add xmonadpropread script
+Spencer Janssen <spencerjanssen@gmail.com>**20091107004858
+ Ignore-this: 8cc7ed36ec1126d0139638148f9642e8
+] 
+[Add experimental xmonadPropLog function
+Spencer Janssen <spencerjanssen@gmail.com>**20091107004624
+ Ignore-this: f09b2c11b16a3af993b63d1b39566120
+] 
+[XMonad.Actions.Search: imdb search URL tweak for bug #33
+gwern0@gmail.com**20091103222330
+ Ignore-this: bae5e6d3ec6c4b6591016ece9dffb202
+] 
+[Clean imports for L.BoringWindows
+Adam Vogt <vogt.adam@gmail.com>**20091103140649
+ Ignore-this: 56946a652329390dbdd63746ca23ee8e
+] 
+[I maintain L.BoringWindows
+Adam Vogt <vogt.adam@gmail.com>**20091103140509
+ Ignore-this: de853972b4c1c4cefa2dc29e68828d5d
+] 
+[fix window rectangle calculation in X.A.UpdatePointer
+Tomas Janousek <tomi@nomi.cz>**20091026154918
+ Ignore-this: ad0c3a020b802854919c7827faa001ad
+] 
+[Implement hasProperty in terms of runQuery in U.WindowProperties
+Adam Vogt <vogt.adam@gmail.com>**20091031154945
+ Ignore-this: 1c351bc436e0e323dc25d8f5ff734dcb
+ 
+ This addresses issue 302 for unicode titles by actually using the complicated
+ XMonad.ManageHook.title code, instead of reimplementing it with stringProperty
+ (which doesn't appear to handle unicode).
+] 
+[Add functions to access the current input in X.Prompt
+Daniel Schoepe <daniel.schoepe@gmail.com>**20091030235033
+ Ignore-this: 3f568c1266d85dcaa5722b19bbbd61dd
+] 
+[Remove putSelection, fixes #317
+Spencer Janssen <spencerjanssen@gmail.com>**20091030224354
+ Ignore-this: 6cfd6d92e1d133bc9e3cbb7c8339f735
+] 
+[Fix typo in H.FadeInactive documentation
+Adam Vogt <vogt.adam@gmail.com>**20091029165736
+ Ignore-this: b2af487cd382416160d5540b7f210464
+] 
+[X.L.MultiCol constructor 0 NWin bugfig
+Anders Engstrom <ankaan@gmail.com>**20091029105633
+ Ignore-this: e6a24f581593424461a8675984d14d25
+ Fix bug where the constructor did not accept catch-all columns. Also some minor cleaning.
+] 
+[X.H.ManageHelpers: added currentWs that returns the current workspace
+Ismael Carnales <icarnales@gmail.com>**20091028193519
+ Ignore-this: dcd3dac6bd741d26747807691f125637
+] 
+[X.L.MultiColumns bugfix and formating
+Anders Engstrom <ankaan@gmail.com>**20091027131741
+ Ignore-this: 6978f485d18adb8bf81cf6c8e0d0332
+ Fix bug where a column list of insufficient length could be used to find the column of the window. Also fix formating to conform better with standards.
+] 
+[X.L.MultiColumns NWin shrinkning fix
+Anders Engstrom <ankaan@gmail.com>**20091027005932
+ Ignore-this: 9ba40ee14ec12c3885173817eac2b564
+ Fixed a bug where the list containing the number of windows in each column was allowed the shrink if a column was unused.
+] 
+[New Layout X.L.MultiColumns
+Anders Engstrom <ankaan@gmail.com>**20091024175155
+ Ignore-this: a2d3d2eee52c28eab7d125f6b621cada
+ New layout inspired the realization that I was switching between Mirror Tall and Mirror ThreeCol depending on how many windows there were on the workspace. This layout will make those changes automatically.
+] 
+[Changing behaviour of ppUrgent with X.H.DynamicLog
+mail@n-sch.de**20090910010411
+ Ignore-this: 3882f36d5c49e53628485c1570bf136a
+ 
+ Currently, the ppUrgent method is an addition to the ppHidden method.
+ This doesn't make any sense since it is in fact possible to get urgent
+ windows on the current and visible screens. So I've raised the ppUrgent
+ printer to be above ppCurrent/ppVisible and dropped its dependency on
+ ppHidden.
+ 
+ In addition to that this makes it a lot more easier to define a more
+ custom ppUrgent printer, since you don't have to "undo" the ppHidden
+ printer anymore. This also basicly removes the need for dzenStrip,
+ although I just changed the description.
+ 
+ -- McManiaC / Nils
+ 
+] 
+[fix X.U.Run.spawnPipe fd leak
+Tomas Janousek <tomi@nomi.cz>**20091025210246
+ Ignore-this: 24375912d505963fafc917a63d0e79a0
+] 
+[TAG 0.9
+Spencer Janssen <spencerjanssen@gmail.com>**20091026013449
+ Ignore-this: 542b6105d6deed65e12d1f91c666b0b2
+] 
+Patch bundle hash:
+147247bb55574ad2658c65a253488918f2ea767c
