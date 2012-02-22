@@ -15,7 +15,7 @@ Create some directory where to store multiple dotfiles repositories.
    
 Clone this repository into that directory.
    
-    git clone https://github.com/thomasf/dotfiles-thomasf-xmonad ~/repos/dotfiles/base
+    git clone https://github.com/thomasf/dotfiles-thomasf-xmonad ~/repos/dotfiles/xmonad
    
 And symlink it's contents into your home directory.
 
