@@ -211,6 +211,7 @@ myManageHook =  composeOne
      , className           =? "Xfce4-panel"       -?> doIgnore
      , className           =? "Xfce4-notifyd"     -?> doIgnore
      , className           =? "Xfdesktop"         -?> doIgnore
+     , className           =? "Orage"             -?> doIgnore
      , className           =? "Xfce4-appfinder"   -?> doCenterFloat
      , className           =? "Pinentry"          -?> doCenterFloat
      , transience
