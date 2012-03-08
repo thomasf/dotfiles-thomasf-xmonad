@@ -209,12 +209,11 @@ myManageHook =  composeOne
      , resource            =? "desktop_window"    -?> doIgnore
      , resource            =? "kdesktop"          -?> doIgnore
      , className           =? "Unity-2d-panel"    -?> doIgnore
-     , className           =? "Unity-2d-launcher" -?> doIgnore
-     , className           =? "Unity-2d-panel"    -?> doIgnore
-     , className           =? "Xfce4-panel"       -?> doIgnore
+     , className           =? "Unity-2d-launcher" -?> doFloat
      , className           =? "Xfce4-notifyd"     -?> doIgnore
      , className           =? "Xfdesktop"         -?> doIgnore
-     , className           =? "Orage"             -?> doIgnore
+     , className           =? "Orage"             -?> doFloat
+     , className    =? "Xfce4-settings-manager"   -?> doCenterFloat
      , className           =? "Xfce4-appfinder"   -?> doCenterFloat
      , className           =? "Pinentry"          -?> doCenterFloat
      , transience
@@ -226,9 +225,8 @@ myManageHook =  composeOne
      , className           =? "Nicotine.py" 	  -?> doF (W.shift "fileshare")
      , className           =? "Transmission-gtk"  -?> doF (W.shift "fileshare")
 
-     , resource            =? "xmessage" 	  -?> doFloat
-     -- TODO: Not an optimal mode for feh
-     , className           =? "feh"               -?> doCenterFloat
+     , resource            =? "xmessage" 	  -?> doCenterFloat
+     , className           =? "feh"               -?> doFloat
      , className           =? "MPlayer"           -?> doFloat
     ] <+> namedScratchpadManageHook (myScratchPads)
       where
