@@ -61,11 +61,14 @@ import XMonad.Actions.PerWorkspaceKeys
 import XMonad.Actions.Navigation2D
 import XMonad.Actions.Commands
 import XMonad.Actions.GroupNavigation
+import XMonad.Actions.WindowBringer (gotoMenuArgs)
+
 import XMonad.Hooks.ManageHelpers
-import XMonad.Hooks.ManageDocks (avoidStruts)
+import XMonad.Hooks.ManageDocks (avoidStruts, manageDocks, docksEventHook)
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.ServerMode
+import XMonad.Hooks.EwmhDesktops (ewmh, fullscreenEventHook)
 import XMonad.Util.Run
 import XMonad.Util.Scratchpad (scratchpadFilterOutWorkspace)
 import XMonad.Util.NamedScratchpad
@@ -244,7 +247,7 @@ myManageHook =  composeOne
 -- It will add EWMH event handling to your custom event hooks by
 -- combining them with ewmhDesktopsEventHook.
 --
-myEventHook = serverModeEventHook
+myEventHook = serverModeEventHook <+> fullscreenEventHook
 
 ------------------------------------------------------------------------
 -- Status bars and logging
@@ -373,6 +376,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
 
     , subtitle "Go to workspace"
     , ((modm,                                           xK_n),      addName "Goto workspace prompt"                                 $ promptedGoto)
+    , ((modm,                                           xK_o),      addName "Goto open window by name"                              $ gotoMenuArgs ["-l 20"] )
+      
     , ((modm.|. controlMask.|. shiftMask,               xK_Right),  addName "Next non empty workspace"                              $ (nextNonEmptyWorkspace) >> movePointer)
     , ((modm.|. controlMask.|. shiftMask,               xK_Left),   addName "Previous non empty workspace"                          $ (prevNonEmptyWorkspace) >> movePointer)
     , ((modm.|. controlMask.|. shiftMask,               xK_Up),     addName "Go to next empty workspace"                            $ (nextEmptyWorkspace) >> movePointer)
@@ -400,6 +405,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
     , ((modm.|. altMask,                              xK_t),      addName "terminal scratch pad"                                  $ terminalPad )
     , ((modm.|. altMask,                              xK_2),      addName "do current topic action"                               $ currentTopicAction myTopicConfig)
     , ((modm.|. altMask,                              xK_9),      addName "xmonad prompt"                                         $ xmonadPrompt myXPConfig)
+    , ((modm.|. altMask,                              xK_8),      addName "xmonad dmenu prompt"                                   $ defaultCommands >>= runCommand )
+    , ((modm.|. altMask,                              xK_6),      addName "wincmds"                                         $ workspaceCommands >>= runCommand )
 
 
     ]
@@ -736,7 +743,7 @@ config2 = do
 	xmonadBar <- spawnPipe xmonadBarCmd
 	spawn statusBarCmd
 	spawn trayerBarCmd
-	return $ withUrgencyHookC myUrgencyHook myUrgencyConfig  $ aDefaultConfig {
+	return $ withUrgencyHookC myUrgencyHook myUrgencyConfig  $ ewmh aDefaultConfig {
 		logHook = myDzenLogHook xmonadBar
 		, manageHook = manageHook gnomeConfig <+> myManageHook
                 , startupHook = configStartupHook
