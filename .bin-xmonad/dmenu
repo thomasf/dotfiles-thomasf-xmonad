@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# Dmenu wrapper, changed colors
+#
+# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
+# Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
+#
+
+
+
+exec /usr/bin/dmenu -nb '#303030' -nf '#FFFFFF' -sb '#3465A4' -sf '#FFFFFF' -i $*

@@ -9,16 +9,16 @@
 set -e
 
 tr=urxvt
-normbgcolor="#303030"
-normfgcolor="#FFFFFF"
-selbgcolor="#3465A4"
-selfgcolor="#FFFFFF"
-
-cmd=$(dmenu_path | dmenu -i -nb $normbgcolor -nf $normfgcolor -sb $selbgcolor -sf $selfgcolor)
+cmd=$(dmenu_path | dmenu -i)
 
 case $cmd in
-    alsamixer|htop|irssi|weechat-curses)     exec $tr -name $cmd -e $cmd ;;
-    wireshark|synaptic) exec gksudo $cmd ;;
-    apt-update-upgrade) exec gksudo tr -e $cmd ;;
-    *)                  exec $cmd
+    alsamixer|htop|irssi|weechat-curses)
+        exec $tr -name $cmd -e $cmd
+        ;;
+    wireshark|synaptic)
+        exec gksudo $cmd
+        ;;
+    *)
+        exec $cmd
+        ;;
 esac
