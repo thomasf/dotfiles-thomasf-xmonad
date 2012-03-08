@@ -61,8 +61,7 @@ import XMonad.Actions.PerWorkspaceKeys
 import XMonad.Actions.Navigation2D
 import XMonad.Actions.Commands
 import XMonad.Actions.GroupNavigation
-import XMonad.Actions.WindowBringer (gotoMenuArgs)
-
+import XMonad.Actions.WindowBringer (gotoMenuArgs, bringMenuArgs)
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.ManageDocks (avoidStruts, manageDocks, docksEventHook)
 import XMonad.Hooks.DynamicLog
@@ -376,7 +375,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
 
     , subtitle "Go to workspace"
     , ((modm,                                           xK_n),      addName "Goto workspace prompt"                                 $ promptedGoto)
-    , ((modm,                                           xK_o),      addName "Goto open window by name"                              $ gotoMenuArgs ["-l 20"] )
+    , ((modm,                                           xK_o),      addName "Goto open window in workspace by name"                 $ gotoMenuArgs ["-l 23"] )
       
     , ((modm.|. controlMask.|. shiftMask,               xK_Right),  addName "Next non empty workspace"                              $ (nextNonEmptyWorkspace) >> movePointer)
     , ((modm.|. controlMask.|. shiftMask,               xK_Left),   addName "Previous non empty workspace"                          $ (prevNonEmptyWorkspace) >> movePointer)
@@ -385,6 +384,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
 
     , subtitle "Move window to workspace"
     , ((modm.|. controlMask.|. shiftMask,               xK_n),      addName "Move the currently focused window to workspace prompt" $ promptedShift)
+    , ((modm.|. controlMask.|. shiftMask,               xK_o),      addName "Bring window by search into current workspace"         $ bringMenuArgs ["-l 23"])
 
     , subtitle "Layout control"
     , ((modm,                                           xK_space),  addName "Switch to the next window layout"                      $ sendMessage NextLayout)
@@ -685,44 +685,59 @@ autoConfig=do
 	return =<< chooseConfigByHost host
 		where
 	chooseConfigByHost c
-		| c == "transwhale" = config2
-                | c == "a00001" = config2
-		| c == "dennisg"    = config1
-                | c == "wonky" 	    = config3
-                | c == "kranky"     = config2
-		| otherwise         = config1
+		| c == "transwhale" = configFull
+                | c == "a00001"     = configFull
+                | c == "flux"       = configSimple
+		| c == "dennisg"    = configSimple
+                | c == "wonky" 	    = configMinimal
+                | c == "kranky"     = configMinimal
+		| otherwise         = configSimple
 
 
 
 -----------------------------------------------------------------------------
 --
---  Config1 is just the default configuration with a simple xmobar setup
+--  ConfigSimple is a default configuration with a simple xmobar setup
 --
---  should run and be compatible with most situations
+--  Should run and be compatible with most situations and quick set ups
 --
 --
 
-config1 = do
+configSimple = do
 	myStatusProc <- spawnPipe myStatusBar
-	return $ aDefaultConfig {
+	return $ ewmh aDefaultConfig {
 		logHook     = myXmobarLogHook myStatusProc
 	}
 	where
 		myStatusBar="xmobar ~/.xmonad/etc/xmobar-simple"
 
+
 -----------------------------------------------------------------------------
 --
---  Config2 is a high end desktop computer
+--  ConfigMinimal is for low end computers.
 --
---    * Display: inteded for Dual wide screen
---    * CPU: Quad core
---    * RAM: 6gb+
+--  A minimal system requirements are something like:
+--  
+--    * Display: ~800x600 (min. 1024x768 recommended)
+--    * CPU: ~Pentium III 600hz
+--    * RAM: 256Mb (min. 512mb recommended)
 --
+configMinimal = do
+	myStatusProc <- spawnPipe myStatusBar
+	return  $ ewmh aDefaultConfig {
+		logHook     = myXmobarLogHook myStatusProc
+	}
+	where
+		myStatusBar="xmobar ~/.xmonad/etc/xmobar-minimal"
 
-
+-----------------------------------------------------------------------------
+--
+--  ConfigFull is an more involved setup with more tray bars and such
+--
+--
 myUrgencyConfig = urgencyConfig { suppressWhen = XMonad.Hooks.UrgencyHook.Never }
 myUrgencyHook = LibNotifyUrgencyHook
-config2 = do
+configFull = do
         -- TODO:
         --(screenW,scrrenH) <- getScreenDim
         let
@@ -736,7 +751,7 @@ config2 = do
           statusO=screenW-statusW-trayerW
           xmonadBarCmd="dzen2 -xs 1 -ta l -w " ++ show xmonadW
           trayerBarCmd="trayer --transparent true --tint 0x000000 --alpha 0 --edge top --align left --widthtype pixel --width " ++ show trayerW ++ " --margin " ++ show trayerO ++ " --heighttype pixel --height 18"
-          statusBarCmd="conky -c ~/.xmonad/etc/conkyrc-mainbar-config2 | dzen2 -xs 1 -ta r -x " ++ show statusO ++ " -w " ++ show statusW
+          statusBarCmd="conky -c ~/.xmonad/etc/conkyrc-mainbar-config-full | dzen2 -xs 1 -ta r -x " ++ show statusO ++ " -w " ++ show statusW
 	  configStartupHook=myStartupHook
 
 
@@ -750,20 +765,3 @@ config2 = do
                 }
 
 
------------------------------------------------------------------------------
---
---  Config3 is for low entry computers.
---
---    * Display: (??) min. 1024x768
---    * CPU: min. PIII 600Mhz
---    * RAM: min. 256Mb
---
-config3 = do
-	myStatusProc <- spawnPipe myStatusBar
-	return $ withNavigation2DConfig defaultNavigation2DConfig {
-          layoutNavigation = [("3Col", centerNavigation)]
-          } aDefaultConfig {
-		logHook     = myXmobarLogHook myStatusProc
-	}
-	where
-		myStatusBar="xmobar ~/.xmonad/etc/xmobar-config3"
