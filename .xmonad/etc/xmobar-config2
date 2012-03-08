@@ -1,6 +1,6 @@
 -- config
 Config { font = "-misc-fixed-*-*-*-*-10-*-*-*-*-*-*-*"
-       , bgColor = "#222"
+       , bgColor = "#111"
        , fgColor = "#eee"
        , position = TopW L 100
        , commands = [

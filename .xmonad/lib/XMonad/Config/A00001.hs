@@ -119,8 +119,8 @@ myModMask = mod4Mask
 
 -- Border colors for unfocused and focused windows, respectively.
 --
-myNormalBorderColor  = "#000000"
-myFocusedBorderColor = "#201818"
+myNormalBorderColor  = "#000"
+myFocusedBorderColor = "#202020"
 
 -- The default number of workspaces (virtual screens) and their names.
 -- By default we use numeric strings, but any string may be used as a
@@ -274,13 +274,13 @@ myDzenLogHook h = dynamicLogWithPP $ myPP h
 
 
 myPP h = defaultPP {
-        ppCurrent           =   dzenColor "#fff" "black" . padWs
-      , ppVisible           =   dzenColor "#8F8F67" "black" . padWs
+        ppCurrent           =   dzenColor "#eee" "#111" . padWs
+      , ppVisible           =   dzenColor "#8F8F67" "#111" . padWs
       , ppHidden            =   const ""
-      , ppUrgent            =   dzenColor "red" "black" . padWs
+      , ppUrgent            =   dzenColor "red" "#111" . padWs
       , ppWsSep             =   " "
       , ppSep               =   " | "
-      , ppTitle             =   (" " ++) . dzenColor "#AFAF87" "black" . dzenEscape
+      , ppTitle             =   (" " ++) . dzenColor "#AFAF87" "#111" . dzenEscape
       , ppLayout = dzenColor "#777777" "" .
           (\x -> case x of
           "Full" -> "^fg(#777777)^i(/home/petar/.dzen/full.xbm)"
@@ -439,7 +439,7 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 
 myXPConfig = defaultXPConfig {  position = Top
                              , fgColor = "#ffffff"
-                             , bgColor = "#303030"
+                             , bgColor = "#202020"
                              , fgHLight = "#ffffff"
                              , bgHLight = "#3465a4"
                              , promptBorderWidth = 0
@@ -757,18 +757,16 @@ myUrgencyHook = LibNotifyUrgencyHook
 configFull = do
         (sx, sy, sw, sh) <- getScreenDim 0
         let        
-          --screenW=1680
           screenW = sw
-          xmonadW=screenW*0.4
-          trayerW=80
-          trayerO=screenW-trayerW
-          statusW=screenW*0.6-trayerW
-          statusO=screenW-statusW-trayerW
+          xmonadW = screenW * 0.4
+          trayerW = 80
+          trayerO = screenW - trayerW
+          statusW = screenW * 0.6 - trayerW
+          statusO = screenW - statusW - trayerW
           xmonadBarCmd="dzen2 -xs 1 -ta l -w " ++ show xmonadW
-          trayerBarCmd="trayer --transparent true --tint 0x000000 --alpha 0 --edge top --align left --widthtype pixel --width " ++ show trayerW ++ " --margin " ++ show trayerO ++ " --heighttype pixel --height 18"
+          trayerBarCmd="trayer --transparent true --tint 0x111111 --alpha 0 --edge top --align left --widthtype pixel --width " ++ show trayerW ++ " --margin " ++ show trayerO ++ " --heighttype pixel --height 18"
           statusBarCmd="conky -c ~/.xmonad/etc/conkyrc-mainbar-config-full | dzen2 -xs 1 -ta r -x " ++ show statusO ++ " -w " ++ show statusW
 	  configStartupHook=myStartupHook
-
 
 	xmonadBar <- spawnPipe xmonadBarCmd
 	spawn statusBarCmd
