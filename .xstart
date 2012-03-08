@@ -6,7 +6,6 @@
 #   TODO: This file really need some cleaning up!
 #
 
-
 # https://wiki.archlinux.org/index.php/ConsoleKit
 
 [ -f "${HOME}/.bashrc" ] && . "${HOME}/.bashrc"
@@ -66,6 +65,14 @@ fi
 [ $(which nm-applet) ] && pidof nm-applet >/dev/null || nm-applet --sm-disable &
 
 # [ $(which uiLooks) ] && uiLooks
+
+
+BGCOL="#"
+for C in $(echo "10 20 30" | sed 's/ /\n/g' | sort -R); do 
+    BGCOL="$BGCOL$C"; 
+done
+xsetroot -solid $BGCOL
+
 xsetroot -cursor_name left_ptr
 
 if [ $(which google-chrome) ]; then
