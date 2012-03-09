@@ -1,0 +1,18 @@
+#!/bin/sh
+#
+# Prompt for ssh hosts and connect
+#
+# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
+# Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
+#
+# based on http://blog.tenak.net/2010/07/2010-07-ssh_dmenu.html
+#
+# Since ssh_config keywords are case insensitive I use lower cased host 
+# keyword on hosts I don't want to show up in my dmenu.
+#
+
+set -e 
+
+h=`cat ~/.ssh/config | grep ^Host | awk '{ print $2 }' | dmenu -p SSH`
+
+exec urxvt -e ssh ${h}
