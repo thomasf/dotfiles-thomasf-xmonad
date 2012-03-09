@@ -157,16 +157,16 @@ myLayoutHook =
          onWorkspace "nodes" fullTabL $
          onWorkspace "reading" fullTabL $
          onWorkspace "music" (fullTabL ||| tiledL ) $
-	 --tiledMirrorL ||| tiledL ||| spiralL ||| magnifiedL ||| four ||| accordionL  ||| decorated ||| fullTabL ||| fullL
-	  tiledMirrorL ||| tiledL ||| spiralL ||| fullTabL ||| fullL ||| threeCol
+         --tiledMirrorL ||| tiledL ||| spiralL ||| magnifiedL ||| four ||| accordionL  ||| decorated ||| fullTabL ||| fullL
+          tiledMirrorL ||| tiledL ||| spiralL ||| fullTabL ||| fullL ||| threeCol
 
              where
             -- normal layouts
-	    tiledL=named "tile" ( avoidStruts $  deco kavonBluesTheme $ layoutHintsToCenter tiled )
-	    tiledMirrorL=named "tile mirror" ( avoidStruts $ deco kavonBluesTheme $ layoutHintsToCenter (Mirror tiled))
-	    fullTabL=named "fulltab"  ( avoidStruts $ noBorders $ tabbed shrinkText (theme kavonForestTheme))
-	    fullL=named "full" ( noBorders $ Full)
-	    spiralL=named "spiral" ( noBorders $ deco kavonFireTheme $ avoidStruts $ spiral (6/7))
+            tiledL=named "tile" ( avoidStruts $  deco kavonBluesTheme $ layoutHintsToCenter tiled )
+            tiledMirrorL=named "tile mirror" ( avoidStruts $ deco kavonBluesTheme $ layoutHintsToCenter (Mirror tiled))
+            fullTabL=named "fulltab"  ( avoidStruts $ noBorders $ tabbed shrinkText (theme kavonForestTheme))
+            fullL=named "full" ( noBorders $ Full)
+            spiralL=named "spiral" ( noBorders $ deco kavonFireTheme $ avoidStruts $ spiral (6/7))
             threeCol=named "3Col" ( noBorders $ avoidStruts $ ThreeColMid 1 (3/100) (1/2))
 
             --workspace specific layouts
@@ -180,7 +180,7 @@ myLayoutHook =
 
             xmonadL = named ";>" (  avoidStruts $ noBorders $ layoutHintsToCenter (Mirror $ Tall 1 (3/100) (4/5)) )
 
-	    --support functions
+            --support functions
             deco t   = decoration shrinkText (theme t) Dwm
             tiled   = noBorders $ Tall nmaster delta ratio
             nmaster = 1
@@ -222,10 +222,10 @@ myManageHook =  composeOne
      , resource            =? "xchat"             -?> doF (W.shift "chat")
      , className           =? "Pidgin"            -?> doF (W.shift "chat")
 
-     , className           =? "Nicotine.py" 	  -?> doF (W.shift "fileshare")
+     , className           =? "Nicotine.py"       -?> doF (W.shift "fileshare")
      , className           =? "Transmission-gtk"  -?> doF (W.shift "fileshare")
 
-     , resource            =? "xmessage" 	  -?> doCenterFloat
+     , resource            =? "xmessage"          -?> doCenterFloat
      , className           =? "feh"               -?> doFloat
      , className           =? "MPlayer"           -?> doFloat
     ] <+> namedScratchpadManageHook (myScratchPads)
@@ -261,12 +261,12 @@ myEventHook = serverModeEventHook <+> fullscreenEventHook
 --
 
 myXmobarLogHook h = dynamicLogWithPP defaultPP
-	              { ppCurrent = xmobarColor "orange" "" . wrap "[" "]"
-	              , ppTitle   = xmobarColor "magenta"  "" . shorten 40
-	              , ppVisible = wrap "(" ")"
-	              , ppOutput  = hPutStrLn h
-		      , ppSort = fmap (.scratchpadFilterOutWorkspace) $ ppSort defaultPP
-	           }
+                      { ppCurrent = xmobarColor "orange" "" . wrap "[" "]"
+                      , ppTitle   = xmobarColor "magenta"  "" . shorten 40
+                      , ppVisible = wrap "(" ")"
+                      , ppOutput  = hPutStrLn h
+                      , ppSort = fmap (.scratchpadFilterOutWorkspace) $ ppSort defaultPP
+                   }
 
 myDzenLogHook h = dynamicLogWithPP $ myPP h
 
@@ -337,11 +337,11 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
     , ((modm.|. shiftMask,                              xK_Return), addName "launch terminal"                                       $ spawnShell)
     , ((modm.|. controlMask .|. shiftMask,              xK_Return), addName "launch large terminal"                                 $ spawn "urxvt -name large_term" )
     , ((modm.|. controlMask .|. shiftMask .|. altMask , xK_Return), addName "launch white terminal"                                 $ spawn "urxvt -name white_term" )
-    , ((modm.|. shiftMask,                              xK_p),      addName "open dmenu" 					    $ spawn "app-launch" )
-    , ((modm.|. controlMask .|. shiftMask,              xK_p),      addName "run dialog" 					    $ spawn "gmrun")
+    , ((modm.|. shiftMask,                              xK_p),      addName "open dmenu"                                            $ spawn "app-launch" )
+    , ((modm.|. controlMask .|. shiftMask,              xK_p),      addName "run dialog"                                            $ spawn "gmrun")
 
     , subtitle "misc"
-    , ((modm.|. shiftMask,                              xK_c),      addName "kill active window" 				    $ bindOn killWindows)
+    , ((modm.|. shiftMask,                              xK_c),      addName "kill active window"                                    $ bindOn killWindows)
     , ((modm.|. shiftMask.|. controlMask,               xK_c),      addName "xkill"                                                 $ spawn "xkill")
 
     , subtitle "Cyclic window focus"
@@ -375,7 +375,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
     , subtitle "Go to workspace"
     , ((modm,                                           xK_n),      addName "Goto workspace prompt"                                 $ promptedGoto)
     , ((modm,                                           xK_o),      addName "Goto open window in workspace by name"                 $ gotoMenuArgs ["-l 23"] )
-      
+
     , ((modm.|. controlMask.|. shiftMask,               xK_Right),  addName "Next non empty workspace"                              $ (nextNonEmptyWorkspace) >> movePointer)
     , ((modm.|. controlMask.|. shiftMask,               xK_Left),   addName "Previous non empty workspace"                          $ (prevNonEmptyWorkspace) >> movePointer)
     , ((modm.|. controlMask.|. shiftMask,               xK_Up),     addName "Go to next empty workspace"                            $ (nextEmptyWorkspace) >> movePointer)
@@ -412,7 +412,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
 
 emptyKeys = \c -> mkKeymap c $
      [
-	--("M-S-<Return>", spawn $ terminal c)
+        --("M-S-<Return>", spawn $ terminal c)
      ]
 
 ------------------------------------------------------------------------
@@ -422,14 +422,14 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- mod-button1, Set the window to floating mode and move by dragging
     [ ((modm, button1), (\w -> focus w >> mouseMoveWindow w
-	                               >> windows W.shiftMaster))
+                                       >> windows W.shiftMaster))
 
     -- mod-button2, Raise the window to the top of the stack
     , ((modm, button2), (\w -> focus w >> windows W.shiftMaster))
 
     -- mod-button3, Set the window to floating mode and resize by dragging
     , ((modm, button3), (\w -> focus w >> mouseResizeWindow w
-	                               >> windows W.shiftMaster))
+                                       >> windows W.shiftMaster))
 
     -- you may also bind events to the mouse scroll wheel (button4 and button5)
     ]
@@ -609,7 +609,7 @@ myXMessage x = addName "Show Keybindings" $ io $ do
 
 -----------------------------------------------------------------------
 -- Support functionality
- 
+
 --getScreenDim :: Rectangle
 
 -- | Return the dimensions (x, y, width, height) of screen n.
@@ -667,24 +667,24 @@ instance UrgencyHook LibNotifyUrgencyHook where
 -- Default configuration
 
 aDefaultConfig =
-	addDescrKeys' ((mod4Mask, xK_F1), myXMessage) myKeys $ defaultConfig  {
-		terminal           = myTerminal,
-		focusFollowsMouse  = myFocusFollowsMouse,
-		borderWidth        = myBorderWidth,
-		modMask            = myModMask,
-		workspaces         = myTopics,
-		normalBorderColor  = myNormalBorderColor,
-		focusedBorderColor = myFocusedBorderColor,
+        addDescrKeys' ((mod4Mask, xK_F1), myXMessage) myKeys $ defaultConfig  {
+                terminal           = myTerminal,
+                focusFollowsMouse  = myFocusFollowsMouse,
+                borderWidth        = myBorderWidth,
+                modMask            = myModMask,
+                workspaces         = myTopics,
+                normalBorderColor  = myNormalBorderColor,
+                focusedBorderColor = myFocusedBorderColor,
 
-	      -- key bindings
-		keys               = emptyKeys,
-		mouseBindings      = myMouseBindings,
+              -- key bindings
+                keys               = emptyKeys,
+                mouseBindings      = myMouseBindings,
 
-	      -- hooks, layouts
-		layoutHook         = myLayoutHook,
-		manageHook         = myManageHook,
-		handleEventHook    = myEventHook,
-		startupHook        = myStartupHook
+              -- hooks, layouts
+                layoutHook         = myLayoutHook,
+                manageHook         = myManageHook,
+                handleEventHook    = myEventHook,
+                startupHook        = myStartupHook
                 }
 
 
@@ -695,18 +695,18 @@ aDefaultConfig =
 
 
 autoConfig=do
-	checkTopicConfig myTopics myTopicConfig
-	host <- fmap nodeName getSystemID
-	return =<< chooseConfigByHost host
-		where
-	chooseConfigByHost c
-		| c == "transwhale" = configFull
-                | c == "a00001"     = configFull
-                | c == "flux"       = configFull
-		| c == "dennisg"    = configSimple
-                | c == "wonky" 	    = configMinimal
-                | c == "kranky"     = configMinimal
-		| otherwise         = configSimple
+  checkTopicConfig myTopics myTopicConfig
+  host <- fmap nodeName getSystemID
+  return =<< chooseConfigByHost host
+    where
+      chooseConfigByHost c
+        | c == "transwhale" = configFull
+        | c == "a00001"     = configFull
+        | c == "flux"       = configFull
+        | c == "dennisg"    = configSimple
+        | c == "wonky"      = configMinimal
+        | c == "kranky"     = configFull
+        | otherwise         = configSimple
 
 
 
@@ -719,12 +719,12 @@ autoConfig=do
 --
 
 configSimple = do
-	myStatusProc <- spawnPipe myStatusBar
-	return $ ewmh aDefaultConfig {
-		logHook     = myXmobarLogHook myStatusProc
-	}
-	where
-		myStatusBar="xmobar ~/.xmonad/etc/xmobar-simple"
+        myStatusProc <- spawnPipe myStatusBar
+        return $ ewmh aDefaultConfig {
+                logHook     = myXmobarLogHook myStatusProc
+        }
+        where
+                myStatusBar="xmobar ~/.xmonad/etc/xmobar-simple"
 
 
 -----------------------------------------------------------------------------
@@ -732,18 +732,18 @@ configSimple = do
 --  ConfigMinimal is for low end computers.
 --
 --  A minimal system requirements are something like:
---  
+--
 --    * Display: ~800x600 (min. 1024x768 recommended)
 --    * CPU: ~Pentium III 600hz
 --    * RAM: 256Mb (min. 512mb recommended)
 --
 configMinimal = do
-	myStatusProc <- spawnPipe myStatusBar
-	return  $ ewmh aDefaultConfig {
-		logHook     = myXmobarLogHook myStatusProc
-	}
-	where
-		myStatusBar="xmobar ~/.xmonad/etc/xmobar-minimal"
+        myStatusProc <- spawnPipe myStatusBar
+        return  $ ewmh aDefaultConfig {
+                logHook     = myXmobarLogHook myStatusProc
+        }
+        where
+                myStatusBar="xmobar ~/.xmonad/etc/xmobar-minimal"
 
 -----------------------------------------------------------------------------
 --
@@ -754,7 +754,7 @@ myUrgencyConfig = urgencyConfig { suppressWhen = XMonad.Hooks.UrgencyHook.Never 
 myUrgencyHook = LibNotifyUrgencyHook
 configFull = do
         (sx, sy, sw, sh) <- getScreenDim 0
-        let        
+        let
           screenW = sw
           xmonadW = screenW * 0.4
           trayerW = 80
@@ -764,14 +764,14 @@ configFull = do
           xmonadBarCmd="dzen2 -xs 1 -ta l -w " ++ show xmonadW
           trayerBarCmd="trayer --transparent true --tint 0x111111 --alpha 0 --edge top --align left --widthtype pixel --width " ++ show trayerW ++ " --margin " ++ show trayerO ++ " --heighttype pixel --height 18"
           statusBarCmd="conky -c ~/.xmonad/etc/conkyrc-mainbar-config-full | dzen2 -xs 1 -ta r -x " ++ show statusO ++ " -w " ++ show statusW
-	  configStartupHook=myStartupHook
+          configStartupHook=myStartupHook
 
-	xmonadBar <- spawnPipe xmonadBarCmd
-	spawn statusBarCmd
-	spawn trayerBarCmd
-	return $ withUrgencyHookC myUrgencyHook myUrgencyConfig  $ ewmh aDefaultConfig {
-		logHook = myDzenLogHook xmonadBar
-		, manageHook = manageHook gnomeConfig <+> myManageHook
+        xmonadBar <- spawnPipe xmonadBarCmd
+        spawn statusBarCmd
+        spawn trayerBarCmd
+        return $ withUrgencyHookC myUrgencyHook myUrgencyConfig  $ ewmh aDefaultConfig {
+                logHook = myDzenLogHook xmonadBar
+                , manageHook = manageHook gnomeConfig <+> myManageHook
                 , startupHook = configStartupHook
                 }
 
