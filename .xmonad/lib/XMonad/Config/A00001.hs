@@ -337,7 +337,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
     , ((modm.|. shiftMask,                              xK_Return), addName "launch terminal"                                       $ spawnShell)
     , ((modm.|. controlMask .|. shiftMask,              xK_Return), addName "launch large terminal"                                 $ spawn "urxvt -name large_term" )
     , ((modm.|. controlMask .|. shiftMask .|. altMask , xK_Return), addName "launch white terminal"                                 $ spawn "urxvt -name white_term" )
-    , ((modm.|. shiftMask,                              xK_p),      addName "open dmenu" 					    $ spawn "app-launch" )
+    , ((modm.|. shiftMask,                              xK_p),      addName "open dmenu"                                            $ spawn "appmenu" )
     , ((modm.|. controlMask .|. shiftMask,              xK_p),      addName "run dialog" 					    $ spawn "gmrun")
 
     , subtitle "misc"
