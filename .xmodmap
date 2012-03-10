@@ -1,0 +1,22 @@
+!
+! Let's do this:
+!  - Use Caps lock as Control
+!  - Use Left Control as Mod4 (the key usually known as the windows key)
+!
+! My reasons:
+!  - The caps lock function is not needed, it's legacy functionality.
+!  - The caps lock key's position is a better location for control.
+!  - I've started to use an IBM model M keyboard
+!    again which does not have a windows/super key.
+
+! The method below may seem a bit strange, reference:
+! https://www.libreoffice.org/bugzilla/show_bug.cgi?id=35317#c14
+
+! left control -> mod4
+remove control = Control_L
+add mod4 = Control_L
+
+! caps lock -> control
+remove lock = Caps_Lock
+keysym Caps_Lock = ISO_Level5_Shift
+add control = ISO_Level5_Shift
