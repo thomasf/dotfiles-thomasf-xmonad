@@ -41,72 +41,67 @@ module XMonad.Config.A00001
       autoConfig
     ) where
 
-import XMonad hiding ( (|||) )
-import Graphics.X11.Xinerama
-import Data.Monoid
-import qualified XMonad.StackSet as W
-import qualified Data.Map as M
-import Data.Ratio ((%))
-import Data.List
-import System.IO
+import           Control.Monad
+import           Control.Monad.Reader
+import           Data.List
+import qualified Data.Map                        as M
+import           Data.Monoid
+import           Data.Ratio                      ((%))
+import           Foreign.C.Types                 (CInt)
+import           Graphics.X11.Xinerama
+import           System.IO
 import qualified System.IO.UTF8
-import System.Posix.Unistd (getSystemID, nodeName)
-import Control.Monad.Reader
-import Control.Monad
-import Foreign.C.Types (CInt)
-import XMonad.Config.Gnome
-import XMonad.Actions.UpdatePointer
-import XMonad.Actions.TopicSpace
-import XMonad.Actions.CycleWS
-import XMonad.Actions.PerWorkspaceKeys
-import XMonad.Actions.Navigation2D
-import XMonad.Actions.Commands
-import XMonad.Actions.GroupNavigation
-import XMonad.Actions.WindowBringer (gotoMenuArgs, bringMenuArgs)
-import XMonad.Hooks.ManageHelpers
-import XMonad.Hooks.ManageDocks (avoidStruts, manageDocks, docksEventHook)
-import XMonad.Hooks.DynamicLog
-import XMonad.Hooks.UrgencyHook
-import XMonad.Hooks.ServerMode
-import XMonad.Hooks.EwmhDesktops (ewmh, fullscreenEventHook)
-import XMonad.Util.Run
-import XMonad.Util.Scratchpad (scratchpadFilterOutWorkspace)
-import XMonad.Util.NamedScratchpad
-import XMonad.Util.Themes
-import XMonad.Util.EZConfig
-import XMonad.Util.WorkspaceCompare
-import XMonad.Util.WindowProperties
-import XMonad.Util.NamedWindows (getName)
-import XMonad.Util.NamedActions
-import XMonad.Prompt
-import XMonad.Prompt.Workspace
-import XMonad.Prompt.XMonad
-import XMonad.Layout.Magnifier
-import XMonad.Layout.SimpleFloat
-import XMonad.Layout.Accordion
-import XMonad.Layout.Tabbed
-import XMonad.Layout.Spiral
-import XMonad.Layout.Decoration
-import XMonad.Layout.DwmStyle
-import XMonad.Layout.IM2
---import XMonad.Layout.ResizableTile
-import XMonad.Layout.DragPane
-import XMonad.Layout.Grid
---import XMonad.Layout.IM
---import XMonad.Layout.Combo
-import XMonad.Layout.ThreeColumns
-import XMonad.Layout.LayoutHints
-import XMonad.Layout.WindowArranger
-import XMonad.Layout.LayoutCombinators
-import XMonad.Layout.BorderResize
-import XMonad.Layout.NoBorders (noBorders)
-import XMonad.Layout.Gaps
-import XMonad.Layout.Reflect
-import XMonad.Layout.PerWorkspace (onWorkspace)
-import XMonad.Layout.Named
-import XMonad.Layout.LimitWindows
---import XMonad.Config.A00001.MyKeys
---import XMonad.Config.A00001.Util
+import           System.Posix.Unistd             (getSystemID, nodeName)
+import           XMonad                          hiding ( (|||) )
+import           XMonad.Actions.Commands
+import           XMonad.Actions.CycleWS
+import           XMonad.Actions.GroupNavigation
+import           XMonad.Actions.Navigation2D
+import           XMonad.Actions.PerWorkspaceKeys
+import           XMonad.Actions.TopicSpace
+import           XMonad.Actions.UpdatePointer
+import           XMonad.Actions.WindowBringer    (gotoMenuArgs, bringMenuArgs)
+import           XMonad.Config.Gnome
+import           XMonad.Hooks.DynamicLog
+import           XMonad.Hooks.EwmhDesktops       (ewmh, fullscreenEventHook)
+import           XMonad.Hooks.ManageDocks        (avoidStruts, manageDocks, docksEventHook)
+import           XMonad.Hooks.ManageHelpers
+import           XMonad.Hooks.ServerMode
+import           XMonad.Hooks.UrgencyHook
+import           XMonad.Layout.Accordion
+import           XMonad.Layout.Decoration
+import           XMonad.Layout.DwmStyle
+import           XMonad.Layout.IM2
+import           XMonad.Layout.Magnifier
+import           XMonad.Layout.SimpleFloat
+import           XMonad.Layout.Spiral
+import           XMonad.Layout.Tabbed
+import           XMonad.Prompt
+import           XMonad.Prompt.Workspace
+import           XMonad.Prompt.XMonad
+import qualified XMonad.StackSet                 as W
+import           XMonad.Util.EZConfig
+import           XMonad.Util.NamedActions
+import           XMonad.Util.NamedScratchpad
+import           XMonad.Util.NamedWindows        (getName)
+import           XMonad.Util.Run
+import           XMonad.Util.Scratchpad          (scratchpadFilterOutWorkspace)
+import           XMonad.Util.Themes
+import           XMonad.Util.WindowProperties
+import           XMonad.Util.WorkspaceCompare
+import           XMonad.Layout.DragPane
+import           XMonad.Layout.Grid
+import           XMonad.Layout.ThreeColumns
+import           XMonad.Layout.LayoutHints
+import           XMonad.Layout.WindowArranger
+import           XMonad.Layout.LayoutCombinators
+import           XMonad.Layout.BorderResize
+import           XMonad.Layout.NoBorders         (noBorders)
+import           XMonad.Layout.Gaps
+import           XMonad.Layout.Reflect
+import           XMonad.Layout.PerWorkspace      (onWorkspace)
+import           XMonad.Layout.Named
+import           XMonad.Layout.LimitWindows
 
 --myTerminal = "urxvtcd"
 myTerminal = "urxvt"
