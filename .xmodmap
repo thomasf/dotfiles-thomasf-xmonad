@@ -20,3 +20,6 @@ add mod4 = Control_L
 remove lock = Caps_Lock
 keysym Caps_Lock = ISO_Level5_Shift
 add control = ISO_Level5_Shift
+
+remove mod4 = Super_L
+remove mod4 = Super_R
