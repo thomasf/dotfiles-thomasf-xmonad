@@ -327,14 +327,9 @@ killWindows=
 myKeys conf@(XConfig {XMonad.modMask = modm}) =
   [ subtitle "Application launching"    
   , ((modm.|. shiftMask,                              xK_Return), addName "launch terminal"                                       $ spawnShell)
-  , ((modm.|. controlMask .|. shiftMask,              xK_Return), addName "launch large terminal"                                 $ spawn "urxvt -name large_term" )
-  , ((modm.|. controlMask .|. shiftMask .|. altMask , xK_Return), addName "launch white terminal"                                 $ spawn "urxvt -name white_term" )
-  , ((modm.|. shiftMask,                              xK_p),      addName "open dmenu"                                            $ spawn "appmenu" )
-  , ((modm.|. controlMask .|. shiftMask,              xK_p),      addName "run dialog"                                            $ spawn "gmrun")
 
   , subtitle "misc"
   , ((modm.|. shiftMask,                              xK_c),      addName "kill active window"                                    $ bindOn killWindows)
-  , ((modm.|. shiftMask.|. controlMask,               xK_c),      addName "xkill"                                                 $ spawn "xkill")
 
   , subtitle "Cyclic window focus"
   , ((modm,                                           xK_j),      addName "Next window on workspace"                              $ (windows W.focusDown) >> movePointer)
@@ -391,12 +386,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
 
   , subtitle "other"
 
-  , ((modm,                                         xK_Print),  addName "Dekstop screenshot"                                    $ scrotDesktop )
-  , ((modm.|. altMask,                              xK_Print),  addName "Screenshot of region or window (click or drag)"        $ scrotSelect )
   , ((modm.|. altMask,                              xK_t),      addName "terminal scratch pad"                                  $ terminalPad )
   , ((modm.|. altMask,                              xK_2),      addName "do current topic action"                               $ currentTopicAction myTopicConfig)
   , ((modm.|. altMask,                              xK_9),      addName "xmonad prompt"                                         $ xmonadPrompt myXPConfig)
-  , ((modm.|. altMask,                              xK_8),      addName "xmonad dmenu prompt"                                   $ defaultCommands >>= runCommand )
+  --, ((modm.|. altMask,                              xK_8),      addName "xmonad dmenu prompt"                                   $ defaultCommands >>= runCommand )
   , ((modm.|. altMask,                              xK_6),      addName "wincmds"                                         $ workspaceCommands >>= runCommand )
   ]
 
@@ -579,10 +572,6 @@ getSortByIndexNoSP = fmap (.scratchpadFilterOutWorkspace) getSortByIndex
 
 terminalPad = namedScratchpadAction myScratchPads "terminal"
 irssiPad = namedScratchpadAction myScratchPads "irssi"
-
-scrotSpawn opts = spawn ("sleep 0.2 && scrot 'screenshot-%Y-%m-%d_%h-%m-%s_$wx$h.png' " ++ opts ++ "  -e 'mv $f ~/Pictures/scrot/'")
-scrotDesktop = scrotSpawn ""
-scrotSelect = scrotSpawn "-s"
 
 restartXmonad = spawn "xmonad --recompile && xmonad --restart"
 

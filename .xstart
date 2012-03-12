@@ -14,8 +14,14 @@ if [ -f $HOME/.xmodmap ]; then
     if [ $(which xmodmap) ]; then
         xmodmap $HOME/.xmodmap
     else
-        xmessage "xmodmap not found"
+        xmessage "warning: xmodmap not found"
     fi
+fi
+
+if  [ $(which xbindkeys) ]; then
+    [ $(pidof xbindkeys) ]  || xbindkeys &
+else
+    xmessage "Warning: xbindkeys is not found"
 fi
 
 if test -z "$DBUS_SESSION_BUS_ADDRESS" ; then
@@ -34,7 +40,7 @@ wm_selection() {
     if [ $(which zenity) ]; then
         WM=$( zenity --list --title "ACTION?!?" --text "re-launch vm?" --column "Available window managers" $avail_vms )
     else
-        xmessage "zenity not found, no window manager selection possible"
+        xmessage "warning: zenity not found, no window manager selection possible"
     fi
 }
 
@@ -75,7 +81,7 @@ if [ $(which xsetroot) ]; then
     xsetroot -solid $BGCOL
     xsetroot -cursor_name left_ptr
 else
-    xmessage "xsetroot not found"
+    xmessage "warning: xsetroot not found"
 fi
 
 
@@ -104,6 +110,3 @@ while [ ! "" = "$WM" ]; do
     ${WM}
     wm_selection
 done
-
-
-

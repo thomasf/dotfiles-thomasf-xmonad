@@ -1,0 +1,25 @@
+# -*- shell-script -*-
+
+"xbindkeys_show" 
+  mod4 + shift + F1
+
+"appmenu"
+  mod4 + shift + p
+
+"gmrun"
+  mod4 + control + shift + p
+
+"urxvt"
+  mod4 + shift + Return
+
+"urxvt -name large_term"
+  mod4 + control + shift + alt + Return
+
+"xkill" 
+  mod4 + shift + control + c
+
+"xfce4-screenshooter"
+  mod4 + Print
+
+"scrot screenshot-%Y-%m-%d_%h-%m-%s_$wx$h.png' -e 'mv $f ~/Pictures/scrot/'"
+  mod4 + Alt_L + Print
