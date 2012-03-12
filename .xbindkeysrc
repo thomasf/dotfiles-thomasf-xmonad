@@ -1,13 +1,28 @@
 # -*- shell-script -*-
 
+# -------------------------
+# Help
+
 "xbindkeys_show" 
   mod4 + shift + F1
 
+# -------------------------
+# Application launching
+ 
 "appmenu"
   mod4 + shift + p
 
-"gmrun"
+"xfce4-appfinder"
   mod4 + control + shift + p
+
+# -------------------------
+# Help
+
+"easyxmotion"
+  mod4 + w
+
+"gmrun"
+  mod4 + control + alt + shift + p
 
 "urxvt"
   mod4 + shift + Return
