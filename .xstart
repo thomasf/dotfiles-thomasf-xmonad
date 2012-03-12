@@ -10,31 +10,34 @@
 
 [ -f "${HOME}/.bashrc" ] && . "${HOME}/.bashrc"
 
-## test for an existing bus daemon, just to be safe
+if [ -f $HOME/.xmodmap ]; then
+    if [ $(which xmodmap) ]; then
+        xmodmap $HOME/.xmodmap
+    else
+        xmessage "xmodmap not found"
+    fi
+fi
+
 if test -z "$DBUS_SESSION_BUS_ADDRESS" ; then
-    ## if not found, launch a new one
     eval `dbus-launch --sh-syntax --exit-with-session`
     echo "D-Bus per-session daemon address is: $DBUS_SESSION_BUS_ADDRESS"
 fi
 
-[ -f "${HOME}/bin/home-fix" ] && . "${HOME}/bin/home-fix"
+[ -f "${HOME}/.bin/home-fix" ] && ${HOME}/.bin/home-fix
 
-# maybe Kill processes
-
-#pidof gpg-agent >/dev/null && kill $(pidof gpg-agent)
-#pidof ssh-agent >/dev/null && kill $(pidof ssh-agent)
-
-# choosewm
 wm_selection() {
     avail_vms=""
     for candidate in xmonad wmii pekwm awesome xfce4-session gnome-session openbox blackbox startfluxbox; do
         which $candidate && avail_vms="$avail_vms $candidate"
     done
 
-    WM=$( zenity --list --title "ACTION?!?" --text "re-launch vm?" --column "Available window managers" $avail_vms )
+    if [ $(which zenity) ]; then
+        WM=$( zenity --list --title "ACTION?!?" --text "re-launch vm?" --column "Available window managers" $avail_vms )
+    else
+        xmessage "zenity not found, no window manager selection possible"
+    fi
 }
 
-# Set configurations
 [ -f "${HOME}/.Xresources" ] && xrdb -merge "${HOME}/.Xresources"
 [ -f "${HOME}/.gtkrc-2.0" ] && export GTK2_RC_FILES="${HOME}/.gtkrc-2.0"
 
@@ -64,14 +67,17 @@ fi
 [ $(which nm-applet) ] && pidof nm-applet >/dev/null || nm-applet --sm-disable &
 
 BGCOL="#"
-for C in $(echo "10 20 30" | sed 's/ /\n/g' | sort -R); do 
-    BGCOL="$BGCOL$C"; 
+for C in $(echo "10 20 30" | sed 's/ /\n/g' | sort -R); do
+    BGCOL="$BGCOL$C";
 done
 
 if [ $(which xsetroot) ]; then
     xsetroot -solid $BGCOL
     xsetroot -cursor_name left_ptr
+else
+    xmessage "xsetroot not found"
 fi
+
 
 if [ $(which google-chrome) ]; then
     BROWSER=`which google-chrome`
@@ -84,7 +90,6 @@ elif [ $(which firefox) ]; then
     export BROWSER
 fi
 
-# Select a window manager to run
 WM=""
 if [ $(which xmonad) ]; then
     WM="xmonad"
@@ -99,7 +104,6 @@ while [ ! "" = "$WM" ]; do
     ${WM}
     wm_selection
 done
-
 
 
 
