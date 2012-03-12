@@ -685,6 +685,7 @@ autoConfig=do
         | c == "transwhale" = configFull
         | c == "a00001"     = configFull
         | c == "flux"       = configFull
+        | c == "kranky"     = configFull
         | c == "dennisg"    = configSimple
         | c == "wonky"      = configMinimal
         | c == "kranky"     = configMinimal
