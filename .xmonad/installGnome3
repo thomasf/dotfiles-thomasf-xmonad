@@ -1,0 +1,5 @@
+#!/bin/bash
+
+sudo cp -f gnome3/xmonad.session /usr/share/gnome-session/sessions/xmonad.session
+sudo cp -f gnome3/xmonad-gnome-session.desktop /usr/share/xsessions/xmonad-gnome-session.desktop
+sudo cp -f gnome3/xmonad.desktop /usr/share/applications/xmonad.desktop

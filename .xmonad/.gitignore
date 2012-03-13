@@ -1,5 +1,6 @@
 history
-xmonad-*
+xmonad-x86_64-linux
+xmonad-i386-linux
 *.errors
 *.o
 *.hi
