@@ -8,44 +8,61 @@
 # 
 # https://wiki.archlinux.org/index.php/ConsoleKit
 
+# First, try to kill everyhing that might be started below
+# It's important that applications are launched from this
+# environment to get the right settings.
+killall -q gpg-agent
+killall -q ssh-agent
+killall -q gnome-keyring-daemon
+killall -q gnome-settings-daemon
+killall -q xbindkeys
+killall -q nm-applet
+killall -q dropboxd
+sleep 0.4
+
+# Launch a new dbus-session if not already running
 dbuslaunch="`which dbus-launch 2>/dev/null`"
 if [ -n "$dbuslaunch" ] && [ -x "$dbuslaunch" ] && [ -z "$DBUS_SESSION_BUS_ADDRESS" ]; then
     eval `$dbuslaunch --sh-syntax --exit-with-session`
 fi
 
+# Source default bash environment
+[ -f "${HOME}/.bashrc" ] && source "${HOME}/.bashrc"
+
+# Ensure sane file permissions etc.
+[ -f "${HOME}/.bin/home-fix" ] && "${HOME}/.bin/home-fix"
+
+# Load gtk2 style settings
+[ -f "${HOME}/.gtkrc-2.0" ] && export GTK2_RC_FILES="${HOME}/.gtkrc-2.0"
+# load Xresources
+[ -f "${HOME}/.Xresources" ] && xrdb -merge "${HOME}/.Xresources"
+
+# Start gnupg or ssh agent
+agent_file="$HOME/.gnupg/gpg-agent-info-$(hostname)"
+unset GPG_AGENT_INFO; unset SSH_AUTH_SOCK; unset SSH_AGENT_PID
+rm -f "${agent_file}"
+if [ $(which gpg-agent) ]; then
+    eval $(gpg-agent --daemon --sh --enable-ssh-support --write-env-file=${agent_file})
+elif [ $(which ssh-agent) ]; then
+    eval $(ssh-agent -s)
+fi
+export GPG_AGENT_INFO; export SSH_AUTH_SOCK; export SSH_AGENT_PID
+
+# Configure keyboard mode buttons
 if [ -f $HOME/.xmodmap ]; then
     if [ $(which xmodmap) ]; then
-        xmodmap $HOME/.xmodmap
+        xmodmap $HOME/.xmodmap 
     else
         xmessage "warning: xmodmap not found"
     fi
 fi
 
-if  [ $(which xbindkeys) ]; then
-    [ $(pidof xbindkeys) ]  || xbindkeys &
-else
-    xmessage "Warning: xbindkeys is not found"
+# Initialize gnome settings daemon
+if [ $(which gnome-settings-daemon) ]; then
+    gnome-settings-daemon &
 fi
 
-[ -f "${HOME}/.bin/home-fix" ] && ${HOME}/.bin/home-fix
-
-wm_selection() {
-    avail_vms=""
-    for candidate in xmonad wmii pekwm awesome xfce4-session gnome-session openbox blackbox startfluxbox; do
-        which $candidate && avail_vms="$avail_vms $candidate"
-    done
-
-    if [ $(which zenity) ]; then
-        WM=$( zenity --list --title "ACTION?!?" --text "re-launch vm?" --column "Available window managers" $avail_vms )
-    else
-        xmessage "warning: zenity not found, no window manager selection possible"
-    fi
-}
-
-[ -f "${HOME}/.Xresources" ] && xrdb -merge "${HOME}/.Xresources"
-[ -f "${HOME}/.gtkrc-2.0" ] && export GTK2_RC_FILES="${HOME}/.gtkrc-2.0"
-[ $(which gnome-settings-daemon) ] && pidof gnome-settings-daemon >/dev/null || gnome-settings-daemon &
-
+# Set some gnome options
 if [ $(which gconftool-2) ]; then
     # disable gnome services
     gconftool-2 -t bool -s /apps/nautilus/preferences/show_desktop false
@@ -59,22 +76,25 @@ if [ $(which gconftool-2) ]; then
     gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/xrandr/active false
 fi
 
+# Launch drop box
 [ -x ~/.dropbox-dist/dropboxd ] && ~/.dropbox-dist/dropboxd &
 
-[ $(which nm-applet) ] && pidof nm-applet >/dev/null || nm-applet --sm-disable &
-
-BGCOL="#"
-for C in $(echo "10 20 30" | sed 's/ /\n/g' | sort -R); do
-    BGCOL="$BGCOL$C";
-done
-
-if [ $(which xsetroot) ]; then
-    xsetroot -solid $BGCOL
-    xsetroot -cursor_name left_ptr
-else
-    xmessage "warning: xsetroot not found"
+# Launch the network manager applet
+if [ $(which nm-applet) ]; then
+    nm-applet --sm-disable &
 fi
 
+# Create a dark and soft background color
+BGCOL="#"; for C in $(echo "10 20 30" | sed 's/ /\n/g' | sort -R); do BGCOL="$BGCOL$C"; done
+
+# Set the backbround color
+if [ $(which xsetroot) ]; then
+    xsetroot -solid $BGCOL; xsetroot -cursor_name left_ptr 
+else
+    xmessage "xsetroot not found"
+fi
+
+# Choose a default web browser
 if [ $(which google-chrome) ]; then
     BROWSER=`which google-chrome`
     export BROWSER
@@ -86,20 +106,38 @@ elif [ $(which firefox) ]; then
     export BROWSER
 fi
 
-[ -f "${HOME}/.bashrc" ] && source "${HOME}/.bashrc"
-keys_agent_start
+# Load keyboard macros
+if  [ $(which xbindkeys) ]; then
+    xbindkeys
+else
+    xmessage "Warning: xbindkeys is not found"
+fi
 
+# Function that displays a list of window managers to choose from.
+wm_selection() {
+    avail_vms=""
+    for candidate in xmonad wmii pekwm awesome xfce4-session gnome-session openbox blackbox startfluxbox; do
+        which $candidate && avail_vms="$avail_vms $candidate"
+    done
+
+    if [ $(which zenity) ]; then
+        WM=$( zenity --list --title "ACTION?!?" --text "re-launch vm?" --column "Available window managers" $avail_vms )
+    else
+        xmessage "warning: zenity not found, no window manager selection possible"
+    fi
+}
+
+# Set default window manger (xmonad) or try user selection
 WM=""
 if [ $(which xmonad) ]; then
     WM="xmonad"
 else
     wm_selection
 fi
-
 [ "z" = "z$WM" ] && xmessage "!!! No window manager found/selected !!!"
 
 # Start the window manager
 while [ ! "" = "$WM" ]; do
-    ${WM}
+    ( ${WM} )
     wm_selection
 done
