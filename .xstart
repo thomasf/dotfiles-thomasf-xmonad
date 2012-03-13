@@ -5,10 +5,13 @@
 #
 #   TODO: This file really need some cleaning up!
 #
-
+# 
 # https://wiki.archlinux.org/index.php/ConsoleKit
 
-[ -f "${HOME}/.bashrc" ] && . "${HOME}/.bashrc"
+dbuslaunch="`which dbus-launch 2>/dev/null`"
+if [ -n "$dbuslaunch" ] && [ -x "$dbuslaunch" ] && [ -z "$DBUS_SESSION_BUS_ADDRESS" ]; then
+    eval `$dbuslaunch --sh-syntax --exit-with-session`
+fi
 
 if [ -f $HOME/.xmodmap ]; then
     if [ $(which xmodmap) ]; then
@@ -22,11 +25,6 @@ if  [ $(which xbindkeys) ]; then
     [ $(pidof xbindkeys) ]  || xbindkeys &
 else
     xmessage "Warning: xbindkeys is not found"
-fi
-
-if test -z "$DBUS_SESSION_BUS_ADDRESS" ; then
-    eval `dbus-launch --sh-syntax --exit-with-session`
-    echo "D-Bus per-session daemon address is: $DBUS_SESSION_BUS_ADDRESS"
 fi
 
 [ -f "${HOME}/.bin/home-fix" ] && ${HOME}/.bin/home-fix
@@ -46,13 +44,6 @@ wm_selection() {
 
 [ -f "${HOME}/.Xresources" ] && xrdb -merge "${HOME}/.Xresources"
 [ -f "${HOME}/.gtkrc-2.0" ] && export GTK2_RC_FILES="${HOME}/.gtkrc-2.0"
-
-if [ $(which gpg-agent) ]; then
-    [ -z "$GPG_AGENT_INFO" ] && eval $(gpg-agent --daemon --enable-ssh-support)
-elif [ $(which ssh-agent) ]; then
-    [ -z "$SSH_AGENT_PID" ] && eval $(ssh-agent -s)
-fi
-
 [ $(which gnome-settings-daemon) ] && pidof gnome-settings-daemon >/dev/null || gnome-settings-daemon &
 
 if [ $(which gconftool-2) ]; then
@@ -84,7 +75,6 @@ else
     xmessage "warning: xsetroot not found"
 fi
 
-
 if [ $(which google-chrome) ]; then
     BROWSER=`which google-chrome`
     export BROWSER
@@ -95,6 +85,9 @@ elif [ $(which firefox) ]; then
     BROWSER=`which firefox`
     export BROWSER
 fi
+
+[ -f "${HOME}/.bashrc" ] && source "${HOME}/.bashrc"
+keys_agent_start
 
 WM=""
 if [ $(which xmonad) ]; then
