@@ -183,3 +183,12 @@ ssh_term*color7:         #BBBBBB
 ssh_term*color15:        #EEEEEE
 
 
+! -- Xmessage, zenburnesque
+Xmessage*background:            #3F3F3F
+Xmessage*foreground:            #F0DFAF
+Xmessage*form.*.shapeStyle:     rectangle
+Xmessage*Scrollbar.width:       4
+Xmessage*Scrollbar.borderWidth: 0
+Xmessage*Buttons:               Quit
+Xmessage*defaultButton:         Quit
+Xmessage*geometry:             +20+20
