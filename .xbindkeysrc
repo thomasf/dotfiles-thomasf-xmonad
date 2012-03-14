@@ -30,6 +30,9 @@
 "urxvt -name large_term"
   mod4 + control + shift + alt + Return
 
+"sshmenu"
+  mod4 + s
+
 "xkill" 
   mod4 + shift + control + c
 

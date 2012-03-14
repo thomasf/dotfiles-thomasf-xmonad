@@ -15,4 +15,4 @@ set -e
 
 h=`cat ~/.ssh/config | grep ^Host | awk '{ print $2 }' | dmenu -p SSH`
 
-exec urxvt -e ssh ${h}
+exec urxvt -name ssh_term -e ssh ${h}

@@ -145,3 +145,41 @@ scratchpad_terminal*color13:    rgb:bb/a9/cf
 scratchpad_terminal*color14:    rgb:96/cc/cc
 scratchpad_terminal*color15:    rgb:ff/ff/ff
 
+
+! Terminal for ssh connections
+
+ssh_term*font:            -*-terminus-medium-r-normal-*-12-120-72-72-c-60-iso8859-1
+ssh_term*boldFont:        -*-terminus-medium-r-normal-*-12-120-72-72-c-60-iso8859-1
+ssh_term*background:        #252627
+ssh_term*foreground:        #D8D8D8
+ssh_term*cursorColor:       #999999
+ssh_term*colorBD:           #ffffff
+ssh_term*colorUL:           #99cc66
+ssh_term*internalBorder:    3
+
+!BLACK
+ssh_term*color0:         #3E3E3E
+ssh_term*color8:         #525252
+!RED
+ssh_term*color1:         #CF516E
+ssh_term*color9:         #E87B94
+!GREEN
+ssh_term*color2:         #799351
+ssh_term*color10:        #8fa966
+!YELLOW
+ssh_term*color3:         #ccc855
+ssh_term*color11:        #d1c78e
+!BLUE
+ssh_term*color12:        #A4c9e0
+ssh_term*color4:         #6FA5C7
+!MAGENTA
+ssh_term*color5:         #b374a7
+ssh_term*color13:        #d1a3c8
+!CYAN
+ssh_term*color6:         #75a692
+ssh_term*color14:        #89bca7
+!WHITE
+ssh_term*color7:         #BBBBBB
+ssh_term*color15:        #EEEEEE
+
+
