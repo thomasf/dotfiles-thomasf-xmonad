@@ -7,22 +7,19 @@
   mod4 + shift + F1
 
 # -------------------------
-# Application launching
+# Application launchers
  
 "appmenu"
-  mod4 + shift + p
+  mod4 + p
 
 "xfce4-appfinder"
   mod4 + control + shift + p
 
-# -------------------------
-# Help
-
-"easyxmotion"
-  mod4 + w
-
 "gmrun"
   mod4 + control + alt + shift + p
+
+# -------------------------
+# Open terminal
 
 "urxvt"
   mod4 + shift + Return
@@ -33,8 +30,17 @@
 "sshmenu"
   mod4 + s
 
+# -------------------------
+# Window management
+
+"easyxmotion"
+  release + mod4 + w
+
 "xkill" 
   mod4 + shift + control + c
+
+# -------------------------
+# Screenshooting
 
 "xfce4-screenshooter"
   mod4 + Print
