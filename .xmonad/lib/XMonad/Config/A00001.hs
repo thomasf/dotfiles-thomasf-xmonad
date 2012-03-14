@@ -111,22 +111,10 @@ myFocusFollowsMouse = False
 myBorderWidth   = 1
 myModMask = mod4Mask
 
-
 -- Border colors for unfocused and focused windows, respectively.
 --
 myNormalBorderColor  = "#000"
 myFocusedBorderColor = "#202020"
-
--- The default number of workspaces (virtual screens) and their names.
--- By default we use numeric strings, but any string may be used as a
--- workspace name. The number of workspaces is determined by the length
--- of this list.
---
--- A tagging example:
---
--- > workspaces = ["web", "irc", "code" ] ++ map show [4..9]
-
---myWorkspaces = ["1.mix","2.im","3.web","4.web2","5.code","6.code2","7.code3","8.write","9.gimp","10.mix2"]
 
 ------------------------------------------------------------------------
 -- Layouts:
@@ -146,7 +134,7 @@ myFocusedBorderColor = "#202020"
 -- which denotes layout choice.
 --
 
-myLayoutHook =        
+myLayoutHook =
   onWorkspace "chat" (chatL ||| fullTabL) $
   onWorkspace "dotfiles" xmonadL $
   onWorkspace "nodes" fullTabL $
@@ -156,7 +144,7 @@ myLayoutHook =
   tiledMirrorL ||| tiledL ||| spiralL ||| fullTabL ||| fullL ||| threeCol
   where
     -- normal layouts
-    tiledL=named "tile" ( avoidStruts $  deco kavonBluesTheme $ layoutHintsToCenter tiled )           
+    tiledL=named "tile" ( avoidStruts $  deco kavonBluesTheme $ layoutHintsToCenter tiled )
     tiledMirrorL=named "tile mirror" ( avoidStruts $ deco kavonBluesTheme $ layoutHintsToCenter (Mirror tiled))
     fullTabL=named "fulltab"  ( avoidStruts $ noBorders $ tabbed shrinkText (theme kavonForestTheme))
     fullL=named "full" ( noBorders $ Full)
@@ -222,7 +210,6 @@ myManageHook =  composeOne
   where
     role = stringProperty "WM_WINDOW_ROLE"
 
-
 ------------------------------------------------------------------------
 -- Event handling
 
@@ -287,10 +274,8 @@ myPP h = defaultPP
   where
     padWs ws = if ws == "NSP" then "" else pad ws
 
-
 -- move mouse pointer to bottom right of the current window
 movePointer=(updatePointer (Relative 0.99 0.99))
-
 
 ------------------------------------------------------------------------
 -- Startup hook
@@ -315,17 +300,17 @@ myStartupHook = do
 
 altMask=mod1Mask
 
-killWindows= 
-  [ ("chat", 
+killWindows=
+  [ ("chat",
      do
        spawn "pkill -9 xchat"
        spawn "pkill -9 pidgin"
     )
-  , ("",kill) 
+  , ("",kill)
   ]
 
 myKeys conf@(XConfig {XMonad.modMask = modm}) =
-  [ subtitle "Application launching"    
+  [ subtitle "Application launching"
   , ((modm.|. shiftMask,                              xK_Return), addName "launch terminal"                                       $ spawnShell)
 
   , subtitle "misc"
@@ -413,7 +398,6 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
   -- you may also bind events to the mouse scroll wheel (button4 and button5)
   ]
 
-
 myXPConfig = defaultXPConfig
   { position = Top
   , fgColor = "#ffffff"
@@ -435,7 +419,6 @@ myTopics =
   , "calendar", "mail", "reading"
   , "fileshare"
   , "music", "movie"
-  , "sm.server:medeltiden", "ss.server:snowfish"
   , "wordpress"
   , "d1.dev", "d2.dev", "d3.dev", "d4.dev", "d5.dev", "d6.dev"
   , "eclipse"
@@ -451,10 +434,14 @@ webPath="Downloads/browser"
 
 myTopicConfig = TopicConfig
   { topicDirs = M.fromList $
-    [ ("music"    ,"Music")
-    , ("eclipse"  ,devPath)
-    , ("d1.dev"    ,devPath), ("d2.dev", devPath), ("d3.dev", devPath), ("d4.dev", devPath), ("d5.dev", devPath), ("d6.dev", devPath)
-    , ("w1.web"    ,webPath), ("w2.web", webPath), ("w3.web", webPath), ("w4.web", webPath)
+    [ ("music",   "Music")
+    , ("eclipse",  devPath)
+
+    , ("d1.dev",   devPath), ("d2.dev", devPath), ("d3.dev", devPath)
+    , ("d4.dev",   devPath), ("d5.dev", devPath), ("d6.dev", devPath)
+
+    , ("w1.web",   webPath), ("w2.web", webPath), ("w3.web", webPath)
+    , ("w4.web",   webPath)
     ]
   , defaultTopicAction = const $ spawnShell
   , defaultTopic = "dashboard"
@@ -501,14 +488,6 @@ myTopicConfig = TopicConfig
        do
          webAppSpawn "http://www.google.com/calendar/hosted/jossystem.se/render"
       )
-    , ("sm.server:medeltiden",
-       do
-         inTerm "ssh -A medeltiden"
-      )
-    , ("ss.server:snowfish",
-       do
-         inTerm "ssh -A dev.snowfish.com"
-      )
     , ("nodes",
        do
          webBrowserOpen "http://twitter.com"
@@ -552,7 +531,6 @@ spawnShell = currentTopicDir myTopicConfig >>= spawnShellIn
 spawnShellIn :: Dir -> X ()
 spawnShellIn dir = spawn $ myTerminal ++ " -e "
                    ++ "bash -c 'cd ''" ++ dir ++ "'' && " ++ myShell ++ "'"
-
 goto :: Topic -> X ()
 goto = switchTopic myTopicConfig
 
@@ -562,11 +540,15 @@ promptedGoto = workspacePrompt myXPConfig goto
 promptedShift :: X ()
 promptedShift = workspacePrompt myXPConfig $ windows . W.shift
 
-nextNonEmptyWorkspace= windows . W.greedyView =<< findWorkspace getSortByIndexNoSP Next HiddenNonEmptyWS 1
-prevNonEmptyWorkspace= windows . W.greedyView =<< findWorkspace getSortByIndexNoSP Prev HiddenNonEmptyWS 1
+nextNonEmptyWorkspace = windows . W.greedyView
+                        =<< findWorkspace getSortByIndexNoSP Next HiddenNonEmptyWS 1
+prevNonEmptyWorkspace = windows . W.greedyView
+                        =<< findWorkspace getSortByIndexNoSP Prev HiddenNonEmptyWS 1
 
-nextEmptyWorkspace= windows . W.greedyView =<< findWorkspace getSortByIndexNoSP Next EmptyWS 1
-prevEmptyWorkspace= windows . W.greedyView =<< findWorkspace getSortByIndexNoSP Prev EmptyWS 1
+nextEmptyWorkspace = windows . W.greedyView
+                     =<< findWorkspace getSortByIndexNoSP Next EmptyWS 1
+prevEmptyWorkspace = windows . W.greedyView
+                     =<< findWorkspace getSortByIndexNoSP Prev EmptyWS 1
 
 getSortByIndexNoSP = fmap (.scratchpadFilterOutWorkspace) getSortByIndex
 
@@ -596,14 +578,17 @@ getScreenDim n = do
   let rn = screens!!(min (abs n) (length screens - 1))
   case screens of
     []        -> return $ (0, 0, 1024, 768) -- fallback
-    [r]       -> return $ (fromIntegral $ rect_x r , fromIntegral $ rect_y r , fromIntegral $ rect_width r , fromIntegral $ rect_height r )
-    otherwise -> return $ (fromIntegral $ rect_x rn, fromIntegral $ rect_y rn, fromIntegral $ rect_width rn, fromIntegral $ rect_height rn)
+    [r]       -> return $ (fromIntegral $ rect_x r , fromIntegral $ rect_y r ,
+                           fromIntegral $ rect_width r , fromIntegral $ rect_height r )
+    otherwise -> return $ (fromIntegral $ rect_x rn, fromIntegral $ rect_y rn,
+                           fromIntegral $ rect_width rn, fromIntegral $ rect_height rn)
 
 ------------------------------------------------------------------------
 -- Scratch pads:
 
 myScratchPads = [ NS "terminal" (term "terminal") (res =? scratch "terminal") bottomFloat
-                , NS "irssi" (inTerm' "irssi" "ssh medeltiden.org") (res =? scratch "irssi") nonFloating
+                , NS "irssi" (inTerm' "irssi" "ssh medeltiden.org")
+                  (res =? scratch "irssi") nonFloating
                 ]
   where
     scratch name = "scratchpad_" ++ name
@@ -691,7 +676,7 @@ autoConfig=do
 configSimple = do
   myStatusProc <- spawnPipe myStatusBar
   return $ ewmh aDefaultConfig
-    { logHook     = myXmobarLogHook myStatusProc
+    { logHook = myXmobarLogHook myStatusProc
     }
     where
       myStatusBar="xmobar ~/.xmonad/etc/xmobar-simple"
@@ -731,10 +716,14 @@ configFull = do
     trayerO = screenW - trayerW
     statusW = screenW * 0.6 - trayerW
     statusO = screenW - statusW - trayerW
-    xmonadBarCmd="dzen2 -xs 1 -ta l -w " ++ show xmonadW
-    trayerBarCmd="trayer --transparent true --tint 0x111111 --alpha 0 --edge top --align left --widthtype pixel --width " ++ show trayerW ++ " --margin " ++ show trayerO ++ " --heighttype pixel --height 18"
-    statusBarCmd="conky -c ~/.xmonad/etc/conkyrc-mainbar-config-full | dzen2 -xs 1 -ta r -x " ++ show statusO ++ " -w " ++ show statusW
-    configStartupHook=myStartupHook
+    xmonadBarCmd = "dzen2 -xs 1 -ta l -w " ++ show xmonadW
+    trayerBarCmd = "trayer --transparent true --tint 0x111111 --alpha 0 --edge top --align left"
+                   ++ " --widthtype pixel --width " ++ show trayerW
+                   ++ " --margin " ++ show trayerO
+                   ++ " --heighttype pixel --height 18"
+    statusBarCmd = "conky -c ~/.xmonad/etc/conkyrc-mainbar-config-full "
+                   ++ "| dzen2 -xs 1 -ta r -x " ++ show statusO ++ " -w " ++ show statusW
+    configStartupHook = myStartupHook
 
   xmonadBar <- spawnPipe xmonadBarCmd
   spawn statusBarCmd
@@ -744,5 +733,3 @@ configFull = do
     , manageHook = manageHook gnomeConfig <+> myManageHook
     , startupHook = configStartupHook
     }
-
-
