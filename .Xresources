@@ -10,70 +10,66 @@
 ! .Xresources should be used instead.
 ! --------------------------------------------
 
-
-! --[ Font Rendering ]-------------------------------------
+!---- Font rendering  {
+! ref: https://wiki.archlinux.org/index.php/Font_Configuration
+! ref: http://www.keithp.com/~keithp/render/Xft.tutorial
 Xft.antialias: true
+Xft.autohint: false
 Xft.hinting: true
-Xft.hintstyle: hintslight
 !Xft.hintstyle: hintfull
+Xft.hintstyle: hintslight
+Xft.dpi: 96
 Xft.rgba: rgb
-Xft.embolden: false
+!Xft.embolden: false
 Xft.lcdfilter: lcddefault
 
+!---- X Cursor theme {
+Xcursor.theme: DMZ-White
+Xcursor.size: 16
 
-! --[ Emacs ]-------------------------------------
-!Emacs.font: Anonymous Pro:pixelsize=12:foundry=unknown:weight=normal:slant=normal:width=normal:spacing=100:scalable=true
-Emacs*.font: Consolas-10
+!---- Emacs {
 Emacs*.FontBackend: xft
+Emacs*.font: Consolas-10
+!Emacs*.font: Inconsolata-10.8
+!Emacs*.font: Anonymous Pro:pixelsize=13
+!Emacs*.font: Meslo LG S-10
+!Emacs*.font: Terminus-10
 Emacs*.menuBar: off
 Emacs*.toolBar: -1
 Emacs*.verticalScrollBars: off
-Emacs*background: rgb:00/00/00
-Emacs*foreground: rgb:ff/ff/ff
-!Emacs*Xft.embolden: true
+
+!---- Xmessage, zenburnesque {
+Xmessage*background:            #3F3F3F
+Xmessage*foreground:            #F0DFAF
+Xmessage*form.*.shapeStyle:     rectangle
+Xmessage*Scrollbar.width:       4
+Xmessage*Scrollbar.borderWidth: 0
+Xmessage*Buttons:               Quit
+Xmessage*defaultButton:         Quit
+Xmessage*geometry:             +20+20
 
 
-! --[ URxvt - General ]-------------------------------------
+!---- URxvt - General settings {
+URxvt*:borderLess: true
 URxvt*cursorBlink: true
 URxvt*font: terminus-12
 URxvt*jumpScroll: true
 URxvt*scrollBar: false
 URxvt*scrollTtyOutput: false
 URxvt*scrollTtyKeypress: true
+URxvt*urgentOnBell: true
+URxvt*visualBell: false
 URxvt*perl-ext-common: default,matcher
 URxvt*urlLauncher: google-chrome
 URxvt*matcher.button: 1
-URxvt*:borderLess: true
-URxvt*urgentOnBell: true
 
-! --[ URxvt - Large term ]-------------------------------------
+
+!---- URXvt - Large text terminal settings {
 large_term*font: xft:Consolas-16
 
-! --[ URxvt - Light term ]-------------------------------------
-white_term*background: rgb:95/95/95
-white_term*foreground: rgb:00/00/00
-white_term*color0:     rgb:7f/7f/7f
-white_term*color1:     rgb:cd/00/00
-white_term*color2:     rgb:00/8b/00
-white_term*color3:     rgb:ee/ee/00
-white_term*color4:     rgb:00/00/cd
-white_term*color5:     rgb:cd/00/cd
-white_term*color6:     rgb:00/ee/ee
-white_term*color7:     rgb:fa/eb/d7
-white_term*color8:     rgb:e5/e5/e5
-white_term*color9:     rgb:80/00/00
-white_term*color10:    rgb:00/50/20
-white_term*color11:    rgb:99/55/00
-white_term*color12:    rgb:00/40/80
-white_term*color13:    rgb:44/33/00
-white_term*color14:    rgb:30/60/80
-white_term*color15:    rgb:ff/ff/ff
 
-
-! --[ URxvt - Default term ]-------------------------------------
-
-!! drop in Solarized colorscheme for Xresources/Xdefaults
-
+!---- URxvt - Default colorscheme {
+! drop in Solarized colorscheme for Xresources/Xdefaults
 #define S_base03 #002b36
 #define S_base02 #073642
 #define S_base01 #586e75
@@ -90,7 +86,6 @@ white_term*color15:    rgb:ff/ff/ff
 #define S_blue #268bd2
 #define S_cyan #2aa198
 #define S_green #859900
-
 URxvt*background:            S_base03
 URxvt*foreground:            S_base00
 URxvt*fading:                30
@@ -123,8 +118,7 @@ URxvt*color14:               S_base1
 URxvt*color7:                S_base2
 URxvt*color15:               S_base3
 
-! --[ URxvt - Scratcpad terminal - bottom quaketerm style ]-------------------------------------
-
+!---- URxvt - Scratcpad terminal {
 scratchpad_terminal*perl-ext-common: default,matcher,tabbed
 scratchpad_terminal*background: rgb:1a/1a/1a
 scratchpad_terminal*foreground: rgb:d6/d6/d6
@@ -145,9 +139,7 @@ scratchpad_terminal*color13:    rgb:bb/a9/cf
 scratchpad_terminal*color14:    rgb:96/cc/cc
 scratchpad_terminal*color15:    rgb:ff/ff/ff
 
-
-! Terminal for ssh connections
-
+!---- Terminal for ssh connections {
 ssh_term*font:            -*-terminus-medium-r-normal-*-12-120-72-72-c-60-iso8859-1
 ssh_term*boldFont:        -*-terminus-medium-r-normal-*-12-120-72-72-c-60-iso8859-1
 ssh_term*background:        #252627
@@ -156,7 +148,6 @@ ssh_term*cursorColor:       #999999
 ssh_term*colorBD:           #ffffff
 ssh_term*colorUL:           #99cc66
 ssh_term*internalBorder:    3
-
 !BLACK
 ssh_term*color0:         #3E3E3E
 ssh_term*color8:         #525252
@@ -181,14 +172,3 @@ ssh_term*color14:        #89bca7
 !WHITE
 ssh_term*color7:         #BBBBBB
 ssh_term*color15:        #EEEEEE
-
-
-! -- Xmessage, zenburnesque
-Xmessage*background:            #3F3F3F
-Xmessage*foreground:            #F0DFAF
-Xmessage*form.*.shapeStyle:     rectangle
-Xmessage*Scrollbar.width:       4
-Xmessage*Scrollbar.borderWidth: 0
-Xmessage*Buttons:               Quit
-Xmessage*defaultButton:         Quit
-Xmessage*geometry:             +20+20

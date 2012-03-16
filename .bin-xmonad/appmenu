@@ -12,7 +12,7 @@ tr=urxvt
 cmd=$(dmenu_path | dmenu -i)
 
 case $cmd in
-    alsamixer|htop|irssi|weechat-curses)
+    alsamixer|htop|irssi|weechat-curses|ncmpcpp)
         exec $tr -name $cmd -e $cmd
         ;;
     wireshark|synaptic)
