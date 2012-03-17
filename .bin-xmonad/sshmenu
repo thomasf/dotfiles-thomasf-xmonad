@@ -13,6 +13,10 @@
 
 set -e 
 
-h=`cat ~/.ssh/config | grep ^Host | awk '{ print $2 }' | dmenu -p SSH`
+cs=`cat ~/.ssh/config | grep ^Host | awk '{ print $2 }' | dmenu -p SSH`
 
-exec urxvt -name ssh_term -e ssh ${h}
+exec urxvt -name ssh_term -e sh -c \
+    "echo connecting: ${cs};
+     ssh ${cs}; 
+     echo 'CONNECTION LOST, ENTER KEY CLOSES TERMINAL!';
+     read any"
