@@ -136,7 +136,6 @@ myFocusedBorderColor = "#202020"
 
 myLayoutHook =
   onWorkspace "chat" (chatL ||| fullTabL) $
-  onWorkspace "dotfiles" xmonadL $
   onWorkspace "nodes" fullTabL $
   onWorkspace "reading" fullTabL $
   onWorkspace "music" (fullTabL ||| tiledL ) $
@@ -422,7 +421,6 @@ myTopics =
   , "wordpress"
   , "d1.dev", "d2.dev", "d3.dev", "d4.dev", "d5.dev", "d6.dev"
   , "eclipse"
-  , "dotfiles"
   , "dashboard"
   , "virtualbox"
   ]
@@ -447,14 +445,7 @@ myTopicConfig = TopicConfig
   , defaultTopic = "dashboard"
   , maxTopicHistory = 10
   , topicActions = M.fromList $
-    [ ("dotfiles",
-       do
-         spawn "dotfiles-edit"
-         spawnShell
-         spawnShellIn ".xmonad"
-         spawnShellIn ".emacs.d"
-      )
-    , ("music",
+    [ ("music",
        do
          spawn "rhythmbox"
          webBrowserOpen "http://discogs.com"
