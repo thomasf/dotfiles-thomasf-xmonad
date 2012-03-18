@@ -40,6 +40,21 @@
   mod4 + shift + control + c
 
 # -------------------------
+# Multimedia / Mixer
+
+#vol inc Master
+"amixer sset Master 3%+"
+  Mod4 + plus
+
+#vol del Master
+"amixer sset Master 3%-"
+  Mod4 + minus
+
+# toggle mpd play/pause 
+"mpc toggle"
+  Mod4 + i
+
+# -------------------------
 # Screenshooting
 
 "xfce4-screenshooter"
