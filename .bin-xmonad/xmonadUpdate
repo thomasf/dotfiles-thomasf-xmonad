@@ -10,38 +10,45 @@
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 # Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
 #
-mkdir -p repos
 
-set +e
+set -e
 
 [ ! $(which darcs) ] && echo no darcs installed && exit
 [ ! $(which cabal) ] && echo no cabal installed && exit
 
+cd ~/.xmonad/
+mkdir -p repos
 cd repos
-if [ ! -d xmonad ]; then
-    darcs get http://code.haskell.org/xmonad
-fi
 
-cd xmonad
-darcs pull
-[ -d ../../patches/xmonad ] && for F in ../../patches/xmonad/*; do darcs apply $F; done
-cd ..
+set +e
+(
+    if [ ! -d xmonad ]; then
+        darcs get http://code.haskell.org/xmonad
+    fi
+)
+(
+    cd xmonad
+    darcs pull
+    [ -d ../../patches/xmonad ] && for F in ../../patches/xmonad/*; do darcs apply $F; done
+)
+(
+    if [ ! -d XMonadContrib ]; then
+        darcs get http://code.haskell.org/XMonadContrib
+    fi
+)
+(
+    cd XMonadContrib
+    darcs pull
+    [ -d ../../patches/XMonadContrib ] && for F in ../../patches/XMonadContrib/*; do darcs apply $F; done
+)
+(
+    cd xmonad
+    cabal install
+)
+(
+    cd XMonadContrib
+    cabal install
+)
 
-if [ ! -d XMonadContrib ]; then
-    darcs get http://code.haskell.org/XMonadContrib
-fi
-
-cd XMonadContrib
-darcs pull
-[ -d ../../patches/XMonadContrib ] && for F in ../../patches/XMonadContrib/*; do darcs apply $F; done
-cd ..
-
-cd xmonad
-cabal install
-cd ..
-
-cd XMonadContrib
-cabal install
-cd ..
 
 ~/.cabal/bin/xmonad --recompile
