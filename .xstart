@@ -37,6 +37,9 @@ fi
 # load Xresources
 [ -f "${HOME}/.Xresources" ] && xrdb -merge "${HOME}/.Xresources"
 
+# Start music player daemon if it's available
+[ $(which mpd) ] && mpd
+
 # Start gnupg or ssh agent
 agent_file="$HOME/.gnupg/gpg-agent-info-$(hostname)"
 unset GPG_AGENT_INFO; unset SSH_AUTH_SOCK; unset SSH_AGENT_PID
