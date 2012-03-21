@@ -138,7 +138,6 @@ myLayoutHook =
   onWorkspace "chat" (chatL ||| fullTabL) $
   onWorkspace "nodes" fullTabL $
   onWorkspace "reading" fullTabL $
-  onWorkspace "music" (fullTabL ||| tiledL ) $
   --tiledMirrorL ||| tiledL ||| spiralL ||| magnifiedL ||| four ||| accordionL  ||| decorated ||| fullTabL ||| fullL
   tiledMirrorL ||| tiledL ||| spiralL ||| fullTabL ||| fullL ||| threeCol
   where
@@ -417,7 +416,6 @@ myTopics =
   , "w1.web", "w2.web", "w3.web", "w4.web"
   , "calendar", "mail", "reading"
   , "fileshare"
-  , "music", "movie"
   , "wordpress"
   , "d1.dev", "d2.dev", "d3.dev", "d4.dev", "d5.dev", "d6.dev"
   , "eclipse"
@@ -432,8 +430,7 @@ webPath="Downloads/browser"
 
 myTopicConfig = TopicConfig
   { topicDirs = M.fromList $
-    [ ("music",   "Music")
-    , ("eclipse",  devPath)
+    [ ("eclipse",  devPath)
 
     , ("d1.dev",   devPath), ("d2.dev", devPath), ("d3.dev", devPath)
     , ("d4.dev",   devPath), ("d5.dev", devPath), ("d6.dev", devPath)
@@ -445,12 +442,7 @@ myTopicConfig = TopicConfig
   , defaultTopic = "dashboard"
   , maxTopicHistory = 10
   , topicActions = M.fromList $
-    [ ("music",
-       do
-         spawn "rhythmbox"
-         webBrowserOpen "http://discogs.com"
-      )
-    , ("mail",
+    [ ("mail",
        webAppSpawn "https://mail.google.com/a/jossystem.se/")
     , ("chat",
        do
@@ -474,6 +466,7 @@ myTopicConfig = TopicConfig
          inTerm "saidar"
          inTerm "htop"
          spawn "pavucontrol"
+         inTerm "ncmpcpp" 
       )
     , ("calendar",
        do
@@ -510,7 +503,7 @@ myTopicConfig = TopicConfig
 ------------------------------------------------------------------------
 -- Commands:
 
-inTerm cmd = spawn (myTerminal ++ " -e " ++ cmd)
+inTerm cmd = spawn (myTerminal ++ " -name " ++ cmd  ++ " -e " ++ cmd)
 
 webAppSpawn url = spawn ("www-app '" ++ url ++ "'")
 webBrowserSpawn = spawn "www-window"
