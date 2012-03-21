@@ -309,71 +309,70 @@ killWindows=
 
 myKeys conf@(XConfig {XMonad.modMask = modm}) =
   [ subtitle "Application launching"
-  , ((modm.|. shiftMask,                              xK_Return), addName "launch terminal"                                       $ spawnShell)
+  , ((modm.|. shiftMask,                xK_Return),    addName "launch terminal"                                       $ spawnShell)
 
   , subtitle "misc"
-  , ((modm.|. shiftMask,                              xK_c),      addName "kill active window"                                    $ bindOn killWindows)
+  , ((modm.|. shiftMask,                xK_c),         addName "kill active window"                                    $ bindOn killWindows)
 
   , subtitle "Cyclic window focus"
-  , ((modm,                                           xK_j),      addName "Next window on workspace"                              $ (windows W.focusDown) >> movePointer)
-  , ((modm,                                           xK_k),      addName "Previous window on workspace"                          $ (windows W.focusUp) >> movePointer)
-  , ((modm.|. altMask,                                xK_j),      addName "Next of same window className"                         $ (nextMatchWithThis Forward className) >> movePointer)
-  , ((modm.|. altMask,                                xK_k),      addName "Previous of same window className"                     $ (nextMatchWithThis Backward className) >> movePointer)
+  , ((modm,                             xK_j),         addName "Next window on workspace"                              $ (windows W.focusDown) >> movePointer)
+  , ((modm,                             xK_k),         addName "Previous window on workspace"                          $ (windows W.focusUp) >> movePointer)
+  , ((modm.|. altMask,                  xK_j),         addName "Next of same window className"                         $ (nextMatchWithThis Forward className) >> movePointer)
+  , ((modm.|. altMask,                  xK_k),         addName "Previous of same window className"                     $ (nextMatchWithThis Backward className) >> movePointer)
 
   , subtitle "Cyclic window swap"
-  , ((modm.|. shiftMask,                              xK_j),      addName "Swap the focused window with the next window"          $ (windows W.swapDown) >> movePointer)
-  , ((modm.|. shiftMask,                              xK_k),      addName "Swap the focused window with the previous window"      $ (windows W.swapUp) >> movePointer)
+  , ((modm.|. shiftMask,                xK_j),         addName "Swap the focused window with the next window"          $ (windows W.swapDown) >> movePointer)
+  , ((modm.|. shiftMask,                xK_k),         addName "Swap the focused window with the previous window"      $ (windows W.swapUp) >> movePointer)
 
   , subtitle "Directional window focus"
-  , ((modm,                                           xK_Left),   addName ""                                                      $ (windowGo L False) >> movePointer)
-  , ((modm,                                           xK_Right),  addName ""                                                      $ (windowGo R False) >> movePointer)
-  , ((modm,                                           xK_Up),     addName ""                                                      $ (windowGo U False) >> movePointer)
-  , ((modm,                                           xK_Down),   addName ""                                                      $ (windowGo D False) >> movePointer)
+  , ((modm,                             xK_Left),      addName ""                                                      $ (windowGo L False) >> movePointer)
+  , ((modm,                             xK_Right),     addName ""                                                      $ (windowGo R False) >> movePointer)
+  , ((modm,                             xK_Up),        addName ""                                                      $ (windowGo U False) >> movePointer)
+  , ((modm,                             xK_Down),      addName ""                                                      $ (windowGo D False) >> movePointer)
 
   , subtitle "Directional window swap"
-  , ((modm.|. controlMask,                            xK_Left),   addName ""                                                      $ (windowSwap L False) >> movePointer)
-  , ((modm.|. controlMask,                            xK_Right),  addName ""                                                      $ (windowSwap R False) >> movePointer)
-  , ((modm.|. controlMask,                            xK_Up),     addName ""                                                      $ (windowSwap U False) >> movePointer)
-  , ((modm.|. controlMask,                            xK_Down),   addName ""                                                      $ (windowSwap D False) >> movePointer)
+  , ((modm.|. controlMask,              xK_Left),      addName ""                                                      $ (windowSwap L False) >> movePointer)
+  , ((modm.|. controlMask,              xK_Right),     addName ""                                                      $ (windowSwap R False) >> movePointer)
+  , ((modm.|. controlMask,              xK_Up),        addName ""                                                      $ (windowSwap U False) >> movePointer)
+  , ((modm.|. controlMask,              xK_Down),      addName ""                                                      $ (windowSwap D False) >> movePointer)
 
   , subtitle "Directional window send"
-  , ((modm.|. controlMask.|. altMask,                 xK_Left),   addName ""                                                      $ (windowToScreen L False) >> movePointer)
-  , ((modm.|. controlMask.|. altMask,                 xK_Right),  addName ""                                                      $ (windowToScreen R False) >> movePointer)
-  , ((modm.|. controlMask.|. altMask,                 xK_Up),     addName ""                                                      $ (windowToScreen U False) >> movePointer)
-  , ((modm.|. controlMask.|. altMask,                 xK_Down),   addName ""                                                      $ (windowToScreen D False) >> movePointer)
+  , ((modm.|. controlMask.|. altMask,   xK_Left),      addName ""                                                      $ (windowToScreen L False) >> movePointer)
+  , ((modm.|. controlMask.|. altMask,   xK_Right),     addName ""                                                      $ (windowToScreen R False) >> movePointer)
+  , ((modm.|. controlMask.|. altMask,   xK_Up),        addName ""                                                      $ (windowToScreen U False) >> movePointer)
+  , ((modm.|. controlMask.|. altMask,   xK_Down),      addName ""                                                      $ (windowToScreen D False) >> movePointer)
 
   , subtitle "Go to workspace"
-  , ((modm,                                           xK_n),      addName "Goto workspace prompt"                                 $ promptedGoto)
-  , ((modm,                                           xK_o),      addName "Goto open window in workspace by name"                 $ gotoMenuArgs ["-l 23"] )
+  , ((modm,                             xK_n),         addName "Goto workspace prompt"                                 $ promptedGoto)
+  , ((modm,                             xK_o),         addName "Goto open window in workspace by name"                 $ gotoMenuArgs ["-l 23"] )
 
-  , ((modm.|. controlMask.|. shiftMask,               xK_Right),  addName "Next non empty workspace"                              $ (nextNonEmptyWorkspace) >> movePointer)
-  , ((modm.|. controlMask.|. shiftMask,               xK_Left),   addName "Previous non empty workspace"                          $ (prevNonEmptyWorkspace) >> movePointer)
-  , ((modm.|. controlMask.|. shiftMask,               xK_Up),     addName "Go to next empty workspace"                            $ (nextEmptyWorkspace) >> movePointer)
-  , ((modm.|. controlMask.|. shiftMask,               xK_Down),   addName "Go to previous empty workspace"                        $ (prevEmptyWorkspace) >> movePointer)
+  , ((modm.|. controlMask.|. shiftMask, xK_Right),     addName "Next non empty workspace"                              $ (nextNonEmptyWorkspace) >> movePointer)
+  , ((modm.|. controlMask.|. shiftMask, xK_Left),      addName "Previous non empty workspace"                          $ (prevNonEmptyWorkspace) >> movePointer)
+  , ((modm.|. controlMask.|. shiftMask, xK_Up),        addName "Go to next empty workspace"                            $ (nextEmptyWorkspace) >> movePointer)
+  , ((modm.|. controlMask.|. shiftMask, xK_Down),      addName "Go to previous empty workspace"                        $ (prevEmptyWorkspace) >> movePointer)
 
   , subtitle "Move window to workspace"
-  , ((modm.|. controlMask.|. shiftMask,               xK_n),      addName "Move the currently focused window to workspace prompt" $ promptedShift)
-  , ((modm.|. controlMask.|. shiftMask,               xK_o),      addName "Bring window by search into current workspace"         $ bringMenuArgs ["-l 23"])
+  , ((modm.|. controlMask.|. shiftMask, xK_n),         addName "Move the currently focused window to workspace prompt" $ promptedShift)
+  , ((modm.|. controlMask.|. shiftMask, xK_o),         addName "Bring window by search into current workspace"         $ bringMenuArgs ["-l 23"])
 
   , subtitle "Layout control"
-  , ((modm,                                           xK_space),  addName "Switch to the next window layout"                      $ sendMessage NextLayout)
-  , ((modm,                                           xK_m),      addName "Move focus to master window"                           $ (windows W.focusMaster) >> movePointer)
-  , ((modm,                                           xK_Return), addName "Swap the focused window and the master window"         $ (windows W.swapMaster) >> movePointer)
-  , ((modm,                                           xK_h),      addName "Shrink the master area"                                $ (sendMessage Shrink) >> movePointer)
-  , ((modm,                                           xK_l),      addName "Expand the master area"                                $ (sendMessage Expand) >> movePointer)
-  , ((modm,                                           xK_comma),  addName "Increment the number of windows in the master area"    $ (sendMessage (IncMasterN 1)) >> movePointer)
-  , ((modm,                                           xK_period), addName "Deincrement the number of windows in the master area"  $ (sendMessage (IncMasterN (-1))) >> movePointer)
+  , ((modm,                             xK_space),     addName "Switch to the next window layout"                      $ sendMessage NextLayout)
+  , ((modm,                             xK_m),         addName "Move focus to master window"                           $ (windows W.focusMaster) >> movePointer)
+  , ((modm,                             xK_Return),    addName "Swap the focused window and the master window"         $ (windows W.swapMaster) >> movePointer)
+  , ((modm,                             xK_h),         addName "Shrink the master area"                                $ (sendMessage Shrink) >> movePointer)
+  , ((modm,                             xK_l),         addName "Expand the master area"                                $ (sendMessage Expand) >> movePointer)
+  , ((modm,                             xK_comma),     addName "Increment the number of windows in the master area"    $ (sendMessage (IncMasterN 1)) >> movePointer)
+  , ((modm,                             xK_period),    addName "Deincrement the number of windows in the master area"  $ (sendMessage (IncMasterN (-1))) >> movePointer)
 
   , subtitle "Other window operations"
-  , ((modm,                                           xK_t),      addName "Push the window into tiling mode"                      $ (withFocused $ windows . W.sink) >> movePointer)
+  , ((modm,                             xK_t),         addName "Push the window into tiling mode"                      $ (withFocused $ windows . W.sink) >> movePointer)
 
   , subtitle "other"
 
-  , ((modm.|. altMask,                              xK_t),      addName "terminal scratch pad"                                  $ terminalPad )
-  , ((modm.|. altMask,                              xK_2),      addName "do current topic action"                               $ currentTopicAction myTopicConfig)
-  , ((modm.|. altMask,                              xK_9),      addName "xmonad prompt"                                         $ xmonadPrompt myXPConfig)
-  --, ((modm.|. altMask,                              xK_8),      addName "xmonad dmenu prompt"                                   $ defaultCommands >>= runCommand )
-  , ((modm.|. altMask,                              xK_6),      addName "wincmds"                                         $ workspaceCommands >>= runCommand )
+  , ((modm,                             xK_section),   addName "terminal scratch pad"                                  $ terminalPad )
+  , ((modm.|. altMask,                  xK_2),         addName "do current topic action"                               $ currentTopicAction myTopicConfig)
+  , ((modm.|. altMask,                  xK_9),         addName "xmonad prompt"                                         $ xmonadPrompt myXPConfig)
+  , ((modm.|. altMask,                  xK_6),         addName "wincmds"                                               $ workspaceCommands >>= runCommand )
   ]
 
 emptyKeys = \c -> mkKeymap c $
