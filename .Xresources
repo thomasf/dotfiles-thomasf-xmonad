@@ -39,7 +39,7 @@ Emacs*.toolBar: -1
 Emacs*.verticalScrollBars: off
 
 !---- Xmessage, zenburnesque {
-Xmessage*background:            #3F3F3F
+Xmessage*background:                 #3F3F3F
 Xmessage*foreground:            #F0DFAF
 Xmessage*form.*.shapeStyle:     rectangle
 Xmessage*Scrollbar.width:       4
@@ -47,7 +47,6 @@ Xmessage*Scrollbar.borderWidth: 0
 Xmessage*Buttons:               Quit
 Xmessage*defaultButton:         Quit
 Xmessage*geometry:             +20+20
-
 
 !---- URxvt - General settings {
 URxvt*:borderLess: true
@@ -63,10 +62,8 @@ URxvt*perl-ext-common: default,matcher
 URxvt*urlLauncher: google-chrome
 URxvt*matcher.button: 1
 
-
 !---- URXvt - Large text terminal settings {
 large_term*font: xft:Consolas-16
-
 
 !---- URxvt - Default colorscheme {
 ! drop in Solarized colorscheme for Xresources/Xdefaults
@@ -138,6 +135,27 @@ scratchpad_terminal*color12:    rgb:83/a3/be
 scratchpad_terminal*color13:    rgb:bb/a9/cf
 scratchpad_terminal*color14:    rgb:96/cc/cc
 scratchpad_terminal*color15:    rgb:ff/ff/ff
+
+!--- Terminal for ncpmpcpp {
+ncmpcpp*foreground: #DDEEDD
+ncmpcpp*background: #1C1C1C
+ncmpcpp*color0: #222222
+ncmpcpp*color8: #454545
+ncmpcpp*color1: #F92672
+ncmpcpp*color9: #F92672
+ncmpcpp*color2: #A6E22E
+ncmpcpp*color10: #A6E22E
+ncmpcpp*color3: #FD971F
+ncmpcpp*color11: #FD971F
+ncmpcpp*color4: #4682B4
+ncmpcpp*color12: #4682B4
+ncmpcpp*color5: #AE81FF
+ncmpcpp*color13: #AE81FF
+ncmpcpp*color6: #89b6e2
+ncmpcpp*color14: #46a4ff
+ncmpcpp*color7: #FFFFFF
+ncmpcpp*color15: #FFFFFF
+
 
 !---- Terminal for ssh connections {
 ssh_term*font:            -*-terminus-medium-r-normal-*-12-120-72-72-c-60-iso8859-1
