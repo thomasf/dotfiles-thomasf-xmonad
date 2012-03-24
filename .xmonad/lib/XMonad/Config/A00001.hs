@@ -54,7 +54,9 @@ import qualified System.IO.UTF8
 import           System.Posix.Unistd             (getSystemID, nodeName)
 import           XMonad                          hiding ( (|||) )
 import           XMonad.Actions.Commands
+import           XMonad.Actions.CopyWindow as CW
 import           XMonad.Actions.CycleWS
+import           XMonad.Actions.DynamicWorkspaces as DW
 import           XMonad.Actions.GroupNavigation
 import           XMonad.Actions.Navigation2D
 import           XMonad.Actions.PerWorkspaceKeys
@@ -69,13 +71,26 @@ import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.ServerMode
 import           XMonad.Hooks.UrgencyHook
 import           XMonad.Layout.Accordion
+import           XMonad.Layout.BorderResize
 import           XMonad.Layout.Decoration
+import           XMonad.Layout.DragPane
 import           XMonad.Layout.DwmStyle
+import           XMonad.Layout.Gaps
+import           XMonad.Layout.Grid
 import           XMonad.Layout.IM2
+import           XMonad.Layout.LayoutCombinators
+import           XMonad.Layout.LayoutHints
+import           XMonad.Layout.LimitWindows
 import           XMonad.Layout.Magnifier
+import           XMonad.Layout.Named
+import           XMonad.Layout.NoBorders         (noBorders)
+import           XMonad.Layout.PerWorkspace      (onWorkspace)
+import           XMonad.Layout.Reflect
 import           XMonad.Layout.SimpleFloat
 import           XMonad.Layout.Spiral
 import           XMonad.Layout.Tabbed
+import           XMonad.Layout.ThreeColumns
+import           XMonad.Layout.WindowArranger
 import           XMonad.Prompt
 import           XMonad.Prompt.Workspace
 import           XMonad.Prompt.XMonad
@@ -89,20 +104,7 @@ import           XMonad.Util.Scratchpad          (scratchpadFilterOutWorkspace)
 import           XMonad.Util.Themes
 import           XMonad.Util.WindowProperties
 import           XMonad.Util.WorkspaceCompare
-import           XMonad.Layout.DragPane
-import           XMonad.Layout.Grid
-import           XMonad.Layout.ThreeColumns
-import           XMonad.Layout.LayoutHints
-import           XMonad.Layout.WindowArranger
-import           XMonad.Layout.LayoutCombinators
-import           XMonad.Layout.BorderResize
-import           XMonad.Layout.NoBorders         (noBorders)
-import           XMonad.Layout.Gaps
-import           XMonad.Layout.Reflect
-import           XMonad.Layout.PerWorkspace      (onWorkspace)
-import           XMonad.Layout.Named
-import           XMonad.Layout.LimitWindows
-
+import           XMonad.Util.Dmenu as Dmenu 
 --myTerminal = "urxvtcd"
 myTerminal = "urxvt"
 myShell = "bash"
@@ -373,7 +375,17 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm.|. altMask,                  xK_2),         addName "do current topic action"                               $ currentTopicAction myTopicConfig)
   , ((modm.|. altMask,                  xK_9),         addName "xmonad prompt"                                         $ xmonadPrompt myXPConfig)
   , ((modm.|. altMask,                  xK_6),         addName "wincmds"                                               $ workspaceCommands >>= runCommand )
+  
+  , subtitle "NEW - change4dynworkspace"
+  , ((modm .|. shiftMask, xK_BackSpace), addName "removeworkspace" $ DW.removeWorkspace >> movePointer)
+  , ((modm .|. shiftMask, xK_v      ), addName "" $ DW.selectWorkspace defaultXPConfig >> movePointer)
+  , ((modm, xK_m                    ), addName "" $ DW.withWorkspace defaultXPConfig (windows . W.shift) >> movePointer)
+  , ((modm .|. shiftMask, xK_m      ), addName "" $ DW.withWorkspace defaultXPConfig (windows . CW.copy) >> movePointer)
+  , ((modm .|. shiftMask, xK_r      ), addName "" $ DW.renameWorkspace defaultXPConfig >> movePointer)
   ]
+
+--wsMenu = DW.withWorkspace Dmenu.dmenu (windows . W.shift)
+
 
 emptyKeys = \c -> mkKeymap c $
   [
