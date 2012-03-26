@@ -256,15 +256,7 @@ myPP h = defaultPP
   , ppTitle             =   (" " ++) . dzenColor "#AFAF87" "#111" . dzenEscape
   , ppLayout = dzenColor "#777777" "" .
                (\x -> case x of
-                   "Full" -> "^fg(#777777)^i(/home/petar/.dzen/full.xbm)"
-                   "ResizableTall" -> "^fg(#777777)^i(/home/petar/.dzen/tall.xbm)"
                    "Tall" -> "^fg(#777777)^i(/home/petar/.dzen/tall.xbm)"
-                   "Mirror ResizableTall" -> "^fg(#777777)^i(/home/petar/.dzen/mtall.xbm)"
-                   "Hinted Mirror ResizableTall" -> "^fg(#777777)^i(/home/petar/.dzen/layout-mirror-bottom.xbm)"
-                   "Spiral" -> "[sP]"
-                   "Grid" -> "^fg(#777777)^i(/home/petar/.dzen/grid.xbm)"
-                   "IM Grid" -> "[iM]"
-                   "SimplestFloat" -> "[sfL]"
                    _ -> x
                )
   , ppOutput            =   hPutStrLn h
