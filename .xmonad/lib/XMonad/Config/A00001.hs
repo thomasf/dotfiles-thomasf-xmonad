@@ -31,8 +31,6 @@
 -- http://xmonad.org/xmonad-docs/xmonad-contrib/src/XMonad-Config-Arossato.html
 -- http://www.haskell.org/haskellwiki/Xmonad/Config_archive/Mntnoe%27s_xmonad.hs
 -- http://snipt.net/doitian
--- http://phraktured.net/terminal-colors/
--- http://hpaste.org/fastcgi/hpaste.fcgi/view?id=25565
 --
 -----------------------------------------------------------------------------
 module XMonad.Config.A00001
@@ -424,33 +422,18 @@ myTopics :: [Topic]
 myTopics =
   [ "m1.misc", "m2.misc"
   , "chat", "nodes"
-  , "w1.web", "w2.web", "w3.web", "w4.web"
   , "calendar", "mail", "reading"
   , "fileshare"
-  , "wordpress"
-  , "d1.dev", "d2.dev", "d3.dev", "d4.dev", "d5.dev", "d6.dev"
-  , "eclipse"
   , "dashboard"
-  , "virtualbox"
   ]
 
 myTopicConfig :: TopicConfig
 
-devPath="repos"
 webPath="Downloads/browser"
 
 myTopicConfig = TopicConfig
-  { topicDirs = M.fromList $
-    [ ("eclipse",  devPath)
-
-    , ("d1.dev",   devPath), ("d2.dev", devPath), ("d3.dev", devPath)
-    , ("d4.dev",   devPath), ("d5.dev", devPath), ("d6.dev", devPath)
-
-    , ("w1.web",   webPath), ("w2.web", webPath), ("w3.web", webPath)
-    , ("w4.web",   webPath)
-    ]
-  , defaultTopicAction = const $ spawnShell
-  , defaultTopic = "dashboard"
+  { defaultTopic = "dashboard"
+  , topicDirs = M.fromList $ []
   , maxTopicHistory = 10
   , topicActions = M.fromList $
     [ ("mail",
@@ -460,12 +443,6 @@ myTopicConfig = TopicConfig
          spawn "pidgin"
          spawn "xchat"
       )
-    , ("m1.misc", return())
-    , ("m2.misc", return())
-    , ("w1.web", webBrowserSpawn )
-    , ("w2.web", webBrowserSpawn )
-    , ("w3.web", webBrowserSpawn )
-    , ("w4.web", webBrowserSpawn )
     , ("fileshare",
        do
          spawn "krusader"
@@ -505,8 +482,6 @@ myTopicConfig = TopicConfig
          webBrowserOpen "http://physorg.com"
          webBrowserOpen "http://medicalxpress.com"
       )
-    , ("eclipse", spawn "eclipse")
-    , ("virtualbox", spawn "VirtualBox")
     ]
   }
 
