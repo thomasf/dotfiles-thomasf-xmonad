@@ -363,15 +363,15 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
 
   , ((modm,                             xK_section),   addName "terminal scratch pad"                                  $ terminalPad )
   , ((modm.|. altMask,                  xK_2),         addName "do current topic action"                               $ currentTopicAction myTopicConfig)
-  , ((modm.|. altMask,                  xK_9),         addName "xmonad prompt"                                         $ xmonadPrompt myXPConfig)
+  , ((modm.|. altMask,                  xK_9),         addName "xmonad prompt"                                         $ xmonadPrompt myAutocompleteXPConfig)
   , ((modm.|. altMask,                  xK_6),         addName "wincmds"                                               $ workspaceCommands >>= runCommand )
   
   , subtitle "NEW - change4dynworkspace"
   , ((modm .|. shiftMask, xK_BackSpace), addName "removeworkspace" $ DW.removeWorkspace >> movePointer)
-  , ((modm .|. shiftMask, xK_v      ), addName "" $ DW.selectWorkspace defaultXPConfig >> movePointer)
-  , ((modm, xK_m                    ), addName "" $ DW.withWorkspace defaultXPConfig (windows . W.shift) >> movePointer)
-  , ((modm .|. shiftMask, xK_m      ), addName "" $ DW.withWorkspace defaultXPConfig (windows . CW.copy) >> movePointer)
-  , ((modm .|. shiftMask, xK_r      ), addName "" $ DW.renameWorkspace defaultXPConfig >> movePointer)
+  , ((modm .|. shiftMask, xK_v      ), addName "" $ DW.selectWorkspace myXPConfig >> movePointer)
+  , ((modm, xK_m                    ), addName "" $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
+  , ((modm .|. shiftMask, xK_m      ), addName "" $ DW.withWorkspace myXPConfig (windows . CW.copy) >> movePointer)
+  , ((modm .|. shiftMask, xK_r      ), addName "" $ DW.renameWorkspace myXPConfig >> movePointer)
   ]
 
 --wsMenu = DW.withWorkspace Dmenu.dmenu (windows . W.shift)
@@ -404,8 +404,13 @@ myXPConfig = defaultXPConfig
   , fgHLight = "#ffffff"
   , bgHLight = "#3465a4"
   , promptBorderWidth = 0
-  , autoComplete = Just 500000
   }
+
+myAutocompleteXPConfig = myXPConfig
+  { autoComplete = Just 500000  }
+
+
+
 
 ------------------------------------------------------------------------
 -- Topics
@@ -497,10 +502,10 @@ goto :: Topic -> X ()
 goto = switchTopic myTopicConfig
 
 promptedGoto :: X ()
-promptedGoto = workspacePrompt myXPConfig goto
+promptedGoto = workspacePrompt myAutocompleteXPConfig goto
 
 promptedShift :: X ()
-promptedShift = workspacePrompt myXPConfig $ windows . W.shift
+promptedShift = workspacePrompt myAutocompleteXPConfig $ windows . W.shift
 
 nextNonEmptyWorkspace = windows . W.greedyView
                         =<< findWorkspace getSortByIndexNoSP Next HiddenNonEmptyWS 1
