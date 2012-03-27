@@ -55,6 +55,7 @@ import           XMonad.Actions.Commands
 import           XMonad.Actions.CopyWindow as CW
 import           XMonad.Actions.CycleWS
 import           XMonad.Actions.DynamicWorkspaces as DW
+import           XMonad.Actions.DynamicWorkspaceOrder as DO
 import           XMonad.Actions.GroupNavigation
 import           XMonad.Actions.Navigation2D
 import           XMonad.Actions.PerWorkspaceKeys
