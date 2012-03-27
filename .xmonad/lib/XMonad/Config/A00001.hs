@@ -340,8 +340,6 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
 
   , ((modm.|. controlMask.|. shiftMask, xK_Right),     addName "Next non empty workspace"                              $ (nextNonEmptyWorkspace) >> movePointer)
   , ((modm.|. controlMask.|. shiftMask, xK_Left),      addName "Previous non empty workspace"                          $ (prevNonEmptyWorkspace) >> movePointer)
-  , ((modm.|. controlMask.|. shiftMask, xK_Up),        addName "Go to next empty workspace"                            $ (nextEmptyWorkspace) >> movePointer)
-  , ((modm.|. controlMask.|. shiftMask, xK_Down),      addName "Go to previous empty workspace"                        $ (prevEmptyWorkspace) >> movePointer)
 
   , subtitle "Move window to workspace"
   , ((modm.|. controlMask.|. shiftMask, xK_n),         addName "Move the currently focused window to workspace prompt" $ promptedShift)
@@ -511,11 +509,6 @@ nextNonEmptyWorkspace = windows . W.greedyView
                         =<< findWorkspace getSortByIndexNoSP Next HiddenNonEmptyWS 1
 prevNonEmptyWorkspace = windows . W.greedyView
                         =<< findWorkspace getSortByIndexNoSP Prev HiddenNonEmptyWS 1
-
-nextEmptyWorkspace = windows . W.greedyView
-                     =<< findWorkspace getSortByIndexNoSP Next EmptyWS 1
-prevEmptyWorkspace = windows . W.greedyView
-                     =<< findWorkspace getSortByIndexNoSP Prev EmptyWS 1
 
 getSortByIndexNoSP = fmap (.scratchpadFilterOutWorkspace) getSortByIndex
 
