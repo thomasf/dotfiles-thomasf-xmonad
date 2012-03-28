@@ -472,11 +472,7 @@ myTopicConfig = TopicConfig
       )
     , ("reading",
        do
-         webBrowserOpen "http://reader.google.com"
-         webBrowserOpen "http://dn.se"
-         webBrowserOpen "http://slashdot.org"
-         webBrowserOpen "http://physorg.com"
-         webBrowserOpen "http://medicalxpress.com"
+         spawn "reading"
       )
     ]
   }
