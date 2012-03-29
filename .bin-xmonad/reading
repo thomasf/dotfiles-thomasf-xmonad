@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# Start a reading / research browser session, I use firefox for this because of zotero
+#
+# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
+#
+
+set -e
+
+exec firefox \
+     http://reader.google.com \
+     http://dn.se \
+     http://slashdot.org \
+     http://physorg.com \
+     http://medicalxpress.com \
+     http://medicalxpress.com/neuroscience-news/sort/date/all \
+     http://medicalxpress.com/psychology-news/sort/date/all \
+     http://medicalxpress.com/attention-deficit-disorders-news/sort/date/all \
+     http://medicalxpress.com/autism-spectrum-news/sort/date/all
