@@ -47,8 +47,7 @@ import           XMonad                          hiding ( (|||) )
 import           XMonad.Actions.Commands
 import           XMonad.Actions.CopyWindow as CW
 import           XMonad.Actions.CycleWS
-import           XMonad.Actions.DynamicWorkspaces as DW
-import           XMonad.Actions.DynamicWorkspaceOrder as DO
+import qualified XMonad.Actions.DynamicWorkspaces as DW
 import           XMonad.Actions.GroupNavigation
 import           XMonad.Actions.Navigation2D
 import           XMonad.Actions.PerWorkspaceKeys
@@ -339,13 +338,13 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , subtitle "Workspace operations"
   , ((modm, xK_o),                                 addName "Goto open window in workspace by name"                $ gotoMenuArgs ["-l 23"] >> movePointer)
   , ((modm.|. shiftMask,  xK_BackSpace),           addName "Remove current workspace"                             $ DW.removeWorkspace >> movePointer)
-  , ((modm, xK_n ),                                addName "Create or change workspace prompt"                    $ DW.selectWorkspace myXPConfig >> maybeWorkspaceAction >> movePointer)
+  , ((modm, xK_n ),                                addName "Create or change workspace prompt"                    $ rmEmptyWs $ DW.selectWorkspace myXPConfig >> maybeWorkspaceAction >> movePointer)
   , ((modm.|. controlMask.|. shiftMask, xK_o),     addName "Bring window by search into current workspace"        $ bringMenuArgs ["-l 23"] >> movePointer)
-  , ((modm, xK_m),                                 addName "Move current window to other workspace prompt"        $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
+  , ((modm, xK_m),                                 addName "Move current window to other workspace prompt"        $ rmEmptyWs $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
   , ((modm.|. shiftMask, xK_m),                    addName "Copy current window to other workspace prompt"        $ DW.withWorkspace myXPConfig (windows . CW.copy) >> movePointer)
   , ((modm.|. shiftMask, xK_r),                    addName "Rename current workspace"                             $ DW.renameWorkspace myXPConfig >> movePointer)
-  , ((modm.|. controlMask.|. shiftMask, xK_Right), addName "Next non empty workspace"                             $ nextNonEmptyWorkspace >> movePointer)
-  , ((modm.|. controlMask.|. shiftMask, xK_Left),  addName "Previous non empty workspace"                         $ prevNonEmptyWorkspace >> movePointer)
+  , ((modm.|. controlMask.|. shiftMask, xK_Right), addName "Next non empty workspace"                             $ rmEmptyWs $ nextNonEmptyWorkspace >> movePointer)
+  , ((modm.|. controlMask.|. shiftMask, xK_Left),  addName "Previous non empty workspace"                         $ rmEmptyWs $ prevNonEmptyWorkspace >> movePointer)
 
   , subtitle "Layout control"
   , ((modm, xK_space),                             addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer)
@@ -426,6 +425,9 @@ restartXmonad = spawn "xmonad --recompile && xmonad --restart"
 ------------------------------------------------------------------------
 -- Utils
 --
+
+-- | Remove current workpace if empty
+rmEmptyWs = DW.removeEmptyWorkspaceAfter
 
 -- | Run script with same name as "w.workspacename" if the workspace is empty
 maybeWorkspaceAction = do
