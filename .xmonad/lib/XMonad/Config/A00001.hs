@@ -458,21 +458,11 @@ myTopicConfig = TopicConfig
       )
     , ("nodes",
        do
-         --webBrowserOpen "http://twitter.com"
-         webBrowserOpen "http://facebook.com"
-         --webBrowserOpen "https://plus.google.com/u/1/"
-         webBrowserOpen "http://last.fm"
-         webBrowserOpen "http://github.com"
-         -- webBrowserOpen "http://skunk.nu"
-         -- webBrowserOpen "http://linkedin.com"
-         -- webBrowserOpen "http://mixcloud.com"
-         -- webBrowserOpen "http://soundcloud.com"
-         -- webBrowserOpen "http://wfmu.org"
-         -- webBrowserOpen "http://threadless.com"
+         spawn "w.nodes"
       )
     , ("reading",
        do
-         spawn "reading"
+         spawn "w.reading"
       )
     ]
   }
