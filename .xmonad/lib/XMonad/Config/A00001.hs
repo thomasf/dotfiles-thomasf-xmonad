@@ -103,18 +103,27 @@ import           XMonad.Util.Themes
 import           XMonad.Util.WindowProperties
 import           XMonad.Util.WorkspaceCompare
 import           XMonad.Util.Dmenu as Dmenu 
---myTerminal = "urxvtcd"
+
+
+------------------------------------------------------------------------
+-- Basic random
+--
 myTerminal = "urxvt"
 myShell = "bash"
 
 myFocusFollowsMouse = False
 myBorderWidth   = 1
-myModMask = mod4Mask
 
+------------------------------------------------------------------------
 -- Border colors for unfocused and focused windows, respectively.
 --
 myNormalBorderColor  = "#000"
 myFocusedBorderColor = "#202020"
+
+------------------------------------------------------------------------
+-- Workspaces
+
+myWorkspaces = ["m1","m2"]
 
 ------------------------------------------------------------------------
 -- Layouts:
@@ -265,9 +274,6 @@ myPP h = defaultPP
   where
     padWs ws = if ws == "NSP" then "" else pad ws
 
--- move mouse pointer to bottom right of the current window
-movePointer=(updatePointer (Relative 0.99 0.99))
-
 ------------------------------------------------------------------------
 -- Startup hook
 
@@ -289,6 +295,7 @@ myStartupHook = do
 ------------------------------------------------------------------------
 -- Keyboard configuration:
 
+myModMask = mod4Mask
 altMask=mod1Mask
 
 killWindows=
@@ -396,6 +403,9 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
   -- you may also bind events to the mouse scroll wheel (button4 and button5)
   ]
 
+------------------------------------------------------------------------
+-- XMonad Prompt configuration
+
 myXPConfig = defaultXPConfig
   { position = Top
   , fgColor = "#ffffff"
@@ -407,22 +417,6 @@ myXPConfig = defaultXPConfig
 
 myAutocompleteXPConfig = myXPConfig
   { autoComplete = Just 500000  }
-
-------------------------------------------------------------------------
--- Workspaces
-
-myWorkspaces = ["m1","m2"]
-
-------------------------------------------------------------------------
--- | Workspace Actions:
--- Working draft for "workspace actions"
-
--- | Run script with same name as "w.workspacename" if the workspace is empty
-maybeWorkspaceAction = do
-  ws <- gets (W.currentTag . windowset)
-  wins <- gets (W.integrate' . W.stack . W.workspace . W.current . windowset)
-  when (null wins) $ spawn ("w." ++ ws )
-
 
 ------------------------------------------------------------------------
 -- Commands:
@@ -448,15 +442,27 @@ irssiPad = namedScratchpadAction myScratchPads "irssi"
 
 restartXmonad = spawn "xmonad --recompile && xmonad --restart"
 
-myXMessage :: [((KeyMask, KeySym), NamedAction)] -> NamedAction
-myXMessage x = addName "Show Keybindings" $ io $ do
+
+------------------------------------------------------------------------
+-- Utils
+--
+
+-- | Run script with same name as "w.workspacename" if the workspace is empty
+maybeWorkspaceAction = do
+  ws <- gets (W.currentTag . windowset)
+  wins <- gets (W.integrate' . W.stack . W.workspace . W.current . windowset)
+  when (null wins) $ spawn ("w." ++ ws )
+
+-- | Move mouse pointer to bottom right of the current window
+movePointer=(updatePointer (Relative 0.99 0.99))
+
+-- | Display keyboard mappings using zenity
+showKeybindings :: [((KeyMask, KeySym), NamedAction)] -> NamedAction
+showKeybindings x = addName "Show Keybindings" $ io $ do
   h <- spawnPipe "zenity --text-info"
   System.IO.UTF8.hPutStr h (unlines $ showKm x)
   hClose h
   return ()
-
------------------------------------------------------------------------
--- Support functionality
 
 -- | Return the dimensions (x, y, width, height) of screen n.
 getScreenDim :: Num a => Int -> IO (a, a, a, a)
@@ -520,7 +526,7 @@ instance UrgencyHook LibNotifyUrgencyHook where
 -- Default configuration
 
 aDefaultConfig =
-  addDescrKeys' ((mod4Mask, xK_F1), myXMessage) myKeys $ defaultConfig
+  addDescrKeys' ((mod4Mask, xK_F1), showKeybindings) myKeys $ defaultConfig
   { terminal           = myTerminal
   , focusFollowsMouse  = myFocusFollowsMouse
   , borderWidth        = myBorderWidth
@@ -538,11 +544,8 @@ aDefaultConfig =
 
 
 -----------------------------------------------------------------------------
---  Auto config!
+-- | Auto config!
 --
---
-
-
 autoConfig=do
   host <- fmap nodeName getSystemID
   return =<< chooseConfigByHost host
