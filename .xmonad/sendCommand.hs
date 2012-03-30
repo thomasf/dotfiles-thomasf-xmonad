@@ -12,7 +12,7 @@
    pn <- getProgName
    let com = case args of
                [] -> error $ usage pn
-               w -> (w !! 0)
+               w -> head w
    sendCommand com
 
  sendCommand :: String -> IO ()
