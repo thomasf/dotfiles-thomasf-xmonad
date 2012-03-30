@@ -430,7 +430,7 @@ restartXmonad = spawn "xmonad --recompile && xmonad --restart"
 maybeWorkspaceAction = do
   ws <- gets (W.currentTag . windowset)
   wins <- gets (W.integrate' . W.stack . W.workspace . W.current . windowset)
-  when (null wins) $ spawn ("w." ++ ws )
+  when (null wins) $ spawn ("w." ++ takeWhile (/='.') ws )
 
 -- | Move mouse pointer to bottom right of the current window
 movePointer = updatePointer (Relative 0.99 0.99)
