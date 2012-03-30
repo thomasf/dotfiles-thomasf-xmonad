@@ -59,7 +59,6 @@ import           XMonad.Actions.DynamicWorkspaceOrder as DO
 import           XMonad.Actions.GroupNavigation
 import           XMonad.Actions.Navigation2D
 import           XMonad.Actions.PerWorkspaceKeys
-import           XMonad.Actions.TopicSpace
 import           XMonad.Actions.UpdatePointer
 import           XMonad.Actions.WindowBringer    (gotoMenuArgs, bringMenuArgs)
 import           XMonad.Config.Gnome
@@ -187,6 +186,7 @@ myManageHook =  composeOne
   , resource            =? "kdesktop"          -?> doIgnore
   , className           =? "Unity-2d-panel"    -?> doIgnore
   , className           =? "Unity-2d-launcher" -?> doFloat
+  , className           =? "Gimp"              -?> doFloat
   , className           =? "Xfce4-notifyd"     -?> doIgnore
   , className           =? "Xfdesktop"         -?> doIgnore
   , className           =? "Orage"             -?> doFloat
@@ -336,14 +336,14 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm.|. controlMask.|. altMask,   xK_Down),      addName ""                                                      $ (windowToScreen D False) >> movePointer)
 
   , subtitle "Go to workspace"
-  , ((modm,                             xK_n),         addName "Goto workspace prompt"                                 $ promptedGoto)
+  --, ((modm,                             xK_n),         addName "Goto workspace prompt"                                 $ promptedGoto)
   , ((modm,                             xK_o),         addName "Goto open window in workspace by name"                 $ gotoMenuArgs ["-l 23"] )
 
   , ((modm.|. controlMask.|. shiftMask, xK_Right),     addName "Next non empty workspace"                              $ (nextNonEmptyWorkspace) >> movePointer)
   , ((modm.|. controlMask.|. shiftMask, xK_Left),      addName "Previous non empty workspace"                          $ (prevNonEmptyWorkspace) >> movePointer)
 
   , subtitle "Move window to workspace"
-  , ((modm.|. controlMask.|. shiftMask, xK_n),         addName "Move the currently focused window to workspace prompt" $ promptedShift)
+  --, ((modm.|. controlMask.|. shiftMask, xK_n),         addName "Move the currently focused window to workspace prompt" $ promptedShift)
   , ((modm.|. controlMask.|. shiftMask, xK_o),         addName "Bring window by search into current workspace"         $ bringMenuArgs ["-l 23"])
 
   , subtitle "Layout control"
@@ -361,13 +361,13 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , subtitle "other"
 
   , ((modm,                             xK_section),   addName "terminal scratch pad"                                  $ terminalPad )
-  , ((modm.|. altMask,                  xK_2),         addName "do current topic action"                               $ currentTopicAction myTopicConfig)
+  , ((modm.|. altMask,                  xK_2),         addName "do current topic action"                               $ maybeWorkspaceAction)
   , ((modm.|. altMask,                  xK_9),         addName "xmonad prompt"                                         $ xmonadPrompt myAutocompleteXPConfig)
   , ((modm.|. altMask,                  xK_6),         addName "wincmds"                                               $ workspaceCommands >>= runCommand )
   
   , subtitle "NEW - change4dynworkspace"
   , ((modm .|. shiftMask, xK_BackSpace), addName "removeworkspace" $ DW.removeWorkspace >> movePointer)
-  , ((modm .|. shiftMask, xK_v      ), addName "" $ DW.selectWorkspace myXPConfig >> movePointer)
+  , ((modm, xK_n      ), addName "" $ DW.selectWorkspace myXPConfig >> maybeWorkspaceAction >> movePointer)
   , ((modm, xK_m                    ), addName "" $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
   , ((modm .|. shiftMask, xK_m      ), addName "" $ DW.withWorkspace myXPConfig (windows . CW.copy) >> movePointer)
   , ((modm .|. shiftMask, xK_r      ), addName "" $ DW.renameWorkspace myXPConfig >> movePointer)
@@ -387,12 +387,12 @@ emptyKeys = \c -> mkKeymap c $
 myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
   -- mod-button1, Set the window to floating mode and move by dragging
   [ ((modm, button1), (\w -> focus w >> mouseMoveWindow w
-                                     >> windows W.shiftMaster))
+                                    >> windows W.shiftMaster))
   -- mod-button2, Raise the window to the top of the stack
   , ((modm, button2), (\w -> focus w >> windows W.shiftMaster))
   -- mod-button3, Set the window to floating mode and resize by dragging
   , ((modm, button3), (\w -> focus w >> mouseResizeWindow w
-                                     >> windows W.shiftMaster))
+                                    >> windows W.shiftMaster))
   -- you may also bind events to the mouse scroll wheel (button4 and button5)
   ]
 
@@ -408,64 +408,20 @@ myXPConfig = defaultXPConfig
 myAutocompleteXPConfig = myXPConfig
   { autoComplete = Just 500000  }
 
+------------------------------------------------------------------------
+-- Workspaces
 
-
+myWorkspaces = ["m1","m2"]
 
 ------------------------------------------------------------------------
--- Topics
+-- | Workspace Actions:
+-- Working draft for "workspace actions"
 
-myTopics :: [Topic]
-myTopics =
-  [ "m1.misc", "m2.misc"
-  , "chat", "nodes"
-  , "calendar", "mail", "reading"
-  , "fileshare"
-  , "dashboard"
-  ]
-
-myTopicConfig :: TopicConfig
-
-webPath="Downloads/browser"
-
-myTopicConfig = TopicConfig
-  { defaultTopic = "dashboard"
-  , topicDirs = M.fromList $ []
-  , maxTopicHistory = 10
-  , topicActions = M.fromList $
-    [ ("mail",
-       webAppSpawn "https://mail.google.com/a/jossystem.se/")
-    , ("chat",
-       do
-         spawn "pidgin"
-         spawn "xchat"
-      )
-    , ("fileshare",
-       do
-         spawn "krusader"
-         spawn "transmission-gtk"
-         spawn "nicotine.py"
-      )
-    , ("dashboard",
-       do
-         inTerm "saidar"
-         inTerm "htop"
-         spawn "pavucontrol"
-         inTerm "ncmpcpp" 
-      )
-    , ("calendar",
-       do
-         webAppSpawn "http://www.google.com/calendar/hosted/jossystem.se/render"
-      )
-    , ("nodes",
-       do
-         spawn "w.nodes"
-      )
-    , ("reading",
-       do
-         spawn "w.reading"
-      )
-    ]
-  }
+-- | Run script with same name as "w.workspacename" if the workspace is empty
+maybeWorkspaceAction = do
+  ws <- gets (W.currentTag . windowset)
+  wins <- gets (W.integrate' . W.stack . W.workspace . W.current . windowset)
+  when (null wins) $ spawn ("w." ++ ws )
 
 
 ------------------------------------------------------------------------
@@ -478,19 +434,7 @@ webBrowserSpawn = spawn "www-window"
 webBrowserOpen url = spawn ("www-window " ++ url)
 
 spawnShell :: X ()
-spawnShell = currentTopicDir myTopicConfig >>= spawnShellIn
-
-spawnShellIn :: Dir -> X ()
-spawnShellIn dir = spawn $ myTerminal ++ " -e "
-                   ++ "bash -c 'cd ''" ++ dir ++ "'' && " ++ myShell ++ "'"
-goto :: Topic -> X ()
-goto = switchTopic myTopicConfig
-
-promptedGoto :: X ()
-promptedGoto = workspacePrompt myAutocompleteXPConfig goto
-
-promptedShift :: X ()
-promptedShift = workspacePrompt myAutocompleteXPConfig $ windows . W.shift
+spawnShell = spawn myTerminal
 
 nextNonEmptyWorkspace = windows . W.greedyView
                         =<< findWorkspace getSortByIndexNoSP Next HiddenNonEmptyWS 1
@@ -514,8 +458,6 @@ myXMessage x = addName "Show Keybindings" $ io $ do
 -----------------------------------------------------------------------
 -- Support functionality
 
---getScreenDim :: Rectangle
-
 -- | Return the dimensions (x, y, width, height) of screen n.
 getScreenDim :: Num a => Int -> IO (a, a, a, a)
 getScreenDim n = do
@@ -529,6 +471,10 @@ getScreenDim n = do
                            fromIntegral $ rect_width r , fromIntegral $ rect_height r )
     otherwise -> return $ (fromIntegral $ rect_x rn, fromIntegral $ rect_y rn,
                            fromIntegral $ rect_width rn, fromIntegral $ rect_height rn)
+
+-- | Determine the number of physical screens.
+countScreens :: (MonadIO m, Integral i) => m i
+countScreens = liftM genericLength . liftIO $ openDisplay "" >>= getScreenInfo
 
 ------------------------------------------------------------------------
 -- Scratch pads:
@@ -579,7 +525,7 @@ aDefaultConfig =
   , focusFollowsMouse  = myFocusFollowsMouse
   , borderWidth        = myBorderWidth
   , modMask            = myModMask
-  , workspaces         = myTopics
+  , workspaces         = myWorkspaces
   , normalBorderColor  = myNormalBorderColor
   , focusedBorderColor = myFocusedBorderColor
   , keys               = emptyKeys
@@ -598,7 +544,6 @@ aDefaultConfig =
 
 
 autoConfig=do
-  checkTopicConfig myTopics myTopicConfig
   host <- fmap nodeName getSystemID
   return =<< chooseConfigByHost host
     where

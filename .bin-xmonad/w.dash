@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# Workspace launcher
+#
+# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
+#
+
+urxvt -name saidar -e saidar -c &
+urxvt -name ncmpcpp -e ncmpcpp &
+urxvt -name htop -e htop &
+pavucontrol &
