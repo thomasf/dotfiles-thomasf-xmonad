@@ -143,12 +143,13 @@ myLayoutHook =
   --tiledMirrorL ||| tiledL ||| spiralL ||| magnifiedL ||| four ||| accordionL  ||| decorated ||| fullTabL ||| fullL
   tiledMirrorL ||| tiledL ||| spiralL ||| fullTabL ||| fullL ||| threeCol
   where
+    myTheme=wfarrTheme
     -- normal layouts
-    tiledL=named "tile" ( avoidStruts $  deco kavonBluesTheme $ layoutHintsToCenter tiled )
-    tiledMirrorL=named "tile mirror" ( avoidStruts $ deco kavonBluesTheme $ layoutHintsToCenter (Mirror tiled))
-    fullTabL=named "fulltab"  ( avoidStruts $ noBorders $ tabbed shrinkText (theme kavonForestTheme))
+    tiledL=named "tile" ( avoidStruts $  deco myTheme $ layoutHintsToCenter tiled )
+    tiledMirrorL=named "tile mirror" ( avoidStruts $ deco myTheme $ layoutHintsToCenter (Mirror tiled))
+    fullTabL=named "fulltab"  ( avoidStruts $ noBorders $ tabbed shrinkText (theme myTheme))
     fullL=named "full" ( noBorders $ Full)
-    spiralL=named "spiral" ( noBorders $ deco kavonFireTheme $ avoidStruts $ spiral (6/7))
+    spiralL=named "spiral" ( noBorders $ deco myTheme $ avoidStruts $ spiral (6/7))
     threeCol=named "3Col" ( noBorders $ avoidStruts $ ThreeColMid 1 (3/100) (1/2))
 
     --workspace specific layouts
@@ -370,7 +371,7 @@ emptyKeys c = mkKeymap c [ ]
 ------------------------------------------------------------------------
 -- Mouse bindings: default actions bound to mouse events
 --
-myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList 
+myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList
   -- mod-button1, Set the window to floating mode and move by dragging
   [ ((modm, button1), \w -> focus w >> mouseMoveWindow w
                                     >> windows W.shiftMaster)
@@ -410,11 +411,11 @@ spawnShell :: X ()
 spawnShell = spawn myTerminal
 
 nextNonEmptyWorkspace = windows . W.greedyView
-                        =<< findWorkspace getSortByIndexNoSP Next HiddenNonEmptyWS 1
+                        =<< findWorkspace getSortByTagNoSP Next HiddenNonEmptyWS 1
 prevNonEmptyWorkspace = windows . W.greedyView
-                        =<< findWorkspace getSortByIndexNoSP Prev HiddenNonEmptyWS 1
+                        =<< findWorkspace getSortByTagNoSP Prev HiddenNonEmptyWS 1
 
-getSortByIndexNoSP = fmap (.scratchpadFilterOutWorkspace) getSortByIndex
+getSortByTagNoSP = fmap (.scratchpadFilterOutWorkspace) getSortByTag
 
 terminalPad = namedScratchpadAction myScratchPads "terminal"
 irssiPad = namedScratchpadAction myScratchPads "irssi"
@@ -453,9 +454,9 @@ getScreenDim n = do
   case screens of
     []        -> return (0, 0, 1024, 768) -- fallback
     [r]       -> return (fromIntegral $ rect_x r , fromIntegral $ rect_y r ,
-                           fromIntegral $ rect_width r , fromIntegral $ rect_height r )
+                        fromIntegral $ rect_width r , fromIntegral $ rect_height r )
     otherwise -> return (fromIntegral $ rect_x rn, fromIntegral $ rect_y rn,
-                           fromIntegral $ rect_width rn, fromIntegral $ rect_height rn)
+                        fromIntegral $ rect_width rn, fromIntegral $ rect_height rn)
 
 -- | Determine the number of physical screens.
 countScreens :: (MonadIO m, Integral i) => m i
