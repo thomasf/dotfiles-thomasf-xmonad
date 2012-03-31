@@ -96,6 +96,21 @@ import           XMonad.Util.Scratchpad          (scratchpadFilterOutWorkspace)
 import           XMonad.Util.WindowProperties
 import           XMonad.Util.WorkspaceCompare
 
+------------------------------------------------------------------------
+-- TODO
+--
+-- * Do not show scratchpad/minimized
+--   Window workspace in workspace selection prompts
+--
+-- * Cycle all workspaces with prefix (workspace tag up to .)
+--   cycleWindowSets? http://xmonad.org/xmonad-docs/xmonad-contrib/src/XMonad-Actions-CycleRecentWS.html
+--   http://xmonad.org/xmonad-docs/xmonad-contrib/XMonad-Actions-CycleWS.html
+--   http://xmonad.org/xmonad-docs/xmonad-contrib/XMonad-Util-WorkspaceCompare.html
+--
+-- * Automatically create one workspace for each screen on start up instead of always doing this:
+--   myWorkspaces = ["m1","m2"]
+
+
 
 ------------------------------------------------------------------------
 -- Basic random
@@ -263,7 +278,6 @@ myXmobarLogHook h = dynamicLogWithPP defaultPP
   }
 
 myDzenLogHook h = dynamicLogWithPP $ myPP h
-
 
 myPP h = defaultPP
   { ppCurrent           =   dzenColor "#eee" "#111" . padWs
