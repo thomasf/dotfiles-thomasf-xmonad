@@ -170,7 +170,10 @@ titleTheme = baseTheme { inactiveColor       = "#eee8d5"
                        , inactiveTextColor   = "#657b83"
                        }
 -- | The layouthoook
-myLayoutHook = showWName $
+myLayoutHook = showWName' defaultSWNConfig { swn_font = "-xos4-terminus-*-r-*-*-32-*-*-*-*-*-iso8859-*"
+                                           , swn_bgcolor = "#073642"
+                                           , swn_color = "#d33682"
+                                           } $
   onWorkspace "chat" (chatL ||| threeCol ||| fullTabL) $
   onWorkspace "nodes" fullTabL $
   onWorkspace "reading" fullTabL $
