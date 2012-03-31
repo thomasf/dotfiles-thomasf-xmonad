@@ -78,6 +78,7 @@ import           XMonad.Layout.PerWorkspace      (onWorkspace)
 import           XMonad.Layout.Reflect
 import           XMonad.Layout.SimpleFloat
 import           XMonad.Layout.Spiral
+import           XMonad.Layout.ShowWName
 import           XMonad.Layout.Tabbed
 import           XMonad.Layout.ThreeColumns
 import           XMonad.Layout.WindowArranger
@@ -91,7 +92,6 @@ import           XMonad.Util.NamedScratchpad
 import           XMonad.Util.NamedWindows        (getName)
 import           XMonad.Util.Run
 import           XMonad.Util.Scratchpad          (scratchpadFilterOutWorkspace)
-import           XMonad.Util.Themes
 import           XMonad.Util.WindowProperties
 import           XMonad.Util.WorkspaceCompare
 import           XMonad.Util.Dmenu as Dmenu
@@ -135,24 +135,42 @@ myWorkspaces = ["m1","m2"]
 -- which denotes layout choice.
 --
 
-myLayoutHook =
-  onWorkspace "chat" (chatL ||| fullTabL) $
+-- | Base decoration theme
+baseTheme = defaultTheme { fontName            = "-*-fixed-medium-r-*--10-*-*-*-*-*-iso8859-1"
+                         , decoHeight          = 12
+                         }
+
+-- | Copied from Tehemes
+tabTheme = baseTheme { activeColor         = "#4c7899"
+                     , inactiveColor       = "#333333"
+                     , activeBorderColor   = "#285577"
+                     , inactiveBorderColor = "#222222"
+                     , activeTextColor     = "#ffffff"
+                     , inactiveTextColor   = "#888888"
+                     }
+
+-- | Uses colors from solarized theme
+titleTheme = baseTheme { inactiveColor       = "#eee8d5"
+                       , inactiveBorderColor = "#93a1a1"
+                       , inactiveTextColor   = "#657b83"
+                       }
+-- | The layouthoook
+myLayoutHook = showWName $
+  onWorkspace "chat" (chatL ||| threeCol ||| fullTabL) $
   onWorkspace "nodes" fullTabL $
   onWorkspace "reading" fullTabL $
   --tiledMirrorL ||| tiledL ||| spiralL ||| magnifiedL ||| four ||| accordionL  ||| decorated ||| fullTabL ||| fullL
   tiledMirrorL ||| tiledL ||| spiralL ||| fullTabL ||| fullL ||| threeCol
   where
-    myTheme=wfarrTheme
     -- normal layouts
-    tiledL=named "tile" ( avoidStruts $  deco myTheme $ layoutHintsToCenter tiled )
-    tiledMirrorL=named "tile mirror" ( avoidStruts $ deco myTheme $ layoutHintsToCenter (Mirror tiled))
-    fullTabL=named "fulltab"  ( avoidStruts $ noBorders $ tabbed shrinkText (theme myTheme))
+    tiledL=named "tile" ( avoidStruts $  deco titleTheme $ layoutHintsToCenter tiled )
+    tiledMirrorL=named "tile mirror" ( avoidStruts $ deco titleTheme $ layoutHintsToCenter (Mirror tiled))
+    fullTabL=named "fulltab"  ( avoidStruts $ noBorders $ tabbed shrinkText tabTheme)
     fullL=named "full" ( noBorders $ Full)
-    spiralL=named "spiral" ( noBorders $ deco myTheme $ avoidStruts $ spiral (6/7))
-    threeCol=named "3Col" ( noBorders $ avoidStruts $ ThreeColMid 1 (3/100) (1/2))
+    spiralL=named "spiral" ( noBorders $ deco titleTheme $ avoidStruts $ spiral (6/7))
+    threeCol=named "3Col" ( noBorders $ deco titleTheme $ avoidStruts $ ThreeColMid 1 (3/100) (1/2))
 
-    --workspace specific layouts
-    chatL = named ":)" ( avoidStruts $ withIMs ratio rosters chatLayout)
+    chatL = named ":)" ( avoidStruts $ deco titleTheme $ withIMs ratio rosters chatLayout)
       where
         chatLayout      = Grid
         ratio           = 1%7
@@ -160,8 +178,7 @@ myLayoutHook =
         pidginRoster    = And (ClassName "Pidgin") (Role "buddy_list")
         skypeRoster     = ClassName "Skype" `And` Not (Title "Options") `And` Not (Role "Chats") `And` Not (Role "CallWindowForm")
     xmonadL = named ";>" (  avoidStruts $ noBorders $ layoutHintsToCenter (Mirror $ Tall 1 (3/100) (4/5)) )
-
-    deco t   = decoration shrinkText (theme t) Dwm
+    deco t   = decoration shrinkText t Dwm
     tiled   = noBorders $ Tall 1 (3/100) (4/5)
 
 -----------------------------------------------------------------------
