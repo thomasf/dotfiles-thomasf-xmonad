@@ -85,6 +85,7 @@ import           XMonad.Prompt
 import           XMonad.Prompt.Workspace
 import           XMonad.Prompt.XMonad
 import qualified XMonad.StackSet                 as W
+import           XMonad.Util.Dmenu as Dmenu
 import           XMonad.Util.EZConfig
 import           XMonad.Util.NamedActions
 import           XMonad.Util.NamedScratchpad
@@ -94,7 +95,6 @@ import           XMonad.Util.Scratchpad          (scratchpadFilterOutWorkspace)
 import           XMonad.Util.Themes
 import           XMonad.Util.WindowProperties
 import           XMonad.Util.WorkspaceCompare
-import           XMonad.Util.Dmenu as Dmenu
 
 
 ------------------------------------------------------------------------
