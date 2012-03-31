@@ -213,15 +213,15 @@ myLayoutHook = showWName $
 
 myManageHook :: ManageHook
 
-myManageHook =  composeOne
+myManageHook = namedScratchpadManageHook myScratchPads <+> composeOne
   [ resource            =? "Do"                -?> doIgnore
   , resource            =? "desktop_window"    -?> doIgnore
   , resource            =? "kdesktop"          -?> doIgnore
   , className           =? "Unity-2d-panel"    -?> doIgnore
-  , className           =? "Unity-2d-launcher" -?> doFloat
-  , className           =? "Gimp"              -?> doFloat
   , className           =? "Xfce4-notifyd"     -?> doIgnore
   , className           =? "Xfdesktop"         -?> doIgnore
+  , className           =? "Unity-2d-launcher" -?> doFloat
+  , className           =? "Gimp"              -?> doFloat
   , className           =? "Orage"             -?> doFloat
   , className    =? "Xfce4-settings-manager"   -?> doCenterFloat
   , className           =? "Xfce4-appfinder"   -?> doCenterFloat
@@ -231,14 +231,12 @@ myManageHook =  composeOne
   , resource            =? "empathy"           -?> doF (W.shift "chat")
   , resource            =? "xchat"             -?> doF (W.shift "chat")
   , className           =? "Pidgin"            -?> doF (W.shift "chat")
-
   , className           =? "Nicotine.py"       -?> doF (W.shift "fileshare")
   , className           =? "Transmission-gtk"  -?> doF (W.shift "fileshare")
-
   , resource            =? "xmessage"          -?> doCenterFloat
   , className           =? "feh"               -?> doFloat
   , className           =? "MPlayer"           -?> doFloat
-  ] <+> namedScratchpadManageHook myScratchPads
+  ]
   where
     role = stringProperty "WM_WINDOW_ROLE"
 
