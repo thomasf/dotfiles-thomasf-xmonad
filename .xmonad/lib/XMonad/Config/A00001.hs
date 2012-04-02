@@ -536,6 +536,9 @@ instance UrgencyHook LibNotifyUrgencyHook where
       where
         flash name index = spawn ("notify-send '" ++ show name  ++ " requests your attention on workspace " ++ index ++ "'")
 
+myUrgencyConfig = urgencyConfig { suppressWhen = XMonad.Hooks.UrgencyHook.Never }
+myUrgencyHook = LibNotifyUrgencyHook
+
 ------------------------------------------------------------------------
 -- Default configuration
 
@@ -614,8 +617,6 @@ configMinimal = do
 --  ConfigFull is an more involved setup with more tray bars and such
 --
 --
-myUrgencyConfig = urgencyConfig { suppressWhen = XMonad.Hooks.UrgencyHook.Never }
-myUrgencyHook = LibNotifyUrgencyHook
 configFull = do
   (sx, sy, sw, sh) <- getScreenDim 0
   let
