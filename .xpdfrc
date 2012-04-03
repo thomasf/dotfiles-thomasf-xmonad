@@ -1,0 +1,29 @@
+# treat as one continuous doc with a full vertical scrollbar
+continuousView yes
+
+# launch URLs 
+urlCommand "google-chrome %s"
+
+# launch movie annotations in mplayer
+movieCommand "mplayer %s"
+
+# vim-style navigation
+bind space          any     pageDown
+bind shift-space    any     pageUp
+bind h              any     scrollLeft(16)
+bind l              any     scrollRight(16)
+bind k              any     scrollUp(16)
+bind j              any     scrollDown(16)
+bind d              any     closeWindow
+bind /              any     find
+bind f              any     toggleFullScreenMode
+bind -              any     zoomOut
+bind =              any     zoomPercent(100)
+bind +              any     zoomIn
+
+# set the text output options
+textEncoding UTF-8
+textEOL      unix
+
+# default postscript name or print command
+# psFile "| lpr"
