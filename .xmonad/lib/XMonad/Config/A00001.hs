@@ -109,7 +109,16 @@ import           XMonad.Util.WorkspaceCompare
 --
 -- * Automatically create one workspace for each screen on start up instead of always doing this:
 --   myWorkspaces = ["m1","m2"]
-
+--
+-- * Make dmenu launchers remember things
+--   Yeganesh -> http://dmwit.com/yeganesh/
+--
+-- * Improve the status bar somewhat
+--   - Weather!
+--   - Nicer colors
+--   - Battery status?
+--   - Discovery of network interface to monitor?
+--   - (maybe) mpd
 
 
 ------------------------------------------------------------------------
