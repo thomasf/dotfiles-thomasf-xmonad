@@ -15,7 +15,7 @@ case $cmd in
     alsamixer|htop|irssi|weechat-curses|ncmpcpp)
         exec $tr -name $cmd -e $cmd
         ;;
-    wireshark|synaptic)
+    wireshark|synaptic|zenmap|firestarter)
         exec gksudo $cmd
         ;;
     *)
