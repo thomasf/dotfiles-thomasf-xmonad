@@ -29,8 +29,8 @@ Xcursor.size: 16
 
 !---- Emacs {
 Emacs*.FontBackend: xft
-!Emacs*.font: Consolas-10
-Emacs*.font: Inconsolata-10.8:hinting=true:autohint=true
+Emacs*.font: Consolas-10
+!Emacs*.font: Inconsolata-10.8:hinting=true:autohint=true
 !Emacs*.font: Anonymous Pro:pixelsize=13
 !Emacs*.font: Meslo LG S-10
 !Emacs*.font: Terminus-10
