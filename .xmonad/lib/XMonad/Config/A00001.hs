@@ -119,6 +119,9 @@ import           XMonad.Util.WorkspaceCompare
 --   - Battery status?
 --   - Discovery of network interface to monitor?
 --   - (maybe) mpd
+--
+-- * BUG: Cycle between windows of same class has stopped working
+-- 
 
 
 ------------------------------------------------------------------------
