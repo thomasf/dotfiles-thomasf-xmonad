@@ -9,4 +9,17 @@
 
 set -e
 
-exec chromium-browser --incognito --enable-memory-info --enable-extension-timeline-api --disable-background-mode  --enable-benchmarking --enable-panels --purge-memory-button --reload-killed-tabs --use-more-webui --use-pure-views --ignore-certificate-errors --disable-web-security
+exec chromium-browser \
+    --incognito \
+    --enable-memory-info \
+    --enable-extension-timeline-api \
+    --disable-background-mode  \
+    --enable-benchmarking \
+    --enable-panels \
+    --purge-memory-button \
+    --reload-killed-tabs \
+    --use-more-webui \
+    --use-pure-views \
+    --ignore-certificate-errors \
+    --disable-web-security \
+    $*
