@@ -90,7 +90,8 @@ URxvt*fadeColor:             S_base03
 URxvt*cursorColor:           S_base1
 URxvt*pointerColorBackground:S_base01
 URxvt*pointerColorForeground:S_base1
-!! black dark/light
+URxvt*colorUL:               S_orange
+URxvt*internalBorder:        3
 URxvt*color0:                S_base02
 URxvt*color8:                S_base03
 !! red dark/light
