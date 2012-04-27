@@ -24,8 +24,11 @@
 "urxvt"
   mod4 + shift + Return
 
+"urxvt -name LURxvt"
+  mod4 + control + Return
+
 "urxvt -name large_term"
-  mod4 + control + shift + alt + Return
+  mod4 + control + shift + Return
 
 "sshmenu"
   mod4 + s

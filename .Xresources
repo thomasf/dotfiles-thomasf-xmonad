@@ -65,10 +65,31 @@ URxvt*matcher.button:                 1
 !---- URXvt - Large text terminal settings {
 large_term*font:                      xft:Consolas-16
 
-!---- URxvt - Default colorscheme (solarized dark) {
+
+!---- Light URxvt (Solarized Light, 11pt) {
+LURxvt*font:                  xft:Anonymous Pro-10
+LURxvt*fading:                0
+LURxvt*background:            #fdf6e3
+LURxvt*foreground:            #839496
+LURxvt*fadeColor:             #fdf6e3
+LURxvt*cursorColor:           #586e75
+LURxvt*pointerColorBackground:#93a1a1
+LURxvt*pointerColorForeground:#586e75
+LURxvt*color0:                #073642
+LURxvt*color8:                #fdf6e3
+LURxvt*color10:               #93a1a1
+LURxvt*color11:               #839496
+LURxvt*color12:               #657b83
+LURxvt*color14:               #586e75
+LURxvt*color7:                #839496
+LURxvt*color15:               #002b36
+
+
+
+!---- Default URxvt (Solarized Dark, 12px) {
+URxvt*fading:                         30
 URxvt*background:                     #002b36
 URxvt*foreground:                     #657b83
-URxvt*fading:                         30
 URxvt*fadeColor:                      #002b36
 URxvt*cursorColor:                    #93a1a1
 URxvt*pointerColorBackground:         #586e75
@@ -91,6 +112,11 @@ URxvt*color6:                         #2aa198
 URxvt*color14:                        #93a1a1
 URxvt*color7:                         #eee8d5
 URxvt*color15:                        #fdf6e3
+
+
+
+
+
 
 !---- URxvt - Scratcpad terminal {
 scratchpad_terminal*perl-ext-common:  default,matcher,tabbed
