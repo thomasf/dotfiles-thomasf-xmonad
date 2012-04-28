@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+# Launch terminals
+#
+# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
+#
+#
+
+set -e
+
+cmd=${1}
+[[ $1 ]] && shift 1
+case $cmd in
+    l|light)
+        exec urxvt -name LURxvt $*
+        ;;
+    large)
+        exec urxvt -name large_term $*
+        ;;
+    *)
+        exec urxvt $*
+        ;;
+esac
