@@ -114,10 +114,6 @@ URxvt*color7:                         #eee8d5
 URxvt*color15:                        #fdf6e3
 
 
-
-
-
-
 !---- URxvt - Scratcpad terminal {
 scratchpad_terminal*perl-ext-common:  default,matcher,tabbed
 scratchpad_terminal*background:       rgb:1a/1a/1a
@@ -143,6 +139,8 @@ scratchpad_terminal*color15:          rgb:ff/ff/ff
 ncmpcpp*foreground:                   #DDEEDD
 ncmpcpp*background:                   #1C1C1C
 ncmpcpp*color0:                       #222222
+ncmpcpp*colorUL:                      #F92672
+ncmpcpp*colorBD:                      #dfdfdf
 ncmpcpp*color8:                       #454545
 ncmpcpp*color1:                       #F92672
 ncmpcpp*color9:                       #F92672
