@@ -556,6 +556,7 @@ autoConfig=do
         | c == "a00001"     = configFull
         | c == "flux"       = configFull
         | c == "kranky"     = configFull
+        | c == "mat"        = configFull
         | c == "dennisg"    = configSimple
         | c == "wonky"      = configMinimal
         | c == "kranky"     = configMinimal
