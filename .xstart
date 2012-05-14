@@ -20,6 +20,9 @@ killall -q nm-applet
 killall -q dropboxd
 sleep 0.4
 
+hostname=`hostname`
+[[ $hostname == mat ]] && xrandr --output VGA1 --right-of LVDS1 --primary && xrandr --output VGA1 --mode 1920x1080
+
 # Launch a new dbus-session if not already running
 dbuslaunch="`which dbus-launch 2>/dev/null`"
 if [ -n "$dbuslaunch" ] && [ -x "$dbuslaunch" ] && [ -z "$DBUS_SESSION_BUS_ADDRESS" ]; then
