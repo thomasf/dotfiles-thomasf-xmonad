@@ -401,12 +401,11 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList
 ------------------------------------------------------------------------
 -- XMonad Prompt configuration
 
-myXPConfig = defaultXPConfig
-  { position = Top
-  , fgColor = "#ffffff"
-  , bgColor = "#202020"
-  , fgHLight = "#ffffff"
-  , bgHLight = "#3465a4"
+myXPConfig = defaultXPConfig{ position = Top
+  , bgColor = "#859900"
+  , fgColor = "#fdf6e3"
+  , bgHLight = "#b58900"
+  , fgHLight = "#fdf6e3"
   , promptBorderWidth = 0
   }
 
