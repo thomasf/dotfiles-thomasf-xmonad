@@ -5,7 +5,8 @@
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 #
 
-emacs ~/.xmonad/*.hs ~/.xmonad/etc/*  ~/.xmonad/lib/XMonad/Config/A00001.hs &
+basedir=${HOME}/repos/private/home/xmonad
+emacs $basedir/.xmonad/*.hs $basedir/.xmonad/etc/*  $basedir/.bin-xmonad/* $basedir/.*  $basedir/.xmonad/lib/XMonad/Config/A00001.hs &
 term l &
 term l &
 
