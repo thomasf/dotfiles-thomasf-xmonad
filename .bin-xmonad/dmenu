@@ -7,5 +7,5 @@
 #
 
 
-
-exec /usr/bin/dmenu -nb '#303030' -nf '#FFFFFF' -sb '#3465A4' -sf '#FFFFFF' -i $*
+#exec /usr/bin/dmenu -nb '#303030' -nf '#FFFFFF' -sb '#3465A4' -sf '#FFFFFF' -i $*
+exec /usr/bin/dmenu -nb '#b58900' -nf '#fdf6e3' -sb '#fdf6e3' -sf '#586e75' -i $*
