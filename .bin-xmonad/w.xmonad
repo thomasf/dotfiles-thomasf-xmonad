@@ -5,5 +5,8 @@
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 #
 
-exec emacs ~/.xmonad/*.hs ~/.xmonad/etc/*  ~/.xmonad/lib/XMonad/Config/A00001.hs
+emacs ~/.xmonad/*.hs ~/.xmonad/etc/*  ~/.xmonad/lib/XMonad/Config/A00001.hs &
+term l &
+term l &
+
 
