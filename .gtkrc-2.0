@@ -1,7 +1,23 @@
+gtk-theme-name="Radiance"
+gtk-icon-theme-name="gnome"
+gtk-font-name="Cantarell 11"
+gtk-cursor-theme-name="DMZ-White"
+gtk-cursor-theme-size=24
+gtk-toolbar-style=GTK_TOOLBAR_BOTH_HORIZ
+gtk-toolbar-icon-size=GTK_ICON_SIZE_LARGE_TOOLBAR
+gtk-button-images=0
+gtk-menu-images=0
+gtk-enable-event-sounds=1
+gtk-enable-input-feedback-sounds=0
+gtk-xft-antialias=1
+gtk-xft-hinting=1
+gtk-xft-hintstyle="hintslight"
+gtk-xft-rgba="rgb"
+
+
 # include ".gtkrc2-local"
+
 # compactify gnome2
-
-
 style "gtkcompact" {
 font_name="Sans 8"
 # font_name="Terminus 8"
@@ -41,7 +57,6 @@ class "GtkButton" style "gtkcompactextra"
 class "GtkToolbar" style "gtkcompactextra"
 class "GtkPaned" style "gtkcompactextra"
 
-
 # Change styling of desktop icon
 
 style "desktop-icon"
@@ -51,7 +66,6 @@ style "desktop-icon"
  NautilusIconContainer::normal_alpha = 150
 }
 class "GtkWidget" style "desktop-icon"
-
 
 ## gnome panel
 
