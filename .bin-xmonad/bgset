@@ -1,0 +1,28 @@
+#!/bin/bash
+#
+# set X background
+#
+# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
+#
+
+case $1 in
+    d|dark)
+        xsetroot -solid '#002b36'
+        ;;
+    l|light)
+        xsetroot -solid '#fdf6e3'
+        ;;
+    b|black)̈́
+        xsetroot -solid black
+        ;;
+    w|white)
+        xsetrppt -solid white
+        ;;
+    s|soft)
+        BGCOL="#"; for C in $(echo "10 20 30" | sed 's/ /\n/g' | sort -R); do BGCOL="$BGCOL$C"; done
+        xsetroot -solid $BGCOL;
+        ;;
+    *)
+        xsetroot -solid '#fdf6e3'
+        ;;
+esac

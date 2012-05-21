@@ -95,11 +95,7 @@ fi
 BGCOL="#"; for C in $(echo "10 20 30" | sed 's/ /\n/g' | sort -R); do BGCOL="$BGCOL$C"; done
 
 # Set the backbround color
-if [ $(which xsetroot) ]; then
-    xsetroot -solid $BGCOL; xsetroot -cursor_name left_ptr 
-else
-    xmessage "xsetroot not found"
-fi
+[ $(which bgset ) ] && bgset
 
 # Choose a default web browser
 if [ $(which google-chrome) ]; then
