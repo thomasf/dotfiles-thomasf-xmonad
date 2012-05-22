@@ -41,6 +41,8 @@ Emacs*.toolBar:                       -1
 Emacs*.verticalScrollBars:            off
 Emacs*.borderWidth:                   0
 Emacs*.internalBorder:                3
+Emacs*menubar.margin:                 0
+Emacs*shadowThickness:                1
 
 !---- Xmessage, zenburnesque {
 Xmessage*background:                  #3F3F3F
