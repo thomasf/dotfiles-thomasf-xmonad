@@ -87,7 +87,7 @@ import           XMonad.Util.WorkspaceCompare
 -- Basic random
 --
 myTerminal = "urxvt"
-myShell = "bash"
+-- myShell = "bash"
 
 myFocusFollowsMouse = False
 myBorderWidth   = 1
@@ -166,7 +166,7 @@ myLayoutHook = showWName' defaultSWNConfig { swn_font = "-xos4-terminus-*-r-*-*-
         rosters         = [skypeRoster, pidginRoster]
         pidginRoster    = And (ClassName "Pidgin") (Role "buddy_list")
         skypeRoster     = ClassName "Skype" `And` Not (Title "Options") `And` Not (Role "Chats") `And` Not (Role "CallWindowForm")
-    xmonadL = named ";>" (  avoidStruts $ noBorders $ layoutHintsToCenter (Mirror $ Tall 1 (3/100) (4/5)) )
+    -- xmonadL = named ";>" (  avoidStruts $ noBorders $ layoutHintsToCenter (Mirror $ Tall 1 (3/100) (4/5)) )
     deco t   = decoration shrinkText t Dwm
     tiled   = noBorders $ Tall 1 (3/100) (4/5)
 
@@ -402,11 +402,10 @@ myAutocompleteXPConfig = myXPConfig
 ------------------------------------------------------------------------
 -- Commands:
 
-inTerm cmd = spawn (myTerminal ++ " -name " ++ cmd  ++ " -e " ++ cmd)
-
-webAppSpawn url = spawn ("www-app '" ++ url ++ "'")
-webBrowserSpawn = spawn "www-window"
-webBrowserOpen url = spawn ("www-window " ++ url)
+-- inTerm cmd = spawn (myTerminal ++ " -name " ++ cmd  ++ " -e " ++ cmd)
+-- webAppSpawn url = spawn ("www-app '" ++ url ++ "'")
+-- webBrowserSpawn = spawn "www-window"
+-- webBrowserOpen url = spawn ("www-window " ++ url)
 
 spawnShell :: X ()
 spawnShell = spawn myTerminal
@@ -419,9 +418,9 @@ prevNonEmptyWorkspace = windows . W.greedyView
 getSortByTagNoSP = fmap (.scratchpadFilterOutWorkspace) getSortByTag
 
 terminalPad = namedScratchpadAction myScratchPads "terminal"
-irssiPad = namedScratchpadAction myScratchPads "irssi"
+-- irssiPad = namedScratchpadAction myScratchPads "irssi"
 
-restartXmonad = spawn "xmonad --recompile && xmonad --restart"
+-- restartXmonad = spawn "xmonad --recompile && xmonad --restart"
 
 
 ------------------------------------------------------------------------
@@ -500,11 +499,11 @@ data LibNotifyUrgencyHook = LibNotifyUrgencyHook deriving (Read, Show)
 
 instance UrgencyHook LibNotifyUrgencyHook where
   urgencyHook LibNotifyUrgencyHook w = do
-    name <- getName w
+    workspaceName <- getName w
     ws <- gets windowset
-    whenJust (W.findTag w ws) (flash name)
+    whenJust (W.findTag w ws) (flash workspaceName)
       where
-        flash name index = spawn ("notify-send '" ++ show name  ++ " requests your attention on workspace " ++ index ++ "'")
+        flash workspaceName index = spawn ("notify-send '" ++ show workspaceName  ++ " requests your attention on workspace " ++ index ++ "'")
 
 myUrgencyConfig = urgencyConfig { suppressWhen = XMonad.Hooks.UrgencyHook.Never }
 myUrgencyHook = LibNotifyUrgencyHook
