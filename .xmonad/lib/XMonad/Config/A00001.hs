@@ -36,9 +36,7 @@ import           Control.Monad
 import           Control.Monad.Reader
 import           Data.List
 import qualified Data.Map                        as M
-import           Data.Monoid
 import           Data.Ratio                      ((%))
-import           Foreign.C.Types                 (CInt)
 import           Graphics.X11.Xinerama
 import           System.IO
 import qualified System.IO.UTF8
@@ -56,37 +54,26 @@ import           XMonad.Actions.WindowBringer    (gotoMenuArgs, bringMenuArgs)
 import           XMonad.Config.Gnome
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops       (ewmh, fullscreenEventHook)
-import           XMonad.Hooks.ManageDocks        (avoidStruts, manageDocks, docksEventHook)
+import           XMonad.Hooks.ManageDocks        (avoidStruts)
 import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.ServerMode
 import           XMonad.Hooks.UrgencyHook
-import           XMonad.Layout.Accordion
-import           XMonad.Layout.BorderResize
 import           XMonad.Layout.Decoration
-import           XMonad.Layout.DragPane
 import           XMonad.Layout.DwmStyle
-import           XMonad.Layout.Gaps
 import           XMonad.Layout.Grid
 import           XMonad.Layout.IM2
 import           XMonad.Layout.LayoutCombinators
 import           XMonad.Layout.LayoutHints
-import           XMonad.Layout.LimitWindows
-import           XMonad.Layout.Magnifier
 import           XMonad.Layout.Named
 import           XMonad.Layout.NoBorders         (noBorders)
 import           XMonad.Layout.PerWorkspace      (onWorkspace)
-import           XMonad.Layout.Reflect
-import           XMonad.Layout.SimpleFloat
 import           XMonad.Layout.Spiral
 import           XMonad.Layout.ShowWName
 import           XMonad.Layout.Tabbed
 import           XMonad.Layout.ThreeColumns
-import           XMonad.Layout.WindowArranger
 import           XMonad.Prompt
-import           XMonad.Prompt.Workspace
 import           XMonad.Prompt.XMonad
 import qualified XMonad.StackSet                 as W
-import           XMonad.Util.Dmenu as Dmenu
 import           XMonad.Util.EZConfig
 import           XMonad.Util.NamedActions
 import           XMonad.Util.NamedScratchpad
