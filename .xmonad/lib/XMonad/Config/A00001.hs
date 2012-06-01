@@ -418,6 +418,7 @@ prevNonEmptyWorkspace = windows . W.greedyView
 getSortByTagNoSP = fmap (.scratchpadFilterOutWorkspace) getSortByTag
 
 terminalPad = namedScratchpadAction myScratchPads "terminal"
+
 -- irssiPad = namedScratchpadAction myScratchPads "irssi"
 
 -- restartXmonad = spawn "xmonad --recompile && xmonad --restart"
@@ -476,7 +477,7 @@ myScratchPads = [ NS "terminal" (term "terminal") (res =? scratch "terminal") bo
     scratch name = "scratchpad_" ++ name
     term name = myTerminal ++ " -name scratchpad_" ++ name
     inTerm' name cmd = myTerminal ++ " -name scratchpad_" ++ name ++ " -e " ++  cmd
-    res=resource
+    res = resource
 
     bottomFloat=customFloating $ W.RationalRect l t w h
       where
