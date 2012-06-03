@@ -9,7 +9,14 @@
 set -e
 
 tr=urxvt
-cmd=$(dmenu_path | dmenu -i)
+
+if [ `which yeganesh` ]; then
+    prompt="yeganesh -x"
+else
+    prompt="dmenu_path | dmenu -i"
+fi
+
+cmd=$(${prompt})
 
 case $cmd in
     alsamixer|htop|irssi|weechat-curses|ncmpcpp)
