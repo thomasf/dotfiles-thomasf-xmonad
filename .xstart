@@ -116,6 +116,9 @@ else
     xmessage "Warning: xbindkeys is not found"
 fi
 
+# Start emacs
+[ $(which emacs) ] && emacs &
+
 # Function that displays a list of window managers to choose from.
 wm_selection() {
     avail_vms=""
