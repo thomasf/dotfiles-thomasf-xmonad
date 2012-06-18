@@ -42,7 +42,10 @@ fi
 [ -f "${HOME}/.Xresources" ] && xrdb -merge "${HOME}/.Xresources"
 
 # Start music player daemon if it's available
-[ $(which mpd) ] && mpd
+if [ $(which mpd) ]; then
+    mpd
+    [ $(which scmpc) ] && [ -f $HOME/.scmpc/scmpc.conf ] && scmpc
+fi
 
 # Start gnupg or ssh agent
 agent_file="$HOME/.gnupg/gpg-agent-info-$(hostname)"
