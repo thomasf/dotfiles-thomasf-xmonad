@@ -294,15 +294,6 @@ myStartupHook = return ()
 myModMask = mod4Mask
 altMask=mod1Mask
 
-killWindows=
-  [ ("chat",
-     do
-       spawn "pkill -9 xchat"
-       spawn "pkill -9 pidgin"
-    )
-  , ("",kill)
-  ]
-
 -- align-regexp rules: "addName", "\$"
 
 myKeys conf@(XConfig {XMonad.modMask = modm}) =
@@ -310,7 +301,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm.|. shiftMask, xK_Return),               addName "launch terminal"                                      $ spawnShell)
 
   , subtitle "misc"
-  , ((modm.|. shiftMask, xK_c),                    addName "kill active window"                                   $ bindOn killWindows)
+  , ((modm.|. shiftMask, xK_c),                    addName "kill active window"                                   $ kill)
 
   , subtitle "Cyclic window focus"
   , ((modm, xK_j),                                 addName "Next window on workspace"                             $ windows W.focusDown >> movePointer)
