@@ -7,10 +7,10 @@
 
 case $1 in
     d|dark)
-        xsetroot -solid '#002b36'
+        xsetroot -solid '#073642'
         ;;
     l|light)
-        xsetroot -solid '#fdf6e3'
+        xsetroot -solid '#eee8d5'
         ;;
     b|black)̈́
         xsetroot -solid black

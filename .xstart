@@ -98,7 +98,7 @@ fi
 BGCOL="#"; for C in $(echo "10 20 30" | sed 's/ /\n/g' | sort -R); do BGCOL="$BGCOL$C"; done
 
 # Set the backbround color
-[ $(which bgset ) ] && bgset
+[ $(which bgset ) ] && bgset d
 
 # Choose a default web browser
 if [ $(which google-chrome) ]; then
