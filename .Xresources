@@ -40,7 +40,7 @@ Emacs*.menuBar:                       off
 Emacs*.toolBar:                       -1
 Emacs*.verticalScrollBars:            off
 Emacs*.borderWidth:                   0
-Emacs*.internalBorder:                3
+Emacs*.internalBorder:                0
 Emacs*menubar.margin:                 0
 Emacs*shadowThickness:                1
 
