@@ -304,17 +304,17 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , subtitle "misc"
   , ((modm.|. shiftMask, xK_c),                    addName "kill active window"                                   $ kill)
 
-  , subtitle "Window focus"
+  , subtitle "Windows"
   , ((modm, xK_j),                                 addName "Next window on workspace"                             $ windows W.focusDown >> movePointer)
   , ((modm, xK_k),                                 addName "Previous window on workspace"                         $ windows W.focusUp >> movePointer)
   --, ((modm.|. altMask, xK_j),                      addName "Next of same window className"                        $ nextMatchWithThis Forward className >> movePointer)
   --, ((modm.|. altMask, xK_k),                      addName "Previous of same window className"                    $ nextMatchWithThis Backward className >> movePointer)
 
   -- , subtitle "Cyclic window swap"
-  -- , ((modm.|. shiftMask, xK_j),                    addName "Swap the focused window with the next window"         $ windows W.swapDown >> movePointer)
-  -- , ((modm.|. shiftMask, xK_k),                    addName "Swap the focused window with the previous window"     $ windows W.swapUp >> movePointer)
+  , ((modm.|. shiftMask, xK_j),                    addName "Swap the focused window with the next window"         $ windows W.swapDown >> movePointer)
+  , ((modm.|. shiftMask, xK_k),                    addName "Swap the focused window with the previous window"     $ windows W.swapUp >> movePointer)
 
-  , subtitle "Workspace operations"
+  , subtitle "Workspaces"
   , ((modm, xK_o),                                 addName "Goto open window in workspace by name"                $ gotoMenuArgs ["-l 23"] >> movePointer)
   --, ((modm.|. shiftMask,  xK_BackSpace),           addName "Remove current workspace"                             $ DW.removeWorkspace >> movePointer)
   , ((modm, xK_n ),                                addName "Create or change workspace prompt"                    $ rmEmptyWs $ DW.selectWorkspace myXPConfig >> maybeWorkspaceAction >> movePointer)
