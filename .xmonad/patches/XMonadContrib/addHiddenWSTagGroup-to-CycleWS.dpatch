@@ -1,0 +1,358 @@
+1 patch for repository http://code.haskell.org/XMonadContrib:
+
+Mon Jul 16 20:36:04 CEST 2012  thomasf@jossystem.se
+  * addHiddenWSTagGroup to CycleWS
+
+New patches:
+
+[addHiddenWSTagGroup to CycleWS
+thomasf@jossystem.se**20120716183604
+ Ignore-this: b27f663fd0e89d2b88fc8de6c10b3502
+] {
+hunk ./XMonad/Actions/CycleWS.hs 238
+                           -- ^ cycle through workspaces in the same group, the
+                           --   group name is all characters up to the first
+                           --   separator character or the end of the tag
++            | HiddenWSTagGroup Char
+             | WSIs (X (WindowSpace -> Bool))
+                           -- ^ cycle through workspaces satisfying
+                           --   an arbitrary predicate
+hunk ./XMonad/Actions/CycleWS.hs 256
+ wsTypeToPred (WSTagGroup sep) = do cur <- (groupName.workspace.current) `fmap` gets windowset
+                                    return $ (cur ==).groupName
+                                    where groupName = takeWhile (/=sep).tag
++wsTypeToPred (HiddenWSTagGroup sep) = do tg <- wsTypeToPred (WSTagGroup sep)
++                                         hi <- wsTypeToPred HiddenWS
++                                         return (\w -> tg w && hi w)
+ wsTypeToPred (WSIs p)   = p
+ 
+ -- | View the next workspace in the given direction that satisfies
+}
+
+Context:
+
+[A workscreen permits to display a set of workspaces on several
+kedals0@gmail.com**20120706093308
+ Ignore-this: 572ed3c3305205bfbcc17bb3fe2600a3
+ screens. In xinerama mode, when a workscreen is viewed, workspaces
+ associated to all screens are visible.
+ 
+ The first workspace of a workscreen is displayed on first screen,
+ second on second screen, etc. Workspace position can be easily
+ changed. If the current workscreen is called again, workspaces are
+ shifted.
+ 
+ This also permits to see all workspaces of a workscreen even if just
+ one screen is present, and to move windows from workspace to workscreen.
+] 
+[refer to the new name 'handleEventHook' instead of the old name 'eventHook' in X.L.Fullscreen documentation
+Daniel Wagner <daniel@wagner-home.com>**20120618181003
+ Ignore-this: bd3b26c758cf3993d5a93957bb6f3663
+] 
+[UrgencyHooks made available as Window -> X () functions
+gopsychonauts@gmail.com**20120504062339
+ Ignore-this: 6a57cae1d693109b7e27c6471d04f50f
+ Adds an UrgencyHook instance for the type Window -> X (), allowing any such
+ functions to be used directly as UrgencyHooks. The Show and Read constraints
+ were removed from the UrgencyHook class in order to permit this; these
+ constraints were required only in a historical implementation of the module,
+ which used a layout modifier.
+ 
+ All existing configurations using UrgencyHooks should remain fully functional.
+ New configs may make use of this modification by declaring their UrgencyHook as
+ a simple Window -> X () function.
+ 
+] 
+[updates to XMonad.Prompt re: word-oriented commands
+Brent Yorgey <byorgey@cis.upenn.edu>**20120510174317
+ Ignore-this: 138b5e8942fe4b55ad7e6ab24f17703f
+ 
+   + change killWord and moveWord to have emacs-like behavior: first move
+     past/kill consecutive whitespace, then move past/kill consecutive
+     non-whitespace.
+ 
+   + create variants killWord' and moveWord' which take a predicate
+     specifying non-word characters.
+ 
+   + create variants defaultXPKeymap' and emacsLikeXPKeymap' which take
+     the same sort of predicate, which is applied to all keybindings with
+     word-oriented commands.
+] 
+[Added isUnfocusedOnCurrentWS and fadeInactiveCurrentWSLogHook for better support of fading/opacity on multi monitor setups
+Jesper Reenberg <jesper.reenberg@gmail.com>**20120329141818
+ Ignore-this: d001a8aafbcdedae21ccd1d18f019185
+] 
+[Fixed X.A.GridSelect to be consistent in the way it (now) sorts the shown
+Jesper Reenberg <jesper.reenberg@gmail.com>**20120501180415
+ Ignore-this: 1d0991f9fb44e42f5d1c5a4f427ea661
+ elements when modifying the searchString.
+ 
+ The implemented ordering sorts based on how "deep the needle is in the
+ haystack", meaning that searching for "st" in the elements "Install" and "Study"
+ will order them as "Study" and "Install". Previously there was no ordering and
+ when using GridSelect to select workspaces, the ordering was not consistent, as
+ the list of workspaces (if not modified manually) is ordered by last used. In
+ this case either "Study" or "Install" would come first depending on which
+ workspace was last visited.
+] 
+[Use getXMonadDir to get the default xmonad directory.
+Julia Jomantaite <julia.jomantaite@gmail.com>**20120501121427
+ Ignore-this: a075433761488b76a58a193aeb4e4a25
+] 
+[Minor haddock formatting for X.L.OnHost and X.A.DynamicWorkspaceOrder
+Adam Vogt <vogt.adam@gmail.com>**20120428194552
+ Ignore-this: 843ec567e249cc96d51ca931f1e36514
+] 
+[Remove trailing whitespace.
+Adam Vogt <vogt.adam@gmail.com>**20120428194048
+ Ignore-this: d61584110954e84d3611ef3497a29725
+] 
+[Add emacs-like keys to browse history in XMonad.Prompt
+Carlos Lopez-Camey <c.lopez@kmels.net>**20120421110737
+ Ignore-this: b90345f72007d09a6b732b974c0faf79
+] 
+[Adds an emacs-like Keymap in XMonad.Prompt
+Carlos Lopez-Camey <c.lopez@kmels.net>**20120421012335
+ Ignore-this: f281b8ad01f3d21055e2d6de79af2d79
+] 
+[add 'withNthWorkspace' to DynamicWorkspaceOrder.
+jakob@pipefour.org**20120407184640
+ Ignore-this: f5f87ffe9ddf1a12fab775e6fb8e856f
+ Note this is very similar to the function of the same name exported by
+ DynamicWorkspaces.  Ultimately it would probably be cleaner to
+ generalize the one in DynamicWorkspaces to accept an arbitrary
+ workspace sort as a parameter; this is left as an exercise for future
+ hackers.
+] 
+[XMonad.Layout.OnHost allows host-specific modifications to a layout, which
+allbery.b@gmail.com**20120320030912
+ Ignore-this: 4c0d5580e805ff9f40918308914f3bf9
+ is otherwise very difficult to do.  Similarly to X.L.PerWorkspace, it provides
+ onHost, onHosts, modHost, and modHosts layout modifiers.  It attempts to do
+ smart hostname comparison, such that short names will be matched with short
+ names and FQDNs with FQDNs.
+ 
+ This module currently requires that $HOST be set in the environment.
+ You can use System.Posix.Env.setEnv to do so in xmonad.hs if need be.
+ (Properly, this should be done via the network library, but I'm trying to
+ avoid adding that dependency.)  An alternative would be to shell out to
+ get the name, but that has considerable portability hurdles.
+] 
+[Bump version to 0.10.1
+Adam Vogt <vogt.adam@gmail.com>**20120320005311
+ Ignore-this: f0608ffaa877f605eaa86c45a107a14d
+ 
+ Raising the X11 dependency while keeping the xmonad version the same leads to
+ problems where cabal install uses the dependency versions following hackage,
+ not what is installed.
+] 
+[narrower BorderResize rectangles placed within border edges
+Jens Petersen <juhp@community.haskell.org>**20120314064703
+ Ignore-this: 3a43bbdb7f2317d702edafb231f58802
+ 
+   Change the border resize rectangles to be narrower and only extend
+   inside the window not outside.  Most window managers just seem to use
+   the border decoration area for starting resizes which is often just 1 pixel
+   wide but as a compromise the width is now 2 pixels (before it was 10!).
+   The rectangles are now placed symmetrically within the border and window.
+   This seems to work ok with PositionStoreFloat for the Bluetile config.
+] 
+[add-dynamic-bars-module
+Ben Boeckel <mathstuf@gmail.com>**20120316002204
+ Ignore-this: 41347c8f894d8d0b5095dfad86784cf4
+ 
+ This adds the X.H.DynamicBars module. It allows per-screen status bars to be
+ easily managed and dynamically handles the number of screens changing.
+] 
+[bump X11 dependency so that noModMask is available
+Daniel Wagner <daniel@wagner-home.com>**20120316000302
+ Ignore-this: 971a75dcad25f66848eef4174cd4ddd1
+] 
+[Paste.hs: rm noModMask, shifted definition to X11 binding (see previous email)
+gwern0@gmail.com**20111203203038
+ Ignore-this: dcd164ff8f8f135c8fdef08f42f9244d
+] 
+[GroupNavigation: fix import typo in usage
+Jens Petersen <juhp@community.haskell.org>**20120312103349
+ Ignore-this: 65367218ca50a33a37813469b4616f34
+] 
+[add sendToEmptyWorkspace to FindEmptyWorkspace
+Jens Petersen <juhp@community.haskell.org>**20120312102331
+ Ignore-this: 50e7992d80d2db43e4d0adf5c95e964f
+ 
+ sendToEmptyWorkspace is like tagToEmptyWorkspace except
+ it does not change workspace after moving the window.
+] 
+[xmonad-contrib.cabal: simplify xmonad dependency to >=0.10 && < 0.11
+Jens Petersen <juhp@community.haskell.org>**20120312101800
+ Ignore-this: 1ff5a0caa2a1e3487e9a0831e385b3d2
+ 
+ Unless there is a particular reason for listing the lower and upper bounds
+ separately then this seems simpler and cleaner.
+] 
+[ShowWName: Increase horizontal padding for flash
+crodjer@gmail.com**20120305164517
+ Ignore-this: de5fd30fad2630875c5c78091f07c324
+ 
+ Currently the flash window width leaves a very small amount of padding. This
+ patch adds some extra horizontal width, governed by text width and length.
+] 
+[persist-togglehook-options
+Ben Boeckel <mathstuf@gmail.com>**20120311050143
+ Ignore-this: 580bacb35b617c1198f01c5a7c0d3fef
+ 
+ Save the state of ToggleHook options over a restart.
+] 
+[ShowWName flash window background color
+Rohan Jain <crodjer@gmail.com>**20120306065224
+ Ignore-this: 9cd8fcfc13cc326b9dcc79ef3cc21b26
+ 
+ While calling paintAndWrite for flash window, the background color from config
+ should also be passed on as window background in addition to as text background
+ color. Otherwise the window color gets set to the default black which shows up
+ when text cannot span whole of the window.
+ 
+ This issue becomes visible when the font size is considerably large or even in
+ small size with truetype fonts.
+] 
+[ShowWName: Fix flash location by screen rectangle
+crodjer@gmail.com**20120305161240
+ Ignore-this: 83ec4cce2297efc6736a1fe55f44ee73
+ 
+ In case of using this hook with multiple monitors, the Tag flash was not
+ following the screen's coordinates. This patch shifts the new window created for
+ flash according to the Rectangle defined by the screen.
+] 
+[Fix typo in tabbed layout link for font utils docs
+crodjer@gmail.com**20120229070022
+ Ignore-this: 2f7e90269e08ce08264d7b1d05bb16f9
+] 
+[L.WorkspaceDir: cleanup redundant {definitions,imports}
+Steffen Schuldenzucker <sschuldenzucker@uni-bonn.de>**20120229112124
+ Ignore-this: 7a796b18a64e693e071e9ea3a6a01aa3
+] 
+[fix L.WorkspaceDir special char handling: remove "echo -n" processing
+Steffen Schuldenzucker <sschuldenzucker@uni-bonn.de>**20120227122004
+ Ignore-this: ab48687eb4c9018312089a13fd25ecd8
+] 
+[Add BorderUrgencyHook to XMonad.Hooks.UrgencyHook
+allbery.b@gmail.com**20120225082616
+ Ignore-this: 9fac77914ff28a6e9eb830e8c9c7e21e
+ BorderUrgencyHook is a new UrgencyHook usable with withUrgencyHook or
+ withUrgencyHookC; it allows an urgent window to be given a different
+ border color.  This may not always work as intended, since UrgencyHook
+ likes to assume that a window being visible is sufficient to disable
+ urgency notification; but with suppressWhen = Never it may work well
+ enough.
+ 
+ There is a report that if a new window is created at the wrong time,
+ the wrong window may be marked urgent somehow.  I seem to once again
+ be revealing bugs in underlying packages, although a quick examination
+ of X.H.UrgencyHook doesn't seem to show any way for the wrong window
+ to be selected.
+] 
+[Adding use case for namedScratchpad.
+nicolas.dudebout@gatech.edu**20120122235843
+ Ignore-this: 44201e82bcd708cd7098f060345400f1
+] 
+[Actions.WindowGo: typo fix - trim 's' per cub.uanic https://code.google.com/p/xmonad/issues/detail?id=491
+gwern0@gmail.com**20120116224244
+ Ignore-this: fb1d55c1b4609069c55f13523c091260
+] 
+[XMonad.Actions.PhysicalScreens: fix typo spotted by Chris Pick <haskell@chrispick.com>
+gwern0@gmail.com**20120115223013
+ Ignore-this: eb73b33b07dc58a36d3aa00bc8ac31c2
+] 
+[roll back previous incorrect fix
+Daniel Wagner <daniel@wagner-home.com>**20120111214133
+ Ignore-this: 91496faef411e6ae3442498b528d119b
+] 
+[Extending: fix http://code.google.com/p/xmonad/issues/detail?id=490
+gwern0@gmail.com**20120111211907
+ Ignore-this: 515afbed507c070d60ab547e98682f12
+] 
+[another documentation patch: XMonadContrib.UpdatePointer -> XMonad.Actions.UpdatePointer
+Daniel Wagner <daniel@wagner-home.com>**20120111211226
+ Ignore-this: 1444e4a3f20ba442602ef1811d0b32c7
+] 
+[documentation patch, fixes issue 490
+Daniel Wagner <daniel@wagner-home.com>**20120111210832
+ Ignore-this: 8d899e15f9d1a657e9fc687e2f649f45
+] 
+[X.H.EwmhDesktops note that fullscreenEventHook is not included in ewmh
+Adam Vogt <vogt.adam@gmail.com>**20120102211404
+ Ignore-this: 92f15fa93877c165158c8fbd24aa2360
+ 
+ Just a documentation fix (nomeata's suggestion at issue 339).
+] 
+[X.H.EwmhDesktops haddock formatting.
+Adam Vogt <vogt.adam@gmail.com>**20120102211203
+ Ignore-this: cfff985e4034e06a0fe27c52c9971901
+] 
+[X.A.Navigation2D
+Norbert Zeh <nzeh@cs.dal.ca>**20111208205842
+ Ignore-this: 3860cc71bfc08d99bd8279c2e0945186
+ 
+ This is a new module to support directional navigation across multiple screens.
+ As such it is related to X.A.WindowNavigation and X.L.WindowNavigation, but it
+ is more general.  For a detailed discussion of the differences, see
+ http://www.cs.dal.ca/~nzeh/xmonad/Navigation2D.pdf.
+] 
+[documentation patch: mention PostfixOperators
+Daniel Wagner <daniel@wagner-home.com>**20111210234820
+ Ignore-this: 20a05b1f396f18a742346d6e3daea9a8
+] 
+[P.Shell documentation and add missing unsafePrompt export
+Adam Vogt <vogt.adam@gmail.com>**20111207163951
+ Ignore-this: a03992ffdc9c1a0f5bfa6dafc453b587
+ 
+ Haddock (version 2.9.2 at least) does not attach documentation to any of a b or
+ c when given:
+ 
+     -- | documentation
+     a,b,c :: X
+ 
+] 
+[Paste: 3 more escaped characters from alistra
+gwern0@gmail.com**20111129160335
+ Ignore-this: 46f5b86a25bcd2b26d2e07ed33ffad68
+] 
+[unfuck X.U.Paste
+Daniel Wagner <daniel@wagner-home.com>**20111129032331
+ Ignore-this: d450e23ca026143bb6ca9d744dcdd906
+] 
+[XMonad.Util.Paste: +alistra's patch for fixing his pasting of things like email address (@)
+gwern0@gmail.com**20111128215648
+ Ignore-this: 4af1af27637fe056792aa4f3bb0403eb
+] 
+[XMonad.Util.Paste: rm myself from maintainer field; I don't know how to fix any of it even if I wanted
+gwern0@gmail.com**20111128213001
+ Ignore-this: 87a4996aaa5241428ccb13851c5eb455
+] 
+[XMonad.Prompt.Shell: improve 'env' documentation to cover goodgrue's problem
+gwern0@gmail.com**20111127231507
+ Ignore-this: 7b652a280960cbdf99c236496ca091b0
+] 
+[Fix spelling 'prefered' -> 'preferred'.
+Erik de Castro Lopo <erikd@mega-nerd.com>**20111125010229
+ Ignore-this: f2eac1728b5e023399188becf867a14d
+] 
+[Restore TrackFloating behavior to an earlier version.
+Adam Vogt <vogt.adam@gmail.com>**20111120045538
+ Ignore-this: 1a1367b4171c3ad23b0553766021629f
+ 
+ Thanks for liskni_si for pressing the matter: without this change it is very
+ broken, with the patch it is still not perfect but still useful.
+] 
+[Explicitly list test files in .cabal
+Adam Vogt <vogt.adam@gmail.com>**20111118232511
+ Ignore-this: ac48a0d388293cc6c771d676aaf142e3
+ 
+ In the future, require Cabal >= 1.6 to be able to just write tests/*.hs
+] 
+[TAG 0.10
+Adam Vogt <vogt.adam@gmail.com>**20111118225640
+ Ignore-this: 8f81b175b902e985d584160fc41ab7d1
+] 
+Patch bundle hash:
+94cb98cd0dd13dbf363a4c654e9a4f6b5f9f0dc7

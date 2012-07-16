@@ -414,9 +414,10 @@ prevWsNonEmpty = windows . W.greedyView
          =<< findWorkspace getSortByTagNoSP Prev HiddenNonEmptyWS 1
 
 nextWsPrefix = windows . W.greedyView
-               =<< findWorkspace getSortByTagNoSP Next (WSTagGroup '.') 1
+               =<< findWorkspace getSortByTagNoSP Next (HiddenWSTagGroup '.') 1
+
 prevWsPrefix = windows . W.greedyView
-               =<< findWorkspace getSortByTagNoSP Prev (WSTagGroup '.') 1
+               =<< findWorkspace getSortByTagNoSP Prev (HiddenWSTagGroup '.') 1
 
 getSortByTagNoSP = fmap (.scratchpadFilterOutWorkspace) getSortByTag
 
