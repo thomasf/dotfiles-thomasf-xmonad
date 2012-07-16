@@ -304,11 +304,11 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , subtitle "misc"
   , ((modm.|. shiftMask, xK_c),                    addName "kill active window"                                   $ kill)
 
-  , subtitle "Cyclic window focus"
+  , subtitle "Window focus"
   , ((modm, xK_j),                                 addName "Next window on workspace"                             $ windows W.focusDown >> movePointer)
   , ((modm, xK_k),                                 addName "Previous window on workspace"                         $ windows W.focusUp >> movePointer)
-  , ((modm.|. altMask, xK_j),                      addName "Next of same window className"                        $ nextMatchWithThis Forward className >> movePointer)
-  , ((modm.|. altMask, xK_k),                      addName "Previous of same window className"                    $ nextMatchWithThis Backward className >> movePointer)
+  --, ((modm.|. altMask, xK_j),                      addName "Next of same window className"                        $ nextMatchWithThis Forward className >> movePointer)
+  --, ((modm.|. altMask, xK_k),                      addName "Previous of same window className"                    $ nextMatchWithThis Backward className >> movePointer)
 
   -- , subtitle "Cyclic window swap"
   -- , ((modm.|. shiftMask, xK_j),                    addName "Swap the focused window with the next window"         $ windows W.swapDown >> movePointer)
