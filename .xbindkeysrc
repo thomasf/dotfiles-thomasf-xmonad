@@ -37,7 +37,7 @@
 # Window management
 
 "easyxmotion"
-  release + mod4 + w
+  mod4 + w
 
 "xkill" 
   mod4 + shift + control + c
