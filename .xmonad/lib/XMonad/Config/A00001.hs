@@ -309,38 +309,20 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm.|. altMask, xK_j),                      addName "Next of same window className"                        $ nextMatchWithThis Forward className >> movePointer)
   , ((modm.|. altMask, xK_k),                      addName "Previous of same window className"                    $ nextMatchWithThis Backward className >> movePointer)
 
-  , subtitle "Cyclic window swap"
-  , ((modm.|. shiftMask, xK_j),                    addName "Swap the focused window with the next window"         $ windows W.swapDown >> movePointer)
-  , ((modm.|. shiftMask, xK_k),                    addName "Swap the focused window with the previous window"     $ windows W.swapUp >> movePointer)
-
-  , subtitle "Directional window focus"
-  , ((modm, xK_Left),                              addName ""                                                     $ windowGo L False >> movePointer)
-  , ((modm, xK_Right),                             addName ""                                                     $ windowGo R False >> movePointer)
-  , ((modm, xK_Up),                                addName ""                                                     $ windowGo U False >> movePointer)
-  , ((modm, xK_Down),                              addName ""                                                     $ windowGo D False >> movePointer)
-
-  , subtitle "Directional window swap"
-  , ((modm.|. controlMask, xK_Left),               addName ""                                                     $ windowSwap L False >> movePointer)
-  , ((modm.|. controlMask, xK_Right),              addName ""                                                     $ windowSwap R False >> movePointer)
-  , ((modm.|. controlMask, xK_Up),                 addName ""                                                     $ windowSwap U False >> movePointer)
-  , ((modm.|. controlMask, xK_Down),               addName ""                                                     $ windowSwap D False >> movePointer)
-
-  , subtitle "Directional window send"
-  , ((modm.|. controlMask.|. altMask, xK_Left),    addName ""                                                     $ windowToScreen L False >> movePointer)
-  , ((modm.|. controlMask.|. altMask, xK_Right),   addName ""                                                     $ windowToScreen R False >> movePointer)
-  , ((modm.|. controlMask.|. altMask, xK_Up),      addName ""                                                     $ windowToScreen U False >> movePointer)
-  , ((modm.|. controlMask.|. altMask, xK_Down),    addName ""                                                     $ windowToScreen D False >> movePointer)
+  -- , subtitle "Cyclic window swap"
+  -- , ((modm.|. shiftMask, xK_j),                    addName "Swap the focused window with the next window"         $ windows W.swapDown >> movePointer)
+  -- , ((modm.|. shiftMask, xK_k),                    addName "Swap the focused window with the previous window"     $ windows W.swapUp >> movePointer)
 
   , subtitle "Workspace operations"
   , ((modm, xK_o),                                 addName "Goto open window in workspace by name"                $ gotoMenuArgs ["-l 23"] >> movePointer)
   , ((modm.|. shiftMask,  xK_BackSpace),           addName "Remove current workspace"                             $ DW.removeWorkspace >> movePointer)
   , ((modm, xK_n ),                                addName "Create or change workspace prompt"                    $ rmEmptyWs $ DW.selectWorkspace myXPConfig >> maybeWorkspaceAction >> movePointer)
   , ((modm.|. controlMask.|. shiftMask, xK_o),     addName "Bring window by search into current workspace"        $ bringMenuArgs ["-l 23"] >> movePointer)
-  , ((modm, xK_m),                                 addName "Move current window to other workspace prompt"        $ rmEmptyWs $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
+  , ((modm.|. controlMask, xK_m),                  addName "Move current window to other workspace prompt"        $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
   , ((modm.|. shiftMask, xK_m),                    addName "Copy current window to other workspace prompt"        $ DW.withWorkspace myXPConfig (windows . CW.copy) >> movePointer)
   , ((modm.|. shiftMask, xK_r),                    addName "Rename current workspace"                             $ DW.renameWorkspace myXPConfig >> movePointer)
-  , ((modm.|. controlMask.|. shiftMask, xK_Right), addName "Next non empty workspace"                             $ rmEmptyWs $ nextNonEmptyWorkspace >> movePointer)
-  , ((modm.|. controlMask.|. shiftMask, xK_Left),  addName "Previous non empty workspace"                         $ rmEmptyWs $ prevNonEmptyWorkspace >> movePointer)
+  -- , ((modm.|. controlMask.|. shiftMask, xK_Right), addName "Next non empty workspace"                             $ rmEmptyWs $ nextNonEmptyWorkspace >> movePointer)
+  -- , ((modm.|. controlMask.|. shiftMask, xK_Left),  addName "Previous non empty workspace"                         $ rmEmptyWs $ prevNonEmptyWorkspace >> movePointer)
   , ((modm.|. controlMask, xK_j),                  addName "Next non empty workspace (prefix)"                    $ rmEmptyWs $ nextNonEmptyWorkspace >> movePointer)
   , ((modm.|. controlMask, xK_k),                  addName "Previous non empty workspace (prefix)"                $ rmEmptyWs $ prevNonEmptyWorkspace >> movePointer)
   , ((modm.|. controlMask.|. shiftMask, xK_j),     addName "Next screen"                                          $ rmEmptyWs $ nextScreen >> movePointer)
@@ -363,6 +345,24 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm.|. altMask,  xK_2),                     addName "do current topic action"                              $ maybeWorkspaceAction)
   , ((modm.|. altMask,  xK_9),                     addName "xmonad prompt"                                        $ xmonadPrompt myAutocompleteXPConfig)
   , ((modm.|. altMask,  xK_6),                     addName "wincmds"                                              $ workspaceCommands >>= runCommand )
+
+  , subtitle "(don't use?) Directional window focus"
+  , ((modm, xK_Left),                              addName ""                                                     $ windowGo L False >> movePointer)
+  , ((modm, xK_Right),                             addName ""                                                     $ windowGo R False >> movePointer)
+  , ((modm, xK_Up),                                addName ""                                                     $ windowGo U False >> movePointer)
+  , ((modm, xK_Down),                              addName ""                                                     $ windowGo D False >> movePointer)
+
+  , subtitle "(don't use?) Directional window swap"
+  , ((modm.|. controlMask, xK_Left),               addName ""                                                     $ windowSwap L False >> movePointer)
+  , ((modm.|. controlMask, xK_Right),              addName ""                                                     $ windowSwap R False >> movePointer)
+  , ((modm.|. controlMask, xK_Up),                 addName ""                                                     $ windowSwap U False >> movePointer)
+  , ((modm.|. controlMask, xK_Down),               addName ""                                                     $ windowSwap D False >> movePointer)
+
+  , subtitle "(don't use?) Directional window send"
+  , ((modm.|. controlMask.|. altMask, xK_Left),    addName ""                                                     $ windowToScreen L False >> movePointer)
+  , ((modm.|. controlMask.|. altMask, xK_Right),   addName ""                                                     $ windowToScreen R False >> movePointer)
+  , ((modm.|. controlMask.|. altMask, xK_Up),      addName ""                                                     $ windowToScreen U False >> movePointer)
+  , ((modm.|. controlMask.|. altMask, xK_Down),    addName ""                                                     $ windowToScreen D False >> movePointer)
   ]
 
 emptyKeys c = mkKeymap c [ ]
