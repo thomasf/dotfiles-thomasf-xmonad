@@ -341,6 +341,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm.|. shiftMask, xK_r),                    addName "Rename current workspace"                             $ DW.renameWorkspace myXPConfig >> movePointer)
   , ((modm.|. controlMask.|. shiftMask, xK_Right), addName "Next non empty workspace"                             $ rmEmptyWs $ nextNonEmptyWorkspace >> movePointer)
   , ((modm.|. controlMask.|. shiftMask, xK_Left),  addName "Previous non empty workspace"                         $ rmEmptyWs $ prevNonEmptyWorkspace >> movePointer)
+  , ((modm.|. controlMask, xK_j),                  addName "Next non empty workspace (prefix)"                    $ rmEmptyWs $ nextNonEmptyWorkspace >> movePointer)
+  , ((modm.|. controlMask, xK_k),                  addName "Previous non empty workspace (prefix)"                $ rmEmptyWs $ prevNonEmptyWorkspace >> movePointer)
+  , ((modm.|. controlMask.|. shiftMask, xK_j),     addName "Next screen"                                          $ rmEmptyWs $ nextScreen >> movePointer)
+  , ((modm.|. controlMask.|. shiftMask, xK_k),     addName "Previous screen"                                      $ rmEmptyWs $ prevScreen >> movePointer)
 
   , subtitle "Layout control"
   , ((modm, xK_space),                             addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer)
@@ -429,6 +433,11 @@ maybeWorkspaceAction = do
   ws <- gets (W.currentTag . windowset)
   wins <- gets (W.integrate' . W.stack . W.workspace . W.current . windowset)
   when (null wins) $ spawn ("w." ++ takeWhile (/='.') ws )
+
+-- | filter out all workspaces not matching current prefix (prefix.suffix)
+--  TODO: implement filterOutOtherPrefixes
+--filterOutOtherPrefixes :: [WindowSpace] -> [WindowSpace]
+--filterOutOtherPrefixes = filter (\(W.Workspace tag _ _) -> tag /= "tag")
 
 -- | Move mouse pointer to bottom right of the current window
 movePointer = updatePointer (Relative 0.99 0.99)
