@@ -32,6 +32,7 @@ module XMonad.Config.A00001
       autoConfig
     ) where
 
+import           Control.Arrow hiding ((|||),(<+>))
 import           Control.Monad
 import           Control.Monad.Reader
 import           Data.List
@@ -315,16 +316,16 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
 
   , subtitle "Workspace operations"
   , ((modm, xK_o),                                 addName "Goto open window in workspace by name"                $ gotoMenuArgs ["-l 23"] >> movePointer)
-  , ((modm.|. shiftMask,  xK_BackSpace),           addName "Remove current workspace"                             $ DW.removeWorkspace >> movePointer)
+  --, ((modm.|. shiftMask,  xK_BackSpace),           addName "Remove current workspace"                             $ DW.removeWorkspace >> movePointer)
   , ((modm, xK_n ),                                addName "Create or change workspace prompt"                    $ rmEmptyWs $ DW.selectWorkspace myXPConfig >> maybeWorkspaceAction >> movePointer)
   , ((modm.|. controlMask.|. shiftMask, xK_o),     addName "Bring window by search into current workspace"        $ bringMenuArgs ["-l 23"] >> movePointer)
   , ((modm.|. controlMask, xK_m),                  addName "Move current window to other workspace prompt"        $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
-  , ((modm.|. shiftMask, xK_m),                    addName "Copy current window to other workspace prompt"        $ DW.withWorkspace myXPConfig (windows . CW.copy) >> movePointer)
+  --, ((modm.|. shiftMask, xK_m),                    addName "Copy current window to other workspace prompt"        $ DW.withWorkspace myXPConfig (windows . CW.copy) >> movePointer)
   , ((modm.|. shiftMask, xK_r),                    addName "Rename current workspace"                             $ DW.renameWorkspace myXPConfig >> movePointer)
-  -- , ((modm.|. controlMask.|. shiftMask, xK_Right), addName "Next non empty workspace"                             $ rmEmptyWs $ nextNonEmptyWorkspace >> movePointer)
-  -- , ((modm.|. controlMask.|. shiftMask, xK_Left),  addName "Previous non empty workspace"                         $ rmEmptyWs $ prevNonEmptyWorkspace >> movePointer)
-  , ((modm.|. controlMask.|. shiftMask, xK_j),     addName "Next non empty workspace (prefix)"                    $ rmEmptyWs $ nextNonEmptyWorkspace >> movePointer)
-  , ((modm.|. controlMask.|. shiftMask, xK_k),     addName "Previous non empty workspace (prefix)"                $ rmEmptyWs $ prevNonEmptyWorkspace >> movePointer)
+  , ((modm.|. controlMask.|. altMask.|.shiftMask, xK_j), addName "Next non empty workspace"                             $ rmEmptyWs $ nextWsNonEmpty >> movePointer)
+  , ((modm.|. controlMask.|. altMask.|.shiftMask, xK_k),  addName "Previous non empty workspace"                         $ rmEmptyWs $ prevWsNonEmpty >> movePointer)
+  , ((modm.|. controlMask.|. shiftMask, xK_j),     addName "Next non empty workspace (prefix)"                    $ rmEmptyWs $ nextWsPrefix >> movePointer)
+  , ((modm.|. controlMask.|. shiftMask, xK_k),     addName "Previous non empty workspace (prefix)"                $ rmEmptyWs $ prevWsPrefix >> movePointer)
   , ((modm.|. controlMask, xK_j),                  addName "Next screen"                                          $ rmEmptyWs $ nextScreen >> movePointer)
   , ((modm.|. controlMask, xK_k),                  addName "Previous screen"                                      $ rmEmptyWs $ prevScreen >> movePointer)
 
@@ -346,11 +347,11 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm.|. altMask,  xK_9),                     addName "xmonad prompt"                                        $ xmonadPrompt myAutocompleteXPConfig)
   , ((modm.|. altMask,  xK_6),                     addName "wincmds"                                              $ workspaceCommands >>= runCommand )
 
-  , subtitle "(don't use?) Directional window focus"
-  , ((modm, xK_Left),                              addName ""                                                     $ windowGo L False >> movePointer)
-  , ((modm, xK_Right),                             addName ""                                                     $ windowGo R False >> movePointer)
-  , ((modm, xK_Up),                                addName ""                                                     $ windowGo U False >> movePointer)
-  , ((modm, xK_Down),                              addName ""                                                     $ windowGo D False >> movePointer)
+  --, subtitle "(don't use?) Directional window focus"
+  --, ((modm, xK_Left),                              addName ""                                                     $ windowGo L False >> movePointer)
+  --, ((modm, xK_Right),                             addName ""                                                     $ windowGo R False >> movePointer)
+  --, ((modm, xK_Up),                                addName ""                                                     $ windowGo U False >> movePointer)
+  --, ((modm, xK_Down),                              addName ""                                                     $ windowGo D False >> movePointer)
 
   , subtitle "(don't use?) Directional window swap"
   , ((modm.|. controlMask, xK_Left),               addName ""                                                     $ windowSwap L False >> movePointer)
@@ -407,10 +408,15 @@ myAutocompleteXPConfig = myXPConfig
 spawnShell :: X ()
 spawnShell = spawn myTerminal
 
-nextNonEmptyWorkspace = windows . W.greedyView
-                        =<< findWorkspace getSortByTagNoSP Next HiddenNonEmptyWS 1
-prevNonEmptyWorkspace = windows . W.greedyView
-                        =<< findWorkspace getSortByTagNoSP Prev HiddenNonEmptyWS 1
+nextWsNonEmpty = windows . W.greedyView
+         =<< findWorkspace getSortByTagNoSP Next HiddenNonEmptyWS 1
+prevWsNonEmpty = windows . W.greedyView
+         =<< findWorkspace getSortByTagNoSP Prev HiddenNonEmptyWS 1
+
+nextWsPrefix = windows . W.greedyView
+               =<< findWorkspace getSortByTagNoSP Next (WSTagGroup '.') 1
+prevWsPrefix = windows . W.greedyView
+               =<< findWorkspace getSortByTagNoSP Prev (WSTagGroup '.') 1
 
 getSortByTagNoSP = fmap (.scratchpadFilterOutWorkspace) getSortByTag
 
@@ -423,10 +429,6 @@ terminalPad = namedScratchpadAction myScratchPads "terminal"
 
 ------------------------------------------------------------------------
 -- Utils
---
-
--- | Remove current workpace if empty
-rmEmptyWs = DW.removeEmptyWorkspaceAfter
 
 -- | Run script with same name as "w.workspacename" if the workspace is empty
 maybeWorkspaceAction = do
@@ -434,10 +436,8 @@ maybeWorkspaceAction = do
   wins <- gets (W.integrate' . W.stack . W.workspace . W.current . windowset)
   when (null wins) $ spawn ("w." ++ takeWhile (/='.') ws )
 
--- | filter out all workspaces not matching current prefix (prefix.suffix)
---  TODO: implement filterOutOtherPrefixes
---filterOutOtherPrefixes :: [WindowSpace] -> [WindowSpace]
---filterOutOtherPrefixes = filter (\(W.Workspace tag _ _) -> tag /= "tag")
+-- | Remove current workpace if empty
+rmEmptyWs = DW.removeEmptyWorkspaceAfter
 
 -- | Move mouse pointer to bottom right of the current window
 movePointer = updatePointer (Relative 0.99 0.99)
