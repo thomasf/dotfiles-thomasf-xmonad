@@ -343,6 +343,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
 
   , subtitle "other"
   , ((modm, xK_section),                           addName "terminal scratch pad"                                 $ terminalPad >> movePointer)
+  , ((modm.|. shiftMask, xK_section),              addName "ssh scratch pad"                                      $ sshPad >> movePointer)
   , ((modm.|. altMask,  xK_2),                     addName "do current topic action"                              $ maybeWorkspaceAction)
   , ((modm.|. altMask,  xK_9),                     addName "xmonad prompt"                                        $ xmonadPrompt myAutocompleteXPConfig)
   , ((modm.|. altMask,  xK_6),                     addName "wincmds"                                              $ workspaceCommands >>= runCommand )
@@ -423,7 +424,7 @@ getSortByTagNoSP = fmap (.scratchpadFilterOutWorkspace) getSortByTag
 
 terminalPad = namedScratchpadAction myScratchPads "terminal"
 
--- irssiPad = namedScratchpadAction myScratchPads "irssi"
+sshPad = namedScratchpadAction myScratchPads "ssh"
 
 -- restartXmonad = spawn "xmonad --recompile && xmonad --restart"
 
@@ -473,8 +474,8 @@ countScreens = liftM genericLength . liftIO $ openDisplay "" >>= getScreenInfo
 -- Scratch pads:
 
 myScratchPads = [ NS "terminal" (term "terminal") (res =? scratch "terminal") bottomFloat
-                , NS "irssi" (inTerm' "irssi" "ssh medeltiden.org")
-                  (res =? scratch "irssi") nonFloating
+                , NS "ssh" (inTerm' "ssh" "ssh medeltiden -t tmux attach")
+                  (res =? scratch "ssh") doFullFloat
                 ]
   where
     scratch name = "scratchpad_" ++ name
