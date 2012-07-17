@@ -93,7 +93,7 @@ myTerminal = "urxvt"
 -- myShell = "bash"
 
 myFocusFollowsMouse = False
-myBorderWidth   = 4
+myBorderWidth   = 3
 
 ------------------------------------------------------------------------
 -- Border colors for unfocused and focused windows, respectively.
