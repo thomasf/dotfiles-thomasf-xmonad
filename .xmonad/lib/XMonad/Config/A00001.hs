@@ -32,43 +32,44 @@ module XMonad.Config.A00001
       autoConfig
     ) where
 
-import           Control.Arrow hiding ((|||),(<+>))
+--import           Control.Arrow hiding ((|||),(<+>))
 import           Control.Monad
-import           Control.Monad.Reader
-import           Data.List
+--import           Control.Monad.Reader
+--import           Data.List
 import qualified Data.Map                        as M
-import           Data.Ratio                      ((%))
+--import           Data.Ratio                      ((%))
 import           Graphics.X11.Xinerama
 import           System.IO
 import qualified System.IO.UTF8
 import           System.Posix.Unistd             (getSystemID, nodeName)
 import           XMonad                          hiding ( (|||) )
 import           XMonad.Actions.Commands
-import           XMonad.Actions.CopyWindow as CW
+--import           XMonad.Actions.CopyWindow as CW
 import           XMonad.Actions.CycleWS
 import qualified XMonad.Actions.DynamicWorkspaces as DW
-import           XMonad.Actions.GroupNavigation
+--import           XMonad.Actions.GroupNavigation
 import           XMonad.Actions.Navigation2D
-import           XMonad.Actions.PerWorkspaceKeys
+--import           XMonad.Actions.PerWorkspaceKeys
 import           XMonad.Actions.UpdatePointer
 import           XMonad.Actions.WindowBringer    (gotoMenuArgs, bringMenuArgs)
-import           XMonad.Config.Gnome
+import qualified XMonad.Config.Desktop as Desktop
 import           XMonad.Hooks.DynamicLog
-import           XMonad.Hooks.EwmhDesktops       (ewmh, fullscreenEventHook)
+import           XMonad.Hooks.EwmhDesktops       (ewmh)
 import           XMonad.Hooks.ManageDocks as MD
 import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.ServerMode
 import           XMonad.Hooks.UrgencyHook
 import           XMonad.Layout.Decoration
 import           XMonad.Layout.Reflect
-import           XMonad.Layout.DwmStyle
-import           XMonad.Layout.Grid
+--import           XMonad.Layout.DwmStyle
+--import           XMonad.Layout.Grid
 import qualified XMonad.Layout.MultiToggle as MT
 import qualified XMonad.Layout.MultiToggle.Instances as MTI
 import           XMonad.Layout.LayoutCombinators
-import           XMonad.Layout.LayoutHints
+--import           XMonad.Layout.LayoutHints
 import           XMonad.Layout.Named
-import           XMonad.Layout.NoBorders         (noBorders)
+import           XMonad.Layout.NoBorders
+import           XMonad.Layout.Fullscreen
 import           XMonad.Layout.PerWorkspace      (onWorkspace)
 import           XMonad.Layout.Spiral
 import           XMonad.Layout.ShowWName
@@ -83,7 +84,7 @@ import           XMonad.Util.NamedScratchpad
 import           XMonad.Util.NamedWindows        (getName)
 import           XMonad.Util.Run
 import           XMonad.Util.Scratchpad          (scratchpadFilterOutWorkspace)
-import           XMonad.Util.WindowProperties
+--import           XMonad.Util.WindowProperties
 import           XMonad.Util.WorkspaceCompare
 
 ------------------------------------------------------------------------
@@ -104,7 +105,7 @@ myFocusedBorderColor = "#d33682"
 ------------------------------------------------------------------------
 -- Workspaces
 
-myWorkspaces = ["m1","m2"]
+myWorkspaces = ["misc.1","misc.2","misc.3","misc.4"]
 
 ------------------------------------------------------------------------
 -- Layouts:
@@ -139,27 +140,28 @@ tabTheme = baseTheme { activeColor         = "#4c7899"
                      }
 
 -- | Uses colors from solarized theme
-titleTheme = baseTheme { inactiveColor       = "#eee8d5"
-                       , inactiveBorderColor = "#93a1a1"
-                       , inactiveTextColor   = "#657b83"
-                       }
+-- titleTheme = baseTheme { inactiveColor       = "#eee8d5"
+--                        , inactiveBorderColor = "#93a1a1"
+--                        , inactiveTextColor   = "#657b83"
+--                        }
+
 -- | The layouthoook
 
-
 myLayoutHook = showWorkspaceName $
-               avoidStruts $
+               Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22:57 CEST 2012)
                onWorkspace "nodes" tabs $
                onWorkspace "reading" tabs $
                MT.mkToggle (MT.single MTI.NOBORDERS) $
-               MT.mkToggle (MT.single MTI.NBFULL) (
-               (named "tall h" $ Mirror tallH) |||
-               (named "tall h flip" $ Mirror $ reflectHoriz tallH) |||
-               (named "tall v" $ tallV) |||
-               (named "tall v flip" $ reflectHoriz tallV) |||
-               (named "3col h" $ threeCol) |||
-               (named "3col v" $ Mirror threeCol) |||
-               (named "tabs" $ tabs) |||
-               (named "spir" $ spiral (6/7)))
+               MT.mkToggle (MT.single MTI.NBFULL) $
+               lessBorders (OnlyFloat)
+               ((named "tall h" $ Mirror tallH) |||
+                (named "tall h flip" $ Mirror $ reflectHoriz tallH) |||
+                (named "tall v" $ tallV) |||
+                (named "tall v flip" $ reflectHoriz tallV) |||
+                (named "3col h" $ threeCol) |||
+                (named "3col v" $ Mirror threeCol) |||
+                (named "tabs" $ tabs) |||
+                (named "spiral" $ spiral (6/7)))
   where
     tallH = Tall 1 (3/100) (4/5)
     tallV = Tall 1 (3/100) (3/4)
@@ -190,11 +192,13 @@ myLayoutHook = showWorkspaceName $
 
 myManageHook :: ManageHook
 
-myManageHook = namedScratchpadManageHook myScratchPads <+> composeOne
+myManageHook = fullscreenManageHook <+>
+               namedScratchpadManageHook myScratchPads <+>
+               composeOne
   [ resource            =? "Do"                -?> doIgnore
   , resource            =? "desktop_window"    -?> doIgnore
   , resource            =? "kdesktop"          -?> doIgnore
-  , resource            =? "panel"             -?> doIgnore
+  --, resource            =? "panel"             -?> doIgnore
   , className           =? "Unity-2d-panel"    -?> doIgnore
   , className           =? "Xfce4-notifyd"     -?> doIgnore
   , className           =? "Xfdesktop"         -?> doIgnore
@@ -207,7 +211,7 @@ myManageHook = namedScratchpadManageHook myScratchPads <+> composeOne
   , className           =? "Xfce4-appfinder"   -?> doCenterFloat
   , className           =? "Pinentry"          -?> doCenterFloat
   , transience
-  , isFullscreen                               -?> doFullFloat
+  --, isFullscreen                               -?> doFullFloat
   , resource            =? "empathy"           -?> doF (W.shift "chat")
   , resource            =? "xchat"             -?> doF (W.shift "chat")
   , className           =? "Pidgin"            -?> doF (W.shift "chat")
@@ -216,9 +220,9 @@ myManageHook = namedScratchpadManageHook myScratchPads <+> composeOne
   , resource            =? "xmessage"          -?> doCenterFloat
   , className           =? "feh"               -?> doFloat
   , className           =? "MPlayer"           -?> doFloat
-  ]
-  where
-    role = stringProperty "WM_WINDOW_ROLE"
+  ] <+> manageHook Desktop.desktopConfig -- < implies only manageDocks (ons jul 18 08:51:00 CEST 2012)
+  -- where
+  --   role = stringProperty "WM_WINDOW_ROLE"
 
 ------------------------------------------------------------------------
 -- Event handling
@@ -232,7 +236,7 @@ myManageHook = namedScratchpadManageHook myScratchPads <+> composeOne
 -- It will add EWMH event handling to your custom event hooks by
 -- combining them with ewmhDesktopsEventHook.
 --
-myEventHook = serverModeEventHook <+> fullscreenEventHook <+> MD.docksEventHook
+myEventHook = serverModeEventHook <+> fullscreenEventHook
 
 ------------------------------------------------------------------------
 -- Status bars and logging
@@ -473,8 +477,8 @@ getScreenDim n = do
                         fromIntegral $ rect_width rn, fromIntegral $ rect_height rn)
 
 -- | Determine the number of physical screens.
-countScreens :: (MonadIO m, Integral i) => m i
-countScreens = liftM genericLength . liftIO $ openDisplay "" >>= getScreenInfo
+-- countScreens :: (MonadIO m, Integral i) => m i
+-- countScreens = liftM genericLength . liftIO $ openDisplay "" >>= getScreenInfo
 
 ------------------------------------------------------------------------
 -- Scratch pads:
@@ -484,9 +488,9 @@ myScratchPads = [ NS "terminal" (term "terminal") (res =? scratch "terminal") bo
                   (res =? scratch "ssh") doFullFloat
                 ]
   where
-    scratch name = "scratchpad_" ++ name
-    term name = myTerminal ++ " -name scratchpad_" ++ name
-    inTerm' name cmd = myTerminal ++ " -name scratchpad_" ++ name ++ " -e " ++  cmd
+    scratch sname = "scratchpad_" ++ sname
+    term sname = myTerminal ++ " -name scratchpad_" ++ sname
+    inTerm' sname scmd = myTerminal ++ " -name scratchpad_" ++ sname ++ " -e " ++  scmd
     res = resource
 
     bottomFloat=customFloating $ W.RationalRect l t w h
