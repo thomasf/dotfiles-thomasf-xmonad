@@ -153,15 +153,15 @@ myLayoutHook = showWorkspaceName $
                onWorkspace "reading" tabs $
                MT.mkToggle (MT.single MTI.NOBORDERS) $
                MT.mkToggle (MT.single MTI.NBFULL) $
-               lessBorders (OnlyFloat)
-               ((named "tall h" $ Mirror tallH) |||
+               lessBorders OnlyFloat
+               ((named "tall h"      $ Mirror tallH) |||
                 (named "tall h flip" $ Mirror $ reflectHoriz tallH) |||
-                (named "tall v" $ tallV) |||
+                (named "tall v"      $ tallV) |||
                 (named "tall v flip" $ reflectHoriz tallV) |||
-                (named "3col h" $ threeCol) |||
-                (named "3col v" $ Mirror threeCol) |||
-                (named "tabs" $ tabs) |||
-                (named "spiral" $ spiral (6/7)))
+                (named "3col h"      $ threeCol) |||
+                (named "3col v"      $ Mirror threeCol) |||
+                (named "tabs"        $ tabs) |||
+                (named "spiral"      $ spiral (6/7)))
   where
     tallH = Tall 1 (3/100) (4/5)
     tallV = Tall 1 (3/100) (3/4)
