@@ -148,7 +148,7 @@ tabTheme = baseTheme { activeColor         = "#4c7899"
 -- | The layouthoook
 
 myLayoutHook = showWorkspaceName $
-               Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22:57 CEST 2012)
+               Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22 2012)
                onWorkspace "nodes" tabs $
                onWorkspace "reading" tabs $
                MT.mkToggle (MT.single MTI.NOBORDERS) $
@@ -220,7 +220,7 @@ myManageHook = fullscreenManageHook <+>
   , resource            =? "xmessage"          -?> doCenterFloat
   , className           =? "feh"               -?> doFloat
   , className           =? "MPlayer"           -?> doFloat
-  ] <+> manageHook Desktop.desktopConfig -- < implies only manageDocks (ons jul 18 08:51:00 CEST 2012)
+  ] <+> manageHook Desktop.desktopConfig -- < implies only manageDocks (ons jul 18 08:51 2012)
   -- where
   --   role = stringProperty "WM_WINDOW_ROLE"
 
@@ -518,7 +518,11 @@ instance UrgencyHook LibNotifyUrgencyHook where
     ws <- gets windowset
     whenJust (W.findTag w ws) (flash workspaceName)
       where
-        flash workspaceName index = spawn ("notify-send '" ++ show workspaceName  ++ " requests your attention on workspace " ++ index ++ "'")
+        flash workspaceName index = spawn ("notify-send '"
+                                           ++ show workspaceName
+                                           ++ " requests your attention on workspace "
+                                           ++ index
+                                           ++ "'")
 
 myUrgencyConfig = urgencyConfig { suppressWhen = XMonad.Hooks.UrgencyHook.Never }
 myUrgencyHook = LibNotifyUrgencyHook
