@@ -314,8 +314,6 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , subtitle "Windows"
   , ((modm, xK_j),                                       addName "Next window on workspace"                             $ windows W.focusDown >> movePointer)
   , ((modm, xK_k),                                       addName "Previous window on workspace"                         $ windows W.focusUp >> movePointer)
-  --, ((modm.|. altMask, xK_j),                          addName "Next of same window className"                        $ nextMatchWithThis Forward className >> movePointer)
-  --, ((modm.|. altMask, xK_k),                          addName "Previous of same window className"                    $ nextMatchWithThis Backward className >> movePointer)
 
   -- , subtitle "Cyclic window swap"
   , ((modm.|. shiftMask, xK_j),                          addName "Swap the focused window with the next window"         $ windows W.swapDown >> movePointer)
@@ -325,7 +323,6 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm, xK_o),                                       addName "Goto open window in workspace by name"                $ gotoMenuArgs ["-l 23"] >> movePointer)
   , ((modm.|. shiftMask,  xK_BackSpace),                 addName "Remove current workspace"                             $ DW.removeWorkspace >> movePointer)
   , ((modm, xK_n ),                                      addName "Create or change workspace prompt"                    $ rmEmptyWs $ DW.selectWorkspace myXPConfig >> maybeWorkspaceAction >> movePointer)
-  -- , ((modm.|. controlMask.|. shiftMask, xK_o),           addName "Bring window by search into current workspace"        $ bringMenuArgs ["-l 23"] >> movePointer)
   , ((modm.|. shiftMask, xK_n),                          addName "Move current window to other workspace prompt"        $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
   , ((modm.|. shiftMask, xK_r),                          addName "Rename current workspace"                             $ DW.renameWorkspace myXPConfig >> movePointer)
   , ((modm.|. controlMask.|. altMask.|.shiftMask, xK_j), addName "Next non empty workspace"                             $ rmEmptyWs $ nextWsNonEmpty >> movePointer)
