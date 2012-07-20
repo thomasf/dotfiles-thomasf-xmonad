@@ -327,7 +327,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm.|. altMask.|.shiftMask, xK_k),      addName "Previous non empty workspace"                         $ rmEmptyWs $ prevWsNonEmpty >> movePointer)
   , ((modm.|. controlMask.|. shiftMask, xK_j), addName "Next non enmpty workspace (prefix)"                   $ rmEmptyWs $ nextWsPrefix >> movePointer)
   , ((modm.|. controlMask.|. shiftMask, xK_k), addName "Previous non empty workspace (prefix)"                $ rmEmptyWs $ prevWsPrefix >> movePointer)
-  , ((modm.|. shiftMask, xK_z),                addName "Toggle workspace"                                     $ rmEmptyWs $ toggleWS)
+  , ((modm.|. controlMask, xK_z),              addName "Toggle workspace"                                     $ rmEmptyWs $ toggleWS)
 
   , subtitle "Screens"
   , ((modm.|. controlMask, xK_j),              addName "Next screen"                                          $ rmEmptyWs $ nextScreen >> movePointer)
