@@ -43,15 +43,15 @@ import           System.IO
 import qualified System.IO.UTF8
 import           System.Posix.Unistd             (getSystemID, nodeName)
 import           XMonad                          hiding ( (|||) )
-import           XMonad.Actions.Commands
+--import           XMonad.Actions.Commands
 --import           XMonad.Actions.CopyWindow as CW
 import           XMonad.Actions.CycleWS
 import qualified XMonad.Actions.DynamicWorkspaces as DW
 --import           XMonad.Actions.GroupNavigation
-import           XMonad.Actions.Navigation2D
+--import           XMonad.Actions.Navigation2D
 --import           XMonad.Actions.PerWorkspaceKeys
 import           XMonad.Actions.UpdatePointer
-import           XMonad.Actions.WindowBringer    (gotoMenuArgs, bringMenuArgs)
+import           XMonad.Actions.WindowBringer    (gotoMenuArgs)
 import qualified XMonad.Config.Desktop as Desktop
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops       (ewmh)
@@ -323,11 +323,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
 
   , subtitle "Workspaces"
   , ((modm, xK_o),                                       addName "Goto open window in workspace by name"                $ gotoMenuArgs ["-l 23"] >> movePointer)
-  --, ((modm.|. shiftMask,  xK_BackSpace),               addName "Remove current workspace"                             $ DW.removeWorkspace >> movePointer)
+  , ((modm.|. shiftMask,  xK_BackSpace),                 addName "Remove current workspace"                             $ DW.removeWorkspace >> movePointer)
   , ((modm, xK_n ),                                      addName "Create or change workspace prompt"                    $ rmEmptyWs $ DW.selectWorkspace myXPConfig >> maybeWorkspaceAction >> movePointer)
-  , ((modm.|. controlMask.|. shiftMask, xK_o),           addName "Bring window by search into current workspace"        $ bringMenuArgs ["-l 23"] >> movePointer)
-  , ((modm.|. controlMask, xK_m),                        addName "Move current window to other workspace prompt"        $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
-  --, ((modm.|. shiftMask, xK_m),                        addName "Copy current window to other workspace prompt"        $ DW.withWorkspace myXPConfig (windows . CW.copy) >> movePointer)
+  -- , ((modm.|. controlMask.|. shiftMask, xK_o),           addName "Bring window by search into current workspace"        $ bringMenuArgs ["-l 23"] >> movePointer)
+  , ((modm.|. shiftMask, xK_n),                          addName "Move current window to other workspace prompt"        $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
   , ((modm.|. shiftMask, xK_r),                          addName "Rename current workspace"                             $ DW.renameWorkspace myXPConfig >> movePointer)
   , ((modm.|. controlMask.|. altMask.|.shiftMask, xK_j), addName "Next non empty workspace"                             $ rmEmptyWs $ nextWsNonEmpty >> movePointer)
   , ((modm.|. controlMask.|. altMask.|.shiftMask, xK_k), addName "Previous non empty workspace"                         $ rmEmptyWs $ prevWsNonEmpty >> movePointer)
@@ -349,32 +348,12 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm, xK_t),                                       addName "Push the window into tiling mode"                     $ withFocused (windows . W.sink) >> movePointer)
 
   , subtitle "other"
-  , ((modm, xK_section),                                 addName "Toggle terminal scratch pad"                         $ terminalPad >> movePointer)
+  , ((modm, xK_section),                                 addName "Toggle terminal scratch pad"                          $ terminalPad >> movePointer)
   , ((modm.|. shiftMask, xK_section),                    addName "Toggle ssh scratch pad"                               $ sshPad >> movePointer)
   , ((modm.|. shiftMask, xK_f),                          addName "Toggle fullscreen"                                    $ sendMessage (MT.Toggle MTI.NBFULL))
   , ((modm.|. shiftMask, xK_b),                          addName "Toggle borders"                                       $ sendMessage (MT.Toggle MTI.NOBORDERS))
   , ((modm.|. shiftMask, xK_s),                          addName "Toggle struts"                                        $ sendMessage ToggleStruts)
-  , ((modm.|. altMask,  xK_2),                           addName "do current topic action"                              $ maybeWorkspaceAction)
   , ((modm.|. altMask,  xK_9),                           addName "xmonad prompt"                                        $ xmonadPrompt myAutocompleteXPConfig)
-  , ((modm.|. altMask,  xK_6),                           addName "wincmds"                                              $ workspaceCommands >>= runCommand )
-
-  --, subtitle "(don't use?) Directional window focus"
-  --, ((modm, xK_Left),                                  addName ""                                                     $ windowGo L False >> movePointer)
-  --, ((modm, xK_Right),                                 addName ""                                                     $ windowGo R False >> movePointer)
-  --, ((modm, xK_Up),                                    addName ""                                                     $ windowGo U False >> movePointer)
-  --, ((modm, xK_Down),                                  addName ""                                                     $ windowGo D False >> movePointer)
-
-  , subtitle "(don't use?) Directional window swap"
-  , ((modm.|. controlMask, xK_Left),                     addName ""                                                     $ windowSwap L False >> movePointer)
-  , ((modm.|. controlMask, xK_Right),                    addName ""                                                     $ windowSwap R False >> movePointer)
-  , ((modm.|. controlMask, xK_Up),                       addName ""                                                     $ windowSwap U False >> movePointer)
-  , ((modm.|. controlMask, xK_Down),                     addName ""                                                     $ windowSwap D False >> movePointer)
-
-  , subtitle "(don't use?) Directional window send"
-  , ((modm.|. controlMask.|. altMask, xK_Left),          addName ""                                                     $ windowToScreen L False >> movePointer)
-  , ((modm.|. controlMask.|. altMask, xK_Right),         addName ""                                                     $ windowToScreen R False >> movePointer)
-  , ((modm.|. controlMask.|. altMask, xK_Up),            addName ""                                                     $ windowToScreen U False >> movePointer)
-  , ((modm.|. controlMask.|. altMask, xK_Down),          addName ""                                                     $ windowToScreen D False >> movePointer)
   ]
 
 emptyKeys c = mkKeymap c [ ]
@@ -446,7 +425,7 @@ sshPad = namedScratchpadAction myScratchPads "ssh"
 maybeWorkspaceAction = do
   ws <- gets (W.currentTag . windowset)
   wins <- gets (W.integrate' . W.stack . W.workspace . W.current . windowset)
-  when (null wins) $ spawn ("w." ++ takeWhile (/='.') ws )
+  when (null wins) $ spawn ("w." ++ takeWhile (/='.') ws)
 
 -- | Remove current workpace if empty
 rmEmptyWs = DW.removeEmptyWorkspaceAfter
@@ -493,19 +472,19 @@ myScratchPads = [ NS "terminal" (term "terminal") (res =? scratch "terminal") bo
     inTerm' sname scmd = myTerminal ++ " -name scratchpad_" ++ sname ++ " -e " ++  scmd
     res = resource
 
-    bottomFloat=customFloating $ W.RationalRect l t w h
+    bottomFloat = customFloating $ W.RationalRect l t w h
       where
         h = 0.2
         w = 1
         t = 1 - h
         l = (1 - w)/2
 
-    largeCenterFloat=customFloating $ W.RationalRect l t w h
-      where
-        h = 0.95
-        w = 0.95
-        t = (1 - h)/2
-        l = (1 - w)/2
+    -- largeCenterFloat = customFloating $ W.RationalRect l t w h
+    --   where
+    --     h = 0.95
+    --     w = 0.95
+    --     t = (1 - h)/2
+    --     l = (1 - w)/2
 
 ------------------------------------------------------------------------
 -- Urgency hook:
