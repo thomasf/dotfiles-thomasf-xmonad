@@ -32,24 +32,15 @@ module XMonad.Config.A00001
       autoConfig
     ) where
 
---import           Control.Arrow hiding ((|||),(<+>))
 import           Control.Monad
---import           Control.Monad.Reader
---import           Data.List
 import qualified Data.Map                        as M
---import           Data.Ratio                      ((%))
 import           Graphics.X11.Xinerama
 import           System.IO
 import qualified System.IO.UTF8
 import           System.Posix.Unistd             (getSystemID, nodeName)
 import           XMonad                          hiding ( (|||) )
---import           XMonad.Actions.Commands
---import           XMonad.Actions.CopyWindow as CW
 import           XMonad.Actions.CycleWS
 import qualified XMonad.Actions.DynamicWorkspaces as DW
---import           XMonad.Actions.GroupNavigation
---import           XMonad.Actions.Navigation2D
---import           XMonad.Actions.PerWorkspaceKeys
 import           XMonad.Actions.UpdatePointer
 import           XMonad.Actions.WindowBringer    (gotoMenuArgs)
 import qualified XMonad.Config.Desktop as Desktop
@@ -61,12 +52,9 @@ import           XMonad.Hooks.ServerMode
 import           XMonad.Hooks.UrgencyHook
 import           XMonad.Layout.Decoration
 import           XMonad.Layout.Reflect
---import           XMonad.Layout.DwmStyle
---import           XMonad.Layout.Grid
 import qualified XMonad.Layout.MultiToggle as MT
 import qualified XMonad.Layout.MultiToggle.Instances as MTI
 import           XMonad.Layout.LayoutCombinators
---import           XMonad.Layout.LayoutHints
 import           XMonad.Layout.Named
 import           XMonad.Layout.NoBorders
 import           XMonad.Layout.Fullscreen
@@ -83,8 +71,6 @@ import           XMonad.Util.NamedActions
 import           XMonad.Util.NamedScratchpad
 import           XMonad.Util.NamedWindows        (getName)
 import           XMonad.Util.Run
-import           XMonad.Util.Scratchpad          (scratchpadFilterOutWorkspace)
---import           XMonad.Util.WindowProperties
 import           XMonad.Util.WorkspaceCompare
 
 ------------------------------------------------------------------------
@@ -256,7 +242,7 @@ myXmobarLogHook h = dynamicLogWithPP defaultPP
   , ppTitle   = xmobarColor "magenta"  "" . shorten 40
   , ppVisible = wrap "(" ")"
   , ppOutput  = hPutStrLn h
-  , ppSort = fmap (.scratchpadFilterOutWorkspace) $ ppSort defaultPP
+  , ppSort = fmap (.namedScratchpadFilterOutWorkspace) $ ppSort defaultPP
   }
 
 myDzenLogHook h = dynamicLogWithPP $ myPP h
@@ -327,7 +313,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm.|. altMask.|.shiftMask, xK_k),      addName "Previous non empty workspace"                         $ rmEmptyWs $ prevWsNonEmpty >> movePointer)
   , ((modm.|. controlMask.|. shiftMask, xK_j), addName "Next non enmpty workspace (prefix)"                   $ rmEmptyWs $ nextWsPrefix >> movePointer)
   , ((modm.|. controlMask.|. shiftMask, xK_k), addName "Previous non empty workspace (prefix)"                $ rmEmptyWs $ prevWsPrefix >> movePointer)
-  , ((modm.|. controlMask, xK_z),              addName "Toggle workspace"                                     $ toggleWS' ["NSP"])
+  , ((modm.|. controlMask, xK_z),              addName "Toggle workspace"                                     $ toggleWS' ["NSP"] >> movePointer)
 
   , subtitle "Screens"
   , ((modm.|. controlMask, xK_j),              addName "Next screen"                                          $ rmEmptyWs $ nextScreen >> movePointer)
@@ -405,7 +391,7 @@ nextWsPrefix = windows . W.greedyView
 prevWsPrefix = windows . W.greedyView
                =<< findWorkspace getSortByTagNoSP Prev (HiddenWSTagGroup '.') 1
 
-getSortByTagNoSP = fmap (.scratchpadFilterOutWorkspace) getSortByTag
+getSortByTagNoSP = fmap (.namedScratchpadFilterOutWorkspace) getSortByTag
 
 terminalPad = namedScratchpadAction myScratchPads "terminal"
 
