@@ -290,7 +290,7 @@ altMask = mod1Mask
 
 -- align-regexp rules: "addName", "\$"
 
-myKeys conf@(XConfig {XMonad.modMask = modm}) =
+myKeys (XConfig {XMonad.modMask = modm}) =
   [ subtitle "Application launching"
   , ((modm.|. shiftMask, xK_Return),           addName "launch terminal"                                      $ spawnShell)
 
@@ -309,8 +309,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm, xK_n ),                            addName "Create or change workspace prompt"                    $ rmEmptyWs $ DW.selectWorkspace myXPConfig >> maybeWorkspaceAction >> movePointer)
   , ((modm.|. shiftMask, xK_n),                addName "Move current window to other workspace prompt"        $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
   , ((modm.|. shiftMask, xK_r),                addName "Rename current workspace"                             $ DW.renameWorkspace myXPConfig >> movePointer)
-  , ((modm.|. altMask.|.shiftMask, xK_j),      addName "Next non empty workspace"                             $ rmEmptyWs $ nextWsNonEmpty >> movePointer)
-  , ((modm.|. altMask.|.shiftMask, xK_k),      addName "Previous non empty workspace"                         $ rmEmptyWs $ prevWsNonEmpty >> movePointer)
+  , ((modm.|. controlMask.|.altMask.|.shiftMask, xK_j),      addName "Next non empty workspace"                             $ rmEmptyWs $ nextWsNonEmpty >> movePointer)
+  , ((modm.|. controlMask.|.altMask.|.shiftMask, xK_k),      addName "Previous non empty workspace"                         $ rmEmptyWs $ prevWsNonEmpty >> movePointer)
   , ((modm.|. controlMask.|. shiftMask, xK_j), addName "Next non enmpty workspace (prefix)"                   $ rmEmptyWs $ nextWsPrefix >> movePointer)
   , ((modm.|. controlMask.|. shiftMask, xK_k), addName "Previous non empty workspace (prefix)"                $ rmEmptyWs $ prevWsPrefix >> movePointer)
   , ((modm.|. controlMask, xK_z),              addName "Toggle workspace"                                     $ toggleWS' ["NSP"] >> movePointer)
