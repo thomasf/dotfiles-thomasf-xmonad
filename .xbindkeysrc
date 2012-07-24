@@ -3,12 +3,12 @@
 # -------------------------
 # Help
 
-"xbindkeys_show" 
+"xbindkeys_show"
   mod4 + shift + F1
 
 # -------------------------
 # Application launchers
- 
+
 "appmenu"
   mod4 + p
 
@@ -37,9 +37,9 @@
 # Window management
 
 "easyxmotion"
-  mod4 + w
+  mod4 + u
 
-"xkill" 
+"xkill"
   mod4 + shift + control + c
 
 # -------------------------
@@ -53,7 +53,7 @@
 "amixer sset Master 3%-"
   Mod4 + minus
 
-# toggle mpd play/pause 
+# toggle mpd play/pause
 "mpc toggle"
   Mod4 + i
 
