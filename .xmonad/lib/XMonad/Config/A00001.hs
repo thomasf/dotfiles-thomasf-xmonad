@@ -449,7 +449,7 @@ getScreenDim n = do
 
 myScratchPads = [ NS "terminal" (term "terminal") (res =? scratch "terminal") bottomFloat
                 , NS "ssh" (inTerm' "ssh" "ssh medeltiden -t tmux attach")
-                  (res =? scratch "ssh") doFullFloat
+                  (res =? scratch "ssh") largeCenterFloat
                 ]
   where
     scratch sname = "scratchpad_" ++ sname
@@ -464,12 +464,12 @@ myScratchPads = [ NS "terminal" (term "terminal") (res =? scratch "terminal") bo
         t = 1 - h
         l = (1 - w)/2
 
-    -- largeCenterFloat = customFloating $ W.RationalRect l t w h
-    --   where
-    --     h = 0.95
-    --     w = 0.95
-    --     t = (1 - h)/2
-    --     l = (1 - w)/2
+    largeCenterFloat = customFloating $ W.RationalRect l t w h
+      where
+        h = 0.95
+        w = 0.95
+        t = (1 - h)/2
+        l = (1 - w)/2
 
 ------------------------------------------------------------------------
 -- Urgency hook:
