@@ -305,8 +305,7 @@ myKeys (XConfig {XMonad.modMask = modm}) =
   , ((modm, xK_Return),                 addName "Swap the focused window and the master window"        $ windows W.swapMaster >> movePointer)
   , ((modm, xK_t),                      addName "Push the window into tiling mode"                     $ withFocused (windows . W.sink) >> movePointer)
   , ((modm.|. altMask, xK_f),           addName "Toggle fullscreen"                                    $ sendMessage (MT.Toggle MTI.NBFULL))
-  , ((modm.|. shiftMask, xK_c),         addName "kill"                                                 $ kill)
-  , ((modm.|. controlMask, xK_c),       addName "kill (also)"                                          $ kill)
+  , ((modm.|. controlMask, xK_c),       addName "kill"                                                 $ kill)
 
   , subtitle "Cyclic display actions (D/F) [+=select] [+control=swap] [+shift=move window to]"
   , ((modm, xK_d),                      addName "Next screen"                                          $ rmEmptyWs $ nextScreen >> movePointer)
