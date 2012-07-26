@@ -322,7 +322,12 @@ myKeys (XConfig {XMonad.modMask = modm}) =
   , ((modm.|. controlMask, xK_r),       addName "Previous non empty workspace"                         $ rmEmptyWs $ prevWsNonEmpty >> movePointer)
 
   , subtitle "Other workspace actions"
-  , ((modm, xK_w),                      addName "Toggle previous workspace"                            $ toggleWS' ["NSP"] >> movePointer)
+  , ((modm, xK_w),                      addName "Toggle previous workspace"                            $ toggleWS' ["NSP"
+                                                                                                                   , "nodes"
+                                                                                                                   , "dash"
+                                                                                                                   , "mail"
+                                                                                                                   , "cal"
+                                                                                                                   , "temp"] >> movePointer)
 
   , subtitle "Workspace prompts"
   , ((modm, xK_n),                      addName "Create or change workspace prompt"                    $ rmEmptyWs $ DW.selectWorkspace myXPConfig >> maybeWorkspaceAction >> movePointer)
