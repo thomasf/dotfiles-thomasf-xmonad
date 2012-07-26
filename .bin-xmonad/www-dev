@@ -9,17 +9,30 @@
 
 set -e
 
-exec chromium-browser \
-    --incognito \
+profiles_dir=~/.config/chrome-dev
+
+mkdir -p $profiles_dir
+
+cd $profiles_dir
+
+profile=`find . -mindepth 1 -maxdepth 1 -type d | cut -d / -f 2 | dmenu -p profile`
+[ -z $profile ] && profile=_default
+
+#    --remote-debugging-port=9222 \
+
+google-chrome \
+    --allow-file-access \
     --enable-memory-info \
     --enable-extension-timeline-api \
     --disable-background-mode  \
+    --disable-restore-session-state \
+    --disable-sync \
+    --disable-translate \
     --enable-benchmarking \
-    --enable-panels \
     --purge-memory-button \
-    --reload-killed-tabs \
-    --use-more-webui \
-    --use-pure-views \
     --ignore-certificate-errors \
     --disable-web-security \
+    --user-data-dir=$profiles_dir/$profile \
+    --no-default-browser-check \
+    --no-first-run \
     $*
