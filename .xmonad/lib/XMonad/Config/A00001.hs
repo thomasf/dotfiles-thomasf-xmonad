@@ -336,15 +336,13 @@ myKeys (XConfig {XMonad.modMask = modm}) =
   , ((modm.|. altMask, xK_b),           addName "Toggle borders"                                       $ sendMessage (MT.Toggle MTI.NOBORDERS))
   , ((modm.|. altMask, xK_s),           addName "Toggle struts"                                        $ sendMessage ToggleStruts)
 
-  , subtitle "Scratch pads (§+modifiers)"
+  , subtitle "Toggle scratchpads and workspaces"
   , ((modm, xK_section),                addName "Toggle terminal scratch pad"                          $ terminalPad >> movePointer)
-  , ((modm.|. shiftMask, xK_section),   addName "Toggle ssh scratch pad"                               $ sshPad >> movePointer)
-
-  , subtitle "Workspace togglers"
-  , ((modm, xK_1),                      addName "Toggle dashboard workspace"                           $ myToggleWS "dash")
-  , ((modm, xK_2),                      addName "Toggle nodes workspace"                               $ myToggleWS "nodes")
-  , ((modm, xK_3),                      addName "Toggle mail workspace"                                $ myToggleWS "mail")
-  , ((modm, xK_4),                      addName "Toggle cal workspace"                                 $ myToggleWS "cal")
+  , ((modm, xK_1),                      addName "Toggle ssh scratch pad"                               $ sshPad >> movePointer)
+  , ((modm, xK_2),                      addName "Toggle dashboard workspace"                           $ myToggleWS "dash")
+  , ((modm, xK_3),                      addName "Toggle nodes workspace"                               $ myToggleWS "nodes")
+  , ((modm, xK_4),                      addName "Toggle mail workspace"                                $ myToggleWS "mail")
+  , ((modm, xK_5),                      addName "Toggle cal workspace"                                 $ myToggleWS "cal")
   ] where
     ignoredToggleWS = toggleWS' ["NSP", "nodes", "dash", "mail", "cal", "temp"] >> movePointer
 
