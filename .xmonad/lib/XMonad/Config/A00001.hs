@@ -17,14 +17,6 @@
 --
 -- Requires a patched xmonad and xmonad-contrib
 --
---
--- References and inspirations:
--- http://xmonad.org/xmonad-docs/xmonad-contrib/src/
--- http://xmonad.org/xmonad-docs/xmonad-contrib/src/XMonad-Config.html
--- http://xmonad.org/xmonad-docs/xmonad-contrib/src/XMonad-Config-Arossato.html
--- http://www.haskell.org/haskellwiki/Xmonad/Config_archive/Mntnoe%27s_xmonad.hs
--- http://snipt.net/doitian
---
 -----------------------------------------------------------------------------
 module XMonad.Config.A00001
     ( -- * Usage
