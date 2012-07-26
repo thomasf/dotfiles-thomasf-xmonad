@@ -398,8 +398,8 @@ myXPConfig = defaultXPConfig{ position = Top
   , promptBorderWidth = 0
   }
 
-myAutocompleteXPConfig = myXPConfig
-  { autoComplete = Just 500000  }
+-- myAutocompleteXPConfig = myXPConfig
+--   { autoComplete = Just 500000  }
 
 ------------------------------------------------------------------------
 -- Commands:
