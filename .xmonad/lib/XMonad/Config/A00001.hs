@@ -445,9 +445,9 @@ getScreenDim n = do
   case screens of
     []        -> return (0, 0, 1024, 768) -- fallback
     [r]       -> return (fromIntegral $ rect_x r , fromIntegral $ rect_y r ,
-                        fromIntegral $ rect_width r , fromIntegral $ rect_height r )
+                         fromIntegral $ rect_width r , fromIntegral $ rect_height r )
     otherwise -> return (fromIntegral $ rect_x rn, fromIntegral $ rect_y rn,
-                        fromIntegral $ rect_width rn, fromIntegral $ rect_height rn)
+                         fromIntegral $ rect_width rn, fromIntegral $ rect_height rn)
 
 -- | Determine the number of physical screens.
 -- countScreens :: (MonadIO m, Integral i) => m i
