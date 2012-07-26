@@ -41,10 +41,10 @@ import           System.Posix.Unistd             (getSystemID, nodeName)
 import           XMonad                          hiding ( (|||) )
 import           XMonad.Actions.CycleWS
 import qualified XMonad.Actions.DynamicWorkspaces as DW
-import           XMonad.Actions.UpdatePointer
-import           XMonad.Actions.WindowBringer    (gotoMenuArgs)
 import           XMonad.Actions.PerWorkspaceKeys
 import           XMonad.Actions.RotSlaves
+import           XMonad.Actions.UpdatePointer
+import           XMonad.Actions.WindowBringer    (gotoMenuArgs)
 import qualified XMonad.Config.Desktop as Desktop
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops       (ewmh)
@@ -53,21 +53,20 @@ import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.ServerMode
 import           XMonad.Hooks.UrgencyHook
 import           XMonad.Layout.Decoration
-import           XMonad.Layout.Reflect
+import           XMonad.Layout.Fullscreen
+import           XMonad.Layout.LayoutCombinators
 import qualified XMonad.Layout.MultiToggle as MT
 import qualified XMonad.Layout.MultiToggle.Instances as MTI
-import           XMonad.Layout.LayoutCombinators
 import           XMonad.Layout.Named
 import           XMonad.Layout.NoBorders
-import           XMonad.Layout.Fullscreen
 import           XMonad.Layout.PerWorkspace      (onWorkspace)
-import           XMonad.Layout.Spiral
+import           XMonad.Layout.Reflect
 import           XMonad.Layout.ShowWName
+import           XMonad.Layout.Spiral
 import           XMonad.Layout.Tabbed
 import           XMonad.Layout.ThreeColumns
 import           XMonad.Prompt
 import           XMonad.Prompt.Workspace
-import           XMonad.Prompt.XMonad
 import qualified XMonad.StackSet                 as W
 import           XMonad.Util.EZConfig
 import           XMonad.Util.NamedActions
