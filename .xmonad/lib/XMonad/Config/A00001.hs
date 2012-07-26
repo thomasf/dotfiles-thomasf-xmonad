@@ -43,6 +43,8 @@ import           XMonad.Actions.CycleWS
 import qualified XMonad.Actions.DynamicWorkspaces as DW
 import           XMonad.Actions.UpdatePointer
 import           XMonad.Actions.WindowBringer    (gotoMenuArgs)
+import           XMonad.Actions.PerWorkspaceKeys
+import           XMonad.Actions.RotSlaves
 import qualified XMonad.Config.Desktop as Desktop
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops       (ewmh)
@@ -64,6 +66,7 @@ import           XMonad.Layout.ShowWName
 import           XMonad.Layout.Tabbed
 import           XMonad.Layout.ThreeColumns
 import           XMonad.Prompt
+import           XMonad.Prompt.Workspace
 import           XMonad.Prompt.XMonad
 import qualified XMonad.StackSet                 as W
 import           XMonad.Util.EZConfig
@@ -294,11 +297,13 @@ myKeys (XConfig {XMonad.modMask = modm}) =
   [ subtitle "Application launching"
   , ((modm.|. shiftMask, xK_Return),    addName "launch terminal"                                      $ spawnShell)
 
-  , subtitle "Cyclic window actions (J/K) [+=select] [+shift=move]"
+  , subtitle "Cyclic window actions (J/K) [+=focus] [+control=cycle+keep focus] [+shift=move]"
   , ((modm, xK_j),                      addName "Focus next window on workspace"                       $ windows W.focusDown >> movePointer)
   , ((modm, xK_k),                      addName "Focus previous window on workspace"                   $ windows W.focusUp >> movePointer)
   , ((modm.|. shiftMask, xK_j),         addName "Swap focused with next on workspace"                  $ windows W.swapDown >> movePointer)
   , ((modm.|. shiftMask, xK_k),         addName "Swap focused with previous on workspace"              $ windows W.swapUp >> movePointer)
+  , ((modm.|. controlMask, xK_j),       addName "Rotate all windows forward while keeping focus"       $ rotAllUp >> movePointer)
+  , ((modm.|. controlMask, xK_k),       addName "Rotate all windows backwards while keeping focus"     $ rotAllDown >> movePointer)
 
   , subtitle "Other window actions"
   , ((modm, xK_m),                      addName "Move focus to master window"                          $ windows W.focusMaster >> movePointer)
@@ -322,15 +327,10 @@ myKeys (XConfig {XMonad.modMask = modm}) =
   , ((modm.|. controlMask, xK_r),       addName "Previous non empty workspace"                         $ rmEmptyWs $ prevWsNonEmpty >> movePointer)
 
   , subtitle "Other workspace actions"
-  , ((modm, xK_w),                      addName "Toggle previous workspace"                            $ toggleWS' ["NSP"
-                                                                                                                   , "nodes"
-                                                                                                                   , "dash"
-                                                                                                                   , "mail"
-                                                                                                                   , "cal"
-                                                                                                                   , "temp"] >> movePointer)
+  , ((modm, xK_w),                      addName "Toggle previous workspace"                            $ ignoredToggleWS)
 
   , subtitle "Workspace prompts"
-  , ((modm, xK_n),                      addName "Create or change workspace prompt"                    $ rmEmptyWs $ DW.selectWorkspace myXPConfig >> maybeWorkspaceAction >> movePointer)
+  , ((modm, xK_n),                      addName "Create or change workspace prompt"                    $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
   , ((modm.|. shiftMask, xK_n),         addName "Move window to other workspace prompt"                $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
   , ((modm.|. controlMask, xK_n),       addName "Rename current workspace"                             $ DW.renameWorkspace myXPConfig >> movePointer)
   , ((modm.|. shiftMask, xK_BackSpace), addName "Remove current workspace"                             $ DW.removeWorkspace >> movePointer)
@@ -348,7 +348,26 @@ myKeys (XConfig {XMonad.modMask = modm}) =
   , subtitle "Scratch pads (§+modifiers)"
   , ((modm, xK_section),                addName "Toggle terminal scratch pad"                          $ terminalPad >> movePointer)
   , ((modm.|. shiftMask, xK_section),   addName "Toggle ssh scratch pad"                               $ sshPad >> movePointer)
-  ]
+
+  , subtitle "Workspace togglers"
+  , ((modm, xK_1),                      addName "Toggle dashboard workspace"                           $ bindOn [ ("dash", ignoredToggleWS), ("", myViewWS "dash")])
+  , ((modm, xK_2),                      addName "Toggle nodes workspace"                               $ bindOn [ ("nodes", ignoredToggleWS), ("", myViewWS "nodes")])
+  , ((modm, xK_3),                      addName "Toggle mail workspace"                                $ bindOn [ ("mail", ignoredToggleWS), ("", myViewWS "mail")])
+  , ((modm, xK_4),                      addName "Toggle cal workspace"                                 $ bindOn [ ("cal", ignoredToggleWS), ("", myViewWS "cal")])
+  ] where
+    ignoredToggleWS = toggleWS' ["NSP", "nodes", "dash", "mail", "cal", "temp"] >> movePointer
+
+    myViewWS wsid = do
+      DW.addHiddenWorkspace wsid
+      windows (W.view wsid)
+      maybeWorkspaceAction
+      movePointer
+
+    selectWorkspacePrompt = workspacePrompt myXPConfig $ \w ->
+                            do s <- gets windowset
+                               if W.tagMember w s
+                                 then windows $ W.view w
+                                 else DW.addWorkspace w
 
 emptyKeys c = mkKeymap c [ ]
 
