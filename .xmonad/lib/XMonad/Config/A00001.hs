@@ -350,10 +350,10 @@ myKeys (XConfig {XMonad.modMask = modm}) =
   , ((modm.|. shiftMask, xK_section),   addName "Toggle ssh scratch pad"                               $ sshPad >> movePointer)
 
   , subtitle "Workspace togglers"
-  , ((modm, xK_1),                      addName "Toggle dashboard workspace"                           $ bindOn [ ("dash", ignoredToggleWS), ("", myViewWS "dash")])
-  , ((modm, xK_2),                      addName "Toggle nodes workspace"                               $ bindOn [ ("nodes", ignoredToggleWS), ("", myViewWS "nodes")])
-  , ((modm, xK_3),                      addName "Toggle mail workspace"                                $ bindOn [ ("mail", ignoredToggleWS), ("", myViewWS "mail")])
-  , ((modm, xK_4),                      addName "Toggle cal workspace"                                 $ bindOn [ ("cal", ignoredToggleWS), ("", myViewWS "cal")])
+  , ((modm, xK_1),                      addName "Toggle dashboard workspace"                           $ myToggleWS "dash")
+  , ((modm, xK_2),                      addName "Toggle nodes workspace"                               $ myToggleWS "nodes")
+  , ((modm, xK_3),                      addName "Toggle mail workspace"                                $ myToggleWS "mail")
+  , ((modm, xK_4),                      addName "Toggle cal workspace"                                 $ myToggleWS "cal")
   ] where
     ignoredToggleWS = toggleWS' ["NSP", "nodes", "dash", "mail", "cal", "temp"] >> movePointer
 
@@ -362,6 +362,8 @@ myKeys (XConfig {XMonad.modMask = modm}) =
       windows (W.view wsid)
       maybeWorkspaceAction
       movePointer
+
+    myToggleWS wsid = bindOn [ (wsid, ignoredToggleWS), ("", myViewWS wsid) ]
 
     selectWorkspacePrompt = workspacePrompt myXPConfig $ \w ->
                             do s <- gets windowset
