@@ -18,7 +18,11 @@ cd $profiles_dir
 profile=`find . -mindepth 1 -maxdepth 1 -type d | cut -d / -f 2 | dmenu -p profile`
 [ -z $profile ] && profile=_default
 
-#    --remote-debugging-port=9222 \
+
+remote_debugging=""
+
+lsof -iTCP:9222 -sTCP:LISTEN -t || remote_debugging="--remote-debugging-port=9222"
+
 
 google-chrome \
     --allow-file-access \
@@ -35,4 +39,5 @@ google-chrome \
     --user-data-dir=$profiles_dir/$profile \
     --no-default-browser-check \
     --no-first-run \
+    $remote_debugging \
     $*
