@@ -192,6 +192,7 @@ myManageHook = fullscreenManageHook <+>
   , className           =? "Pinentry"          -?> doCenterFloat
   , transience
   --, isFullscreen                               -?> doFullFloat
+  , resource            =? "ssh_tmux"          -?> doF (W.shift "chat" )
   , resource            =? "empathy"           -?> doF (W.shift "chat")
   , resource            =? "xchat"             -?> doF (W.shift "chat")
   , className           =? "Pidgin"            -?> doF (W.shift "chat")
@@ -338,13 +339,14 @@ myKeys (XConfig {XMonad.modMask = modm}) =
 
   , subtitle "Toggle scratchpads and workspaces"
   , ((modm, xK_section),                addName "Toggle terminal scratch pad"                          $ terminalPad >> movePointer)
-  , ((modm, xK_1),                      addName "Toggle ssh scratch pad"                               $ sshPad >> movePointer)
+  , ((modm, xK_1),                      addName "Toggle chat workspace"                                $ myToggleWS "chat")
   , ((modm, xK_2),                      addName "Toggle dashboard workspace"                           $ myToggleWS "dash")
   , ((modm, xK_3),                      addName "Toggle nodes workspace"                               $ myToggleWS "nodes")
   , ((modm, xK_4),                      addName "Toggle mail workspace"                                $ myToggleWS "mail")
   , ((modm, xK_5),                      addName "Toggle cal workspace"                                 $ myToggleWS "cal")
+  , ((modm, xK_6), addName "asds" $ allNamedScratchpadAction myScratchPads "ssh" )
   ] where
-    ignoredToggleWS = toggleWS' ["NSP", "nodes", "dash", "mail", "cal", "temp"] >> movePointer
+    ignoredToggleWS = toggleWS' ["NSP", "nodes", "dash", "mail", "cal", "temp", "chat"] >> movePointer
 
     myViewWS wsid = do
       DW.addHiddenWorkspace wsid
@@ -417,7 +419,8 @@ getSortByTagNoSP = fmap (.namedScratchpadFilterOutWorkspace) getSortByTag
 
 terminalPad = namedScratchpadAction myScratchPads "terminal"
 
-sshPad = namedScratchpadAction myScratchPads "ssh"
+-- sshPad = namedScratchpadAction myScratchPads "ssh"
+
 
 -- restartXmonad = spawn "xmonad --recompile && xmonad --restart"
 
@@ -467,13 +470,13 @@ getScreenDim n = do
 -- Scratch pads:
 
 myScratchPads = [ NS "terminal" (term "terminal") (res =? scratch "terminal") bottomFloat
-                , NS "ssh" (inTerm' "ssh" "ssh medeltiden -t tmux attach")
-                  (res =? scratch "ssh") largeCenterFloat
+--                , NS "ssh" (inTerm' "ssh" "ssh medeltiden -t tmux attach")
+--                  (res =? scratch "ssh") largeCenterFloat
                 ]
   where
     scratch sname = "scratchpad_" ++ sname
     term sname = myTerminal ++ " -name scratchpad_" ++ sname
-    inTerm' sname scmd = myTerminal ++ " -name scratchpad_" ++ sname ++ " -e " ++  scmd
+    -- inTerm' sname scmd = myTerminal ++ " -name scratchpad_" ++ sname ++ " -e " ++  scmd
     res = resource
 
     bottomFloat = customFloating $ W.RationalRect l t w h
@@ -483,12 +486,12 @@ myScratchPads = [ NS "terminal" (term "terminal") (res =? scratch "terminal") bo
         t = 1 - h
         l = (1 - w)/2
 
-    largeCenterFloat = customFloating $ W.RationalRect l t w h
-      where
-        h = 0.95
-        w = 0.95
-        t = (1 - h)/2
-        l = (1 - w)/2
+    -- largeCenterFloat = customFloating $ W.RationalRect l t w h
+    --   where
+    --     h = 0.95
+    --     w = 0.95
+    --     t = (1 - h)/2
+    --     l = (1 - w)/2
 
 ------------------------------------------------------------------------
 -- Urgency hook:
