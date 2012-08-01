@@ -338,15 +338,20 @@ myKeys (XConfig {XMonad.modMask = modm}) =
   , ((modm.|. altMask, xK_s),           addName "Toggle struts"                                        $ sendMessage ToggleStruts)
 
   , subtitle "Toggle scratchpads and workspaces"
-  , ((modm, xK_section),                addName "Toggle terminal scratch pad"                          $ terminalPad >> movePointer)
-  , ((modm, xK_1),                      addName "Toggle chat workspace"                                $ myToggleWS "chat")
-  , ((modm, xK_2),                      addName "Toggle dashboard workspace"                           $ myToggleWS "dash")
-  , ((modm, xK_3),                      addName "Toggle nodes workspace"                               $ myToggleWS "nodes")
-  , ((modm, xK_4),                      addName "Toggle mail workspace"                                $ myToggleWS "mail")
-  , ((modm, xK_5),                      addName "Toggle cal workspace"                                 $ myToggleWS "cal")
-  , ((modm, xK_6), addName "asds" $ allNamedScratchpadAction myScratchPads "ssh" )
+  , ((modm, xK_section),                addName "Toggle small terminal pad"                            $ smallTerminalPad >> movePointer)
+  , ((modm.|.shiftMask, xK_section),    addName "Toggle large terminal pad"                            $ largeTerminalPad >> movePointer)
+  , ((modm, xK_1),                      addName "Toggle chat workspace"                                $ myViewWS "chat")
+  , ((modm, xK_2),                      addName "Toggle nodes workspace"                               $ myViewWS "nodes")
+  , ((modm, xK_3),                      addName "Toggle nodes workspace"                               $ myViewWS "reading")
+  , ((modm, xK_4),                      addName "Toggle mail workspace"                                $ myViewWS "mail")
+  , ((modm, xK_5),                      addName "Switch to calendar workspace"                         $ myViewWS "cal")
+  , ((modm, xK_6),                      addName "Toggle fileshare workspace"                           $ myViewWS "fileshare")
+  , ((modm, xK_0),                      addName "Toggle dashboard workspace"                           $ myViewWS "dash")
+
+
   ] where
-    ignoredToggleWS = toggleWS' ["NSP", "nodes", "dash", "mail", "cal", "temp", "chat"] >> movePointer
+    ignoredToggleWS = toggleWS' ["NSP", "nodes", "dash", "mail", "cal"
+                                , "temp", "chat", "fileshare"] >> movePointer
 
     myViewWS wsid = do
       DW.addHiddenWorkspace wsid
@@ -354,7 +359,7 @@ myKeys (XConfig {XMonad.modMask = modm}) =
       maybeWorkspaceAction
       movePointer
 
-    myToggleWS wsid = bindOn [ (wsid, ignoredToggleWS), ("", myViewWS wsid) ]
+    -- myToggleWS wsid = bindOn [ (wsid, ignoredToggleWS), ("", myViewWS wsid) ]
 
     selectWorkspacePrompt = workspacePrompt myXPConfig $ \w ->
                             do s <- gets windowset
@@ -417,13 +422,8 @@ prevWsPrefix = windows . W.greedyView
 
 getSortByTagNoSP = fmap (.namedScratchpadFilterOutWorkspace) getSortByTag
 
-terminalPad = namedScratchpadAction myScratchPads "terminal"
-
--- sshPad = namedScratchpadAction myScratchPads "ssh"
-
-
--- restartXmonad = spawn "xmonad --recompile && xmonad --restart"
-
+smallTerminalPad = namedScratchpadAction myScratchPads "smallTerminal"
+largeTerminalPad = namedScratchpadAction myScratchPads "largeTerminal"
 
 ------------------------------------------------------------------------
 -- Utils
@@ -469,9 +469,8 @@ getScreenDim n = do
 ------------------------------------------------------------------------
 -- Scratch pads:
 
-myScratchPads = [ NS "terminal" (term "terminal") (res =? scratch "terminal") bottomFloat
---                , NS "ssh" (inTerm' "ssh" "ssh medeltiden -t tmux attach")
---                  (res =? scratch "ssh") largeCenterFloat
+myScratchPads = [ NS "smallTerminal" (term "smallTerminal") (res =? scratch "smallTerminal") bottomFloat
+                , NS "largeTerminal" (term "largeTerminal") (res =? scratch "largeTerminal") largeCenterFloat
                 ]
   where
     scratch sname = "scratchpad_" ++ sname
@@ -486,12 +485,12 @@ myScratchPads = [ NS "terminal" (term "terminal") (res =? scratch "terminal") bo
         t = 1 - h
         l = (1 - w)/2
 
-    -- largeCenterFloat = customFloating $ W.RationalRect l t w h
-    --   where
-    --     h = 0.95
-    --     w = 0.95
-    --     t = (1 - h)/2
-    --     l = (1 - w)/2
+    largeCenterFloat = customFloating $ W.RationalRect l t w h
+      where
+        h = 0.8
+        w = 0.8
+        t = (1 - h)/2
+        l = (1 - w)/2
 
 ------------------------------------------------------------------------
 -- Urgency hook:
