@@ -342,16 +342,14 @@ myKeys (XConfig {XMonad.modMask = modm}) =
   , ((modm.|.shiftMask, xK_section),    addName "Toggle large terminal pad"                            $ largeTerminalPad >> movePointer)
   , ((modm, xK_1),                      addName "Toggle chat workspace"                                $ myViewWS "chat")
   , ((modm, xK_2),                      addName "Toggle nodes workspace"                               $ myViewWS "nodes")
-  , ((modm, xK_3),                      addName "Toggle nodes workspace"                               $ myViewWS "reading")
-  , ((modm, xK_4),                      addName "Toggle mail workspace"                                $ myViewWS "mail")
-  , ((modm, xK_5),                      addName "Switch to calendar workspace"                         $ myViewWS "cal")
-  , ((modm, xK_6),                      addName "Toggle fileshare workspace"                           $ myViewWS "fileshare")
+  , ((modm, xK_3),                      addName "Toggle mail workspace"                                $ myViewWS "mail")
+  , ((modm, xK_4),                      addName "Toggle reading workspace"                             $ myViewWS "reading")
+  , ((modm, xK_5),                      addName "Toggle fileshare workspace"                           $ myViewWS "fileshare")
   , ((modm, xK_0),                      addName "Toggle dashboard workspace"                           $ myViewWS "dash")
-
 
   ] where
     ignoredToggleWS = toggleWS' ["NSP", "nodes", "dash", "mail", "cal"
-                                , "temp", "chat", "fileshare"] >> movePointer
+                                , "temp", "chat", "fileshare", "reading"] >> movePointer
 
     myViewWS wsid = do
       DW.addHiddenWorkspace wsid
