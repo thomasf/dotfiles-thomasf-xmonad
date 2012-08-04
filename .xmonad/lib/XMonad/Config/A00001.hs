@@ -85,7 +85,7 @@ myFocusedBorderColor = "#d33682"
 ------------------------------------------------------------------------
 -- Workspaces
 
-myWorkspaces = ["misc.1","misc.2","misc.3","misc.4"]
+myWorkspaces = ["misc.1","misc.2","misc.3"]
 
 ------------------------------------------------------------------------
 -- Layouts:
@@ -340,15 +340,16 @@ myKeys (XConfig {XMonad.modMask = modm}) =
   , subtitle "Toggle scratchpads and workspaces"
   , ((modm, xK_section),                addName "Toggle small terminal pad"                            $ smallTerminalPad >> movePointer)
   , ((modm.|.shiftMask, xK_section),    addName "Toggle large terminal pad"                            $ largeTerminalPad >> movePointer)
-  , ((modm, xK_1),                      addName "Toggle chat workspace"                                $ myViewWS "chat")
-  , ((modm, xK_2),                      addName "Toggle nodes workspace"                               $ myViewWS "nodes")
-  , ((modm, xK_3),                      addName "Toggle mail workspace"                                $ myViewWS "mail")
-  , ((modm, xK_4),                      addName "Toggle reading workspace"                             $ myViewWS "reading")
-  , ((modm, xK_5),                      addName "Toggle fileshare workspace"                           $ myViewWS "fileshare")
+  , ((modm, xK_1),                      addName "Toggle home workspace"                                $ myViewWS "home")
+  , ((modm, xK_2),                      addName "Toggle chat workspace"                                $ myViewWS "chat")
+  , ((modm, xK_3),                      addName "Toggle nodes workspace"                               $ myViewWS "nodes")
+  , ((modm, xK_4),                      addName "Toggle mail workspace"                                $ myViewWS "mail")
+  , ((modm, xK_5),                      addName "Toggle reading workspace"                             $ myViewWS "reading")
+  , ((modm, xK_6),                      addName "Toggle fileshare workspace"                           $ myViewWS "fileshare")
   , ((modm, xK_0),                      addName "Toggle dashboard workspace"                           $ myViewWS "dash")
 
   ] where
-    ignoredToggleWS = toggleWS' ["NSP", "nodes", "dash", "mail", "cal"
+    ignoredToggleWS = toggleWS' ["NSP", "home", "nodes", "dash", "mail", "cal"
                                 , "temp", "chat", "fileshare", "reading"] >> movePointer
 
     myViewWS wsid = do
