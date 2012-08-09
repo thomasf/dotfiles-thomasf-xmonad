@@ -33,7 +33,6 @@ import           System.Posix.Unistd             (getSystemID, nodeName)
 import           XMonad                          hiding ( (|||) )
 import           XMonad.Actions.CycleWS
 import qualified XMonad.Actions.DynamicWorkspaces as DW
-import           XMonad.Actions.PerWorkspaceKeys
 import           XMonad.Actions.RotSlaves
 import           XMonad.Actions.UpdatePointer
 import           XMonad.Actions.WindowBringer    (gotoMenuArgs)
@@ -336,7 +335,6 @@ myKeys (XConfig {XMonad.modMask = modm}) =
   , ((modm, xK_period),                 addName "Deincrement the number of windows in the master area" $ sendMessage (IncMasterN (-1)) >> movePointer)
   , ((modm.|. altMask, xK_b),           addName "Toggle borders"                                       $ sendMessage (MT.Toggle MTI.NOBORDERS))
   , ((modm.|. altMask, xK_s),           addName "Toggle struts"                                        $ sendMessage ToggleStruts)
-
   , subtitle "Toggle scratchpads and workspaces"
   , ((modm, xK_section),                addName "Toggle small terminal pad"                            $ smallTerminalPad >> movePointer)
   , ((modm.|.shiftMask, xK_section),    addName "Toggle large terminal pad"                            $ largeTerminalPad >> movePointer)
@@ -357,8 +355,6 @@ myKeys (XConfig {XMonad.modMask = modm}) =
       windows (W.view wsid)
       maybeWorkspaceAction
       movePointer
-
-    -- myToggleWS wsid = bindOn [ (wsid, ignoredToggleWS), ("", myViewWS wsid) ]
 
     selectWorkspacePrompt = workspacePrompt myXPConfig $ \w ->
                             do s <- gets windowset
@@ -399,11 +395,6 @@ myXPConfig = defaultXPConfig{ position = Top
 
 ------------------------------------------------------------------------
 -- Commands:
-
--- inTerm cmd = spawn (myTerminal ++ " -name " ++ cmd  ++ " -e " ++ cmd)
--- webAppSpawn url = spawn ("www-app '" ++ url ++ "'")
--- webBrowserSpawn = spawn "www-window"
--- webBrowserOpen url = spawn ("www-window " ++ url)
 
 spawnShell :: X ()
 spawnShell = spawn myTerminal
@@ -531,7 +522,6 @@ aDefaultConfig =
   , startupHook        = myStartupHook
   }
 
-
 -----------------------------------------------------------------------------
 -- | Auto config!
 --
@@ -548,7 +538,7 @@ autoConfig=do
         | c == "dennisg"    = configSimple
         | c == "wonky"      = configMinimal
         | c == "kranky"     = configMinimal
-        | otherwise         = configSimple
+        | otherwise        = configSimple
 
 -----------------------------------------------------------------------------
 --
