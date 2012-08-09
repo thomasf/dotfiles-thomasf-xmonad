@@ -35,7 +35,6 @@ google-chrome \
     --enable-benchmarking \
     --purge-memory-button \
     --ignore-certificate-errors \
-    --disable-web-security \
     --user-data-dir=$profiles_dir/$profile \
     --no-default-browser-check \
     --no-first-run \
