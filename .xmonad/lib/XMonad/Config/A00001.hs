@@ -342,13 +342,11 @@ myKeys (XConfig {XMonad.modMask = modm}) =
   , ((modm, xK_2),                      addName "Toggle chat workspace"                                $ myViewWS "chat")
   , ((modm, xK_3),                      addName "Toggle nodes workspace"                               $ myViewWS "nodes")
   , ((modm, xK_4),                      addName "Toggle mail workspace"                                $ myViewWS "mail")
-  , ((modm, xK_5),                      addName "Toggle reading workspace"                             $ myViewWS "reading")
-  , ((modm, xK_6),                      addName "Toggle fileshare workspace"                           $ myViewWS "fileshare")
   , ((modm, xK_0),                      addName "Toggle dashboard workspace"                           $ myViewWS "dash")
 
   ] where
     ignoredToggleWS = toggleWS' ["NSP", "home", "nodes", "dash", "mail", "cal"
-                                , "temp", "chat", "fileshare", "reading"] >> movePointer
+                                , "temp", "chat"] >> movePointer
 
     myViewWS wsid = do
       DW.addHiddenWorkspace wsid
