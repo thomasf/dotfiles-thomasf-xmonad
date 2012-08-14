@@ -345,7 +345,7 @@ myKeys (XConfig {XMonad.modMask = modm}) =
   , ((modm, xK_0),                      addName "Toggle dashboard workspace"                           $ myViewWS "dash")
 
   ] where
-    ignoredToggleWS = toggleWS' ["NSP", "home", "nodes", "dash", "mail", "cal"
+    ignoredToggleWS = toggleWS' ["NSP", "home", "nodes", "dash", "mail"
                                 , "temp", "chat"] >> movePointer
 
     myViewWS wsid = do
