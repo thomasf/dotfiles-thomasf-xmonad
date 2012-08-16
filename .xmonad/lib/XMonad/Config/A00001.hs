@@ -350,7 +350,7 @@ myKeys (XConfig {XMonad.modMask = modm}) =
 
     myViewWS wsid = do
       DW.addHiddenWorkspace wsid
-      windows (W.view wsid)
+      windows (W.greedyView wsid)
       maybeWorkspaceAction
       movePointer
 
