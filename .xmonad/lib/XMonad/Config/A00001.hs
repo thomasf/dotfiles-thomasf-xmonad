@@ -312,10 +312,10 @@ myKeys (XConfig {XMonad.modMask = modm}) =
   , ((modm.|. shiftMask, xK_f),         addName "Move window to previous screen"                       $ shiftPrevScreen >> prevScreen >> movePointer)
 
   , subtitle "Workspace actions (E/R) [mod=select from prefix] [mod+control=select from all]"
-  , ((modm, xK_e),                      addName "Next non enmpty workspace (prefix)"                   $ rmEmptyWs $ nextWsPrefix >> movePointer)
-  , ((modm, xK_r),                      addName "Previous non empty workspace (prefix)"                $ rmEmptyWs $ prevWsPrefix >> movePointer)
-  , ((modm.|. controlMask, xK_e),       addName "Next non empty workspace"                             $ rmEmptyWs $ nextWsNonEmpty >> movePointer)
-  , ((modm.|. controlMask, xK_r),       addName "Previous non empty workspace"                         $ rmEmptyWs $ prevWsNonEmpty >> movePointer)
+  , ((modm, xK_e),                      addName "Next workspace (prefix)"                              $ nextWsPrefix >> movePointer)
+  , ((modm, xK_r),                      addName "Previous workspace (prefix)"                          $ prevWsPrefix >> movePointer)
+  , ((modm.|. controlMask, xK_e),       addName "Next non empty workspace"                             $ nextWsNonEmpty >> movePointer)
+  , ((modm.|. controlMask, xK_r),       addName "Previous non empty workspace"                         $ prevWsNonEmpty >> movePointer)
 
   , subtitle "Other workspace actions"
   , ((modm, xK_w),                      addName "Toggle previous workspace"                            $ ignoredToggleWS)
