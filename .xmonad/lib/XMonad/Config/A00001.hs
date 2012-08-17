@@ -307,7 +307,7 @@ myKeys (XConfig {XMonad.modMask = modm}) =
   , ((modm, xK_d),                      addName "Next screen"                                          $ rmEmptyWs $ nextScreen >> movePointer)
   , ((modm, xK_f),                      addName "Previous screen"                                      $ rmEmptyWs $ prevScreen >> movePointer)
   , ((modm.|. controlMask, xK_d),       addName "Swap current display witn next"                       $ swapNextScreen >> nextScreen >> movePointer )
-  , ((modm.|. controlMask, xK_f),       addName "Swap current display witn previous"                   $ swapNextScreen >> nextScreen >> movePointer )
+  , ((modm.|. controlMask, xK_f),       addName "Swap current display witn previous"                   $ swapPrevScreen >> nextScreen >> movePointer )
   , ((modm.|. shiftMask, xK_d),         addName "Move window to next screen"                           $ shiftNextScreen >> nextScreen >> movePointer)
   , ((modm.|. shiftMask, xK_f),         addName "Move window to previous screen"                       $ shiftPrevScreen >> prevScreen >> movePointer)
 
