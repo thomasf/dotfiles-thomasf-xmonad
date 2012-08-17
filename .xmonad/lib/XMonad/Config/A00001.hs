@@ -304,8 +304,8 @@ myKeys (XConfig {XMonad.modMask = modm}) =
   , ((modm.|. controlMask, xK_c),       addName "kill"                                                 $ kill)
 
   , subtitle "Cyclic display actions (D/F) [+=select] [+control=swap] [+shift=move window to]"
-  , ((modm, xK_d),                      addName "Next screen"                                          $ rmEmptyWs $ nextScreen >> movePointer)
-  , ((modm, xK_f),                      addName "Previous screen"                                      $ rmEmptyWs $ prevScreen >> movePointer)
+  , ((modm, xK_d),                      addName "Next screen"                                          $ nextScreen >> movePointer)
+  , ((modm, xK_f),                      addName "Previous screen"                                      $ prevScreen >> movePointer)
   , ((modm.|. controlMask, xK_d),       addName "Swap current display witn next"                       $ swapNextScreen >> nextScreen >> movePointer )
   , ((modm.|. controlMask, xK_f),       addName "Swap current display witn previous"                   $ swapPrevScreen >> nextScreen >> movePointer )
   , ((modm.|. shiftMask, xK_d),         addName "Move window to next screen"                           $ shiftNextScreen >> nextScreen >> movePointer)
