@@ -20,7 +20,7 @@ case $cmd in
     alsamixer|htop|irssi|weechat-curses|ncmpcpp)
         exec $tr -name $cmd -e $cmd
         ;;
-    wireshark|synaptic|zenmap|firestarter|reboot)
+    wireshark|synaptic|zenmap|firestarter|reboot|nm-connection-editor)
         exec gksudo $cmd
         ;;
     shutdown)

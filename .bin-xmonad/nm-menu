@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+# Dmenu network manager connection selection menu
+#
+# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
+# Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
+#
+
+set -e
+
+# zenity --info --no-wrap --text="$(nmcli -t -f name,devices con status)"
+
+uuid=`nmcli -e yes -m tabular -t -f uuid,name con list | dmenu -i -l 15 | cut -d: -f1`
+
+gksudo nmcli con up uuid $uuid
