@@ -90,8 +90,10 @@ if [ $(which gconftool-2) ]; then
     gconftool-2 -t bool -s /desktop/gnome/background/draw_background false
     gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/background/active false
     gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/ubuntuone/active false
-    # unbind mod4-p that collides with my xmonad launcher
     gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/xrandr/active false
+fi
+if [ $(which dconf) ]; then
+    dconf write /org/gnome/settings-daemon/plugins/media-keys/active false
 fi
 
 # Launch drop box
