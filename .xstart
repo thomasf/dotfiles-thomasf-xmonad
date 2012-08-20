@@ -5,7 +5,7 @@
 #
 #   TODO: This file really need some cleaning up!
 #
-# 
+#
 # https://wiki.archlinux.org/index.php/ConsoleKit
 
 # A a hack for one specific console
@@ -50,6 +50,8 @@ fi
 # Start music player daemon if it's available
 if [ $(which mpd) ]; then
     mpd
+    # TODO: this file is removed at start up because scmpc can hang and resubmit the cache forever under some circumstances.
+    [ -f $HOME/.scmpc/scmpc.cache ] && rm $HOME/.scmpc/scmpc.cache
     [ $(which scmpc) ] && [ -f $HOME/.scmpc/scmpc.conf ] && scmpc
 fi
 
@@ -67,7 +69,7 @@ export GPG_AGENT_INFO; export SSH_AUTH_SOCK; export SSH_AGENT_PID
 # Configure keyboard mode buttons
 if [ -f $HOME/.xmodmap ]; then
     if [ $(which xmodmap) ]; then
-        xmodmap $HOME/.xmodmap 
+        xmodmap $HOME/.xmodmap
     else
         xmessage "warning: xmodmap not found"
     fi
