@@ -94,6 +94,10 @@ if [ $(which gnome-settings-daemon) ]; then
     fi
 fi
 
+
+# Launch google chrome
+if [ $(which google-chrome) ]; then
+    google-chrome --no-startup-window 2>/dev/null &
 fi
 
 # Launch drop box
