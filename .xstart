@@ -42,7 +42,7 @@ fi
 # load Xresources
 [ -f "${HOME}/.Xresources" ] && xrdb -merge "${HOME}/.Xresources"
 
-# Devmon udev mounter
+# Devmon udev mounter (part of udevil)
 if [ $(which devmon) ]; then
     devmon &
 fi
