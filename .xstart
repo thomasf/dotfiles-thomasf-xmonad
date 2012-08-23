@@ -78,22 +78,22 @@ fi
 # Initialize gnome settings daemon
 if [ $(which gnome-settings-daemon) ]; then
     gnome-settings-daemon &
+    sleep 0.2
+    if [ $(which gconftool-2) ]; then
+	gconftool-2 -t bool -s /apps/nautilus/preferences/show_desktop false
+	gconftool-2 -t bool -s /desktop/gnome/volume_manager/automount_drives false
+	gconftool-2 -t bool -s /apps/gnome_settings_daemon/screensaver/start_screensaver false
+	gconftool-2 -t bool -s /apps/gnome-keyring/daemon-components/ssh false
+	gconftool-2 -t bool -s /desktop/gnome/background/draw_background false
+	gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/background/active false
+	gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/ubuntuone/active false
+	gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/xrandr/active false
+    fi
+    if [ $(which dconf) ]; then
+	dconf write /org/gnome/settings-daemon/plugins/media-keys/active false
+    fi
 fi
 
-# Set some gnome options
-if [ $(which gconftool-2) ]; then
-    # disable gnome services
-    gconftool-2 -t bool -s /apps/nautilus/preferences/show_desktop false
-    gconftool-2 -t bool -s /desktop/gnome/volume_manager/automount_drives false
-    gconftool-2 -t bool -s /apps/gnome_settings_daemon/screensaver/start_screensaver false
-    gconftool-2 -t bool -s /apps/gnome-keyring/daemon-components/ssh false
-    gconftool-2 -t bool -s /desktop/gnome/background/draw_background false
-    gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/background/active false
-    gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/ubuntuone/active false
-    gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/xrandr/active false
-fi
-if [ $(which dconf) ]; then
-    dconf write /org/gnome/settings-daemon/plugins/media-keys/active false
 fi
 
 # Launch drop box
