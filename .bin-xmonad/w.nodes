@@ -7,12 +7,7 @@
 
 set -e
 
-www-window "http://facebook.com" &
-www-window "http://last.fm" &
-www-window "http://github.com" &
-www-window "http://mixcloud.com" &
-# www-window http://twitter.com &
-# www-window "https://plus.google.com/u/1/" &
+www-window "http://facebook.com" "http://last.fm" "http://github.com" "http://mixcloud.com" &
 # www-window "http://skunk.nu" &
 # www-window "http://linkedin.com" &
 # www-window "http://soundcloud.com" &
