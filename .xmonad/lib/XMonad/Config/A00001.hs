@@ -26,6 +26,7 @@ module XMonad.Config.A00001
 
 import           Control.Monad
 import qualified Data.Map                        as M
+import           Data.Ratio ((%))
 import           Graphics.X11.Xinerama
 import           System.IO
 import qualified System.IO.UTF8
@@ -45,6 +46,8 @@ import           XMonad.Hooks.ServerMode
 import           XMonad.Hooks.UrgencyHook
 import           XMonad.Layout.Decoration
 import           XMonad.Layout.Fullscreen
+import           XMonad.Layout.Grid
+import           XMonad.Layout.IM
 import           XMonad.Layout.LayoutCombinators
 import qualified XMonad.Layout.MultiToggle as MT
 import qualified XMonad.Layout.MultiToggle.Instances as MTI
@@ -62,7 +65,6 @@ import qualified XMonad.StackSet                 as W
 import           XMonad.Util.EZConfig
 import           XMonad.Util.NamedActions
 import           XMonad.Util.NamedScratchpad
-import           XMonad.Util.NamedWindows        (getName)
 import           XMonad.Util.Run
 import           XMonad.Util.WorkspaceCompare
 
@@ -132,6 +134,7 @@ myKeys (XConfig {XMonad.modMask = modm}) =
   , ((modm, xK_2),                      addName "Toggle chat workspace"                                $ rmEmptyWs $ myViewWS "chat" >> movePointer)
   , ((modm, xK_3),                      addName "Toggle nodes workspace"                               $ rmEmptyWs $ myViewWS "nodes" >> movePointer)
   , ((modm, xK_4),                      addName "Toggle mail workspace"                                $ rmEmptyWs $ myViewWS "mail" >> movePointer)
+  , ((modm, xK_5),                      addName "Toggle im workspace"                                  $ rmEmptyWs $ myViewWS "im" >> movePointer)
   , ((modm, xK_0),                      addName "Toggle dashboard workspace"                           $ rmEmptyWs $ myViewWS "dash" >> movePointer)
 
   ] where
@@ -150,7 +153,7 @@ myKeys (XConfig {XMonad.modMask = modm}) =
 
     -- | Toggle recent workspaces ignoring some of them
     ignoredToggleWS = toggleWS' ["NSP", "home", "nodes", "dash", "mail"
-                                , "temp", "chat"] >> movePointer
+                                , "temp", "chat", "im" ] >> movePointer
 
     -- | View a workspace by name
     myViewWS wsid = do
@@ -254,6 +257,7 @@ tabTheme = baseTheme { activeColor         = "#4c7899"
 
 myLayoutHook = showWorkspaceName $
                Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22 2012)
+               onWorkspace "im" im $
                onWorkspace "nodes" tabs $
                onWorkspace "reading" tabs $
                MT.mkToggle (MT.single MTI.NOBORDERS) $
@@ -272,6 +276,7 @@ myLayoutHook = showWorkspaceName $
     tallV = Tall 1 (3/100) (3/4)
     threeCol = ThreeColMid 1 (3/100) (1/2)
     tabs = tabbed shrinkText tabTheme
+    im = withIM (1%7) (Role "buddy_list") Grid
     --titleDeco = deco titleTheme
     --deco t   = decoration shrinkText t Dwm
     showWorkspaceName = showWName'
@@ -320,7 +325,7 @@ myManageHook = fullscreenManageHook <+>
   , resource            =? "ssh_tmux"          -?> doF (W.shift "chat" )
   , resource            =? "empathy"           -?> doF (W.shift "chat")
   , resource            =? "xchat"             -?> doF (W.shift "chat")
-  , className           =? "Pidgin"            -?> doF (W.shift "chat")
+  , className           =? "Pidgin"            -?> doF (W.shift "im")
   , className           =? "Nicotine.py"       -?> doF (W.shift "fileshare")
   , className           =? "Transmission-gtk"  -?> doF (W.shift "fileshare")
   , resource            =? "xmessage"          -?> doCenterFloat
