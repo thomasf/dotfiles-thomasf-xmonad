@@ -312,19 +312,19 @@ myKeys (XConfig {XMonad.modMask = modm}) =
   , ((modm.|. shiftMask, xK_f),         addName "Move window to previous screen"                       $ shiftPrevScreen >> prevScreen >> movePointer)
 
   , subtitle "Workspace actions (E/R) [mod=select from prefix] [mod+control=select from all]"
-  , ((modm, xK_e),                      addName "Next workspace (prefix)"                              $ nextWsPrefix >> movePointer)
-  , ((modm, xK_r),                      addName "Previous workspace (prefix)"                          $ prevWsPrefix >> movePointer)
-  , ((modm.|. controlMask, xK_e),       addName "Next non empty workspace"                             $ nextWsNonEmpty >> movePointer)
-  , ((modm.|. controlMask, xK_r),       addName "Previous non empty workspace"                         $ prevWsNonEmpty >> movePointer)
+  , ((modm, xK_e),                      addName "Next workspace (prefix)"                              $ rmEmptyWs $ nextWsPrefix >> movePointer)
+  , ((modm, xK_r),                      addName "Previous workspace (prefix)"                          $ rmEmptyWs $ prevWsPrefix >> movePointer)
+  , ((modm.|. controlMask, xK_e),       addName "Next non empty workspace"                             $ rmEmptyWs $ nextWsNonEmpty >> movePointer)
+  , ((modm.|. controlMask, xK_r),       addName "Previous non empty workspace"                         $ rmEmptyWs $ prevWsNonEmpty >> movePointer)
 
   , subtitle "Other workspace actions"
-  , ((modm, xK_w),                      addName "Toggle previous workspace"                            $ ignoredToggleWS)
+  , ((modm, xK_w),                      addName "Toggle previous workspace"                            $ rmEmptyWs $ ignoredToggleWS)
 
   , subtitle "Workspace prompts"
   , ((modm, xK_n),                      addName "Create or change workspace prompt"                    $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
   , ((modm.|. shiftMask, xK_n),         addName "Move window to other workspace prompt"                $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
   , ((modm.|. controlMask, xK_n),       addName "Rename current workspace"                             $ DW.renameWorkspace myXPConfig >> movePointer)
-  , ((modm.|. controlMask, xK_BackSpace), addName "Remove current workspace"                             $ DW.removeWorkspace >> movePointer)
+  , ((modm.|. controlMask, xK_BackSpace), addName "Remove current workspace"                           $ DW.removeWorkspace >> movePointer)
   , ((modm, xK_o),                      addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l 23"] >> movePointer)
 
   , subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]"
@@ -338,11 +338,11 @@ myKeys (XConfig {XMonad.modMask = modm}) =
   , subtitle "Toggle scratchpads and workspaces"
   , ((modm, xK_section),                addName "Toggle small terminal pad"                            $ smallTerminalPad >> movePointer)
   , ((modm.|.shiftMask, xK_section),    addName "Toggle large terminal pad"                            $ largeTerminalPad >> movePointer)
-  , ((modm, xK_1),                      addName "Toggle home workspace"                                $ myViewWS "home")
-  , ((modm, xK_2),                      addName "Toggle chat workspace"                                $ myViewWS "chat")
-  , ((modm, xK_3),                      addName "Toggle nodes workspace"                               $ myViewWS "nodes")
-  , ((modm, xK_4),                      addName "Toggle mail workspace"                                $ myViewWS "mail")
-  , ((modm, xK_0),                      addName "Toggle dashboard workspace"                           $ myViewWS "dash")
+  , ((modm, xK_1),                      addName "Toggle home workspace"                                $ rmEmptyWs $ myViewWS "home" >> movePointer)
+  , ((modm, xK_2),                      addName "Toggle chat workspace"                                $ rmEmptyWs $ myViewWS "chat" >> movePointer)
+  , ((modm, xK_3),                      addName "Toggle nodes workspace"                               $ rmEmptyWs $ myViewWS "nodes" >> movePointer)
+  , ((modm, xK_4),                      addName "Toggle mail workspace"                                $ rmEmptyWs $ myViewWS "mail" >> movePointer)
+  , ((modm, xK_0),                      addName "Toggle dashboard workspace"                           $ rmEmptyWs $ myViewWS "dash" >> movePointer)
 
   ] where
     ignoredToggleWS = toggleWS' ["NSP", "home", "nodes", "dash", "mail"
