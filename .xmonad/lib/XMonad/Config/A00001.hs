@@ -247,14 +247,7 @@ tabTheme = baseTheme { activeColor         = "#268bd2"
                      , inactiveTextColor   = "#268bd2"
                      }
 
--- | Uses colors from solarized theme
--- titleTheme = baseTheme { inactiveColor       = "#eee8d5"
---                        , inactiveBorderColor = "#93a1a1"
---                        , inactiveTextColor   = "#657b83"
---                        }
-
 -- | The layouthoook
-
 myLayoutHook = showWorkspaceName $
                Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22 2012)
                onWorkspace "im" im $
