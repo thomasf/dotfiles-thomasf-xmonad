@@ -67,6 +67,132 @@ import           XMonad.Util.Run
 import           XMonad.Util.WorkspaceCompare
 
 ------------------------------------------------------------------------
+-- Keyboard configuration:
+
+myModMask = mod4Mask
+altMask = mod1Mask
+
+-- align-regexp rules: "addName", "\$"
+
+myKeys (XConfig {XMonad.modMask = modm}) =
+  [ subtitle "Application launching"
+  , ((modm.|. shiftMask, xK_Return),    addName "launch terminal"                                      $ spawnShell)
+
+  , subtitle "Cyclic window actions (J/K) [+=focus] [+control=cycle+keep focus] [+shift=move]"
+  , ((modm, xK_j),                      addName "Focus next window on workspace"                       $ windows W.focusDown >> movePointer)
+  , ((modm, xK_k),                      addName "Focus previous window on workspace"                   $ windows W.focusUp >> movePointer)
+  , ((modm.|. shiftMask, xK_j),         addName "Swap focused with next on workspace"                  $ windows W.swapDown >> movePointer)
+  , ((modm.|. shiftMask, xK_k),         addName "Swap focused with previous on workspace"              $ windows W.swapUp >> movePointer)
+  , ((modm.|. controlMask, xK_j),       addName "Rotate all windows forward while keeping focus"       $ rotAllUp >> movePointer)
+  , ((modm.|. controlMask, xK_k),       addName "Rotate all windows backwards while keeping focus"     $ rotAllDown >> movePointer)
+
+  , subtitle "Other window actions"
+  , ((modm, xK_m),                      addName "Move focus to master window"                          $ windows W.focusMaster >> movePointer)
+  , ((modm, xK_Return),                 addName "Swap the focused window and the master window"        $ windows W.swapMaster >> movePointer)
+  , ((modm, xK_t),                      addName "Push the window into tiling mode"                     $ withFocused (windows . W.sink) >> movePointer)
+  , ((modm.|. altMask, xK_f),           addName "Toggle fullscreen"                                    $ sendMessage (MT.Toggle MTI.NBFULL))
+  , ((modm.|. controlMask, xK_c),       addName "kill"                                                 $ kill)
+
+  , subtitle "Cyclic display actions (D/F) [+=select] [+control=swap] [+shift=move window to]"
+  , ((modm, xK_d),                      addName "Next screen"                                          $ nextScreen >> movePointer)
+  , ((modm, xK_f),                      addName "Previous screen"                                      $ prevScreen >> movePointer)
+  , ((modm.|. controlMask, xK_d),       addName "Swap current display witn next"                       $ swapNextScreen >> nextScreen >> movePointer)
+  , ((modm.|. controlMask, xK_f),       addName "Swap current display witn previous"                   $ swapPrevScreen >> nextScreen >> movePointer)
+  , ((modm.|. shiftMask, xK_d),         addName "Move window to next screen"                           $ shiftNextScreen >> nextScreen >> movePointer)
+  , ((modm.|. shiftMask, xK_f),         addName "Move window to previous screen"                       $ shiftPrevScreen >> prevScreen >> movePointer)
+
+  , subtitle "Workspace actions (E/R) [mod=select from prefix] [mod+control=select from all]"
+  , ((modm, xK_e),                      addName "Next workspace (prefix)"                              $ rmEmptyWs $ nextWsPrefix >> movePointer)
+  , ((modm, xK_r),                      addName "Previous workspace (prefix)"                          $ rmEmptyWs $ prevWsPrefix >> movePointer)
+  , ((modm.|. controlMask, xK_e),       addName "Next non empty workspace"                             $ rmEmptyWs $ nextWsNonEmpty >> movePointer)
+  , ((modm.|. controlMask, xK_r),       addName "Previous non empty workspace"                         $ rmEmptyWs $ prevWsNonEmpty >> movePointer)
+
+  , subtitle "Other workspace actions"
+  , ((modm, xK_w),                      addName "Toggle previous workspace"                            $ rmEmptyWs $ ignoredToggleWS)
+
+  , subtitle "Workspace prompts"
+  , ((modm, xK_n),                      addName "Create or change workspace prompt"                    $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
+  , ((modm.|. shiftMask, xK_n),         addName "Move window to other workspace prompt"                $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
+  , ((modm.|. controlMask, xK_n),       addName "Rename current workspace"                             $ DW.renameWorkspace myXPConfig >> movePointer)
+  , ((modm.|. controlMask, xK_BackSpace), addName "Remove current workspace"                           $ DW.removeWorkspace >> movePointer)
+  , ((modm, xK_o),                      addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l 23"] >> movePointer)
+
+  , subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]"
+  , ((modm, xK_space),                  addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer)
+  , ((modm, xK_h),                      addName "Shrink the master area"                               $ sendMessage Shrink >> movePointer)
+  , ((modm, xK_l),                      addName "Expand the master area"                               $ sendMessage Expand >> movePointer)
+  , ((modm, xK_comma),                  addName "Increment the number of windows in the master area"   $ sendMessage (IncMasterN 1) >> movePointer)
+  , ((modm, xK_period),                 addName "Deincrement the number of windows in the master area" $ sendMessage (IncMasterN (-1)) >> movePointer)
+  , ((modm.|. altMask, xK_b),           addName "Toggle borders"                                       $ sendMessage (MT.Toggle MTI.NOBORDERS))
+  , ((modm.|. altMask, xK_s),           addName "Toggle struts"                                        $ sendMessage ToggleStruts)
+  , subtitle "Toggle scratchpads and workspaces"
+  , ((modm, xK_section),                addName "Toggle small terminal pad"                            $ smallTerminalPad >> movePointer)
+  , ((modm.|.shiftMask, xK_section),    addName "Toggle large terminal pad"                            $ largeTerminalPad >> movePointer)
+  , ((modm, xK_1),                      addName "Toggle home workspace"                                $ rmEmptyWs $ myViewWS "home" >> movePointer)
+  , ((modm, xK_2),                      addName "Toggle chat workspace"                                $ rmEmptyWs $ myViewWS "chat" >> movePointer)
+  , ((modm, xK_3),                      addName "Toggle nodes workspace"                               $ rmEmptyWs $ myViewWS "nodes" >> movePointer)
+  , ((modm, xK_4),                      addName "Toggle mail workspace"                                $ rmEmptyWs $ myViewWS "mail" >> movePointer)
+  , ((modm, xK_0),                      addName "Toggle dashboard workspace"                           $ rmEmptyWs $ myViewWS "dash" >> movePointer)
+
+  ] where
+
+    -- | Move mouse pointer to bottom right of the current window
+    movePointer = updatePointer (Relative 0.99 0.99)
+
+    -- | Run script with same name as "w.workspacename" if the workspace is empty
+    maybeWorkspaceAction = do
+      ws <- gets (W.currentTag . windowset)
+      wins <- gets (W.integrate' . W.stack . W.workspace . W.current . windowset)
+      when (null wins) $ spawn ("w." ++ takeWhile (/='.') ws)
+
+    -- | Remove current workpace if empty
+    rmEmptyWs = DW.removeEmptyWorkspaceAfter
+
+    -- | Toggle recent workspaces ignoring some of them
+    ignoredToggleWS = toggleWS' ["NSP", "home", "nodes", "dash", "mail"
+                                , "temp", "chat"] >> movePointer
+
+    -- | View a workspace by name
+    myViewWS wsid = do
+      DW.addHiddenWorkspace wsid
+      windows (W.greedyView wsid)
+      maybeWorkspaceAction
+      movePointer
+
+    -- | Select workspae prompt
+    selectWorkspacePrompt = workspacePrompt myXPConfig $ \w ->
+                            do s <- gets windowset
+                               if W.tagMember w s
+                                 then windows $ W.view w
+                                 else DW.addWorkspace w
+    --  | Open small terminal pad
+    smallTerminalPad = namedScratchpadAction myScratchPads "smallTerminal"
+
+    -- | Open larger terminal pad
+    largeTerminalPad = namedScratchpadAction myScratchPads "largeTerminal"
+
+    -- | Select next non empty workspace
+    nextWsNonEmpty = windows . W.greedyView
+                     =<< findWorkspace getSortByTagNoSP Next HiddenNonEmptyWS 1
+
+    -- | Select previous non empty workspace
+    prevWsNonEmpty = windows . W.greedyView
+                     =<< findWorkspace getSortByTagNoSP Prev HiddenNonEmptyWS 1
+
+    -- |  Select next workspace with same prefix
+    nextWsPrefix = windows . W.greedyView
+                   =<< findWorkspace getSortByTagNoSP Next (HiddenWSTagGroup '.') 1
+
+    -- | Select previous workspac with same prefix
+    prevWsPrefix = windows . W.greedyView
+                   =<< findWorkspace getSortByTagNoSP Prev (HiddenWSTagGroup '.') 1
+
+    -- | Sort workspaces by tag name, exclude hidden scrachpad workspace.
+    getSortByTagNoSP = fmap (.namedScratchpadFilterOutWorkspace) getSortByTag
+
+
+
+------------------------------------------------------------------------
 -- Basic random
 --
 myTerminal = "urxvt"
@@ -277,92 +403,6 @@ myPP h = defaultPP
 myStartupHook = return ()
 
 ------------------------------------------------------------------------
--- Keyboard configuration:
-
-myModMask = mod4Mask
-altMask = mod1Mask
-
--- align-regexp rules: "addName", "\$"
-
-myKeys (XConfig {XMonad.modMask = modm}) =
-  [ subtitle "Application launching"
-  , ((modm.|. shiftMask, xK_Return),    addName "launch terminal"                                      $ spawnShell)
-
-  , subtitle "Cyclic window actions (J/K) [+=focus] [+control=cycle+keep focus] [+shift=move]"
-  , ((modm, xK_j),                      addName "Focus next window on workspace"                       $ windows W.focusDown >> movePointer)
-  , ((modm, xK_k),                      addName "Focus previous window on workspace"                   $ windows W.focusUp >> movePointer)
-  , ((modm.|. shiftMask, xK_j),         addName "Swap focused with next on workspace"                  $ windows W.swapDown >> movePointer)
-  , ((modm.|. shiftMask, xK_k),         addName "Swap focused with previous on workspace"              $ windows W.swapUp >> movePointer)
-  , ((modm.|. controlMask, xK_j),       addName "Rotate all windows forward while keeping focus"       $ rotAllUp >> movePointer)
-  , ((modm.|. controlMask, xK_k),       addName "Rotate all windows backwards while keeping focus"     $ rotAllDown >> movePointer)
-
-  , subtitle "Other window actions"
-  , ((modm, xK_m),                      addName "Move focus to master window"                          $ windows W.focusMaster >> movePointer)
-  , ((modm, xK_Return),                 addName "Swap the focused window and the master window"        $ windows W.swapMaster >> movePointer)
-  , ((modm, xK_t),                      addName "Push the window into tiling mode"                     $ withFocused (windows . W.sink) >> movePointer)
-  , ((modm.|. altMask, xK_f),           addName "Toggle fullscreen"                                    $ sendMessage (MT.Toggle MTI.NBFULL))
-  , ((modm.|. controlMask, xK_c),       addName "kill"                                                 $ kill)
-
-  , subtitle "Cyclic display actions (D/F) [+=select] [+control=swap] [+shift=move window to]"
-  , ((modm, xK_d),                      addName "Next screen"                                          $ nextScreen >> movePointer)
-  , ((modm, xK_f),                      addName "Previous screen"                                      $ prevScreen >> movePointer)
-  , ((modm.|. controlMask, xK_d),       addName "Swap current display witn next"                       $ swapNextScreen >> nextScreen >> movePointer)
-  , ((modm.|. controlMask, xK_f),       addName "Swap current display witn previous"                   $ swapPrevScreen >> nextScreen >> movePointer)
-  , ((modm.|. shiftMask, xK_d),         addName "Move window to next screen"                           $ shiftNextScreen >> nextScreen >> movePointer)
-  , ((modm.|. shiftMask, xK_f),         addName "Move window to previous screen"                       $ shiftPrevScreen >> prevScreen >> movePointer)
-
-  , subtitle "Workspace actions (E/R) [mod=select from prefix] [mod+control=select from all]"
-  , ((modm, xK_e),                      addName "Next workspace (prefix)"                              $ rmEmptyWs $ nextWsPrefix >> movePointer)
-  , ((modm, xK_r),                      addName "Previous workspace (prefix)"                          $ rmEmptyWs $ prevWsPrefix >> movePointer)
-  , ((modm.|. controlMask, xK_e),       addName "Next non empty workspace"                             $ rmEmptyWs $ nextWsNonEmpty >> movePointer)
-  , ((modm.|. controlMask, xK_r),       addName "Previous non empty workspace"                         $ rmEmptyWs $ prevWsNonEmpty >> movePointer)
-
-  , subtitle "Other workspace actions"
-  , ((modm, xK_w),                      addName "Toggle previous workspace"                            $ rmEmptyWs $ ignoredToggleWS)
-
-  , subtitle "Workspace prompts"
-  , ((modm, xK_n),                      addName "Create or change workspace prompt"                    $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
-  , ((modm.|. shiftMask, xK_n),         addName "Move window to other workspace prompt"                $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
-  , ((modm.|. controlMask, xK_n),       addName "Rename current workspace"                             $ DW.renameWorkspace myXPConfig >> movePointer)
-  , ((modm.|. controlMask, xK_BackSpace), addName "Remove current workspace"                           $ DW.removeWorkspace >> movePointer)
-  , ((modm, xK_o),                      addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l 23"] >> movePointer)
-
-  , subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]"
-  , ((modm, xK_space),                  addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer)
-  , ((modm, xK_h),                      addName "Shrink the master area"                               $ sendMessage Shrink >> movePointer)
-  , ((modm, xK_l),                      addName "Expand the master area"                               $ sendMessage Expand >> movePointer)
-  , ((modm, xK_comma),                  addName "Increment the number of windows in the master area"   $ sendMessage (IncMasterN 1) >> movePointer)
-  , ((modm, xK_period),                 addName "Deincrement the number of windows in the master area" $ sendMessage (IncMasterN (-1)) >> movePointer)
-  , ((modm.|. altMask, xK_b),           addName "Toggle borders"                                       $ sendMessage (MT.Toggle MTI.NOBORDERS))
-  , ((modm.|. altMask, xK_s),           addName "Toggle struts"                                        $ sendMessage ToggleStruts)
-  , subtitle "Toggle scratchpads and workspaces"
-  , ((modm, xK_section),                addName "Toggle small terminal pad"                            $ smallTerminalPad >> movePointer)
-  , ((modm.|.shiftMask, xK_section),    addName "Toggle large terminal pad"                            $ largeTerminalPad >> movePointer)
-  , ((modm, xK_1),                      addName "Toggle home workspace"                                $ rmEmptyWs $ myViewWS "home" >> movePointer)
-  , ((modm, xK_2),                      addName "Toggle chat workspace"                                $ rmEmptyWs $ myViewWS "chat" >> movePointer)
-  , ((modm, xK_3),                      addName "Toggle nodes workspace"                               $ rmEmptyWs $ myViewWS "nodes" >> movePointer)
-  , ((modm, xK_4),                      addName "Toggle mail workspace"                                $ rmEmptyWs $ myViewWS "mail" >> movePointer)
-  , ((modm, xK_0),                      addName "Toggle dashboard workspace"                           $ rmEmptyWs $ myViewWS "dash" >> movePointer)
-
-  ] where
-    ignoredToggleWS = toggleWS' ["NSP", "home", "nodes", "dash", "mail"
-                                , "temp", "chat"] >> movePointer
-
-    myViewWS wsid = do
-      DW.addHiddenWorkspace wsid
-      windows (W.greedyView wsid)
-      maybeWorkspaceAction
-      movePointer
-
-    selectWorkspacePrompt = workspacePrompt myXPConfig $ \w ->
-                            do s <- gets windowset
-                               if W.tagMember w s
-                                 then windows $ W.view w
-                                 else DW.addWorkspace w
-
-emptyKeys c = mkKeymap c [ ]
-
-------------------------------------------------------------------------
 -- Mouse bindings: default actions bound to mouse events
 --
 myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList
@@ -397,62 +437,6 @@ myXPConfig = defaultXPConfig{ position = Top
 spawnShell :: X ()
 spawnShell = spawn myTerminal
 
-nextWsNonEmpty = windows . W.greedyView
-         =<< findWorkspace getSortByTagNoSP Next HiddenNonEmptyWS 1
-prevWsNonEmpty = windows . W.greedyView
-         =<< findWorkspace getSortByTagNoSP Prev HiddenNonEmptyWS 1
-
-nextWsPrefix = windows . W.greedyView
-               =<< findWorkspace getSortByTagNoSP Next (HiddenWSTagGroup '.') 1
-
-prevWsPrefix = windows . W.greedyView
-               =<< findWorkspace getSortByTagNoSP Prev (HiddenWSTagGroup '.') 1
-
-getSortByTagNoSP = fmap (.namedScratchpadFilterOutWorkspace) getSortByTag
-
-smallTerminalPad = namedScratchpadAction myScratchPads "smallTerminal"
-largeTerminalPad = namedScratchpadAction myScratchPads "largeTerminal"
-
-------------------------------------------------------------------------
--- Utils
-
--- | Run script with same name as "w.workspacename" if the workspace is empty
-maybeWorkspaceAction = do
-  ws <- gets (W.currentTag . windowset)
-  wins <- gets (W.integrate' . W.stack . W.workspace . W.current . windowset)
-  when (null wins) $ spawn ("w." ++ takeWhile (/='.') ws)
-
--- | Remove current workpace if empty
-rmEmptyWs = DW.removeEmptyWorkspaceAfter
-
--- | Move mouse pointer to bottom right of the current window
-movePointer = updatePointer (Relative 0.99 0.99)
-
--- | Display keyboard mappings using zenity
-showKeybindings :: [((KeyMask, KeySym), NamedAction)] -> NamedAction
-showKeybindings x = addName "Show Keybindings" $ io $ do
-  h <- spawnPipe "zenity --text-info"
-  System.IO.UTF8.hPutStr h (unlines $ showKm x)
-  hClose h
-  return ()
-
--- | Return the dimensions (x, y, width, height) of screen n.
-getScreenDim :: Num a => Int -> IO (a, a, a, a)
-getScreenDim n = do
-  d <- openDisplay ""
-  screens  <- getScreenInfo d
-  closeDisplay d
-  let rn = screens !!(min (abs n) (length screens - 1))
-  case screens of
-    []        -> return (0, 0, 1024, 768) -- fallback
-    [r]       -> return (fromIntegral $ rect_x r , fromIntegral $ rect_y r ,
-                         fromIntegral $ rect_width r , fromIntegral $ rect_height r )
-    otherwise -> return (fromIntegral $ rect_x rn, fromIntegral $ rect_y rn,
-                         fromIntegral $ rect_width rn, fromIntegral $ rect_height rn)
-
--- | Determine the number of physical screens.
--- countScreens :: (MonadIO m, Integral i) => m i
--- countScreens = liftM genericLength . liftIO $ openDisplay "" >>= getScreenInfo
 
 ------------------------------------------------------------------------
 -- Scratch pads:
@@ -518,7 +502,17 @@ aDefaultConfig =
   , manageHook         = myManageHook
   , handleEventHook    = myEventHook
   , startupHook        = myStartupHook
-  }
+  } where
+    --  | An empty keymap
+    emptyKeys c = mkKeymap c [ ]
+
+    -- | Display keyboard mappings using zenity
+    showKeybindings :: [((KeyMask, KeySym), NamedAction)] -> NamedAction
+    showKeybindings x = addName "Show Keybindings" $ io $ do
+      h <- spawnPipe "zenity --text-info"
+      System.IO.UTF8.hPutStr h (unlines $ showKm x)
+      hClose h
+      return ()
 
 -----------------------------------------------------------------------------
 -- | Auto config!
@@ -604,3 +598,21 @@ configFull = do
     , manageHook = myManageHook
     , startupHook = configStartupHook
     }
+  where
+    -- | Return the dimensions (x, y, width, height) of screen n.
+    getScreenDim :: Num a => Int -> IO (a, a, a, a)
+    getScreenDim n = do
+      d <- openDisplay ""
+      screens  <- getScreenInfo d
+      closeDisplay d
+      let rn = screens !!(min (abs n) (length screens - 1))
+      case screens of
+        []        -> return (0, 0, 1024, 768) -- fallback
+        [r]       -> return (fromIntegral $ rect_x r , fromIntegral $ rect_y r ,
+                             fromIntegral $ rect_width r , fromIntegral $ rect_height r )
+        otherwise -> return (fromIntegral $ rect_x rn, fromIntegral $ rect_y rn,
+                         fromIntegral $ rect_width rn, fromIntegral $ rect_height rn)
+
+  -- | Determine the number of physical screens.
+  -- countScreens :: (MonadIO m, Integral i) => m i
+  -- countScreens = liftM genericLength . liftIO $ openDisplay "" >>= getScreenInfo
