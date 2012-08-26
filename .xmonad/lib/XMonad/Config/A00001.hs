@@ -358,32 +358,32 @@ myEventHook = serverModeEventHook <+> fullscreenEventHook
 --
 
 myXmobarLogHook h = dynamicLogWithPP defaultPP
-  { ppCurrent = xmobarColor "orange" "" . wrap "[" "]"
-  , ppTitle   = xmobarColor "magenta"  "" . shorten 40
-  , ppVisible = wrap "(" ")"
+  { ppCurrent = xmobarColor "#002b36" "#268bd2" . pad
+  , ppVisible = xmobarColor "#268bd2" "" . pad
+  , ppHidden  = const ""
+  , ppUrgent  = xmobarColor  "#002b36" "#cb4b16" . pad
+  , ppTitle   = xmobarColor "#b58900" "" . shorten 50 . wrap " " " "
+  , ppLayout  = xmobarColor "#859900" ""
+  , ppSep     = xmobarColor "#586e75" "" " * "
   , ppOutput  = hPutStrLn h
-  , ppSort = fmap (.namedScratchpadFilterOutWorkspace) $ ppSort defaultPP
+  , ppSort    = getSortByXineramaRule
   }
 
 myDzenLogHook h = dynamicLogWithPP $ myPP h
 
 myPP h = defaultPP
-  { ppCurrent           =   dzenColor "#eee" "#111" . padWs
-  , ppVisible           =   dzenColor "#8F8F67" "#111" . padWs
-  , ppHidden            =   const ""
-  , ppUrgent            =   dzenColor "red" "#111" . padWs
-  , ppWsSep             =   " "
-  , ppSep               =   " | "
-  , ppTitle             =   (" " ++) . dzenColor "#AFAF87" "#111" . dzenEscape
-  , ppLayout = dzenColor "#777777" "" .
-               (\x -> case x of
-                   "Tall" -> "^fg(#777777)^i(/home/petar/.dzen/tall.xbm)"
-                   _ -> x
-               )
-  , ppOutput            =   hPutStrLn h
+  { ppCurrent = dzenColor "#002b36" "#268bd2" . pad
+  , ppVisible = dzenColor "#268bd2" "" . pad
+  , ppHidden  = const ""
+  , ppUrgent  = dzenColor "#002b36" "#cb4b16" . pad
+  , ppTitle   = dzenColor "#b58900" "" . dzenEscape
+  , ppLayout  = dzenColor "#859900" ""
+  , ppSep     = dzenColor "#586e75" "" " * "
+  , ppOutput  = hPutStrLn h
+  , ppSort    = getSortByXineramaRule
   }
-  where
-    padWs ws = if ws == "NSP" then "" else pad ws
+  --where
+  --  padWs ws = if ws == "NSP" then "" else pad ws
 
 ------------------------------------------------------------------------
 -- Startup hook
@@ -581,13 +581,13 @@ configFull = do
     trayerO = screenW - trayerW
     statusW = screenW * 0.6 - trayerW
     statusO = screenW - statusW - trayerW
-    xmonadBarCmd = "dzen2 -xs 1 -ta l -w " ++ show xmonadW
-    trayerBarCmd = "trayer --transparent true --tint 0x111111 --alpha 0 --edge top --align left"
+    xmonadBarCmd = "dzen2 -xs 1 -bg '#002b36' -ta l -w " ++ show xmonadW
+    trayerBarCmd = "trayer --transparent true --tint 0x002b36 --alpha 0 --edge top --align left"
                    ++ " --widthtype pixel --width " ++ show trayerW
                    ++ " --margin " ++ show trayerO
                    ++ " --heighttype pixel --height 18"
     statusBarCmd = "conky -c ~/.xmonad/etc/conkyrc-mainbar-config-full "
-                   ++ "| dzen2 -xs 1 -ta r -x " ++ show statusO ++ " -w " ++ show statusW
+                   ++ "| dzen2 -xs 1 -ta r -bg '#002b36' -x " ++ show statusO ++ " -w " ++ show statusW
     configStartupHook = myStartupHook
 
   xmonadBar <- spawnPipe xmonadBarCmd

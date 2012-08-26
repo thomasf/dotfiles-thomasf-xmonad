@@ -1,13 +1,13 @@
 -- config
 Config { font = "-misc-fixed-*-*-*-*-10-*-*-*-*-*-*-*"
-       , bgColor = "#111"
-       , fgColor = "#eee"
+       , bgColor = "#002b36"
+       , fgColor = "#586e75"
        , position = TopW L 100
        , commands = [ Run Cpu [
 			"-t","c:<total>",
 			"-L","15","-H","50",
-			"--normal","green",
-			"--high","purple"
+			"--normal","#586e75",
+			"--high","#d33682"
 			] 10
                     , Run Memory [
 			"-t","u:<used>M c:<cache>M"

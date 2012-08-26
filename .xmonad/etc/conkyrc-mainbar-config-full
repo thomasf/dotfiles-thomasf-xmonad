@@ -10,7 +10,8 @@ total_run_times 0
 use_spacer none
 
 TEXT
-^i($HOME/.xmonad/res/icons/pack1/cpu.xbm)^fg(\#909090)${cpu} \
-^i($HOME/.xmonad/res/icons/pack1/mem.xbm)^fg(\#909090)${memperc}% \
-^i($HOME/.xmonad/res/icons/pack1/net-wired.xbm)^fg(\#909090)${downspeedf eth0}/${upspeedf eth0} \
+^fg(\#586e75)\
+^i($HOME/.xmonad/res/icons/pack1/cpu.xbm)${cpu} \
+^i($HOME/.xmonad/res/icons/pack1/mem.xbm)${memperc}% \
+^i($HOME/.xmonad/res/icons/pack1/net-wired.xbm)${downspeedf eth0}/${upspeedf eth0} \
   ${time %a %b %d %H:%M} \
