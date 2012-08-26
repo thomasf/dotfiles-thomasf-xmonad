@@ -5,13 +5,15 @@ background no
 out_to_console yes
 out_to_x no
 override_utf8_locale yes
-update_interval 2
+update_interval 3
 total_run_times 0
+short_units yes
 use_spacer none
 
 TEXT
-^fg(\#586e75)\
-^i($HOME/.xmonad/res/icons/pack1/cpu.xbm)${cpu} \
-^i($HOME/.xmonad/res/icons/pack1/mem.xbm)${memperc}% \
-^i($HOME/.xmonad/res/icons/pack1/net-wired.xbm)${downspeedf eth0}/${upspeedf eth0} \
-  ${time %a %b %d %H:%M} \
+^fg(\#586e75)disk:^fg(\#93a1a1)${diskio} \
+^fg(\#586e75)eth0-d:^fg(\#93a1a1)${downspeedf eth0} \
+^fg(\#586e75)eth0-u:^fg(\#93a1a1)${upspeedf eth0} \
+^fg(\#586e75)cpu:^fg(\#93a1a1)${cpu}% \
+^fg(\#586e75)memf:^fg(\#93a1a1)${memeasyfree} \
+^fg(\#859900) - ${time %a %b %d %H:%M} - \
