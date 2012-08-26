@@ -239,12 +239,12 @@ baseTheme = defaultTheme { fontName            = "-*-fixed-medium-r-*--10-*-*-*-
                          }
 
 -- | Copied from Tehemes
-tabTheme = baseTheme { activeColor         = "#4c7899"
-                     , inactiveColor       = "#333333"
-                     , activeBorderColor   = "#285577"
-                     , inactiveBorderColor = "#222222"
-                     , activeTextColor     = "#ffffff"
-                     , inactiveTextColor   = "#888888"
+tabTheme = baseTheme { activeColor         = "#268bd2"
+                     , inactiveColor       = "#002b36"
+                     , activeBorderColor   = "#268bd2"
+                     , inactiveBorderColor = "#002b36"
+                     , activeTextColor     = "#002b36"
+                     , inactiveTextColor   = "#268bd2"
                      }
 
 -- | Uses colors from solarized theme
