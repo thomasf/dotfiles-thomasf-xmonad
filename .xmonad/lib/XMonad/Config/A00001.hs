@@ -465,26 +465,6 @@ myScratchPads = [ NS "smallTerminal" (term "smallTerminal") (res =? scratch "sma
         l = (1 - w)/2
 
 ------------------------------------------------------------------------
--- Urgency hook:
-
-data LibNotifyUrgencyHook = LibNotifyUrgencyHook deriving (Read, Show)
-
-instance UrgencyHook LibNotifyUrgencyHook where
-  urgencyHook LibNotifyUrgencyHook w = do
-    workspaceName <- getName w
-    ws <- gets windowset
-    whenJust (W.findTag w ws) (flash workspaceName)
-      where
-        flash workspaceName index = spawn ("notify-send '"
-                                           ++ show workspaceName
-                                           ++ " requests your attention on workspace "
-                                           ++ index
-                                           ++ "'")
-
-myUrgencyConfig = urgencyConfig { suppressWhen = XMonad.Hooks.UrgencyHook.Never }
-myUrgencyHook = LibNotifyUrgencyHook
-
-------------------------------------------------------------------------
 -- Default configuration
 
 aDefaultConfig =
@@ -562,10 +542,9 @@ configSimple = do
 configMinimal = do
   myStatusProc <- spawnPipe myStatusBar
   return  $ ewmh aDefaultConfig
-    { logHook     = myXmobarLogHook myStatusProc
-    }
-    where
-      myStatusBar="xmobar ~/.xmonad/etc/xmobar-minimal"
+    { logHook = myXmobarLogHook myStatusProc
+    } where
+      myStatusBar = "xmobar ~/.xmonad/etc/xmobar-minimal"
 
 -----------------------------------------------------------------------------
 --
@@ -593,26 +572,30 @@ configFull = do
   xmonadBar <- spawnPipe xmonadBarCmd
   spawn statusBarCmd
   spawn trayerBarCmd
-  return $ withUrgencyHookC myUrgencyHook myUrgencyConfig  $ ewmh aDefaultConfig
+  return $
+    withUrgencyHookC BorderUrgencyHook {
+      urgencyBorderColor = "#cb4b16" }
+    urgencyConfig {
+      suppressWhen = XMonad.Hooks.UrgencyHook.Focused } $
+    ewmh aDefaultConfig
     { logHook = myDzenLogHook xmonadBar
     , manageHook = myManageHook
     , startupHook = configStartupHook
-    }
-  where
-    -- | Return the dimensions (x, y, width, height) of screen n.
-    getScreenDim :: Num a => Int -> IO (a, a, a, a)
-    getScreenDim n = do
-      d <- openDisplay ""
-      screens  <- getScreenInfo d
-      closeDisplay d
-      let rn = screens !!(min (abs n) (length screens - 1))
-      case screens of
-        []        -> return (0, 0, 1024, 768) -- fallback
-        [r]       -> return (fromIntegral $ rect_x r , fromIntegral $ rect_y r ,
-                             fromIntegral $ rect_width r , fromIntegral $ rect_height r )
-        otherwise -> return (fromIntegral $ rect_x rn, fromIntegral $ rect_y rn,
-                         fromIntegral $ rect_width rn, fromIntegral $ rect_height rn)
+    } where
+      -- | Return the dimensions (x, y, width, height) of screen n.
+      getScreenDim :: Num a => Int -> IO (a, a, a, a)
+      getScreenDim n = do
+        d <- openDisplay ""
+        screens  <- getScreenInfo d
+        closeDisplay d
+        let rn = screens !!(min (abs n) (length screens - 1))
+        case screens of
+          []        -> return (0, 0, 1024, 768) -- fallback
+          [r]       -> return (fromIntegral $ rect_x r , fromIntegral $ rect_y r ,
+                               fromIntegral $ rect_width r , fromIntegral $ rect_height r )
+          otherwise -> return (fromIntegral $ rect_x rn, fromIntegral $ rect_y rn,
+                           fromIntegral $ rect_width rn, fromIntegral $ rect_height rn)
 
-  -- | Determine the number of physical screens.
-  -- countScreens :: (MonadIO m, Integral i) => m i
-  -- countScreens = liftM genericLength . liftIO $ openDisplay "" >>= getScreenInfo
+    -- | Determine the number of physical screens.
+    -- countScreens :: (MonadIO m, Integral i) => m i
+    -- countScreens = liftM genericLength . liftIO $ openDisplay "" >>= getScreenInfo
