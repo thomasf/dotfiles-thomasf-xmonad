@@ -234,8 +234,8 @@ myWorkspaces = ["misc.1","misc.2","misc.3"]
 --
 
 -- | Base decoration theme
-baseTheme = defaultTheme { fontName            = "-xos4-terminus-*-r-*-*-16-*-*-*-*-*-iso8859-*"
-                         , decoHeight          = 16
+baseTheme = defaultTheme { fontName            = "-xos4-terminus-*-r-*-*-12-*-*-*-*-*-iso8859-*"
+                         , decoHeight          = 12
                          }
 
 -- | Copied from Tehemes
@@ -274,8 +274,8 @@ myLayoutHook = showWorkspaceName $
     --deco t   = decoration shrinkText t Dwm
     showWorkspaceName = showWName'
                         defaultSWNConfig { swn_font = "-xos4-terminus-*-r-*-*-32-*-*-*-*-*-iso8859-*"
-                                         , swn_bgcolor = "#073642"
-                                         , swn_color = "#d33682"
+                                         , swn_bgcolor = "#268bd2"
+                                         , swn_color = "#002b36"
                                          }
 
 -----------------------------------------------------------------------
@@ -360,8 +360,8 @@ myXmobarLogHook h = dynamicLogWithPP defaultPP
   , ppVisible = xmobarColor "#268bd2" "" . pad
   , ppHidden  = const ""
   , ppUrgent  = xmobarColor  "#002b36" "#cb4b16" . pad
-  , ppTitle   = xmobarColor "#b58900" "" . shorten 50 . wrap " " " "
-  , ppLayout  = xmobarColor "#859900" ""
+  , ppTitle   = xmobarColor "#d33682" "" . shorten 50 . wrap " " " "
+  , ppLayout  = xmobarColor "#b58900" ""
   , ppSep     = xmobarColor "#586e75" "" " * "
   , ppOutput  = hPutStrLn h
   , ppSort    = getSortByXineramaRule
@@ -370,13 +370,13 @@ myXmobarLogHook h = dynamicLogWithPP defaultPP
 myDzenLogHook h = dynamicLogWithPP $ myPP h
 
 myPP h = defaultPP
-  { ppCurrent = dzenColor "#002b36" "#268bd2" . pad
+  { ppCurrent = dzenColor "#002b36" "#268bd2" . pad . wrap " " " "
   , ppVisible = dzenColor "#268bd2" "" . pad
   , ppHidden  = const ""
   , ppUrgent  = dzenColor "#002b36" "#cb4b16" . pad
   , ppTitle   = dzenColor "#b58900" "" . dzenEscape
   , ppLayout  = dzenColor "#859900" ""
-  , ppSep     = dzenColor "#586e75" "" " * "
+  , ppSep     = dzenColor "#2aa198" "" " *  "
   , ppOutput  = hPutStrLn h
   , ppSort    = getSortByXineramaRule
   }
