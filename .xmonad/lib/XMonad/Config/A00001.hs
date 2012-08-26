@@ -234,8 +234,8 @@ myWorkspaces = ["misc.1","misc.2","misc.3"]
 --
 
 -- | Base decoration theme
-baseTheme = defaultTheme { fontName            = "-*-fixed-medium-r-*--10-*-*-*-*-*-iso8859-1"
-                         , decoHeight          = 12
+baseTheme = defaultTheme { fontName            = "-xos4-terminus-*-r-*-*-16-*-*-*-*-*-iso8859-*"
+                         , decoHeight          = 16
                          }
 
 -- | Copied from Tehemes
@@ -418,13 +418,15 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList
 ------------------------------------------------------------------------
 -- XMonad Prompt configuration
 
-myXPConfig = defaultXPConfig{ position = Top
-  , bgColor = "#859900"
-  , fgColor = "#fdf6e3"
-  , bgHLight = "#b58900"
-  , fgHLight = "#fdf6e3"
-  , promptBorderWidth = 0
-  }
+myXPConfig = defaultXPConfig
+ { position = Top
+ , bgColor = "#002b36"
+ , fgColor = "#268bd2"
+ , bgHLight = "#268bd2"
+ , fgHLight = "#002b36"
+ , promptBorderWidth = 0
+ , font = "-xos4-terminus-*-r-*-*-16-*-*-*-*-*-iso8859-*"
+ }
 
 -- myAutocompleteXPConfig = myXPConfig
 --   { autoComplete = Just 500000  }
