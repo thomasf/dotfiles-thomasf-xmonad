@@ -134,7 +134,7 @@ myKeys (XConfig {XMonad.modMask = modm}) =
   , ((modm, xK_2),                      addName "Toggle chat workspace"                                $ rmEmptyWs $ myViewWS "chat" >> movePointer)
   , ((modm, xK_3),                      addName "Toggle nodes workspace"                               $ rmEmptyWs $ myViewWS "nodes" >> movePointer)
   , ((modm, xK_4),                      addName "Toggle mail workspace"                                $ rmEmptyWs $ myViewWS "mail" >> movePointer)
-  , ((modm, xK_5),                      addName "Toggle im workspace"                                  $ rmEmptyWs $ myViewWS "im" >> movePointer)
+  --, ((modm, xK_5),                      addName "Toggle im workspace"                                  $ rmEmptyWs $ myViewWS "im" >> movePointer)
   , ((modm, xK_0),                      addName "Toggle dashboard workspace"                           $ rmEmptyWs $ myViewWS "dash" >> movePointer)
 
   ] where
