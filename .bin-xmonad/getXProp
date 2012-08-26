@@ -6,4 +6,5 @@
 
 xprop | sed -n '
     /^WM_CLASS/s/.* = "\(.*\)", "\(.*\)"/instance: \1\nclass: \2/p;
-    /^WM_NAME/s/.* = "\(.*\)"/title: \1/p'
+    /^WM_NAME/s/.* = "\(.*\)"/title: \1/p;
+    /^WM_WINDOW_ROLE/s/.* = "\(.*\)"/role: \1/p'
