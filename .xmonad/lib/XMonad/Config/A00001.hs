@@ -503,8 +503,7 @@ autoConfig=do
   return =<< chooseConfigByHost host
     where
       chooseConfigByHost c
-        | c == "dennisg"    = configSimple
-        | c == "wonky"      = configMinimal
+        | c == "wonky"      = configSimple
         | otherwise        = configFull
 
 -----------------------------------------------------------------------------
@@ -522,24 +521,6 @@ configSimple = do
     }
     where
       myStatusBar="xmobar ~/.xmonad/etc/xmobar-simple"
-
-
------------------------------------------------------------------------------
---
---  ConfigMinimal is for low end computers.
---
---  A minimal system requirements are something like:
---
---    * Display: ~800x600 (min. 1024x768 recommended)
---    * CPU: ~Pentium III 600hz
---    * RAM: 256Mb (min. 512mb recommended)
---
-configMinimal = do
-  myStatusProc <- spawnPipe myStatusBar
-  return  $ ewmh aDefaultConfig
-    { logHook = myXmobarLogHook myStatusProc
-    } where
-      myStatusBar = "xmobar ~/.xmonad/etc/xmobar-minimal"
 
 -----------------------------------------------------------------------------
 --
