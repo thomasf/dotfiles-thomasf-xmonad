@@ -12,6 +12,7 @@ short_units yes
 use_spacer none
 no_buffers yes
 mpd_port 6205
+if_up_strictness address
 
 TEXT
 ^fg(\#2aa198) + \
