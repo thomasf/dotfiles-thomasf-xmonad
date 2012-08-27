@@ -71,7 +71,7 @@ import           XMonad.Util.WorkspaceCompare
 ------------------------------------------------------------------------
 -- Keyboard configuration:
 
-myModMask = mod4Mask
+superMask = mod4Mask
 altMask = mod1Mask
 
 -- align-regexp rules: "addName", "\$"
@@ -201,9 +201,6 @@ myKeys (XConfig {XMonad.modMask = modm}) =
 myTerminal = "urxvt"
 -- myShell = "bash"
 
-myFocusFollowsMouse = False
-myBorderWidth   = 4
-
 ------------------------------------------------------------------------
 -- Border colors for unfocused and focused windows, respectively.
 --
@@ -235,17 +232,15 @@ myWorkspaces = ["misc.1","misc.2","misc.3"]
 
 -- | Base decoration theme
 baseTheme = defaultTheme { fontName            = "-xos4-terminus-*-r-*-*-12-*-*-*-*-*-iso8859-*"
-                         , decoHeight          = 12
-                         }
+                         , decoHeight          = 12 }
 
--- | Copied from Tehemes
+-- | Decoration theme for tabbed layouts
 tabTheme = baseTheme { activeColor         = "#268bd2"
                      , inactiveColor       = "#002b36"
                      , activeBorderColor   = "#268bd2"
                      , inactiveBorderColor = "#002b36"
                      , activeTextColor     = "#002b36"
-                     , inactiveTextColor   = "#268bd2"
-                     }
+                     , inactiveTextColor   = "#268bd2" }
 
 -- | The layouthoook
 myLayoutHook = showWorkspaceName $
@@ -276,8 +271,7 @@ myLayoutHook = showWorkspaceName $
     showWorkspaceName = showWName'
                         defaultSWNConfig { swn_font = "-xos4-terminus-*-r-*-*-32-*-*-*-*-*-iso8859-*"
                                          , swn_bgcolor = "#268bd2"
-                                         , swn_color = "#002b36"
-                                         }
+                                         , swn_color = "#002b36" }
 
 -----------------------------------------------------------------------
 -- Window rules:
@@ -469,11 +463,11 @@ myScratchPads = [ NS "smallTerminal" (term "smallTerminal") (res =? scratch "sma
 -- Default configuration
 
 aDefaultConfig =
-  addDescrKeys' ((mod4Mask, xK_F1), showKeybindings) myKeys $ defaultConfig
+  addDescrKeys' ((superMask, xK_F1), showKeybindings) myKeys $ defaultConfig
   { terminal           = myTerminal
-  , focusFollowsMouse  = myFocusFollowsMouse
-  , borderWidth        = myBorderWidth
-  , modMask            = myModMask
+  , focusFollowsMouse  = False
+  , borderWidth        = 4
+  , modMask            = superMask
   , workspaces         = myWorkspaces
   , normalBorderColor  = myNormalBorderColor
   , focusedBorderColor = myFocusedBorderColor
