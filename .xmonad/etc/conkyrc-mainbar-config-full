@@ -16,25 +16,25 @@ if_up_strictness address
 
 TEXT
 ^fg(\#2aa198) + \
-^fg(\#586e75)diskio \
-^fg(\#93a1a1)${diskio_read}^fg(\#586e75)r \
+^fg(\#586e75)di\
+^fg(\#93a1a1)${diskio_read}^fg(\#586e75)r/\
 ^fg(\#93a1a1)${diskio_write}^fg(\#586e75)w\
 ^fg(\#2aa198) + \
 ${if_up eth0}\
-^fg(\#586e75)eth0 \
-^fg(\#93a1a1)${upspeed eth0}^fg(\#586e75)u \
+^fg(\#586e75)et\
+^fg(\#93a1a1)${upspeed eth0}^fg(\#586e75)u/\
 ^fg(\#93a1a1)${downspeed eth0}^fg(\#586e75)d\
 ^fg(\#2aa198) + \
 ${endif}\
 ${if_up wlan0}\
-^fg(\#586e75)wlan0 \
-^fg(\#93a1a1)${upspeed wlan0}^fg(\#586e75)u \
+^fg(\#586e75)wl\
+^fg(\#93a1a1)${upspeed wlan0}^fg(\#586e75)u/\
 ^fg(\#93a1a1)${downspeed wlan0}^fg(\#586e75)d\
 ^fg(\#2aa198) + \
 ${endif}\
-^fg(\#586e75)cpu ^fg(\#93a1a1)${cpu}%\
+^fg(\#586e75)cu^fg(\#93a1a1)${cpu}%\
 ^fg(\#2aa198) + \
-^fg(\#586e75)memf ^fg(\#93a1a1)${memeasyfree}\
+^fg(\#586e75)mf^fg(\#93a1a1)${memeasyfree}\
 ^fg(\#2aa198) +  \
 ^bg(\#859900)^fg(\#002b36) ${time %a %b %d %H:%M} ^bg(\#002b36)\
 ${if_mpd_playing}\
