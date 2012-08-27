@@ -504,7 +504,6 @@ autoConfig=do
       chooseConfigByHost c
         | c == "dennisg"    = configSimple
         | c == "wonky"      = configMinimal
-        | c == "kranky"     = configMinimal
         | otherwise        = configFull
 
 -----------------------------------------------------------------------------
