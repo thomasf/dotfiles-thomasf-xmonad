@@ -11,9 +11,16 @@ short_units yes
 use_spacer none
 
 TEXT
-^fg(\#586e75)disk:^fg(\#93a1a1)${diskio} \
-^fg(\#586e75)eth0-d:^fg(\#93a1a1)${downspeedf eth0} \
-^fg(\#586e75)eth0-u:^fg(\#93a1a1)${upspeedf eth0} \
-^fg(\#586e75)cpu:^fg(\#93a1a1)${cpu}% \
-^fg(\#586e75)memf:^fg(\#93a1a1)${memeasyfree} \
-^fg(\#859900) - ${time %a %b %d %H:%M} - \
+^fg(\#2aa198) + \
+^fg(\#586e75)diskio ^fg(\#93a1a1)${diskio}\
+^fg(\#2aa198) + \
+^fg(\#586e75)eth0 \
+^fg(\#586e75)d:^fg(\#93a1a1)${downspeed eth0}\
+^fg(\#586e75) u:^fg(\#93a1a1)${upspeed eth0}\
+^fg(\#2aa198) + \
+^fg(\#586e75)cpu ^fg(\#93a1a1)${cpu}%\
+^fg(\#2aa198) + \
+^fg(\#586e75)memf ^fg(\#93a1a1)${memeasyfree}\
+^fg(\#2aa198) + \
+^fg(\#859900)${time %a %b %d %H:%M}\
+^fg(\#2aa198) * 

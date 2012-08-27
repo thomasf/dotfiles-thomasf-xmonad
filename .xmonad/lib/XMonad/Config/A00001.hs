@@ -350,14 +350,16 @@ myEventHook = serverModeEventHook <+> fullscreenEventHook
 -- combining it with ewmhDesktopsLogHook.
 --
 
+doublepad =  wrap "  " "  " . trim
+
 myXmobarLogHook h = dynamicLogWithPP defaultPP
-  { ppCurrent = xmobarColor "#002b36" "#268bd2" . pad
-  , ppVisible = xmobarColor "#268bd2" "" . pad
+  { ppCurrent = xmobarColor "#002b36" "#268bd2" . doublepad
+  , ppVisible = xmobarColor "#268bd2" "" . doublepad
   , ppHidden  = const ""
-  , ppUrgent  = xmobarColor  "#002b36" "#cb4b16" . pad
-  , ppTitle   = xmobarColor "#d33682" "" . shorten 50 . wrap " " " "
-  , ppLayout  = xmobarColor "#b58900" ""
-  , ppSep     = xmobarColor "#586e75" "" " * "
+  , ppUrgent  = xmobarColor  "#002b36" "#cb4b16" . doublepad
+  , ppTitle   = xmobarColor "#b58900" "" . shorten 50 . trim
+  , ppLayout  = xmobarColor "#586e75" "" . trim
+  , ppSep     = xmobarColor "#2aa198" "" "  *  "
   , ppOutput  = hPutStrLn h
   , ppSort    = getSortByXineramaRule
   }
@@ -365,13 +367,13 @@ myXmobarLogHook h = dynamicLogWithPP defaultPP
 myDzenLogHook h = dynamicLogWithPP $ myPP h
 
 myPP h = defaultPP
-  { ppCurrent = dzenColor "#002b36" "#268bd2" . pad . wrap " " " "
-  , ppVisible = dzenColor "#268bd2" "" . pad
+  { ppCurrent = dzenColor "#002b36" "#268bd2" . doublepad
+  , ppVisible = dzenColor "#268bd2" "" . doublepad
   , ppHidden  = const ""
-  , ppUrgent  = dzenColor "#002b36" "#cb4b16" . pad
-  , ppTitle   = dzenColor "#b58900" "" . dzenEscape
-  , ppLayout  = dzenColor "#859900" ""
-  , ppSep     = dzenColor "#2aa198" "" " *  "
+  , ppUrgent  = dzenColor "#002b36" "#cb4b16" . doublepad
+  , ppTitle   = dzenColor "#b58900" "" . dzenEscape . trim
+  , ppLayout  = dzenColor "#586e75" "" . trim
+  , ppSep     = dzenColor "#2aa198" "" "  *  "
   , ppOutput  = hPutStrLn h
   , ppSort    = getSortByXineramaRule
   }
@@ -420,8 +422,7 @@ myXPConfig = defaultXPConfig
  , bgHLight = "#268bd2"
  , fgHLight = "#002b36"
  , promptBorderWidth = 0
- , font = "-xos4-terminus-*-r-*-*-16-*-*-*-*-*-iso8859-*"
- }
+ , font = "-xos4-terminus-*-r-*-*-16-*-*-*-*-*-iso8859-*" }
 
 -- myAutocompleteXPConfig = myXPConfig
 --   { autoComplete = Just 500000  }
@@ -431,7 +432,6 @@ myXPConfig = defaultXPConfig
 
 spawnShell :: X ()
 spawnShell = spawn myTerminal
-
 
 ------------------------------------------------------------------------
 -- Scratch pads:
@@ -526,7 +526,7 @@ configFull = do
   let
     screenW = sw
     xmonadW = screenW * 0.4
-    trayerW = 80
+    trayerW = 100
     trayerO = screenW - trayerW
     statusW = screenW * 0.6 - trayerW
     statusO = screenW - statusW - trayerW
