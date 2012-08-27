@@ -7,6 +7,6 @@
 
 # urxvt -name saidar -e saidar -c &
 urxvt -title htop -name htop -e bash -c "sleep 2; htop" &
-urxvt -title dstat -name dstat -e bash -c "sleep 2; dstat --time --load --cpu --mem --swap --disk --fs --net --socket --sys 20" &
+urxvt -title dstat -name dstat -e bash -c "sleep 2; dstat --time --load --cpu --mem --swap --disk --fs --net --socket --sys 30" &
 urxvt -title ncmpcpp -name ncmpcpp -e bash -c "sleep 2; ncmpcpp" &
 pavucontrol &
