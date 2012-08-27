@@ -8,8 +8,6 @@
 
 set -e
 
-# zenity --info --no-wrap --text="$(nmcli -t -f name,devices con status)"
-
+nmcli -t -f name,devices con status | dzen2 -p 2 -bg '#859900' -fg '#002b36' -ta c -x 50 -y 250 -w 300 -h 50 &
 uuid=`nmcli -e yes -m tabular -t -f uuid,name con list | dmenu -i -l 15 | cut -d: -f1`
-
-gksudo nmcli con up uuid $uuid
+[ $uuid ] && gksudo nmcli con up uuid $uuid

@@ -17,6 +17,9 @@ else
 fi
 
 case $cmd in
+    saidar)
+	exec $tr -name sidar -e saidar -c
+	;;
     alsamixer|htop|irssi|weechat-curses|ncmpcpp)
         exec $tr -name $cmd -e $cmd
         ;;
