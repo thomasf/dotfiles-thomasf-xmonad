@@ -6,21 +6,36 @@ out_to_console yes
 out_to_x no
 override_utf8_locale yes
 update_interval 3
+music_player_interval 1
 total_run_times 0
 short_units yes
 use_spacer none
+no_buffers yes
+mpd_port 6205
 
 TEXT
 ^fg(\#2aa198) + \
-^fg(\#586e75)diskio ^fg(\#93a1a1)${diskio}\
+^fg(\#586e75)diskio \
+^fg(\#93a1a1)${diskio_read}^fg(\#586e75)r \
+^fg(\#93a1a1)${diskio_write}^fg(\#586e75)w\
 ^fg(\#2aa198) + \
+${if_up eth0}\
 ^fg(\#586e75)eth0 \
-^fg(\#586e75)d:^fg(\#93a1a1)${downspeed eth0}\
-^fg(\#586e75) u:^fg(\#93a1a1)${upspeed eth0}\
+^fg(\#93a1a1)${upspeed eth0}^fg(\#586e75)u \
+^fg(\#93a1a1)${downspeed eth0}^fg(\#586e75)d\
 ^fg(\#2aa198) + \
+${endif}\
+${if_up wlan0}\
+^fg(\#586e75)wlan0 \
+^fg(\#93a1a1)${upspeed wlan0}^fg(\#586e75)u \
+^fg(\#93a1a1)${downspeed wlan0}^fg(\#586e75)d\
+^fg(\#2aa198) + \
+${endif}\
 ^fg(\#586e75)cpu ^fg(\#93a1a1)${cpu}%\
 ^fg(\#2aa198) + \
 ^fg(\#586e75)memf ^fg(\#93a1a1)${memeasyfree}\
-^fg(\#2aa198) + \
-^fg(\#859900)${time %a %b %d %H:%M}\
-^fg(\#2aa198) * 
+^fg(\#2aa198) +  \
+^bg(\#859900)^fg(\#002b36) ${time %a %b %d %H:%M} ^bg(\#002b36)\
+${if_mpd_playing}\
+ ^bg(\#2aa198)^fg(\#002b36) ${mpd_smart 60} ^bg(\#002b36)\
+${endif} \
