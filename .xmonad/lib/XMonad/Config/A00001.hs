@@ -253,6 +253,7 @@ myLayoutHook = showWorkspaceName $
                onWorkspace "im" im $
                onWorkspace "nodes" tabs $
                onWorkspace "reading" tabs $
+               onWorkspace "dash" tabs $
                MT.mkToggle (MT.single MTI.NOBORDERS) $
                MT.mkToggle (MT.single MTI.NBFULL) $
                lessBorders OnlyFloat
