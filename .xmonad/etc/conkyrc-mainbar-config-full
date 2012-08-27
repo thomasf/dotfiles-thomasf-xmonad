@@ -35,8 +35,8 @@ ${endif}\
 ^fg(\#586e75)cu^fg(\#93a1a1)${cpu}%\
 ^fg(\#2aa198) + \
 ^fg(\#586e75)mf^fg(\#93a1a1)${memeasyfree}\
-^fg(\#2aa198) +  \
-^bg(\#859900)^fg(\#002b36) ${time %a %b %d %H:%M} ^bg(\#002b36)\
+^fg(\#2aa198) + \
+^bg(\#859900)^fg(\#002b36) ${time %a %H:%M} ^bg(\#002b36)\
 ${if_mpd_playing}\
  ^bg(\#2aa198)^fg(\#002b36) ${mpd_smart 60} ^bg(\#002b36)\
 ${endif} \
