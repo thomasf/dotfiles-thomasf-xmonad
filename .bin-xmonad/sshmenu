@@ -7,17 +7,18 @@
 #
 # based on http://blog.tenak.net/2010/07/2010-07-ssh_dmenu.html
 #
-# Since ssh_config keywords are case insensitive I use lower cased host 
+# Since ssh_config keywords are case insensitive I use lower cased host
 # keyword on hosts I don't want to show up in my dmenu.
 #
 
-set -e 
+set -e
 
 cs=`cat ~/.ssh/config | grep ^Host | awk '{ print $2 }' | dmenu -p SSH`
 
 exec urxvt -name ssh_term -e sh -c \
     "echo CONNECTING: ${cs};
-     ssh ${cs}; 
+     ssh ${cs};
+     echo ;
      echo \"CONNECTION LOST: \`date\` \";
      echo \">>> ENTER KEY CLOSES TERMINAL!\";
      read any"
