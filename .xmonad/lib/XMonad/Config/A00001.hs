@@ -219,16 +219,6 @@ myWorkspaces = ["misc.1","misc.2","misc.3"]
 -- If you change layout bindings be sure to use 'mod-shift-space' after
 -- restarting (with 'mod-q') to reset your layout state to the new
 -- defaults, as xmonad preserves your old layout settings by default.
---
--- * NOTE: XMonad.Hooks.EwmhDesktops users must remove the obsolete
--- ewmhDesktopsLayout modifier from layoutHook. It no longer exists.
--- Instead use the 'ewmh' function from that module to modify your
--- defaultConfig as a whole. (See also logHook, handleEventHook, and
--- startupHook ewmh notes.)
---
--- The available layouts.  Note that each layout is separated by |||,
--- which denotes layout choice.
---
 
 -- | Base decoration theme
 baseTheme = defaultTheme { fontName            = "-xos4-terminus-*-r-*-*-12-*-*-*-*-*-iso8859-*"
@@ -330,11 +320,6 @@ myManageHook = fullscreenManageHook <+>
 -- return (All True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
 --
--- * NOTE: EwmhDesktops users should use the 'ewmh' function from
--- XMonad.Hooks.EwmhDesktops to modify their defaultConfig as a whole.
--- It will add EWMH event handling to your custom event hooks by
--- combining them with ewmhDesktopsEventHook.
---
 myEventHook = serverModeEventHook <+> fullscreenEventHook
 
 ------------------------------------------------------------------------
@@ -343,13 +328,6 @@ myEventHook = serverModeEventHook <+> fullscreenEventHook
 -- Perform an arbitrary action on each internal state change or X event.
 -- See the 'XMonad.Hooks.DynamicLog' extension for examples.
 --
---
--- * NOTE: EwmhDesktops users should use the 'ewmh' function from
--- XMonad.Hooks.EwmhDesktops to modify their defaultConfig as a whole.
--- It will add EWMH logHook actions to your custom log hook by
--- combining it with ewmhDesktopsLogHook.
---
-
 doublepad =  wrap "  " "  " . trim
 
 myXmobarLogHook h = dynamicLogWithPP defaultPP
@@ -380,22 +358,27 @@ myPP h = defaultPP
   --where
   --  padWs ws = if ws == "NSP" then "" else pad ws
 
+
 ------------------------------------------------------------------------
 -- Startup hook
-
+--
 -- Perform an arbitrary action each time xmonad starts or is restarted
 -- with mod-q.  Used by, e.g., XMonad.Layout.PerWorkspace to initialize
 -- per-workspace layout choices.
 --
--- By default, do nothing.
---
--- * NOTE: EwmhDesktops users should use the 'ewmh' function from
--- XMonad.Hooks.EwmhDesktops to modify their defaultConfig as a whole.
-
--- It will add initialization of EstaWMH support to your custom startup
--- hook by combining it with ewmhDesktopsStartup.
 
 myStartupHook = return ()
+
+
+------------------------------------------------------------------------
+-- Urgency hook
+
+myUrgencyHook =
+  withUrgencyHookC BorderUrgencyHook
+    { urgencyBorderColor = "#cb4b16" }
+    urgencyConfig
+      { suppressWhen = XMonad.Hooks.UrgencyHook.Focused }
+
 
 ------------------------------------------------------------------------
 -- Mouse bindings: default actions bound to mouse events
@@ -510,7 +493,7 @@ autoConfig=do
 
 configSimple = do
   myStatusProc <- spawnPipe myStatusBar
-  return $ ewmh aDefaultConfig
+  return $ myUrgencyHook $ ewmh aDefaultConfig
     { logHook = myXmobarLogHook myStatusProc
     }
     where
@@ -542,12 +525,7 @@ configFull = do
   xmonadBar <- spawnPipe xmonadBarCmd
   spawn statusBarCmd
   spawn trayerBarCmd
-  return $
-    withUrgencyHookC BorderUrgencyHook {
-      urgencyBorderColor = "#cb4b16" }
-    urgencyConfig {
-      suppressWhen = XMonad.Hooks.UrgencyHook.Focused } $
-    ewmh aDefaultConfig
+  return $ myUrgencyHook $ ewmh aDefaultConfig
     { logHook = myDzenLogHook xmonadBar
     , manageHook = myManageHook
     , startupHook = configStartupHook
