@@ -40,3 +40,8 @@ ${endif}\
 ${if_mpd_playing}\
  ^bg(\#2aa198)^fg(\#002b36) ${mpd_smart 60} ^bg(\#002b36)\
 ${endif} \
+
+# Local Variables:
+# mode: conf
+# eval: (rainbow-mode 1)
+# End:
