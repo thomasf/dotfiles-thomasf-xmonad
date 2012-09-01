@@ -111,7 +111,7 @@ myKeys (XConfig {XMonad.modMask = modm}) =
 
   , subtitle "Other workspace actions"
   , ((modm, xK_w),                        addName "Toggle previous workspace"                            $ rmEmptyWs $ ignoredToggleWS)
-  , ((modm, xK_q),                        addName "Run default workspace launcer script"                 $ workspaceAction )
+  , ((modm, xK_q),                        addName "Run default workspace launcer script"                 $ workspaceAction)
 
   , subtitle "Workspace prompts"
   , ((modm, xK_n),                        addName "Create or change workspace prompt"                    $ rmEmptyWs $ selectWorkspacePrompt >> movePointer)
@@ -157,8 +157,10 @@ myKeys (XConfig {XMonad.modMask = modm}) =
     rmEmptyWs = DW.removeEmptyWorkspaceAfter
 
     -- | Toggle recent workspaces ignoring some of them
-    ignoredToggleWS = toggleWS' ["NSP", "home", "nodes", "dash", "mail"
-                                , "temp", "chat", "im" ] >> movePointer
+    ignoredToggleWS = toggleWS' ["NSP"
+                                , "home", "nodes", "dash", "mail"
+                                , "temp.1", "temp.2", "temp.3", "temp.4"
+                                , "chat", "im" ] >> movePointer
 
     -- | View a workspace by name
     myViewWS wsid = DW.addHiddenWorkspace wsid >> windows (W.greedyView wsid)
@@ -211,7 +213,8 @@ myFocusedBorderColor = "#d33682"
 ------------------------------------------------------------------------
 -- Workspaces
 
-myWorkspaces = ["misc.1","misc.2","misc.3"]
+myWorkspaces = [ "home"
+               , "temp.1", "temp.2", "temp.3", "temp.4" ]
 
 ------------------------------------------------------------------------
 -- Layouts:
