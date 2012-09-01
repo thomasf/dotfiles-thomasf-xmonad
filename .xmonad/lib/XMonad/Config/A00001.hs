@@ -111,9 +111,10 @@ myKeys (XConfig {XMonad.modMask = modm}) =
 
   , subtitle "Other workspace actions"
   , ((modm, xK_w),                        addName "Toggle previous workspace"                            $ rmEmptyWs $ ignoredToggleWS)
+  , ((modm, xK_q),                        addName "Run default workspace launcer script"                 $ workspaceAction )
 
   , subtitle "Workspace prompts"
-  , ((modm, xK_n),                        addName "Create or change workspace prompt"                    $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
+  , ((modm, xK_n),                        addName "Create or change workspace prompt"                    $ rmEmptyWs $ selectWorkspacePrompt >> movePointer)
   , ((modm.|. shiftMask, xK_n),           addName "Move window to other workspace prompt"                $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
   , ((modm.|. controlMask, xK_n),         addName "Rename current workspace"                             $ DW.renameWorkspace myXPConfig >> movePointer)
   , ((modm.|. controlMask, xK_BackSpace), addName "Remove current workspace"                             $ DW.removeWorkspace >> movePointer)
@@ -142,11 +143,15 @@ myKeys (XConfig {XMonad.modMask = modm}) =
     -- | Move mouse pointer to bottom right of the current window
     movePointer = updatePointer (Relative 0.99 0.99)
 
-    -- | Run script with same name as "w.workspacename" if the workspace is empty
-    maybeWorkspaceAction = do
+    -- | Run script with same name as "w.workspacename"
+    workspaceAction = do
       ws <- gets (W.currentTag . windowset)
-      wins <- gets (W.integrate' . W.stack . W.workspace . W.current . windowset)
-      when (null wins) $ spawn ("w." ++ takeWhile (/='.') ws)
+      spawn ("w." ++ takeWhile (/='.') ws)
+
+    -- -- | Run script with same name as "w.workspacename" if the workspace is empty
+    -- maybeWorkspaceAction = do
+    --   wins <- gets (W.integrate' . W.stack . W.workspace . W.current . windowset)
+    --   when (null wins) $ workspaceAction
 
     -- | Remove current workpace if empty
     rmEmptyWs = DW.removeEmptyWorkspaceAfter
@@ -156,11 +161,7 @@ myKeys (XConfig {XMonad.modMask = modm}) =
                                 , "temp", "chat", "im" ] >> movePointer
 
     -- | View a workspace by name
-    myViewWS wsid = do
-      DW.addHiddenWorkspace wsid
-      windows (W.greedyView wsid)
-      maybeWorkspaceAction
-      movePointer
+    myViewWS wsid = DW.addHiddenWorkspace wsid >> windows (W.greedyView wsid)
 
     -- | Select workspae prompt
     selectWorkspacePrompt = workspacePrompt myXPConfig $ \w ->
