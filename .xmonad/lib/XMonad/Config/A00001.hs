@@ -159,7 +159,6 @@ myKeys (XConfig {XMonad.modMask = modm}) =
     -- | Toggle recent workspaces ignoring some of them
     ignoredToggleWS = toggleWS' [ "NSP"
                                 , "home", "nodes", "dash", "mail"
-                                , "temp.1", "temp.2", "temp.3", "temp.4"
                                 , "chat", "im" ] >> movePointer
 
     -- | View a workspace by name
@@ -217,8 +216,7 @@ myFocusedBorderColor = "#d33682"
 ------------------------------------------------------------------------
 -- Workspaces
 
-myWorkspaces = [ "home"
-               , "temp.1", "temp.2", "temp.3", "temp.4" ]
+myWorkspaces = [ "home", "www.1", "chat", "nodes", "dash" ]
 
 ------------------------------------------------------------------------
 -- Layouts:
