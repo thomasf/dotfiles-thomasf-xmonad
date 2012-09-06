@@ -1,0 +1,24 @@
+#!/bin/bash
+#
+# Set terminal font (urxvt only, maybe)
+#
+# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
+# Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
+#
+
+fSize=12
+fSize=$1
+
+case "${2}" in
+    a)
+	font="xft:Anonymous Pro-$fSize"
+	;;
+    c)
+	font="xft:Consolas-$fSize"
+	;;
+    *)
+	font="-*-terminus-*-r-normal-*-$fSize-*-*-*-*-*-*-1"
+	;;
+esac
+
+echo -en "\033]50;$font\007"
