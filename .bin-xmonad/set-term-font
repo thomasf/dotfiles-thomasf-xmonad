@@ -6,17 +6,17 @@
 # Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
 #
 
-fSize=12
-fSize=$1
+fSize=${1:-10}
+fSel=${2:-a}
 
-case "${2}" in
+case "${fSel}" in
     a)
 	font="xft:Anonymous Pro-$fSize"
 	;;
     c)
 	font="xft:Consolas-$fSize"
 	;;
-    *)
+    t)
 	font="-*-terminus-*-r-normal-*-$fSize-*-*-*-*-*-*-1"
 	;;
 esac
