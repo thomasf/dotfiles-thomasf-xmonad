@@ -12,13 +12,13 @@ fSel=${2:-a}
 unset font
 
 case "${fSel}" in
-    a)
+    a|anonymous)
 	font="xft:Anonymous Pro-$fSize"
 	;;
-    c)
+    c|consolas)
 	font="xft:Consolas-$fSize"
 	;;
-    t)
+    t|terminus)
 	font="-*-terminus-*-r-normal-*-$fSize-*-*-*-*-*-*-1"
 	;;
 esac
