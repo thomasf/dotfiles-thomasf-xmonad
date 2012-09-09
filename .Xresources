@@ -57,7 +57,7 @@ Xmessage*geometry:                    +20+20
 !---- URxvt - General settings {
 URxvt*:borderLess:                    true
 URxvt*cursorBlink:                    true
-URxvt*font:                           terminus-12
+URxvt*font:                           xft:Anonymous Pro-10
 URxvt*jumpScroll:                     true
 URxvt*scrollBar:                      false
 URxvt*scrollTtyOutput:                false
@@ -67,10 +67,6 @@ URxvt*visualBell:                     false
 URxvt*perl-ext-common:                default,matcher
 URxvt*urlLauncher:                    google-chrome
 URxvt*matcher.button:                 1
-
-!---- URXvt - Large text terminal settings {
-large_term*font:                      xft:Consolas-16
-
 
 !---- Light URxvt (Solarized Light, 11pt) {
 LURxvt*font:                  xft:Anonymous Pro-10
