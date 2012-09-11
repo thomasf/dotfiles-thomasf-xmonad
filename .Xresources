@@ -81,8 +81,6 @@ LURxvt*color14:               #586e75
 LURxvt*color7:                #839496
 LURxvt*color15:               #002b36
 
-
-
 !---- Default URxvt (Solarized Dark, 12px) {
 URxvt*fading:                         30
 URxvt*background:                     #002b36
@@ -156,8 +154,6 @@ ncmpcpp*color15:                      #FFFFFF
 
 
 !---- Terminal for ssh connections {
-ssh_term*font:                        -*-terminus-medium-r-normal-*-12-120-72-72-c-60-iso8859-1
-ssh_term*boldFont:                    -*-terminus-medium-r-normal-*-12-120-72-72-c-60-iso8859-1
 ssh_term*background:                  #252627
 ssh_term*foreground:                  #D8D8D8
 ssh_term*cursorColor:                 #999999
