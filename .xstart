@@ -49,6 +49,7 @@ fi
 
 # Start music player daemon if it's available
 if [ $(which mpd) ]; then
+    mkdir -p ~/.mpd/playlists
     mpd
     # TODO: this file is removed at start up because scmpc can hang and resubmit the cache forever under some circumstances.
     [ -f $HOME/.scmpc/scmpc.cache ] && rm $HOME/.scmpc/scmpc.cache
