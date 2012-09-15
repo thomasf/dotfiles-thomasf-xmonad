@@ -55,16 +55,18 @@ URxvt*cursorBlink:                    true
 URxvt*font:                           xft:Anonymous Pro-10
 URxvt*jumpScroll:                     true
 URxvt*scrollBar:                      false
-URxvt*scrollTtyOutput:                false
-URxvt*scrollTtyKeypress:              true
+!URxvt*scrollstyle:                    plain
+!URxvt*scrollBar_right:                true
+URxvt.saveLines:                      5120
+URxvt.scrollWithBuffer:               true
+URxvt.scrollTtyOutput:                false
+URxvt.scrollTtyKeypress:              true
 URxvt*urgentOnBell:                   true
 URxvt*visualBell:                     false
 URxvt*perl-ext-common:                default,matcher
-URxvt*urlLauncher:                    google-chrome
+URxvt*urlLauncher:                    xdg-open
 URxvt*matcher.button:                 1
-
 !---- Light URxvt (Solarized Light, 11pt) {
-LURxvt*font:                  xft:Anonymous Pro-10
 LURxvt*fading:                0
 LURxvt*background:            #fdf6e3
 LURxvt*foreground:            #839496
@@ -159,7 +161,6 @@ ssh_term*foreground:                  #D8D8D8
 ssh_term*cursorColor:                 #999999
 ssh_term*colorBD:                     #ffffff
 ssh_term*colorUL:                     #99cc66
-ssh_term*internalBorder:              3
 ssh_term*color0:                      #3E3E3E
 ssh_term*color8:                      #525252
 ssh_term*color1:                      #CF516E
