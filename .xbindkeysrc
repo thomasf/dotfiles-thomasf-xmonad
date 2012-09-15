@@ -4,7 +4,7 @@
 # Help
 
 "xbindkeys_show"
-  mod4 + shift + F1
+  mod4 + control + F1
 
 # -------------------------
 # Application launchers
@@ -34,25 +34,10 @@
 # Window management
 
 "easyxmotion"
-  mod4 + u
+  mod4 + y
 
 "xkill"
   mod4 + shift + control + c
-
-# -------------------------
-# Multimedia / Mixer
-
-#vol inc Master
-"amixer sset Master 3%+"
-  Mod4 + plus
-
-#vol del Master
-"amixer sset Master 3%-"
-  Mod4 + minus
-
-# toggle mpd play/pause
-"mpc toggle"
-  Mod4 + i
 
 # -------------------------
 # Screenshooting

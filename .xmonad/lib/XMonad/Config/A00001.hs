@@ -94,6 +94,8 @@ myKeys (XConfig {XMonad.modMask = modm}) =
   , ((modm, xK_t),                        addName "Push the window into tiling mode"                     $ withFocused (windows . W.sink) >> movePointer)
   , ((modm.|. altMask, xK_f),             addName "Toggle fullscreen"                                    $ sendMessage (MT.Toggle MTI.NBFULL))
   , ((modm.|. controlMask, xK_c),         addName "kill"                                                 $ kill)
+  , ((modm, xK_u),                        addName "Focus urgent winow"                                   $ focusUrgent >> movePointer)
+  , ((modm.|. controlMask, xK_u),         addName "Clear all urgent window statuses"                     $ clearUrgents)
 
   , subtitle "Cyclic display actions (D/F) [+=select] [+control=swap] [+shift=move window to]"
   , ((modm, xK_d),                        addName "Next screen"                                          $ nextScreen >> movePointer)
