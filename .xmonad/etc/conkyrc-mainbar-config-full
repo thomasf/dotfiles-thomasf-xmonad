@@ -21,9 +21,15 @@ TEXT
 ^fg(\#586e75)▽^fg(\#93a1a1)${diskio_write}\
 ^fg(\#2aa198) + \
 ${if_up eth0}\
-^fg(\#586e75)et\
+^fg(\#586e75)et0\
 ^fg(\#586e75)▽^fg(\#93a1a1)${downspeed eth0}\
 ^fg(\#586e75)△^fg(\#93a1a1)${upspeed eth0}\
+^fg(\#2aa198) + \
+${endif}\
+${if_up eth1}\
+^fg(\#586e75)et1\
+^fg(\#586e75)▽^fg(\#93a1a1)${downspeed eth1}\
+^fg(\#586e75)△^fg(\#93a1a1)${upspeed eth1}\
 ^fg(\#2aa198) + \
 ${endif}\
 ${if_up wlan0}\
