@@ -279,9 +279,11 @@ myLayoutHook = showWorkspaceName $
     --titleDeco = deco titleTheme
     --deco t   = decoration shrinkText t Dwm
     showWorkspaceName = showWName'
-                        defaultSWNConfig { swn_font = "-xos4-terminus-*-r-*-*-32-*-*-*-*-*-iso8859-*"
+                        defaultSWNConfig { swn_font    = "-xos4-terminus-*-r-*-*-32-*-*-*-*-*-iso8859-*"
                                          , swn_bgcolor = "#268bd2"
-                                         , swn_color = "#002b36" }
+                                         , swn_color   = "#002b36"
+                                         , swn_fade    = 2
+                                         }
 
 -----------------------------------------------------------------------
 -- Window rules:
