@@ -52,7 +52,7 @@ import           XMonad.Layout.IM
 import           XMonad.Layout.LayoutCombinators
 import qualified XMonad.Layout.MultiToggle as MT
 import qualified XMonad.Layout.MultiToggle.Instances as MTI
-import           XMonad.Layout.Named
+import           XMonad.Layout.Renamed
 import           XMonad.Layout.NoBorders
 import           XMonad.Layout.PerWorkspace      (onWorkspace)
 import           XMonad.Layout.Reflect
@@ -93,7 +93,6 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm, xK_m),                        addName "Move focus to master window"                          $ windows W.focusMaster >> movePointer)
   , ((modm, xK_Return),                   addName "Swap the focused window and the master window"        $ windows W.swapMaster >> movePointer)
   , ((modm, xK_t),                        addName "Push the window into tiling mode"                     $ withFocused (windows . W.sink) >> movePointer)
-  , ((modm.|. altMask, xK_f),             addName "Toggle fullscreen"                                    $ sendMessage (MT.Toggle MTI.NBFULL))
   , ((modm.|. controlMask, xK_c),         addName "kill"                                                 $ kill)
   , ((modm, xK_u),                        addName "Focus urgent winow"                                   $ focusUrgent >> movePointer)
   , ((modm.|. controlMask, xK_u),         addName "Clear all urgent window statuses"                     $ clearUrgents)
@@ -125,16 +124,19 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
 
   , subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]"
   , ((modm, xK_space),                    addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer)
+  , ((modm.|. controlMask, xK_space),     addName "Switch to default layout"                             $ sendMessage (JumpToLayout "tall h") >> movePointer)
+  , ((modm.|. altMask, xK_space),         addName "Toggle fullscreen"                                    $ sendMessage (MT.Toggle MTI.NBFULL) >> movePointer)
+  , ((modm.|. altMask, xK_s),             addName "Toggle struts (ignore panels)"                        $ sendMessage ToggleStruts >> movePointer)
+  , ((modm.|. altMask, xK_b),             addName "Toggle window borders"                                $ sendMessage (MT.Toggle MTI.NOBORDERS) >> movePointer)
   , ((modm, xK_h),                        addName "Shrink the master area"                               $ sendMessage Shrink >> movePointer)
   , ((modm, xK_l),                        addName "Expand the master area"                               $ sendMessage Expand >> movePointer)
   , ((modm, xK_comma),                    addName "Increment the number of windows in the master area"   $ sendMessage (IncMasterN 1) >> movePointer)
   , ((modm, xK_period),                   addName "Deincrement the number of windows in the master area" $ sendMessage (IncMasterN (-1)) >> movePointer)
-  , ((modm.|. altMask, xK_b),             addName "Toggle borders"                                       $ sendMessage (MT.Toggle MTI.NOBORDERS))
-  , ((modm.|. altMask, xK_s),             addName "Toggle struts"                                        $ sendMessage ToggleStruts)
+
 
   , subtitle "Toggle scratchpads and workspaces"
-  , ((modm, xK_section),                  addName "Toggle small terminal pad"                            $ smallTerminalPad >> movePointer)
-  , ((modm.|.shiftMask, xK_section),      addName "Toggle large terminal pad"                            $ largeTerminalPad >> movePointer)
+  , ((modm, xK_section),                  addName "Toggle smaller terminal pad"                          $ smallTerminalPad >> movePointer)
+  , ((modm.|.controlMask, xK_section),    addName "Toggle larger terminal pad"                           $ largeTerminalPad >> movePointer)
   , ((modm, xK_1),                        addName "Toggle home workspace"                                $ rmEmptyWs $ myViewWS "home" >> movePointer)
   , ((modm, xK_2),                        addName "Toggle chat workspace"                                $ rmEmptyWs $ myViewWS "chat" >> movePointer)
   , ((modm, xK_3),                        addName "Toggle nodes workspace"                               $ rmEmptyWs $ myViewWS "nodes" >> movePointer)
@@ -251,13 +253,13 @@ myLayoutHook = showWorkspaceName $
                MT.mkToggle (MT.single MTI.NOBORDERS) $
                MT.mkToggle (MT.single MTI.NBFULL) $
                lessBorders OnlyFloat
-               ((named "tall h"      $ Mirror tallH) |||
-                (named "tall v"      $ tallV) |||
-                (named "3col h"      $ threeCol) |||
-                (named "3col v"      $ Mirror threeCol) |||
-                (named "grid"        $ grid ) |||
-                (named "tabs"        $ tabs) |||
-                (named "spiral"      $ spiral (6/7)))
+               ((renamed [Replace "tall h"]      $ Mirror tallH) |||
+                (renamed [Replace "tall v"]      $ tallV) |||
+                (renamed [Replace "3col h"]      $ threeCol) |||
+                (renamed [Replace "3col v"]      $ Mirror threeCol) |||
+                (renamed [Replace "grid"]        $ grid ) |||
+                (renamed [Replace "spiral"]      $ spiral (6/7)) |||
+                (renamed [Replace "tabs"]        $ tabs))
   where
     tallH = Tall 1 (3/100) (4/5)
     tallV = Tall 1 (3/100) (3/4)
@@ -331,6 +333,7 @@ myManageHook = fullscreenManageHook <+>
   , resource            =? "xmessage"          -?> doCenterFloat
   , className           =? "feh"               -?> doFloat
   , className           =? "MPlayer"           -?> doFloat
+  , className           =? "Vlc"               -?> doFloat
   ] <+> manageHook Desktop.desktopConfig -- < implies only manageDocks (ons jul 18 08:51 2012)
   -- where
   --   role = stringProperty "WM_WINDOW_ROLE"
