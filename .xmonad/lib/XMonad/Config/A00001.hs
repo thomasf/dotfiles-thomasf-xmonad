@@ -44,6 +44,7 @@ import           XMonad.Hooks.ManageDocks as MD
 import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.ServerMode
 import           XMonad.Hooks.UrgencyHook
+import           XMonad.Layout.MouseResizableTile
 import           XMonad.Layout.Decoration
 import           XMonad.Layout.Fullscreen
 import           XMonad.Layout.Grid
@@ -76,7 +77,7 @@ altMask = mod1Mask
 
 -- align-regexp rules: "addName", "\$"
 
-myKeys (XConfig {XMonad.modMask = modm}) =
+myKeys conf@(XConfig {XMonad.modMask = modm}) =
   [ subtitle "Application launching"
   , ((modm.|. shiftMask, xK_Return),      addName "launch terminal"                                      $ spawnShell)
 
@@ -251,18 +252,29 @@ myLayoutHook = showWorkspaceName $
                MT.mkToggle (MT.single MTI.NBFULL) $
                lessBorders OnlyFloat
                ((named "tall h"      $ Mirror tallH) |||
-                (named "tall h flip" $ Mirror $ reflectHoriz tallH) |||
                 (named "tall v"      $ tallV) |||
-                (named "tall v flip" $ reflectHoriz tallV) |||
                 (named "3col h"      $ threeCol) |||
                 (named "3col v"      $ Mirror threeCol) |||
+                (named "grid"        $ grid ) |||
                 (named "tabs"        $ tabs) |||
                 (named "spiral"      $ spiral (6/7)))
   where
     tallH = Tall 1 (3/100) (4/5)
     tallV = Tall 1 (3/100) (3/4)
+    -- TODO: these might be usable with a bit of tweaking
+    -- tallH = mouseResizableTileMirrored { nmaster  = 1
+    --                                    , masterFrac = (4/5)
+    --                                    , slaveFrac = (1/2)
+    --                                    , fracIncrement = (3/100)
+    --                                    , draggerType = BordersDragger }
+    -- tallV = mouseResizableTile { nmaster  = 1
+    --                            , masterFrac = (3/4)
+    --                            , slaveFrac = (1/2)
+    --                            , fracIncrement = (3/100)
+    --                            , draggerType = BordersDragger }
     threeCol = ThreeColMid 1 (3/100) (1/2)
-    tabs = tabbed shrinkText tabTheme
+    tabs = tabbedAlways shrinkText tabTheme
+    grid = GridRatio (16/9)
     im = withIM (1%7) (Role "buddy_list") Grid
     --titleDeco = deco titleTheme
     --deco t   = decoration shrinkText t Dwm
