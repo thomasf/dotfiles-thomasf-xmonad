@@ -32,7 +32,7 @@ import           System.IO
 import qualified System.IO.UTF8
 import           System.Posix.Unistd             (getSystemID, nodeName)
 import           XMonad                          hiding ( (|||) )
-import           XMonad.Actions.CycleWS
+import           XMonad.Actions.CycleWS hiding (toggleWS)
 import qualified XMonad.Actions.DynamicWorkspaces as DW
 import           XMonad.Actions.RotSlaves
 import           XMonad.Actions.UpdatePointer
@@ -112,7 +112,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm.|. controlMask, xK_r),         addName "Previous non empty workspace"                         $ rmEmptyWs $ prevWsNonEmpty >> movePointer)
 
   , subtitle "Other workspace actions"
-  , ((modm, xK_w),                        addName "Toggle previous workspace"                            $ rmEmptyWs $ ignoredToggleWS)
+  , ((modm, xK_w),                        addName "Toggle previous workspace"                            $ rmEmptyWs $ toggleWS)
+  , ((modm.|. controlMask, xK_w),         addName "Toggle previous workspace skipping some workspaces"   $ rmEmptyWs $ ignoredToggleWS)
   , ((modm, xK_q),                        addName "Run default workspace launcer script"                 $ workspaceAction)
 
   , subtitle "Workspace prompts"
@@ -160,6 +161,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
 
     -- | Remove current workpace if empty
     rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "home", "nodes", "dash"]
+
+    -- | Toggle recent workspaces ignoring some of them
+    toggleWS = toggleWS' [ "NSP" ] >> movePointer
 
     -- | Toggle recent workspaces ignoring some of them
     ignoredToggleWS = toggleWS' [ "NSP"
