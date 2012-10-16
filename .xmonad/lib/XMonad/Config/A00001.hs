@@ -323,6 +323,7 @@ myManageHook = fullscreenManageHook <+>
   , className           =? "Unity-2d-launcher" -?> doFloat
   , className           =? "Gimp"              -?> doFloat
   , className           =? "Orage"             -?> doFloat
+  , role                =? "pop-up"            -?> doCenterFloat
   , className    =? "Xfce4-settings-manager"   -?> doCenterFloat
   , className           =? "Xfce4-appfinder"   -?> doCenterFloat
   , className           =? "Pinentry"          -?> doCenterFloat
@@ -339,8 +340,8 @@ myManageHook = fullscreenManageHook <+>
   , className           =? "MPlayer"           -?> doFloat
   , className           =? "Vlc"               -?> doFloat
   ] <+> manageHook Desktop.desktopConfig -- < implies only manageDocks (ons jul 18 08:51 2012)
-  -- where
-  --   role = stringProperty "WM_WINDOW_ROLE"
+  where
+    role = stringProperty "WM_WINDOW_ROLE"
 
 ------------------------------------------------------------------------
 -- Event handling
