@@ -323,7 +323,7 @@ myManageHook = fullscreenManageHook <+>
   , className           =? "Unity-2d-launcher" -?> doFloat
   , className           =? "Gimp"              -?> doFloat
   , className           =? "Orage"             -?> doFloat
-  , role                =? "pop-up"            -?> doCenterFloat
+  , role =? "pop-up" <&&> appName =? "google-chrome" -?> doCenterFloat
   , className    =? "Xfce4-settings-manager"   -?> doCenterFloat
   , className           =? "Xfce4-appfinder"   -?> doCenterFloat
   , className           =? "Pinentry"          -?> doCenterFloat
