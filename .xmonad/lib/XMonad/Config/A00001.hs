@@ -288,7 +288,7 @@ myLayoutHook = showWorkspaceName $
                         defaultSWNConfig { swn_font    = "-xos4-terminus-*-r-*-*-32-*-*-*-*-*-iso8859-*"
                                          , swn_bgcolor = "#268bd2"
                                          , swn_color   = "#002b36"
-                                         , swn_fade    = 2
+                                         , swn_fade    = 2.5
                                          }
 
 -----------------------------------------------------------------------
