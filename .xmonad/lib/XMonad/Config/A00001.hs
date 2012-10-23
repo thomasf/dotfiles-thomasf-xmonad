@@ -250,10 +250,13 @@ tabTheme = baseTheme { activeColor         = "#268bd2"
 -- | The layouthoook
 myLayoutHook = showWorkspaceName $
                Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22 2012)
-               onWorkspace "im" im $
-               onWorkspace "nodes" tabs $
-               onWorkspace "reading" tabs $
-               onWorkspace "dash" tabs $
+               onWorkspace "home" ((renamed [Replace "*"]) $ grid) $
+               onWorkspace "chat" ((renamed [Replace "*"]) $ grid) $
+               onWorkspace "nodes" ((renamed [Replace "*"]) $ grid) $
+               onWorkspace "mail" ((renamed [Replace "*"]) $ grid) $
+               onWorkspace "im" (renamed [Replace "*"] $ im) $
+               onWorkspace "reading" (renamed [Replace "*"] $ tabs) $
+               onWorkspace "dash" (renamed [Replace "*"] $ tabs) $
                MT.mkToggle (MT.single MTI.NOBORDERS) $
                MT.mkToggle (MT.single MTI.NBFULL) $
                lessBorders OnlyFloat
@@ -263,7 +266,7 @@ myLayoutHook = showWorkspaceName $
                 (renamed [Replace "3col v"]      $ Mirror threeCol) |||
                 (renamed [Replace "grid"]        $ grid ) |||
                 (renamed [Replace "spiral"]      $ spiral (6/7)) |||
-                (renamed [Replace "tabs"]        $ tabs))
+                (renamed [Replace "tabs"]        $ tabsAlways))
   where
     tallH = Tall 1 (3/100) (4/5)
     tallV = Tall 1 (3/100) (3/4)
@@ -279,7 +282,8 @@ myLayoutHook = showWorkspaceName $
     --                            , fracIncrement = (3/100)
     --                            , draggerType = BordersDragger }
     threeCol = ThreeColMid 1 (3/100) (1/2)
-    tabs = tabbedAlways shrinkText tabTheme
+    tabsAlways = tabbedAlways shrinkText tabTheme
+    tabs = tabbed shrinkText tabTheme
     grid = GridRatio (16/9)
     im = withIM (1%7) (Role "buddy_list") Grid
     --titleDeco = deco titleTheme
