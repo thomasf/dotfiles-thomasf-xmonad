@@ -250,15 +250,15 @@ tabTheme = baseTheme { activeColor         = "#268bd2"
 -- | The layouthoook
 myLayoutHook = showWorkspaceName $
                Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22 2012)
-               onWorkspace "home" ((renamed [Replace "*"]) $ grid) $
                onWorkspace "chat" ((renamed [Replace "*"]) $ grid) $
+               onWorkspace "dash" (renamed [Replace "*"] $ tabsAlways) $
+               MT.mkToggle (MT.single MTI.NOBORDERS) $
+               MT.mkToggle (MT.single MTI.NBFULL) $
+               onWorkspace "home" ((renamed [Replace "*"]) $ grid) $
                onWorkspace "nodes" ((renamed [Replace "*"]) $ grid) $
                onWorkspace "mail" ((renamed [Replace "*"]) $ grid) $
                onWorkspace "im" (renamed [Replace "*"] $ im) $
                onWorkspace "reading" (renamed [Replace "*"] $ tabs) $
-               onWorkspace "dash" (renamed [Replace "*"] $ tabs) $
-               MT.mkToggle (MT.single MTI.NOBORDERS) $
-               MT.mkToggle (MT.single MTI.NBFULL) $
                lessBorders OnlyFloat
                ((renamed [Replace "tall h"]      $ Mirror tallH) |||
                 (renamed [Replace "tall v"]      $ tallV) |||
