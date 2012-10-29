@@ -10,7 +10,9 @@
 
 # A a hack for one specific console
 hostname=`hostname`
-[[ $hostname == mat ]] && xrandr --output VGA1 --right-of LVDS1 --primary && xrandr --output VGA1 --mode 1920x1080
+[[ $hostname == mat ]] \
+    && xrandr --output VGA1 --right-of LVDS1 --primary \
+    && xrandr --output VGA1 --mode 1920x1080
 
 # First, try to kill everyhing that might be started below
 # It's important that applications are launched from this
@@ -27,34 +29,41 @@ sleep 0.4
 
 # Launch a new dbus-session if not already running
 dbuslaunch="`which dbus-launch 2>/dev/null`"
-if [ -n "$dbuslaunch" ] && [ -x "$dbuslaunch" ] && [ -z "$DBUS_SESSION_BUS_ADDRESS" ]; then
-    eval `$dbuslaunch --sh-syntax --exit-with-session`
-fi
+[ -n "$dbuslaunch" ] \
+    && [ -x "$dbuslaunch" ] \
+    && [ -z "$DBUS_SESSION_BUS_ADDRESS" ] \
+    && eval `$dbuslaunch --sh-syntax --exit-with-session`
 
 # Source default bash environment
-[ -f "${HOME}/.bashrc" ] && source "${HOME}/.bashrc"
+[ -f "${HOME}/.bashrc" ] \
+    && source "${HOME}/.bashrc"
 
 # Ensure sane file permissions etc.
-[ -f "${HOME}/.bin/home-fix" ] && "${HOME}/.bin/home-fix"
+[ -f "${HOME}/.bin/home-fix" ] \
+    && "${HOME}/.bin/home-fix"
 
 # Load gtk2 style settings
-[ -f "${HOME}/.gtkrc-2.0" ] && export GTK2_RC_FILES="${HOME}/.gtkrc-2.0"
+[ -f "${HOME}/.gtkrc-2.0" ] \
+    && export GTK2_RC_FILES="${HOME}/.gtkrc-2.0"
 
 # load Xresources
-[ -f "${HOME}/.Xresources" ] && xrdb "${HOME}/.Xresources"
+[ -f "${HOME}/.Xresources" ] \
+    && xrdb "${HOME}/.Xresources"
 
 # Devmon udev mounter (part of udevil)
-if [ $(which devmon) ]; then
-    devmon &
-fi
+[ $(which devmon) ] \
+    && devmon &
 
 # Start music player daemon if it's available
 if [ $(which mpd) ]; then
     mkdir -p ~/.mpd/playlists
     mpd
     # TODO: this file is removed at start up because scmpc can hang and resubmit the cache forever under some circumstances.
-    [ -f $HOME/.scmpc/scmpc.cache ] && rm $HOME/.scmpc/scmpc.cache
-    [ $(which scmpc) ] && [ -f $HOME/.scmpc/scmpc.conf ] && scmpc
+    [ -f $HOME/.scmpc/scmpc.cache ] \
+        && rm $HOME/.scmpc/scmpc.cache
+    [ $(which scmpc) ] \
+        && [ -f $HOME/.scmpc/scmpc.conf ] \
+        && scmpc
 fi
 
 # Start gnupg or ssh agent
@@ -85,55 +94,56 @@ if [ $(which gnome-settings-daemon) ]; then
     (
         sleep 0.5
         if [ $(which gconftool-2) ]; then
-	    gconftool-2 -t bool -s /apps/nautilus/preferences/show_desktop false
-	    gconftool-2 -t bool -s /desktop/gnome/volume_manager/automount_drives false
-	    gconftool-2 -t bool -s /apps/gnome_settings_daemon/screensaver/start_screensaver false
-	    gconftool-2 -t bool -s /apps/gnome-keyring/daemon-components/ssh false
-	    gconftool-2 -t bool -s /desktop/gnome/background/draw_background false
-	    gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/background/active false
-	    gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/ubuntuone/active false
-	    gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/xrandr/active false
+	        gconftool-2 -t bool -s /apps/nautilus/preferences/show_desktop false
+	        gconftool-2 -t bool -s /desktop/gnome/volume_manager/automount_drives false
+	        gconftool-2 -t bool -s /apps/gnome_settings_daemon/screensaver/start_screensaver false
+	        gconftool-2 -t bool -s /apps/gnome-keyring/daemon-components/ssh false
+	        gconftool-2 -t bool -s /desktop/gnome/background/draw_background false
+	        gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/background/active false
+	        gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/ubuntuone/active false
+	        gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/xrandr/active false
         fi
         if [ $(which dconf) ]; then
-	    dconf write /org/gnome/settings-daemon/plugins/media-keys/active false
+	        dconf write /org/gnome/settings-daemon/plugins/media-keys/active false
         fi
     ) &
 fi
 
 
 # Launch google chrome
-if [ $(which google-chrome) ]; then
-    google-chrome --no-startup-window 2>/dev/null &
-fi
+[ $(which google-chrome) ] \
+    && google-chrome --no-startup-window 2>/dev/null &
+
+# Launch keepassx
+[ $(which keepassx) ] \
+    && keepassx -min -lock &
 
 # Launch drop box
-[ -x ~/.dropbox-dist/dropboxd ] && ~/.dropbox-dist/dropboxd &
+[ -x ~/.dropbox-dist/dropboxd ] \
+    && ~/.dropbox-dist/dropboxd &
 
 # Launch the network manager applet
-if [ $(which nm-applet) ]; then
-    nm-applet --sm-disable &
-fi
+[ $(which nm-applet) ] \
+    && nm-applet --sm-disable &
 
 # Set the backbround color
-[ $(which bgset ) ] && bgset d
+[ $(which bgset ) ] \
+    && bgset d &
 
-# Choose a default web browser
-if [ $(which google-chrome) ]; then
-    BROWSER=`which google-chrome`
-    export BROWSER
-elif [ $(which midori) ]; then
-    BROWSER=`which midori`
-    export BROWSER
-elif [ $(which firefox) ]; then
-    BROWSER=`which firefox`
-    export BROWSER
-fi
+# Set a default web browser
+[ $(which www) ] \
+    && BROWSER=$(which www) \
+    && export BROWSER
 
-# Load keyboard macros
-if  [ $(which xbindkeys) ]; then
-    xbindkeys
-else
-    xmessage "Warning: xbindkeys is not found"
+# Load keyboard macros/launchers
+# NOTE: it is very important that this is done
+#       *AFTER* all env variables have been set
+if [ -f $HOME/.xbindkeysrc ]; then
+    if  [ $(which xbindkeys) ]; then
+        xbindkeys
+    else
+        xmessage "Warning: xbindkeys is not found"
+    fi
 fi
 
 # Function that displays a list of window managers to choose from.
@@ -157,7 +167,8 @@ if [ $(which xmonad) ]; then
 else
     wm_selection
 fi
-[ "z" = "z$WM" ] && xmessage "!!! No window manager found/selected !!!"
+[ "z" = "z$WM" ] \
+    && xmessage "!!! No window manager found/selected !!!"
 
 # Start the window manager
 while [ ! "" = "$WM" ]; do
