@@ -109,6 +109,10 @@ if [ $(which gnome-settings-daemon) ]; then
     ) &
 fi
 
+# Launch org-mode popup
+[ $(which orgmode) ] \
+    && [ $(which urxvt) ] \
+    && urxvt -name xmessage -geometry 102x60 -e bash -c "orgmode;read" &
 
 # Launch google chrome
 [ $(which google-chrome) ] \
