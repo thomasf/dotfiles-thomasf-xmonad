@@ -333,7 +333,7 @@ myManageHook = fullscreenManageHook <+>
   , className           =? "Pinentry"          -?> doCenterFloat
   , transience
   --, isFullscreen                               -?> doFullFloat
-  , resource            =? "ssh_tmux"          -?> doF (W.shift "chat" )
+  , resource            =? "ssh_tmux"          -?> doF (W.shift "chat")
   , resource            =? "empathy"           -?> doF (W.shift "chat")
   , resource            =? "xchat"             -?> doF (W.shift "chat")
   , className           =? "Pidgin"            -?> doF (W.shift "im")
