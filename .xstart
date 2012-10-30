@@ -118,10 +118,6 @@ fi
 [ $(which google-chrome) ] \
     && google-chrome --no-startup-window 2>/dev/null &
 
-# Launch keepassx
-[ $(which keepassx) ] \
-    && keepassx -min -lock &
-
 # Launch drop box
 [ -x ~/.dropbox-dist/dropboxd ] \
     && ~/.dropbox-dist/dropboxd &
