@@ -16,9 +16,10 @@ set -e
 [ ! $(which darcs) ] && echo no darcs installed && exit
 [ ! $(which cabal) ] && echo no cabal installed && exit
 
-cd ~/.xmonad/
-mkdir -p repos
-cd repos
+PATCHES_DIR="${HOME}/.xmonad/patches"
+
+mkdir -p ~/.opt
+cd ~/.opt
 
 set +e
 (
@@ -29,7 +30,8 @@ set +e
 (
     cd xmonad
     darcs pull
-    [ -d ../../patches/xmonad ] && for F in ../../patches/xmonad/*; do darcs apply $F; done
+    [ -d $PATCHES_DIR/xmonad ] \
+        && for F in $PATCHES_DIR/xmonad/*; do darcs apply $F; done
 )
 (
     if [ ! -d XMonadContrib ]; then
@@ -39,7 +41,8 @@ set +e
 (
     cd XMonadContrib
     darcs pull
-    [ -d ../../patches/XMonadContrib ] && for F in ../../patches/XMonadContrib/*; do darcs apply $F; done
+    [ -d $PATCHES_DIR/XMonadContrib ] \
+        && for F in $PATCHES_DIR/XMonadContrib/*; do darcs apply $F; done
 )
 (
     cd xmonad
@@ -49,6 +52,5 @@ set +e
     cd XMonadContrib
     cabal install
 )
-
 
 ~/.cabal/bin/xmonad --recompile
