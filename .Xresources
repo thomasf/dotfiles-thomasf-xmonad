@@ -52,7 +52,7 @@ Xmessage*geometry:                    +20+20
 !---- URxvt - General settings {
 URxvt*:borderLess:                    true
 URxvt*cursorBlink:                    true
-URxvt*font:                           xft:Anonymous Pro-10
+URxvt*font:                           xft:Anonymous Pro:pixelsize=13
 URxvt*jumpScroll:                     true
 URxvt*scrollBar:                      false
 !URxvt*scrollstyle:                    plain
@@ -63,9 +63,30 @@ URxvt.scrollTtyOutput:                false
 URxvt.scrollTtyKeypress:              true
 URxvt*urgentOnBell:                   true
 URxvt*visualBell:                     false
-URxvt*perl-ext-common:                default,matcher
-URxvt*urlLauncher:                    xdg-open
+URxvt*perl-lib:                       .config-xmonad/urxvt/perl
+URxvt*perl-ext-common:                clipboard,confirm-paste,url-select,resize-font,searchable-scrollback,selection-popup,keyboard-select
+URxvt*tabbed.autohide:                false
+URxvt*tabbed.tabbar-fg:               10
+URxvt*tabbed.tabbar-bg:               0
+URxvt*tabbed.tab-fg:                  0
+URxvt*tabbed.tab-bg:                  4
+URxvt*tabbed.title-fg:                4
+URxvt*tabbed.title-bg:                0
+URxvt*tabbed.repoen-on-close:         yes
 URxvt*matcher.button:                 1
+URxvt*resize-font.smaller:            C-minus
+URxvt*resize-font.bigger:             C-plus
+URxvt*resize-font.reset:              C-equal
+URxvt*resize-font.show:               C-question
+URxvt*searchable-scrollback:          M-s
+URxvt*keysym.M-s:                     perl:keyboard-select:search
+URxvt*keysym.M-Escape:                perl:keyboard-select:activate
+URxvt*keysym.M-u:                     perl:url-select:select_next
+URxvt*url-select.launcher:            google-chrome
+URxvt*url-select.underline:           true
+URxvt*clipboard.autocopy:             true
+URxvt.keysym.M-v:                     perl:clipboard:paste
+
 !---- Light URxvt (Solarized Light, 11pt) {
 LURxvt*fading:                0
 LURxvt*background:            #fdf6e3
@@ -112,25 +133,44 @@ URxvt*color15:                        #fdf6e3
 
 
 !---- URxvt - Scratcpad terminal {
-scratchpad_terminal*perl-ext-common:  default,matcher,tabbed
-scratchpad_terminal*background:       rgb:1a/1a/1a
-scratchpad_terminal*foreground:       rgb:d6/d6/d6
-scratchpad_terminal*color0:           rgb:1a/1a/1a
-scratchpad_terminal*color1:           rgb:98/56/5e
-scratchpad_terminal*color2:           rgb:66/82/5d
-scratchpad_terminal*color3:           rgb:96/91/76
-scratchpad_terminal*color4:           rgb:4d/65/85
-scratchpad_terminal*color5:           rgb:96/73/95
-scratchpad_terminal*color6:           rgb:5f/7f/7b
-scratchpad_terminal*color7:           rgb:b3/b3/b3
-scratchpad_terminal*color8:           rgb:73/73/73
-scratchpad_terminal*color9:           rgb:cf/a3/a9
-scratchpad_terminal*color10:          rgb:ca/f7/bb
-scratchpad_terminal*color11:          rgb:ff/f8/bc
-scratchpad_terminal*color12:          rgb:83/a3/be
-scratchpad_terminal*color13:          rgb:bb/a9/cf
-scratchpad_terminal*color14:          rgb:96/cc/cc
-scratchpad_terminal*color15:          rgb:ff/ff/ff
+scratchpad_smallTerminal*perl-ext:         tabbedex
+scratchpad_smallTerminal*background:       rgb:1a/1a/1a
+scratchpad_smallTerminal*foreground:       rgb:d6/d6/d6
+scratchpad_smallTerminal*color0:           rgb:1a/1a/1a
+scratchpad_smallTerminal*color1:           rgb:98/56/5e
+scratchpad_smallTerminal*color2:           rgb:66/82/5d
+scratchpad_smallTerminal*color3:           rgb:96/91/76
+scratchpad_smallTerminal*color4:           rgb:4d/65/85
+scratchpad_smallTerminal*color5:           rgb:96/73/95
+scratchpad_smallTerminal*color6:           rgb:5f/7f/7b
+scratchpad_smallTerminal*color7:           rgb:b3/b3/b3
+scratchpad_smallTerminal*color8:           rgb:73/73/73
+scratchpad_smallTerminal*color9:           rgb:cf/a3/a9
+scratchpad_smallTerminal*color10:          rgb:ca/f7/bb
+scratchpad_smallTerminal*color11:          rgb:ff/f8/bc
+scratchpad_smallTerminal*color12:          rgb:83/a3/be
+scratchpad_smallTerminal*color13:          rgb:bb/a9/cf
+scratchpad_smallTerminal*color14:          rgb:96/cc/cc
+scratchpad_smallTerminal*color15:          rgb:ff/ff/ff
+scratchpad_largeTerminal*perl-ext:         tabbedex
+scratchpad_largeTerminal*background:       rgb:1a/1a/1a
+scratchpad_largeTerminal*foreground:       rgb:d6/d6/d6
+scratchpad_largeTerminal*color0:           rgb:1a/1a/1a
+scratchpad_largeTerminal*color1:           rgb:98/56/5e
+scratchpad_largeTerminal*color2:           rgb:66/82/5d
+scratchpad_largeTerminal*color3:           rgb:96/91/76
+scratchpad_largeTerminal*color4:           rgb:4d/65/85
+scratchpad_largeTerminal*color5:           rgb:96/73/95
+scratchpad_largeTerminal*color6:           rgb:5f/7f/7b
+scratchpad_largeTerminal*color7:           rgb:b3/b3/b3
+scratchpad_largeTerminal*color8:           rgb:73/73/73
+scratchpad_largeTerminal*color9:           rgb:cf/a3/a9
+scratchpad_largeTerminal*color10:          rgb:ca/f7/bb
+scratchpad_largeTerminal*color11:          rgb:ff/f8/bc
+scratchpad_largeTerminal*color12:          rgb:83/a3/be
+scratchpad_largeTerminal*color13:          rgb:bb/a9/cf
+scratchpad_largeTerminal*color14:          rgb:96/cc/cc
+scratchpad_largeTerminal*color15:          rgb:ff/ff/ff
 
 !---- Terminal for ncpmpcpp {
 ncmpcpp*foreground:                   #DDEEDD
