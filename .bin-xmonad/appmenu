@@ -11,7 +11,7 @@ set -e
 tr=urxvt
 
 if [ `which yeganesh` ]; then
-    cmd=`yeganesh -x`
+    cmd=`yeganesh -p appmenu -x`
 else
     cmd=`dmenu_path | dmenu -i`
 fi
