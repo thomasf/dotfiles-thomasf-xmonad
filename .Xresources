@@ -133,44 +133,8 @@ URxvt*color15:                        #fdf6e3
 
 
 !---- URxvt - Scratcpad terminal {
-scratchpad_smallTerminal*perl-ext:         tabbedex
-scratchpad_smallTerminal*background:       rgb:1a/1a/1a
-scratchpad_smallTerminal*foreground:       rgb:d6/d6/d6
-scratchpad_smallTerminal*color0:           rgb:1a/1a/1a
-scratchpad_smallTerminal*color1:           rgb:98/56/5e
-scratchpad_smallTerminal*color2:           rgb:66/82/5d
-scratchpad_smallTerminal*color3:           rgb:96/91/76
-scratchpad_smallTerminal*color4:           rgb:4d/65/85
-scratchpad_smallTerminal*color5:           rgb:96/73/95
-scratchpad_smallTerminal*color6:           rgb:5f/7f/7b
-scratchpad_smallTerminal*color7:           rgb:b3/b3/b3
-scratchpad_smallTerminal*color8:           rgb:73/73/73
-scratchpad_smallTerminal*color9:           rgb:cf/a3/a9
-scratchpad_smallTerminal*color10:          rgb:ca/f7/bb
-scratchpad_smallTerminal*color11:          rgb:ff/f8/bc
-scratchpad_smallTerminal*color12:          rgb:83/a3/be
-scratchpad_smallTerminal*color13:          rgb:bb/a9/cf
-scratchpad_smallTerminal*color14:          rgb:96/cc/cc
-scratchpad_smallTerminal*color15:          rgb:ff/ff/ff
-scratchpad_largeTerminal*perl-ext:         tabbedex
-scratchpad_largeTerminal*background:       rgb:1a/1a/1a
-scratchpad_largeTerminal*foreground:       rgb:d6/d6/d6
-scratchpad_largeTerminal*color0:           rgb:1a/1a/1a
-scratchpad_largeTerminal*color1:           rgb:98/56/5e
-scratchpad_largeTerminal*color2:           rgb:66/82/5d
-scratchpad_largeTerminal*color3:           rgb:96/91/76
-scratchpad_largeTerminal*color4:           rgb:4d/65/85
-scratchpad_largeTerminal*color5:           rgb:96/73/95
-scratchpad_largeTerminal*color6:           rgb:5f/7f/7b
-scratchpad_largeTerminal*color7:           rgb:b3/b3/b3
-scratchpad_largeTerminal*color8:           rgb:73/73/73
-scratchpad_largeTerminal*color9:           rgb:cf/a3/a9
-scratchpad_largeTerminal*color10:          rgb:ca/f7/bb
-scratchpad_largeTerminal*color11:          rgb:ff/f8/bc
-scratchpad_largeTerminal*color12:          rgb:83/a3/be
-scratchpad_largeTerminal*color13:          rgb:bb/a9/cf
-scratchpad_largeTerminal*color14:          rgb:96/cc/cc
-scratchpad_largeTerminal*color15:          rgb:ff/ff/ff
+scratchpad_smallTerminal*perl-ext:         tabbedex,-resize-font
+scratchpad_largeTerminal*perl-ext:         tabbedex,-resize-font
 
 !---- Terminal for ncpmpcpp {
 ncmpcpp*foreground:                   #DDEEDD
