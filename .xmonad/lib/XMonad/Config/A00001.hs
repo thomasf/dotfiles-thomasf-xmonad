@@ -136,8 +136,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
 
 
   , subtitle "Toggle scratchpads and workspaces"
-  , ((modm, xK_section),                  addName "Toggle smaller terminal pad"                          $ smallTerminalPad >> movePointer)
-  , ((modm.|.controlMask, xK_section),    addName "Toggle larger terminal pad"                           $ largeTerminalPad >> movePointer)
+  --, ((modm, xK_section),                  addName "Toggle smaller terminal pad"                          $ smallTerminalPad >> movePointer)
+  , ((modm, xK_section),                  addName "Toggle larger terminal pad"                           $ largeTerminalPad >> movePointer)
   , ((modm, xK_1),                        addName "Toggle home workspace"                                $ rmEmptyWs $ myViewWS "home" >> movePointer)
   , ((modm, xK_2),                        addName "Toggle chat workspace"                                $ rmEmptyWs $ myViewWS "chat" >> movePointer)
   , ((modm, xK_3),                        addName "Toggle nodes workspace"                               $ rmEmptyWs $ myViewWS "nodes" >> movePointer)
@@ -184,7 +184,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
                                  else DW.addWorkspace w
 
     --  | Open small terminal pad
-    smallTerminalPad = namedScratchpadAction myScratchPads "smallTerminal"
+    -- smallTerminalPad = namedScratchpadAction myScratchPads "smallTerminal"
 
     -- | Open larger terminal pad
     largeTerminalPad = namedScratchpadAction myScratchPads "largeTerminal"
@@ -453,8 +453,8 @@ spawnShell = spawn myTerminal
 ------------------------------------------------------------------------
 -- Scratch pads:
 
-myScratchPads = [ NS "smallTerminal" (term "smallTerminal") (res =? scratch "smallTerminal") bottomFloat
-                , NS "largeTerminal" (term "largeTerminal") (res =? scratch "largeTerminal") largeCenterFloat
+myScratchPads = [ --NS "smallTerminal" (term "smallTerminal") (res =? scratch "smallTerminal") bottomFloat
+                 NS "largeTerminal" (term "largeTerminal") (res =? scratch "largeTerminal") largeCenterFloat
                 ]
   where
     scratch sname = "scratchpad_" ++ sname
@@ -462,12 +462,12 @@ myScratchPads = [ NS "smallTerminal" (term "smallTerminal") (res =? scratch "sma
     -- inTerm' sname scmd = myTerminal ++ " -name scratchpad_" ++ sname ++ " -e " ++  scmd
     res = resource
 
-    bottomFloat = customFloating $ W.RationalRect l t w h
-      where
-        h = 0.2
-        w = 1
-        t = 1 - h
-        l = (1 - w)/2
+    -- bottomFloat = customFloating $ W.RationalRect l t w h
+    --   where
+    --     h = 0.2
+    --     w = 1
+    --     t = 1 - h
+    --     l = (1 - w)/2
 
     largeCenterFloat = customFloating $ W.RationalRect l t w h
       where
