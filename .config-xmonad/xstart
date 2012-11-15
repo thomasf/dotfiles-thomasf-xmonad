@@ -80,9 +80,9 @@ export SSH_AUTH_SOCK
 export SSH_AGENT_PID
 
 # Configure keyboard mode buttons
-if [ -f $HOME/.xmodmap ]; then
+if [ -f $HOME/.config-xmonad/xmodmap ]; then
     if [ $(which xmodmap) ]; then
-        xmodmap $HOME/.xmodmap
+        xmodmap $HOME/.config-xmonad/xmodmap
     else
         xmessage "warning: xmodmap not found"
     fi
