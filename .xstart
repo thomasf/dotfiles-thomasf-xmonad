@@ -109,6 +109,10 @@ if [ $(which gnome-settings-daemon) ]; then
     ) &
 fi
 
+# launch dunst notification daemon
+[ -f ~/.config-xmonad/dunstrc ] && [ $(which dunst) ] \
+    && dunst --config ~/.config-xmonad/dunstrc &
+
 # Launch org-mode popup
 [ $(which orgmode) ] \
     && [ $(which urxvt) ] \
