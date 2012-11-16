@@ -317,40 +317,41 @@ myManageHook :: ManageHook
 
 myManageHook = fullscreenManageHook <+>
                namedScratchpadManageHook myScratchPads <+>
-               composeOne
-  [ resource            =? "Do"                -?> doIgnore
-  , resource            =? "desktop_window"    -?> doIgnore
-  , resource            =? "kdesktop"          -?> doIgnore
-  --, resource            =? "panel"             -?> doIgnore
-  , className           =? "Unity-2d-panel"    -?> doIgnore
-  , className           =? "Xfce4-notifyd"     -?> doIgnore
-  , className           =? "Xfdesktop"         -?> doIgnore
-  , className           =? "Onboard"           -?> doIgnore
-  , className           =? "onboard"           -?> doIgnore
-  , resource            =? "speedbar"          -?> doFloat
-  , resource            =? "emacs-floating"    -?> doFloat
-  , className           =? "Unity-2d-launcher" -?> doFloat
-  , className           =? "Gimp"              -?> doFloat
-  , className           =? "Orage"             -?> doFloat
-  , role =? "pop-up" <&&> appName =? "google-chrome" -?> doCenterFloat
-  , className    =? "Xfce4-settings-manager"   -?> doCenterFloat
-  , className           =? "Xfce4-appfinder"   -?> doCenterFloat
-  , className           =? "Pinentry"          -?> doCenterFloat
-  , transience
-  --, isFullscreen                               -?> doFullFloat
-  , resource            =? "ssh_tmux"          -?> doF (W.shift "chat")
-  , resource            =? "empathy"           -?> doF (W.shift "chat")
-  , resource            =? "xchat"             -?> doF (W.shift "chat")
-  , className           =? "Pidgin"            -?> doF (W.shift "im")
-  , className           =? "Nicotine.py"       -?> doF (W.shift "fileshare")
-  , className           =? "Transmission-gtk"  -?> doF (W.shift "fileshare")
-  , resource            =? "xmessage"          -?> doCenterFloat
-  , className           =? "feh"               -?> doFloat
-  , className           =? "MPlayer"           -?> doFloat
-  , className           =? "Vlc"               -?> doFloat
-  ] <+> manageHook Desktop.desktopConfig -- < implies only manageDocks (ons jul 18 08:51 2012)
+               (composeOne . concat $
+  [ [resource  =? r -?>                                        doIgnore      | r <- ignoreByResource]
+  , [className =? c -?>                                        doIgnore      | c <- ignoreByClass]
+  , [resource  =? r -?>                                        doFloat       | r <- floatByResource]
+  , [className =? c -?>                                        doFloat       | c <- floatByClass]
+  , [role      =? "pop-up" <&&> appName =? "google-chrome" -?> doCenterFloat]
+  , [className =? c -?>                                        doCenterFloat | c <- centerFloatByClass]
+  , [transience]
+  --, [ isFullscreen                               -?> doFullFloat ]
+  , [resource  =? "ssh_tmux"          -?> doF (W.shift "chat")]
+  , [resource  =? "empathy"           -?> doF (W.shift "chat")]
+  , [resource  =? "xchat"             -?> doF (W.shift "chat")]
+  , [className =? "Pidgin"            -?> doF (W.shift "im")]
+  , [className =? "Nicotine.py"       -?> doF (W.shift "fileshare")]
+  , [className =? "Transmission-gtk"  -?> doF (W.shift "fileshare")]
+  , [resource  =? "xmessage"          -?> doCenterFloat]
+  ]) <+> manageHook Desktop.desktopConfig -- < implies only manageDocks (ons jul 18 08:51 2012)
   where
     role = stringProperty "WM_WINDOW_ROLE"
+
+    ignoreByResource =
+      ["Do", "desktop_window", "kdesktop"]
+    ignoreByClass =
+      ["Unity-2d-panel", "Xfce4-notifyd"
+      ,"Xfdesktop", "Onboard", "onboard"]
+    floatByResource =
+      ["speedbar", "emacs-floating"]
+    floatByClass =
+      ["Unity-2d-launcher", "Orage"
+      , "feh"
+      , "MPlayer", "Vlc"]
+    centerFloatByClass =
+      ["Xfce4-settings-manager", "Xfce4-appfinder"
+      , "Pinentry"]
+
 
 ------------------------------------------------------------------------
 -- Event handling
