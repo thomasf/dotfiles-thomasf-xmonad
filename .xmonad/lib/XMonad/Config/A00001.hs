@@ -332,20 +332,20 @@ myManageHook =
   , [className =? "Nicotine.py"       -?> doF (W.shift "fileshare")]
   , [className =? "Transmission-gtk"  -?> doF (W.shift "fileshare")]
   , [resource  =? "xmessage"          -?> doCenterFloat]
+  , [title     =? "Onboard"           -?> doFloat]
   ]) <+> manageHook Desktop.desktopConfig -- < implies only manageDocks (ons jul 18 08:51 2012)
   where
     role = stringProperty "WM_WINDOW_ROLE"
     ignoreByResource =
       ["Do", "desktop_window", "kdesktop"]
     ignoreByClass =
-      ["Unity-2d-panel", "Xfce4-notifyd","Xfdesktop", "Onboard", "onboard"]
+      ["Unity-2d-panel", "Xfce4-notifyd","Xfdesktop"]
     floatByResource =
       ["speedbar", "emacs-floating"]
     floatByClass =
       ["Unity-2d-launcher", "Orage", "feh", "MPlayer", "Vlc"]
     centerFloatByClass =
       ["Xfce4-settings-manager", "Xfce4-appfinder", "Pinentry"]
-
 
 ------------------------------------------------------------------------
 -- Event handling
