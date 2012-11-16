@@ -20,7 +20,7 @@ case $cmd in
     saidar)
 	    exec $tr -name saidar -e saidar -c
 	    ;;
-    alsamixer|htop|irssi|weechat-curses|ncmpcpp)
+    alsamixer|htop|irssi|weechat-curses|ncmpcpp|pamixer)
         exec $tr -name $cmd -e $cmd
         ;;
     wireshark|synaptic|zenmap|firestarter|reboot|nm-connection-editor)

@@ -10,7 +10,7 @@ launchTerminal(){
     name="${1}"
     cmd="${2}"
     cmdArgs="${3}"
-    initial_delay=2
+    initial_delay=0.3
     relaunch_delay=1
     if [ $(which ${cmd}) ]; then
         cmdstr="echo starting $cmd...; while :; do sleep $initial_delay; $cmd $cmd_args; echo relaunching $cmd...; sleep $relaunch_delay; done;"
@@ -18,7 +18,7 @@ launchTerminal(){
     fi
 }
 
+launchTerminal "pamixer" "pamixer"
 launchTerminal "htop" "htop"
 launchTerminal "dstat" "dstat" "--time --load --cpu --mem --swap --disk --fs --net --socket --sys 30"
 launchTerminal "ncmpcpp" "ncmpcpp"
-pavucontrol &
