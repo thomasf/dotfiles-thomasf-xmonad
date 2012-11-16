@@ -315,9 +315,8 @@ myLayoutHook = showWorkspaceName $
 
 myManageHook :: ManageHook
 
-myManageHook = fullscreenManageHook <+>
-               namedScratchpadManageHook myScratchPads <+>
-               (composeOne . concat $
+myManageHook =
+  fullscreenManageHook <+>  namedScratchpadManageHook myScratchPads <+> (composeOne . concat $
   [ [resource  =? r -?>                                        doIgnore      | r <- ignoreByResource]
   , [className =? c -?>                                        doIgnore      | c <- ignoreByClass]
   , [resource  =? r -?>                                        doFloat       | r <- floatByResource]
@@ -336,21 +335,16 @@ myManageHook = fullscreenManageHook <+>
   ]) <+> manageHook Desktop.desktopConfig -- < implies only manageDocks (ons jul 18 08:51 2012)
   where
     role = stringProperty "WM_WINDOW_ROLE"
-
     ignoreByResource =
       ["Do", "desktop_window", "kdesktop"]
     ignoreByClass =
-      ["Unity-2d-panel", "Xfce4-notifyd"
-      ,"Xfdesktop", "Onboard", "onboard"]
+      ["Unity-2d-panel", "Xfce4-notifyd","Xfdesktop", "Onboard", "onboard"]
     floatByResource =
       ["speedbar", "emacs-floating"]
     floatByClass =
-      ["Unity-2d-launcher", "Orage"
-      , "feh"
-      , "MPlayer", "Vlc"]
+      ["Unity-2d-launcher", "Orage", "feh", "MPlayer", "Vlc"]
     centerFloatByClass =
-      ["Xfce4-settings-manager", "Xfce4-appfinder"
-      , "Pinentry"]
+      ["Xfce4-settings-manager", "Xfce4-appfinder", "Pinentry"]
 
 
 ------------------------------------------------------------------------
