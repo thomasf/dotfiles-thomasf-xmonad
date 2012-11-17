@@ -11,8 +11,8 @@
 ! --------------------------------------------
 
 !---- Font rendering  {
-!ref:https://wiki.archlinux.org/index.php/Font_Configuration
-!ref:http://www.keithp.com/~keithp/render/Xft.tutorial
+! ref: https://wiki.archlinux.org/index.php/Font_Configuration
+! ref: http://www.keithp.com/~keithp/render/Xft.tutorial
 Xft.antialias:                        true
 Xft.autohint:                         false
 Xft.hinting:                          true
@@ -149,6 +149,7 @@ dstat*scrollBar:                           false
 dstat*internalBorder:                      0
 ssh_tmux*scrollBar:                        false
 ssh_tmux*internalBorder:                   0
+ssh_tmux*font:                             xft:Anonymous Pro:size=12
 
 
 !---- Terminal for ncpmpcpp {
