@@ -1,6 +1,6 @@
 [global]
     #font = Monospace-12
-    font =  -*-terminus-medium-r-normal--12-*-*-*-*-*-*-*
+    font =  -*-terminus-medium-r-normal--14-*-*-*-*-*-*-*
 
     # The format of the message. Possible variables are:
     #   %a  appname
@@ -69,7 +69,7 @@
     #
     # If this option is set to mouse or keyboard, the monitor option will be
     # ignored.
-    follow = none
+    follow = keyboard
 
     # should a notification popped up from history be sticky or
     # timeout as if it would normally do.
@@ -160,3 +160,7 @@
 #    summary = *twitter.com*
 #    urgency = normal
 #
+
+# Local Variables:
+# mode: conf-unix
+# End:
