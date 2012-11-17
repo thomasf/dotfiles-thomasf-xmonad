@@ -255,11 +255,11 @@ myLayoutHook = showWorkspaceName $
                Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22 2012)
                onWorkspace "chat" ((renamed [Replace "*"]) $ grid) $
                onWorkspace "dash" (renamed [Replace "*"] $ tabsAlways) $
-               onWorkspace "nodes" ((renamed [Replace "*"]) $ grid) $
                onWorkspace "mail" ((renamed [Replace "*"]) $ grid) $
                onWorkspace "home" ((renamed [Replace "*"]) $ grid) $
                MT.mkToggle (MT.single MTI.NOBORDERS) $
                MT.mkToggle (MT.single MTI.NBFULL) $
+               onWorkspace "nodes" ((renamed [Replace "*"]) $ grid) $
                onWorkspace "im" (renamed [Replace "*"] $ im) $
                onWorkspace "reading" (renamed [Replace "*"] $ tabs) $
                lessBorders OnlyFloat
