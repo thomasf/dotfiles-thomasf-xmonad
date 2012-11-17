@@ -2,3 +2,6 @@
 #
 # This file might be sourced during installation with hsadmin
 #
+
+[ -e "${HOME}/.config/dunstrc" ] \
+    || ln -fs "$(pwd)/.config-xmonad/dunstrc" "${HOME}/.config/"
