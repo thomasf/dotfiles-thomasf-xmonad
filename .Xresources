@@ -57,7 +57,7 @@ URxvt*font:                           xft:Anonymous Pro:pixelsize=13
 URxvt*jumpScroll:                     true
 URxvt*scrollstyle:                    plain
 URxvt*scrollBar_right:                true
-URxvt*saveLines:                      10000
+URxvt*saveLines:                      20000
 URxvt*scrollWithBuffer:               true
 URxvt*scrollTtyOutput:                false
 URxvt*scrollTtyKeypress:              true
@@ -86,6 +86,7 @@ URxvt*url-select.launcher:            google-chrome
 URxvt*url-select.underline:           true
 URxvt*clipboard.autocopy:             true
 URxvt.keysym.M-v:                     perl:clipboard:paste
+
 
 !---- Light URxvt (Solarized Light, 11pt) {
 LURxvt*fading:                 0
@@ -140,21 +141,37 @@ URxvt*color15:                        #fdf6e3
 scratchpad_smallTerminal*scrollBar:        false
 scratchpad_smallTerminal*perl-ext:         tabbedex,-resize-font
 scratchpad_smallTerminal*internalBorder:   0
+
 scratchpad_largeTerminal*scrollBar:        false
 scratchpad_largeTerminal*perl-ext:         tabbedex,-resize-font
 scratchpad_largeTerminal*internalBorder:   0
-htop*scrollBar:                            false
+
 htop*internalBorder:                       0
-dstat*scrollBar:                           false
-dstat*internalBorder:                      0
+htop*saveLines:                            0
+htop*scrollBar:                            false
+htop*font:                                 xft:Terminus:pixelsize=14
+
+dstat*internalBorder:                      8
+dstat*saveLines:                           1000
+dstat*scrollBar:                           8
+dstat*font:                                xft:Terminus:pixelsize=14
+
+pamixer*internalBorder:                    0
+pamixer*saveLines:                         0
+pamixer*scrollBar:                         false
+pamixer*font:                              xft:Terminus:pixelsize=14
+
 ssh_tmux*scrollBar:                        false
+ssh_tmux*saveLines:                        0
 ssh_tmux*internalBorder:                   0
 ssh_tmux*font:                             xft:Anonymous Pro:size=12
 
+ncmpcpp*scrollBar:                         false
+ncmpcpp*saveLines:                         0
+ncmpcpp*internalBorder:                    0
+ncmpcpp*font:                              xft:Anonymous Pro:pixelsize=18
 
-!---- Terminal for ncpmpcpp {
-ncmpcpp*scrollBar:                    false
-ncmpcpp*internalBorder:               0
+!---- Terminal colors for ncpmpcpp {
 ncmpcpp*foreground:                   #DDEEDD
 ncmpcpp*background:                   #1C1C1C
 ncmpcpp*borderColor:                  #1C1C1C
