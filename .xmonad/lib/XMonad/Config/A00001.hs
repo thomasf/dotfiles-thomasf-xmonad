@@ -24,6 +24,8 @@ module XMonad.Config.A00001
       autoConfig
     ) where
 
+import Data.Maybe (isJust, catMaybes)
+import Data.List
 import           Control.Monad
 import qualified Data.Map                        as M
 import           Data.Ratio ((%))
@@ -118,6 +120,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm, xK_w),                 addName "Toggle previous workspace"                            $ rmEmptyWs $ toggleWS)
   , ((modm.|. ctrl, xK_w),         addName "Toggle previous workspace skipping some workspaces"   $ rmEmptyWs $ ignoredToggleWS)
   , ((modm, xK_q),                 addName "Run default workspace launcer script"                 $ workspaceAction)
+  , ((modm.|. ctrl, xK_q),         addName "New workspace in prefix.sequence"                     $ newPrefixWS >> movePointer)
 
   , subtitle "Workspace prompts"
   , ((modm, xK_n),                 addName "Create or change workspace prompt"                    $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
@@ -210,6 +213,22 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
 
     -- | Sort workspaces by tag name, exclude hidden scrachpad workspace.
     getSortByTagNoSP = fmap (.namedScratchpadFilterOutWorkspace) getSortByTag
+
+    -- | TODO: rewrite
+    newPrefixWS :: X ()
+    newPrefixWS = withWindowSet $ \w -> do
+      thisWS <- gets (W.currentTag . windowset)
+      let wss = W.workspaces w
+          currentTagPrefix = takeWhile (/='.') thisWS
+          cws = map W.tag $ filter (\ws -> (currentTagPrefix ++ ".") `isPrefixOf` W.tag ws && isJust (W.stack ws)) wss
+          num = head $ [0..] \\ catMaybes (map (readMaybe . drop ((length currentTagPrefix) +1 )) cws)
+          new = currentTagPrefix ++ "." ++ (show num)
+      when (not $ new `elem` (map W.tag wss)) $ myViewWS new
+      windows $ W.view new
+        where readMaybe s = case reads s of
+                       [(r,_)] -> Just r
+                       _       -> Nothing
+
 
 
 
