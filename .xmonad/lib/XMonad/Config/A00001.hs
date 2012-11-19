@@ -338,23 +338,28 @@ myManageHook =
   fullscreenManageHook <+>  namedScratchpadManageHook myScratchPads <+> (composeOne . concat $
   [ [resource  =? r -?>                                        doIgnore      | r <- ignoreByResource]
   , [className =? c -?>                                        doIgnore      | c <- ignoreByClass]
+  , [className =? c -?>                                        doSink        | c <- androidEmulatorByClass]
   , [resource  =? r -?>                                        doFloat       | r <- floatByResource]
   , [className =? c -?>                                        doFloat       | c <- floatByClass]
   , [role      =? "pop-up" <&&> appName =? "google-chrome" -?> doCenterFloat]
   , [className =? c -?>                                        doCenterFloat | c <- centerFloatByClass]
   , [transience]
   --, [ isFullscreen                               -?> doFullFloat ]
-  , [resource  =? "ssh_tmux"          -?> doF (W.shift "chat")]
-  , [resource  =? "empathy"           -?> doF (W.shift "chat")]
-  , [resource  =? "xchat"             -?> doF (W.shift "chat")]
-  , [className =? "Pidgin"            -?> doF (W.shift "im")]
-  , [className =? "Nicotine.py"       -?> doF (W.shift "fileshare")]
-  , [className =? "Transmission-gtk"  -?> doF (W.shift "fileshare")]
+  , [resource  =? "ssh_tmux"          -?> doShift "chat"]
+  , [resource  =? "empathy"           -?> doShift "chat"]
+  , [resource  =? "xchat"             -?> doShift "chat"]
+  , [className =? "Pidgin"            -?> doShift "im"]
+  , [className =? "Nicotine.py"       -?> doShift "fileshare"]
+  , [className =? "Transmission-gtk"  -?> doShift "fileshare"]
   , [resource  =? "xmessage"          -?> doCenterFloat]
   , [title     =? "Onboard"           -?> doFloat]
   ]) <+> manageHook Desktop.desktopConfig -- < implies only manageDocks (ons jul 18 08:51 2012)
   where
+    doSink = ask >>= doF . W.sink
     role = stringProperty "WM_WINDOW_ROLE"
+    androidEmulatorByClass =
+      ["emulator64-mips", "emulator-arm", "emulator-x86"
+      ,"emulator64-arm", "emulator64-x86", "emulator-mips"]
     ignoreByResource =
       ["Do", "desktop_window", "kdesktop"]
     ignoreByClass =
