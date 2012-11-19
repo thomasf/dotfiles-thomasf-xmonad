@@ -600,3 +600,7 @@ configFull = do
     -- | Determine the number of physical screens.
     -- countScreens :: (MonadIO m, Integral i) => m i
     -- countScreens = liftM genericLength . liftIO $ openDisplay "" >>= getScreenInfo
+
+-- Local Variables:
+-- fill-column: 180
+-- End:
