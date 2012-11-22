@@ -5,8 +5,20 @@
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 #
 
-# urxvt -name saidar -e saidar -c &
-urxvt -title htop -name htop -e bash -c "sleep 2; htop" &
-urxvt -title dstat -name dstat -e bash -c "sleep 2; dstat --time --load --cpu --mem --swap --disk --fs --net --socket --sys 30" &
-urxvt -title ncmpcpp -name ncmpcpp -e bash -c "sleep 2; ncmpcpp" &
-pavucontrol &
+# args: name, cmdstr
+launchTerminal(){
+    name="${1}"
+    cmd="${2}"
+    cmdArgs="${3}"
+    initial_delay=0.3
+    relaunch_delay=1
+    if [ $(which ${cmd}) ]; then
+        cmdstr="echo starting $cmd...; while :; do sleep $initial_delay; $cmd $cmdArgs; echo relaunching $cmd...; sleep $relaunch_delay; done;"
+        urxvt -title "${name}" -name "${name}" -e bash -c "${cmdstr}" &
+    fi
+}
+
+launchTerminal "pamixer" "pamixer" "-a 2"
+launchTerminal "htop" "htop"
+launchTerminal "dstat" "dstat" "--time --load --cpu --mem --swap --disk --fs --net --socket --sys 30"
+launchTerminal "ncmpcpp" "ncmpcpp"

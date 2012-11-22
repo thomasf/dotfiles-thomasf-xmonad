@@ -11,7 +11,7 @@ set -e
 tr=urxvt
 
 if [ `which yeganesh` ]; then
-    cmd=`yeganesh -x`
+    cmd=`yeganesh -p appmenu -x`
 else
     cmd=`dmenu_path | dmenu -i`
 fi
@@ -20,7 +20,7 @@ case $cmd in
     saidar)
 	    exec $tr -name saidar -e saidar -c
 	    ;;
-    alsamixer|htop|irssi|weechat-curses|ncmpcpp)
+    alsamixer|htop|irssi|weechat-curses|ncmpcpp|pamixer)
         exec $tr -name $cmd -e $cmd
         ;;
     wireshark|synaptic|zenmap|firestarter|reboot|nm-connection-editor)

@@ -24,6 +24,8 @@ module XMonad.Config.A00001
       autoConfig
     ) where
 
+import Data.Maybe (isJust, catMaybes)
+import Data.List
 import           Control.Monad
 import qualified Data.Map                        as M
 import           Data.Ratio ((%))
@@ -72,77 +74,81 @@ import           XMonad.Util.WorkspaceCompare
 ------------------------------------------------------------------------
 -- Keyboard configuration:
 
-superMask = mod4Mask
-altMask = mod1Mask
+-- simply for convenience and readability
+super = mod4Mask
+alt   = mod1Mask
+ctrl  = controlMask
+shft  = shiftMask
+confModMask = super
 
 -- align-regexp rules: "addName", "\$"
-
 myKeys conf@(XConfig {XMonad.modMask = modm}) =
   [ subtitle "Application launching"
-  , ((modm.|. shiftMask, xK_Return),      addName "launch terminal"                                      $ spawnShell)
+  , ((modm.|. shft, xK_Return),    addName "launch terminal"                                      $ spawnShell)
 
   , subtitle "Cyclic window actions (J/K) [+=focus] [+control=cycle+keep focus] [+shift=move]"
-  , ((modm, xK_j),                        addName "Focus next window on workspace"                       $ windows W.focusDown >> movePointer)
-  , ((modm, xK_k),                        addName "Focus previous window on workspace"                   $ windows W.focusUp >> movePointer)
-  , ((modm.|. shiftMask, xK_j),           addName "Swap focused with next on workspace"                  $ windows W.swapDown >> movePointer)
-  , ((modm.|. shiftMask, xK_k),           addName "Swap focused with previous on workspace"              $ windows W.swapUp >> movePointer)
-  , ((modm.|. controlMask, xK_j),         addName "Rotate all windows forward while keeping focus"       $ rotAllUp >> movePointer)
-  , ((modm.|. controlMask, xK_k),         addName "Rotate all windows backwards while keeping focus"     $ rotAllDown >> movePointer)
+  , ((modm, xK_j),                 addName "Focus next window on workspace"                       $ windows W.focusDown >> movePointer)
+  , ((modm, xK_k),                 addName "Focus previous window on workspace"                   $ windows W.focusUp >> movePointer)
+  , ((modm.|. shft, xK_j),         addName "Swap focused with next on workspace"                  $ windows W.swapDown >> movePointer)
+  , ((modm.|. shft, xK_k),         addName "Swap focused with previous on workspace"              $ windows W.swapUp >> movePointer)
+  , ((modm.|. ctrl, xK_j),         addName "Rotate all windows forward while keeping focus"       $ rotAllUp >> movePointer)
+  , ((modm.|. ctrl, xK_k),         addName "Rotate all windows backwards while keeping focus"     $ rotAllDown >> movePointer)
 
   , subtitle "Other window actions"
-  , ((modm, xK_m),                        addName "Move focus to master window"                          $ windows W.focusMaster >> movePointer)
-  , ((modm, xK_Return),                   addName "Swap the focused window and the master window"        $ windows W.swapMaster >> movePointer)
-  , ((modm, xK_t),                        addName "Push the window into tiling mode"                     $ withFocused (windows . W.sink) >> movePointer)
-  , ((modm.|. controlMask, xK_c),         addName "kill"                                                 $ kill)
-  , ((modm, xK_u),                        addName "Focus urgent winow"                                   $ focusUrgent >> movePointer)
-  , ((modm.|. controlMask, xK_u),         addName "Clear all urgent window statuses"                     $ clearUrgents)
+  , ((modm, xK_m),                 addName "Move focus to master window"                          $ windows W.focusMaster >> movePointer)
+  , ((modm, xK_Return),            addName "Swap the focused window and the master window"        $ windows W.swapMaster >> movePointer)
+  , ((modm, xK_t),                 addName "Push the window into tiling mode"                     $ withFocused (windows . W.sink) >> movePointer)
+  , ((modm.|. ctrl, xK_c),         addName "kill"                                                 $ kill)
+  , ((modm, xK_u),                 addName "Focus urgent winow"                                   $ focusUrgent >> movePointer)
+  , ((modm.|. ctrl, xK_u),         addName "Clear all urgent window statuses"                     $ clearUrgents)
 
   , subtitle "Cyclic display actions (D/F) [+=select] [+control=swap] [+shift=move window to]"
-  , ((modm, xK_d),                        addName "Next screen"                                          $ nextScreen >> movePointer)
-  , ((modm, xK_f),                        addName "Previous screen"                                      $ prevScreen >> movePointer)
-  , ((modm.|. controlMask, xK_d),         addName "Swap current display witn next"                       $ swapNextScreen >> nextScreen >> movePointer)
-  , ((modm.|. controlMask, xK_f),         addName "Swap current display witn previous"                   $ swapPrevScreen >> nextScreen >> movePointer)
-  , ((modm.|. shiftMask, xK_d),           addName "Move window to next screen"                           $ shiftNextScreen >> nextScreen >> movePointer)
-  , ((modm.|. shiftMask, xK_f),           addName "Move window to previous screen"                       $ shiftPrevScreen >> prevScreen >> movePointer)
+  , ((modm, xK_d),                 addName "Next screen"                                          $ nextScreen >> movePointer)
+  , ((modm, xK_f),                 addName "Previous screen"                                      $ prevScreen >> movePointer)
+  , ((modm.|. ctrl, xK_d),         addName "Swap current display witn next"                       $ swapNextScreen >> nextScreen >> movePointer)
+  , ((modm.|. ctrl, xK_f),         addName "Swap current display witn previous"                   $ swapPrevScreen >> nextScreen >> movePointer)
+  , ((modm.|. shft, xK_d),         addName "Move window to next screen"                           $ shiftNextScreen >> nextScreen >> movePointer)
+  , ((modm.|. shft, xK_f),         addName "Move window to previous screen"                       $ shiftPrevScreen >> prevScreen >> movePointer)
 
   , subtitle "Workspace actions (E/R) [mod=select from prefix] [mod+control=select from all]"
-  , ((modm, xK_e),                        addName "Next workspace (prefix)"                              $ rmEmptyWs $ nextWsPrefix >> movePointer)
-  , ((modm, xK_r),                        addName "Previous workspace (prefix)"                          $ rmEmptyWs $ prevWsPrefix >> movePointer)
-  , ((modm.|. controlMask, xK_e),         addName "Next non empty workspace"                             $ rmEmptyWs $ nextWsNonEmpty >> movePointer)
-  , ((modm.|. controlMask, xK_r),         addName "Previous non empty workspace"                         $ rmEmptyWs $ prevWsNonEmpty >> movePointer)
+  , ((modm, xK_e),                 addName "Next workspace (prefix)"                              $ rmEmptyWs $ nextWsPrefix >> movePointer)
+  , ((modm, xK_r),                 addName "Previous workspace (prefix)"                          $ rmEmptyWs $ prevWsPrefix >> movePointer)
+  , ((modm.|. ctrl, xK_e),         addName "Next non empty workspace"                             $ rmEmptyWs $ nextWsNonEmpty >> movePointer)
+  , ((modm.|. ctrl, xK_r),         addName "Previous non empty workspace"                         $ rmEmptyWs $ prevWsNonEmpty >> movePointer)
 
   , subtitle "Other workspace actions"
-  , ((modm, xK_w),                        addName "Toggle previous workspace"                            $ rmEmptyWs $ toggleWS)
-  , ((modm.|. controlMask, xK_w),         addName "Toggle previous workspace skipping some workspaces"   $ rmEmptyWs $ ignoredToggleWS)
-  , ((modm, xK_q),                        addName "Run default workspace launcer script"                 $ workspaceAction)
+  , ((modm, xK_w),                 addName "Toggle previous workspace"                            $ rmEmptyWs $ toggleWS)
+  , ((modm.|. ctrl, xK_w),         addName "Toggle previous workspace skipping some workspaces"   $ rmEmptyWs $ ignoredToggleWS)
+  , ((modm, xK_q),                 addName "Run default workspace launcer script"                 $ workspaceAction)
+  , ((modm.|. ctrl, xK_q),         addName "New workspace in prefix.sequence"                     $ newPrefixWS >> movePointer)
 
   , subtitle "Workspace prompts"
-  , ((modm, xK_n),                        addName "Create or change workspace prompt"                    $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
-  , ((modm.|. shiftMask, xK_n),           addName "Move window to other workspace prompt"                $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
-  , ((modm.|. controlMask, xK_n),         addName "Rename current workspace"                             $ DW.renameWorkspace myXPConfig >> movePointer)
-  , ((modm.|. controlMask, xK_BackSpace), addName "Remove current workspace"                             $ DW.removeWorkspace >> movePointer)
-  , ((modm, xK_o),                        addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l 23"] >> movePointer)
+  , ((modm, xK_n),                 addName "Create or change workspace prompt"                    $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
+  , ((modm.|. shft, xK_n),         addName "Move window to other workspace prompt"                $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
+  , ((modm.|. ctrl, xK_n),         addName "Rename current workspace"                             $ DW.renameWorkspace myXPConfig >> movePointer)
+  , ((modm.|. ctrl, xK_BackSpace), addName "Remove current workspace"                             $ DW.removeWorkspace >> movePointer)
+  , ((modm, xK_o),                 addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l 23"] >> movePointer)
 
   , subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]"
-  , ((modm, xK_space),                    addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer)
-  , ((modm.|. controlMask, xK_space),     addName "Switch to default layout"                             $ sendMessage (JumpToLayout "tall h") >> movePointer)
-  , ((modm.|. altMask, xK_space),         addName "Toggle fullscreen"                                    $ sendMessage (MT.Toggle MTI.NBFULL) >> movePointer)
-  , ((modm.|. altMask, xK_s),             addName "Toggle struts (ignore panels)"                        $ sendMessage ToggleStruts >> movePointer)
-  , ((modm.|. altMask, xK_b),             addName "Toggle window borders"                                $ sendMessage (MT.Toggle MTI.NOBORDERS) >> movePointer)
-  , ((modm, xK_h),                        addName "Shrink the master area"                               $ sendMessage Shrink >> movePointer)
-  , ((modm, xK_l),                        addName "Expand the master area"                               $ sendMessage Expand >> movePointer)
-  , ((modm, xK_comma),                    addName "Increment the number of windows in the master area"   $ sendMessage (IncMasterN 1) >> movePointer)
-  , ((modm, xK_period),                   addName "Deincrement the number of windows in the master area" $ sendMessage (IncMasterN (-1)) >> movePointer)
+  , ((modm, xK_space),             addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer)
+  , ((modm.|. ctrl, xK_space),     addName "Switch to default layout"                             $ sendMessage (JumpToLayout "tall h") >> movePointer)
+  , ((modm.|. alt, xK_space),      addName "Toggle fullscreen"                                    $ sendMessage (MT.Toggle MTI.NBFULL) >> movePointer)
+  , ((modm.|. alt, xK_s),          addName "Toggle struts (ignore panels)"                        $ sendMessage ToggleStruts >> movePointer)
+  , ((modm.|. alt, xK_b),          addName "Toggle window borders"                                $ sendMessage (MT.Toggle MTI.NOBORDERS) >> movePointer)
+  , ((modm, xK_h),                 addName "Shrink the master area"                               $ sendMessage Shrink >> movePointer)
+  , ((modm, xK_l),                 addName "Expand the master area"                               $ sendMessage Expand >> movePointer)
+  , ((modm, xK_comma),             addName "Increment the number of windows in the master area"   $ sendMessage (IncMasterN 1) >> movePointer)
+  , ((modm, xK_period),            addName "Deincrement the number of windows in the master area" $ sendMessage (IncMasterN (-1)) >> movePointer)
 
 
   , subtitle "Toggle scratchpads and workspaces"
-  , ((modm, xK_section),                  addName "Toggle smaller terminal pad"                          $ smallTerminalPad >> movePointer)
-  , ((modm.|.controlMask, xK_section),    addName "Toggle larger terminal pad"                           $ largeTerminalPad >> movePointer)
-  , ((modm, xK_1),                        addName "Toggle home workspace"                                $ rmEmptyWs $ myViewWS "home" >> movePointer)
-  , ((modm, xK_2),                        addName "Toggle chat workspace"                                $ rmEmptyWs $ myViewWS "chat" >> movePointer)
-  , ((modm, xK_3),                        addName "Toggle nodes workspace"                               $ rmEmptyWs $ myViewWS "nodes" >> movePointer)
-  , ((modm, xK_4),                        addName "Toggle mail workspace"                                $ rmEmptyWs $ myViewWS "mail" >> movePointer)
-  , ((modm, xK_0),                        addName "Toggle dashboard workspace"                           $ rmEmptyWs $ myViewWS "dash" >> movePointer)
+  --, ((modm, xK_section),         addName "Toggle smaller terminal pad"                          $ smallTerminalPad >> movePointer)
+  , ((modm, xK_section),           addName "Toggle larger terminal pad"                           $ largeTerminalPad >> movePointer)
+  , ((modm, xK_1),                 addName "Toggle home workspace"                                $ rmEmptyWs $ myViewWS "home" >> movePointer)
+  , ((modm, xK_2),                 addName "Toggle chat workspace"                                $ rmEmptyWs $ myViewWS "chat" >> movePointer)
+  , ((modm, xK_3),                 addName "Toggle nodes workspace"                               $ rmEmptyWs $ myViewWS "nodes" >> movePointer)
+  , ((modm, xK_4),                 addName "Toggle mail workspace"                                $ rmEmptyWs $ myViewWS "mail" >> movePointer)
+  , ((modm, xK_0),                 addName "Toggle dashboard workspace"                           $ rmEmptyWs $ myViewWS "dash" >> movePointer)
 
   ] where
 
@@ -184,7 +190,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
                                  else DW.addWorkspace w
 
     --  | Open small terminal pad
-    smallTerminalPad = namedScratchpadAction myScratchPads "smallTerminal"
+    -- smallTerminalPad = namedScratchpadAction myScratchPads "smallTerminal"
 
     -- | Open larger terminal pad
     largeTerminalPad = namedScratchpadAction myScratchPads "largeTerminal"
@@ -207,6 +213,22 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
 
     -- | Sort workspaces by tag name, exclude hidden scrachpad workspace.
     getSortByTagNoSP = fmap (.namedScratchpadFilterOutWorkspace) getSortByTag
+
+    -- | TODO: rewrite
+    newPrefixWS :: X ()
+    newPrefixWS = withWindowSet $ \w -> do
+      thisWS <- gets (W.currentTag . windowset)
+      let wss = W.workspaces w
+          currentTagPrefix = takeWhile (/='.') thisWS
+          cws = map W.tag $ filter (\ws -> (currentTagPrefix ++ ".") `isPrefixOf` W.tag ws && isJust (W.stack ws)) wss
+          num = head $ [0..] \\ catMaybes (map (readMaybe . drop ((length currentTagPrefix) +1 )) cws)
+          new = currentTagPrefix ++ "." ++ (show num)
+      when (not $ new `elem` (map W.tag wss)) $ myViewWS new
+      windows $ W.view new
+        where readMaybe s = case reads s of
+                       [(r,_)] -> Just r
+                       _       -> Nothing
+
 
 
 
@@ -250,13 +272,13 @@ tabTheme = baseTheme { activeColor         = "#268bd2"
 -- | The layouthoook
 myLayoutHook = showWorkspaceName $
                Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22 2012)
-               onWorkspace "chat" ((renamed [Replace "*"]) $ grid) $
-               onWorkspace "dash" (renamed [Replace "*"] $ tabsAlways) $
                MT.mkToggle (MT.single MTI.NOBORDERS) $
                MT.mkToggle (MT.single MTI.NBFULL) $
+               onWorkspace "dash" (renamed [Replace "*"] $ tabsAlways) $
+               onWorkspace "chat" ((renamed [Replace "*"]) $ grid) $
+               onWorkspace "mail" ((renamed [Replace "*"]) $ grid) $
                onWorkspace "home" ((renamed [Replace "*"]) $ grid) $
                onWorkspace "nodes" ((renamed [Replace "*"]) $ grid) $
-               onWorkspace "mail" ((renamed [Replace "*"]) $ grid) $
                onWorkspace "im" (renamed [Replace "*"] $ im) $
                onWorkspace "reading" (renamed [Replace "*"] $ tabs) $
                lessBorders OnlyFloat
@@ -312,40 +334,42 @@ myLayoutHook = showWorkspaceName $
 
 myManageHook :: ManageHook
 
-myManageHook = fullscreenManageHook <+>
-               namedScratchpadManageHook myScratchPads <+>
-               composeOne
-  [ resource            =? "Do"                -?> doIgnore
-  , resource            =? "desktop_window"    -?> doIgnore
-  , resource            =? "kdesktop"          -?> doIgnore
-  --, resource            =? "panel"             -?> doIgnore
-  , className           =? "Unity-2d-panel"    -?> doIgnore
-  , className           =? "Xfce4-notifyd"     -?> doIgnore
-  , className           =? "Xfdesktop"         -?> doIgnore
-  , resource            =? "speedbar"          -?> doFloat
-  , resource            =? "emacs-floating"    -?> doFloat
-  , className           =? "Unity-2d-launcher" -?> doFloat
-  , className           =? "Gimp"              -?> doFloat
-  , className           =? "Orage"             -?> doFloat
-  , role =? "pop-up" <&&> appName =? "google-chrome" -?> doCenterFloat
-  , className    =? "Xfce4-settings-manager"   -?> doCenterFloat
-  , className           =? "Xfce4-appfinder"   -?> doCenterFloat
-  , className           =? "Pinentry"          -?> doCenterFloat
-  , transience
-  --, isFullscreen                               -?> doFullFloat
-  , resource            =? "ssh_tmux"          -?> doF (W.shift "chat")
-  , resource            =? "empathy"           -?> doF (W.shift "chat")
-  , resource            =? "xchat"             -?> doF (W.shift "chat")
-  , className           =? "Pidgin"            -?> doF (W.shift "im")
-  , className           =? "Nicotine.py"       -?> doF (W.shift "fileshare")
-  , className           =? "Transmission-gtk"  -?> doF (W.shift "fileshare")
-  , resource            =? "xmessage"          -?> doCenterFloat
-  , className           =? "feh"               -?> doFloat
-  , className           =? "MPlayer"           -?> doFloat
-  , className           =? "Vlc"               -?> doFloat
-  ] <+> manageHook Desktop.desktopConfig -- < implies only manageDocks (ons jul 18 08:51 2012)
+myManageHook =
+  fullscreenManageHook <+>  namedScratchpadManageHook myScratchPads <+> (composeOne . concat $
+  [ [resource  =? r -?>                                        doIgnore      | r <- ignoreByResource]
+  , [className =? c -?>                                        doIgnore      | c <- ignoreByClass]
+  , [className =? c -?>                                        doSink        | c <- androidEmulatorByClass]
+  , [resource  =? r -?>                                        doFloat       | r <- floatByResource]
+  , [className =? c -?>                                        doFloat       | c <- floatByClass]
+  , [role      =? "pop-up" <&&> appName =? "google-chrome" -?> doCenterFloat]
+  , [className =? c -?>                                        doCenterFloat | c <- centerFloatByClass]
+  , [transience]
+  --, [ isFullscreen                               -?> doFullFloat ]
+  , [resource  =? "ssh_tmux"          -?> doShift "chat"]
+  , [resource  =? "empathy"           -?> doShift "chat"]
+  , [resource  =? "xchat"             -?> doShift "chat"]
+  , [className =? "Pidgin"            -?> doShift "im"]
+  , [className =? "Nicotine.py"       -?> doShift "fileshare"]
+  , [className =? "Transmission-gtk"  -?> doShift "fileshare"]
+  , [resource  =? "xmessage"          -?> doCenterFloat]
+  , [title     =? "Onboard"           -?> doFloat]
+  ]) <+> manageHook Desktop.desktopConfig -- < implies only manageDocks (ons jul 18 08:51 2012)
   where
+    doSink = ask >>= doF . W.sink
     role = stringProperty "WM_WINDOW_ROLE"
+    androidEmulatorByClass =
+      ["emulator64-mips", "emulator-arm", "emulator-x86"
+      ,"emulator64-arm", "emulator64-x86", "emulator-mips"]
+    ignoreByResource =
+      ["Do", "desktop_window", "kdesktop"]
+    ignoreByClass =
+      ["Unity-2d-panel", "Xfce4-notifyd","Xfdesktop"]
+    floatByResource =
+      ["speedbar", "emacs-floating"]
+    floatByClass =
+      ["Unity-2d-launcher", "Orage", "feh", "MPlayer", "Vlc"]
+    centerFloatByClass =
+      ["Xfce4-settings-manager", "Xfce4-appfinder", "Pinentry"]
 
 ------------------------------------------------------------------------
 -- Event handling
@@ -453,8 +477,8 @@ spawnShell = spawn myTerminal
 ------------------------------------------------------------------------
 -- Scratch pads:
 
-myScratchPads = [ NS "smallTerminal" (term "smallTerminal") (res =? scratch "smallTerminal") bottomFloat
-                , NS "largeTerminal" (term "largeTerminal") (res =? scratch "largeTerminal") largeCenterFloat
+myScratchPads = [ --NS "smallTerminal" (term "smallTerminal") (res =? scratch "smallTerminal") bottomFloat
+                 NS "largeTerminal" (term "largeTerminal") (res =? scratch "largeTerminal") largeCenterFloat
                 ]
   where
     scratch sname = "scratchpad_" ++ sname
@@ -462,12 +486,12 @@ myScratchPads = [ NS "smallTerminal" (term "smallTerminal") (res =? scratch "sma
     -- inTerm' sname scmd = myTerminal ++ " -name scratchpad_" ++ sname ++ " -e " ++  scmd
     res = resource
 
-    bottomFloat = customFloating $ W.RationalRect l t w h
-      where
-        h = 0.2
-        w = 1
-        t = 1 - h
-        l = (1 - w)/2
+    -- bottomFloat = customFloating $ W.RationalRect l t w h
+    --   where
+    --     h = 0.2
+    --     w = 1
+    --     t = 1 - h
+    --     l = (1 - w)/2
 
     largeCenterFloat = customFloating $ W.RationalRect l t w h
       where
@@ -480,11 +504,11 @@ myScratchPads = [ NS "smallTerminal" (term "smallTerminal") (res =? scratch "sma
 -- Default configuration
 
 aDefaultConfig =
-  addDescrKeys' ((superMask, xK_F1), showKeybindings) myKeys $ defaultConfig
+  addDescrKeys' ((confModMask, xK_F1), showKeybindings) myKeys $ defaultConfig
   { terminal           = myTerminal
   , focusFollowsMouse  = False
   , borderWidth        = 4
-  , modMask            = superMask
+  , modMask            = confModMask
   , workspaces         = myWorkspaces
   , normalBorderColor  = myNormalBorderColor
   , focusedBorderColor = myFocusedBorderColor
@@ -581,3 +605,7 @@ configFull = do
     -- | Determine the number of physical screens.
     -- countScreens :: (MonadIO m, Integral i) => m i
     -- countScreens = liftM genericLength . liftIO $ openDisplay "" >>= getScreenInfo
+
+-- Local Variables:
+-- fill-column: 180
+-- End:
