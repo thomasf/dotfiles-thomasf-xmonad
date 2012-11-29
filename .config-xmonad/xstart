@@ -105,6 +105,13 @@ if [ $(which gnome-settings-daemon) ]; then
         fi
         if [ $(which dconf) ]; then
 	        dconf write /org/gnome/settings-daemon/plugins/media-keys/active false
+            dconf write /org/gnome/desktop/background/draw-background false
+            dconf write /org/gnome/desktop/background/show-desktop-icons false
+            dconf write /org/gnome/desktop/media-handling/automount false
+            dconf write /org/gnome/desktop/media-handling/automount-open false
+            dconf write /org/gnome/desktop/media-handling/automount-never true
+            dconf write /org/gnome/desktop/screensaver/idle-activation-enabled false
+            dconf write /org/gnome/desktop/sound/event-sounds false
         fi
     ) &
 fi
