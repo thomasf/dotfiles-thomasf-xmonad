@@ -177,6 +177,12 @@ fi
 [ "z" = "z$WM" ] \
     && xmessage "!!! No window manager found/selected !!!"
 
+# Something fiddles with xrdb database during startup (ubuntu 12.10)
+# reapply xresources
+# FIXME: find out whats actually changing the values and remove this "fix"
+[ -f "${HOME}/.Xresources" ] \
+    && ( sleep 2; xrdb "${HOME}/.Xresources" ) &
+
 # Start the window manager
 while [ ! "" = "$WM" ]; do
     ( ${WM} )
