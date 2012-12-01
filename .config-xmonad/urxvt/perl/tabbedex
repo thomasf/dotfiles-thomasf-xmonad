@@ -15,8 +15,9 @@
 ##
 ## Tabbed plugin for rxvt-unicode
 ## Modified by Michal Nazarewicz (mina86/AT/mina86.com), StephenB
-## (mail4stb/AT/gmail.com) and Steven Merrill
-## <steven dot merrill at gmail.com>
+## (mail4stb/AT/gmail.com), Steven Merrill
+## <steven dot merrill at gmail.com>, Mark Pustjens
+## <pustjens@dds.nl> and more...
 ##
 ## The following has been added:
 ##
@@ -77,44 +78,30 @@
 ## 12. Ability to disable the default keybindings using the
 ##     no-tabbedex-keys resource.
 ##
-## Added by Jim Diamond <Jim dot Diamond at acadiau dot ca>
+## Added by xanf (Illya Klymov):
 ##
-## 13. The previous version of on_start() threw away all of @argv up
-##     to the "-e" (if it exists).  This tossed away arguments that I
-##     want, most notably "-ls" and "-geometry <geometry>.  The code
-##     below passes through everything except "-pe <arg>" and
-##     geometry.  If other options are found to be problematic they
-##     will need to be tossed too.  The other args are saved for all
-##     tabs, which may or may not be desired in the case of "urxvt -pe
-##     tabbedex -e <some command>".
+## 13. Ability to display non-latin characters in tab title.
 ##
-## 14. The name of the current tab can be changed with an escape sequence.
-##     For example, the shell command
-##         printf "\033]777;tabbedex;set_tab_name;work stuff\007"
-##     would change the name of the current tab to "work stuff".
+## Added by jpkotta:
 ##
-## 15. Previously, if you had a lot of tabs and/or tabs with long
-##     names, the current tab might not show up in the tab bar (if its
-##     position in the tab name string was more than $self->ncol chars
-##     from the beginning).  Changes below ensure that the name of the
-##     current tab is always visible.  Arguably it would be nice to
-##     have indications at each end showing whether there are more
-##     tabs in that direction.
+## 14. Tabs inherit command line options.
 ##
-## 16. Previous versions did not autohide the tab bar if the remaining
-##     tab had a name (as opposed to an index number).  I think
-##     "autohide" means "autohide", so I changed that behaviour.  See
-##     the comment in update_autohide().
+## Added by Mark Pustjens <pustjens@dds.nl>
 ##
-## 17. When printing the tab bar, limit the length of the tab names so
-##     that one tab name doesn't occupy the whole tab bar.
+## 15. Resources are now read respecting the -name option.
+##
+## 16. Ability to prevent the last tab from closing.
+##     Use the following in your ~/.Xdefaults to enable:
+##     URXvt.tabbed.reopen-on-close: yes
 ##
 
+use Encode qw(decode);
 
 sub update_autohide {
    my ($self, $reconfigure) = @_;
    my $oldh = $self->{tabheight};
-   if ($self->{autohide} && @{ $self->{tabs} } <= 1) {
+   if ($self->{autohide} && @{ $self->{tabs} } <= 1 &&
+         ! (@{ $self->{tabs} } == 1 && $self->{tabs}[-1]->{name})) {
       $self->{tabheight} = 0;
    } else {
       $self->{tabheight} = $self->{maxtabheight};
@@ -146,7 +133,6 @@ sub refresh {
    # autohide makes it zero
    return unless $self->{tabheight};
 
-   # Note that the tab bar uses space above the scroll bar.
    my $ncol = $self->ncol;
 
    my $text = " " x $ncol;
@@ -161,54 +147,19 @@ sub refresh {
       $ofs = 7;
    }
 
-   # Limit the length of tab names.
-   # Subtract 5 from the available length so that the beginning of a
-   # following tab should be visable and thus clickable.
-   # This algorithm is heavy-handed; it would be nicer to just chop the
-   # longest names only when necessary.
-   my $space_available = $ofs;
-   my $max_len = int(($ncol - $ofs - 5) / ($#{ $self->{tabs} } > 1 ? 3 : 2));
-
-   # See if the name of the current tab would be displayed;
-   # if not, compute the number of tabs to skip so that the
-   # name of the current tab will be displayed.
-   my $tabs_to_skip = 0;
-   my $len = $ofs;
-   my @ends;
    for my $tab (@{ $self->{tabs} }) {
-       my $name = substr($tab->{name} ? $tab->{name} : $idx, -$max_len);
-       $idx++;
-       $len += length($name) + 3;	# '| ' and ' '
-       if ($tab == $self->{cur}) {
-	   if ($len > $ncol + 1) {
-	       for my $end (@ends) {
-		   $tabs_to_skip++;
-		   if ($len - $end <= $ncol) {
-		       last;
-		   }
-	       }
-	   }
-	   last;
-       }
-       push @ends, $len;
-   }
+      my $name = $tab->{name} ? $tab->{name} : $idx;
+      my $act = $self->tab_activity_mark($tab);
+      my $txt = sprintf "%s%s%s", $act, $name, $act;
+      my $len = length $txt;
 
-   $idx = 0;
-   for my $tab (@{ $self->{tabs} }) {
-       if ($idx >= $tabs_to_skip) {
-	   my $name = substr($tab->{name} ? $tab->{name} : $idx, -$max_len);
-	   my $act = $self->tab_activity_mark($tab);
-	   my $txt = sprintf "%s%s%s", $act, $name, $act;
-	   my $len = length $txt;
+      substr $text, $ofs, $len + 1, "$txt|";
+      @$rend[$ofs .. $ofs + $len - 1] = ($self->{rs_tab}) x $len
+         if $tab == $self->{cur};
 
-	   substr $text, $ofs, $len + 1, "$txt|";
-	   @$rend[$ofs .. $ofs + $len - 1] = ($self->{rs_tab}) x $len
-	       if $tab == $self->{cur};
-
-	   push @ofs, [ $ofs, $ofs + $len, $idx ];
-	   $ofs += $len + 1;
-       }
-       ++$idx;
+      push @ofs, [ $ofs, $ofs + $len, $idx ];
+      ++$idx;
+      $ofs += $len + 1;
    }
 
    substr $text, --$ofs, 1, ' '; # remove last '|'
@@ -217,7 +168,7 @@ sub refresh {
       my $term = $self->{term};
       my @str = $term->XGetWindowProperty($term->parent, $self->{tab_title});
       if (@str && $str[2]) {
-         my $str = '| ' . $str[2];
+         my $str = '| ' . decode("utf8", $str[2]);
          my $len = length $str;
          $len = $ncol - $ofs if $ofs + $len > $ncol;
          substr $text, $ofs, $len, substr $str, 0, $len;
@@ -237,6 +188,8 @@ sub refresh {
 sub new_tab {
    my ($self, @argv) = @_;
 
+   my $offset = $self->fheight;
+
    $self->{tabheight} = $self->{maxtabheight}
    unless $self->{autohide} && !(defined $self->{tabs} && @{ $self->{tabs} });
 
@@ -250,6 +203,11 @@ sub new_tab {
 
          $term->resource ("+$_" => $value)
             if defined $value;
+      }
+
+      foreach my $opt (keys %urxvt::OPTION) {
+          my $value = $self->{option}{$opt};
+          $term->option($urxvt::OPTION{$opt}, $value);
       }
 
       $term->resource (perl_ext_2 => $term->resource ("perl_ext_2") . ",-tabbedex");
@@ -281,6 +239,7 @@ sub configure {
       $self->width, $self->height - $self->{tabheight}
    );
 }
+
 
 sub copy_properties {
    my ($self) = @_;
@@ -314,6 +273,12 @@ sub copy_properties {
 
    # pass 2, delete all extraneous properties
    $self->XDeleteProperty ($self->parent, $_) for keys %$current;
+}
+
+
+sub my_resource {
+   my $self = shift;
+   $self->x_resource ("tabbed.$_[0]");
 }
 
 
@@ -375,7 +340,7 @@ sub on_button_release {
          last if     $col <  $button->[0];
          next unless $col <= $button->[1];
          if ($button->[2] == -1) {
-            $self->new_tab(@{$self->{argv}});
+            $self->new_tab;
          } else {
             $self->make_current($self->{tabs}[$button->[2]]);
          }
@@ -389,25 +354,25 @@ sub on_button_release {
 sub on_init {
    my ($self) = @_;
 
-   # This captures X resources but not a command-line geometry specification.
-   my $geom = $self->x_resource("geometry");
-   $self->{initial_geometry} = $geom;
-   $self->{initial_int_bwidth} = $self->int_bwidth;
-
    $self->{resource} = [map $self->resource ("+$_"), 0 .. urxvt::NUM_RESOURCES - 1];
 
    $self->resource (int_bwidth => 0);
-   $self->resource (name => "URxvt.tabbed");
    $self->resource (pty_fd => -1);
 
+   $self->{option} = {};
+   for my $key (keys %urxvt::OPTION) {
+       $self->{option}{$key} = $self->option($urxvt::OPTION{$key});
+   }
+
+   # this is for the tabs terminal; order is important
    $self->option ($urxvt::OPTION{scrollBar}, 0);
 
-   my $fg    = $self->x_resource ("tabbar-fg");
-   my $bg    = $self->x_resource ("tabbar-bg");
-   my $tabfg = $self->x_resource ("tab-fg");
-   my $tabbg = $self->x_resource ("tab-bg");
-   my $titfg = $self->x_resource ("title-fg");
-   my $titbg = $self->x_resource ("title-bg");
+   my $fg    = $self->my_resource ("tabbar-fg");
+   my $bg    = $self->my_resource ("tabbar-bg");
+   my $tabfg = $self->my_resource ("tab-fg");
+   my $tabbg = $self->my_resource ("tab-bg");
+   my $titfg = $self->my_resource ("title-fg");
+   my $titbg = $self->my_resource ("title-bg");
 
    defined $fg    or $fg    = 3;
    defined $bg    or $bg    = 0;
@@ -421,7 +386,7 @@ sub on_init {
    $self->{rs_title}  = urxvt::SET_COLOR (urxvt::DEFAULT_RSTYLE, $titfg + 2, $titbg + 2);
 
 
-   my $timeouts = $self->x_resource ("tabbar-timeouts");
+   my $timeouts = $self->my_resource ("tabbar-timeouts");
    $timeouts = '16:.:8:::4:+' unless defined $timeouts;
    if ($timeouts ne '') {
       my @timeouts;
@@ -435,13 +400,15 @@ sub on_init {
    }
 
    $self->{new_button} =
-      ($self->x_resource ('new-button') or 'false') !~ /^(?:false|0|no)/i;
+      ($self->my_resource ('new-button') or 'false') !~ /^(?:false|0|no)/i;
    $self->{tab_title} =
-      ($self->x_resource ('title') or 'true') !~ /^(?:false|0|no)/i;
+      ($self->my_resource ('title') or 'true') !~ /^(?:false|0|no)/i;
    $self->{autohide} =
-      ($self->x_resource ('autohide') or 'false') !~ /^(?:false|0|no)/i;
+      ($self->my_resource ('autohide') or 'false') !~ /^(?:false|0|no)/i;
    $self->{no_default_keys} =
-      ($self->x_resource ('no-tabbedex-keys') or 'false') !~ /^(?:false|0|no)/i;
+      ($self->my_resource ('no-tabbedex-keys') or 'false') !~ /^(?:false|0|no)/i;
+    $self->{reopen_on_close} =
+      ($self->my_resource ('reopen-on-close') or 'false') !~ /^(?:false|0|no)/i;
 
    ();
 }
@@ -465,19 +432,19 @@ sub on_start {
    shift @tmp;		# toss away argv[0] (== "urxvt" or similar).
    while (@tmp != ()) {
        if ($tmp[0] eq "-pe") {
-	   shift @tmp;	# toss away -pe, we later toss its arg.
+           shift @tmp;	# toss away -pe, we later toss its arg.
        } elsif ($tmp[0] eq "-geometry") {
-	   shift @tmp;
-	   $self->{initial_geometry} = $tmp[0];
+           shift @tmp;
+           $self->{initial_geometry} = $tmp[0];
        } else {
-	   push(@argv, $tmp[0]);
+           push(@argv, $tmp[0]);
        }
        shift @tmp;
    }
    $self->{argv} = [ @argv ];
 
    if ($self->{tab_title}) {
-      $self->{tab_title} = $self->{term}->XInternAtom("WM_NAME", 1);
+      $self->{tab_title} = $self->{term}->XInternAtom("_NET_WM_NAME", 1);
    }
 
    $self->new_tab (@argv);
@@ -537,8 +504,13 @@ sub tab_start {
 sub tab_destroy {
    my ($self, $tab) = @_;
 
+   if ($self->{reopen_on_close} && $#{ $self->{tabs} } == 0) {
+      $self->new_tab;
+      $self->make_current ($self->{tabs}[-1]);
+   }
+
    $self->{tabs} = [ grep $_ != $tab, @{ $self->{tabs} } ];
-   $self->update_autohide (1);
+   $self->update_autohide ();
 
    if (@{ $self->{tabs} }) {
       if ($self->{cur} == $tab) {
@@ -589,7 +561,7 @@ sub tab_key_press {
          return 1;
 
       } elsif ($keysym == 0xff54) {
-         $self->new_tab(@{$self->{argv}});
+         $self->new_tab;
          return 1;
 
       } elsif ($keysym == 0xff52) {
@@ -630,7 +602,7 @@ sub tab_user_command {
   my ($self, $tab, $cmd, $proxy_events) = @_;
 
   if ($cmd eq 'tabbedex:new_tab') {
-    $self->new_tab(@{$self->{argv}});
+    $self->new_tab;
   }
   elsif ($cmd eq 'tabbedex:next_tab') {
     $self->change_tab($tab, 1);
@@ -700,36 +672,13 @@ sub rename_tab {
   ();
 }
 
-# At least in urxvt 9.12:
-# arg2 is /urxvt::ext::tabbedex::tab=HASH(0x20625b0)/  ( == $self->{tab} )
-# arg3 is the actual OSC argument
-# Some other modules (at least overlay_osc) get the OSC argument in arg2
-# and nothing in arg3.
-sub tab_osc_seq_perl {
-    my ($self, $tab, $osc) = @_;
-
-    return unless $osc =~ s/^tabbedex;//;
-
-    $osc =~ s/^([^;]+)+;//
-	or return;
-
-    if ($1 eq "set_tab_name") {
-	my ($new_name) = split /;/, $osc, 1;
-	$tab->{name} = $new_name;
-	$self->refresh;
-    }
-	
-    1;
-}
-
-
 package urxvt::ext::tabbedex::tab;
 
 # helper extension implementing the subwindows of a tabbed terminal.
 # simply proxies all interesting calls back to the tabbedex class.
 
 {
-   for my $hook qw(osc_seq_perl start destroy user_command key_press property_notify add_lines) {
+   for my $hook qw(start destroy user_command key_press property_notify add_lines) {
       eval qq{
          sub on_$hook {
             my \$parent = \$_[0]{term}{parent}
