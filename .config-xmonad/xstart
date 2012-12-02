@@ -48,7 +48,7 @@ dbuslaunch="`which dbus-launch 2>/dev/null`"
 
 # load Xresources
 [ -f "${HOME}/.Xresources" ] \
-    && xrdb "${HOME}/.Xresources"
+    && xrdb -nocpp "${HOME}/.Xresources"
 
 # Devmon udev mounter (part of udevil)
 [ $(which devmon) ] \
@@ -182,8 +182,8 @@ fi
 # Something fiddles with xrdb database during startup (ubuntu 12.10)
 # reapply xresources
 # FIXME: find out whats actually changing the values and remove this "fix"
-[ -f "${HOME}/.Xresources" ] \
-    && ( sleep 2; xrdb "${HOME}/.Xresources" ) &
+# [ -f "${HOME}/.Xresources" ] \
+#     && ( sleep 2; xrdb -nocpp "${HOME}/.Xresources" ) &
 
 # Start the window manager
 while [ ! "" = "$WM" ]; do
