@@ -112,6 +112,8 @@ if [ $(which gnome-settings-daemon) ]; then
             dconf write /org/gnome/desktop/media-handling/automount-never true
             dconf write /org/gnome/desktop/screensaver/idle-activation-enabled false
             dconf write /org/gnome/desktop/sound/event-sounds false
+            dconf write /org/gnome/settings-daemon/plugins/background/active false
+            dconf write /org/gnome/settings-daemon/plugins/xsettings/active false
         fi
     ) &
 fi
