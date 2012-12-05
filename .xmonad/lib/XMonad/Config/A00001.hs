@@ -70,7 +70,7 @@ import           XMonad.Util.NamedActions
 import           XMonad.Util.NamedScratchpad
 import           XMonad.Util.Run
 import           XMonad.Util.WorkspaceCompare
-
+import qualified Solarized as Sol
 ------------------------------------------------------------------------
 -- Keyboard configuration:
 
@@ -241,13 +241,13 @@ myTerminal = "urxvt"
 ------------------------------------------------------------------------
 -- Border colors for unfocused and focused windows, respectively.
 --
-myNormalBorderColor  = "#859900"
-myFocusedBorderColor = "#d33682"
+myNormalBorderColor  = Sol.green
+myFocusedBorderColor = Sol.magenta
 
 ------------------------------------------------------------------------
 -- Workspaces
 
-myWorkspaces = [ "home", "www.1", "chat", "nodes", "dash" ]
+myWorkspaces = [ "home", "temp.0", "chat", "nodes", "dash" ]
 
 ------------------------------------------------------------------------
 -- Layouts:
@@ -262,12 +262,15 @@ baseTheme = defaultTheme { fontName            = "-xos4-terminus-*-r-*-*-12-*-*-
                          , decoHeight          = 12 }
 
 -- | Decoration theme for tabbed layouts
-tabTheme = baseTheme { activeColor         = "#268bd2"
-                     , inactiveColor       = "#002b36"
-                     , activeBorderColor   = "#268bd2"
-                     , inactiveBorderColor = "#002b36"
-                     , activeTextColor     = "#002b36"
-                     , inactiveTextColor   = "#268bd2" }
+tabTheme = baseTheme { activeColor         = Sol.blue
+                     , inactiveColor       = Sol.base03
+                     , activeBorderColor   = Sol.blue
+                     , inactiveBorderColor = Sol.base03
+                     , activeTextColor     = Sol.base03
+                     , inactiveTextColor   = Sol.blue
+                     , urgentColor         = Sol.magenta
+                     , urgentTextColor     = Sol.base03
+                     , urgentBorderColor   = Sol.magenta }
 
 -- | The layouthoook
 myLayoutHook = showWorkspaceName $
@@ -312,8 +315,8 @@ myLayoutHook = showWorkspaceName $
     --deco t   = decoration shrinkText t Dwm
     showWorkspaceName = showWName'
                         defaultSWNConfig { swn_font    = "-xos4-terminus-*-r-*-*-32-*-*-*-*-*-iso8859-*"
-                                         , swn_bgcolor = "#268bd2"
-                                         , swn_color   = "#002b36"
+                                         , swn_bgcolor = Sol.blue
+                                         , swn_color   = Sol.base03
                                          , swn_fade    = 2.5
                                          }
 
@@ -389,13 +392,13 @@ myEventHook = serverModeEventHook <+> fullscreenEventHook
 doublepad =  wrap "  " "  " . trim
 
 myXmobarLogHook h = dynamicLogWithPP defaultPP
-  { ppCurrent = xmobarColor "#002b36" "#268bd2" . doublepad
-  , ppVisible = xmobarColor "#268bd2" "" . doublepad
+  { ppCurrent = xmobarColor Sol.base03 Sol.blue . doublepad
+  , ppVisible = xmobarColor Sol.blue "" . doublepad
   , ppHidden  = const ""
-  , ppUrgent  = xmobarColor  "#002b36" "#cb4b16" . doublepad
-  , ppTitle   = xmobarColor "#b58900" "" . shorten 50 . trim
-  , ppLayout  = xmobarColor "#586e75" "" . trim
-  , ppSep     = xmobarColor "#2aa198" "" "  *  "
+  , ppUrgent  = xmobarColor Sol.base03 Sol.orange . doublepad
+  , ppTitle   = xmobarColor Sol.yellow  "" . shorten 50 . trim
+  , ppLayout  = xmobarColor Sol.base01 "" . trim
+  , ppSep     = xmobarColor Sol.cyan "" "  *  "
   , ppOutput  = hPutStrLn h
   , ppSort    = getSortByXineramaRule
   }
@@ -403,13 +406,13 @@ myXmobarLogHook h = dynamicLogWithPP defaultPP
 myDzenLogHook h = dynamicLogWithPP $ myPP h
 
 myPP h = defaultPP
-  { ppCurrent = dzenColor "#002b36" "#268bd2" . doublepad
-  , ppVisible = dzenColor "#268bd2" "" . doublepad
+  { ppCurrent = dzenColor Sol.base03 Sol.blue . doublepad
+  , ppVisible = dzenColor Sol.blue "" . doublepad
   , ppHidden  = const ""
-  , ppUrgent  = dzenColor "#002b36" "#cb4b16" . doublepad
-  , ppTitle   = dzenColor "#b58900" "" . dzenEscape . trim
-  , ppLayout  = dzenColor "#586e75" "" . trim
-  , ppSep     = dzenColor "#2aa198" "" "  *  "
+  , ppUrgent  = dzenColor Sol.base03 Sol.orange . doublepad
+  , ppTitle   = dzenColor Sol.yellow "" . dzenEscape . trim
+  , ppLayout  = dzenColor Sol.base01 "" . trim
+  , ppSep     = dzenColor Sol.cyan "" "  *  "
   , ppOutput  = hPutStrLn h
   , ppSort    = getSortByXineramaRule
   }
@@ -433,7 +436,7 @@ myStartupHook = return ()
 
 myUrgencyHook =
   withUrgencyHookC BorderUrgencyHook
-    { urgencyBorderColor = "#cb4b16" }
+    { urgencyBorderColor = Sol.orange }
     urgencyConfig
       { suppressWhen = XMonad.Hooks.UrgencyHook.Focused }
 
@@ -448,10 +451,10 @@ myUrgencyHook =
 
 myXPConfig = defaultXPConfig
  { position = Top
- , bgColor = "#002b36"
- , fgColor = "#268bd2"
- , bgHLight = "#268bd2"
- , fgHLight = "#002b36"
+ , bgColor = Sol.base03
+ , fgColor = Sol.blue
+ , bgHLight = Sol.blue
+ , fgHLight = Sol.base03
  , promptBorderWidth = 0
  , font = "-xos4-terminus-*-r-*-*-16-*-*-*-*-*-iso8859-*" }
 
@@ -560,13 +563,13 @@ configFull = do
     trayerO = screenW - trayerW
     statusW = screenW * 0.6 - trayerW
     statusO = screenW - statusW - trayerW
-    xmonadBarCmd = "dzen2 -xs 1 -bg '#002b36' -ta l -w " ++ show xmonadW
+    xmonadBarCmd = "dzen2 -xs 1 -bg '"++ Sol.base03 ++"' -ta l -w " ++ show xmonadW
     trayerBarCmd = "trayer --transparent true --tint 0x002b36 --alpha 0 --edge top --align left"
                    ++ " --widthtype pixel --width " ++ show trayerW
                    ++ " --margin " ++ show trayerO
                    ++ " --heighttype pixel --height 18"
     statusBarCmd = "conky -c ~/.xmonad/etc/conkyrc-mainbar-config-full "
-                   ++ "| dzen2 -xs 1 -ta r -bg '#002b36' -x " ++ show statusO ++ " -w " ++ show statusW
+                   ++ "| dzen2 -xs 1 -ta r -bg '" ++ Sol.base03 ++ "' -x " ++ show statusO ++ " -w " ++ show statusW
     configStartupHook = myStartupHook
 
   xmonadBar <- spawnPipe xmonadBarCmd
