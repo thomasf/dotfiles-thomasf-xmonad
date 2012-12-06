@@ -46,25 +46,9 @@ dbuslaunch="`which dbus-launch 2>/dev/null`"
 [ -f "${HOME}/.gtkrc-2.0" ] \
     && export GTK2_RC_FILES="${HOME}/.gtkrc-2.0"
 
-# load Xresources
-[ -f "${HOME}/.Xresources" ] \
-    && xrdb -nocpp "${HOME}/.Xresources"
-
 # Devmon udev mounter (part of udevil)
 [ $(which devmon) ] \
     && devmon &
-
-# Start music player daemon if it's available
-if [ $(which mpd) ]; then
-    mkdir -p ~/.mpd/playlists
-    mpd
-    # TODO: this file is removed at start up because scmpc can hang and resubmit the cache forever under some circumstances.
-    [ -f $HOME/.scmpc/scmpc.cache ] \
-        && rm $HOME/.scmpc/scmpc.cache
-    [ $(which scmpc) ] \
-        && [ -f $HOME/.scmpc/scmpc.conf ] \
-        && scmpc
-fi
 
 # Start gnupg or ssh agent
 agent_file="$HOME/.gnupg/gpg-agent-info-$(hostname)"
@@ -78,15 +62,6 @@ fi
 export GPG_AGENT_INFO
 export SSH_AUTH_SOCK
 export SSH_AGENT_PID
-
-# Configure keyboard mode buttons
-if [ -f $HOME/.config-xmonad/xmodmap ]; then
-    if [ $(which xmodmap) ]; then
-        xmodmap $HOME/.config-xmonad/xmodmap
-    else
-        xmessage "warning: xmodmap not found"
-    fi
-fi
 
 # Initialize gnome settings daemon
 if [ $(which gnome-settings-daemon) ]; then
@@ -114,8 +89,31 @@ if [ $(which gnome-settings-daemon) ]; then
             dconf write /org/gnome/desktop/sound/event-sounds false
             dconf write /org/gnome/settings-daemon/plugins/background/active false
             dconf write /org/gnome/settings-daemon/plugins/xsettings/active false
+            dconf write /org/gnome/settings-daemon/plugins/keyboard/active false
+            dconf write /org/gnome/settings-daemon/plugins/keybindings/active false
         fi
     ) &
+fi
+
+# load Xresources
+[ -f "${HOME}/.Xresources" ] \
+    && xrdb -nocpp "${HOME}/.Xresources"
+
+# Start music player daemon if it's available
+if [ $(which mpd) ]; then
+    mkdir -p ~/.mpd/playlists
+    mpd
+    # TODO: this file is removed at start up because scmpc can hang and resubmit the cache forever under some circumstances.
+    [ -f $HOME/.scmpc/scmpc.cache ] \
+        && rm $HOME/.scmpc/scmpc.cache
+    [ $(which scmpc) ] \
+        && [ -f $HOME/.scmpc/scmpc.conf ] \
+        && scmpc
+fi
+
+# Configure keyboard mode buttons
+if [ -f $HOME/.bin-xmonad/kbd ]; then
+    ${HOME}/.bin-xmonad/kbd
 fi
 
 # Launch org-mode popup
