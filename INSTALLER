@@ -5,3 +5,6 @@
 
 [ -e "${HOME}/.config/dunstrc" ] \
     || ln -fs "$(pwd)/.config-xmonad/dunstrc" "${HOME}/.config/"
+
+[ -e "${HOME}/.config/gtk-3.0" ] \
+    || ln -fs "$(pwd)/.config-xmonad/gtk-3.0" "${HOME}/.config/"
