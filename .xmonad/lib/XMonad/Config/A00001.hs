@@ -345,14 +345,8 @@ myManageHook =
   , [className =? c -?>                                        doFloat       | c <- floatByClass]
   , [role      =? "pop-up" <&&> appName =? "google-chrome" -?> doCenterFloat]
   , [className =? c -?>                                        doCenterFloat | c <- centerFloatByClass]
+  , [resource  =? c -?>                                        doCenterFloat | c <- centerFloatByResource]
   , [transience]
-  --, [ isFullscreen                               -?> doFullFloat ]
-  , [resource  =? "ssh_tmux"          -?> doShift "chat"]
-  , [resource  =? "empathy"           -?> doShift "chat"]
-  , [resource  =? "xchat"             -?> doShift "chat"]
-  , [className =? "Pidgin"            -?> doShift "im"]
-  , [className =? "Nicotine.py"       -?> doShift "fileshare"]
-  , [className =? "Transmission-gtk"  -?> doShift "fileshare"]
   , [resource  =? "xmessage"          -?> doCenterFloat]
   , [title     =? "Onboard"           -?> doFloat]
   ]) <+> manageHook Desktop.desktopConfig -- < implies only manageDocks (ons jul 18 08:51 2012)
@@ -365,11 +359,13 @@ myManageHook =
     ignoreByResource =
       ["Do", "desktop_window", "kdesktop"]
     ignoreByClass =
-      ["Unity-2d-panel", "Xfce4-notifyd","Xfdesktop"]
+      ["Unity-2d-panel", "Xfce4-notifyd", "Xfdesktop"]
     floatByResource =
-      ["speedbar", "emacs-floating"]
+      ["speedbar", "floating"]
     floatByClass =
-      ["Unity-2d-launcher", "Orage", "feh", "MPlayer", "Vlc"]
+      ["Unity-2d-launcher", "Orage", "feh"]
+    centerFloatByResource =
+      ["floating-center"]
     centerFloatByClass =
       ["Xfce4-settings-manager", "Xfce4-appfinder", "Pinentry"]
 
