@@ -115,12 +115,12 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm, xK_r),                 addName "Previous workspace (prefix)"                          $ rmEmptyWs $ prevWsPrefix >> movePointer)
   , ((modm.|. ctrl, xK_e),         addName "Next non empty workspace"                             $ rmEmptyWs $ nextWsNonEmpty >> movePointer)
   , ((modm.|. ctrl, xK_r),         addName "Previous non empty workspace"                         $ rmEmptyWs $ prevWsNonEmpty >> movePointer)
+  , ((modm.|. alt, xK_e),          addName "New workspace in prefix.sequence"                     $ newPrefixWS >> movePointer)
 
   , subtitle "Other workspace actions"
   , ((modm, xK_w),                 addName "Toggle previous workspace"                            $ rmEmptyWs $ toggleWS)
   , ((modm.|. ctrl, xK_w),         addName "Toggle previous workspace skipping some workspaces"   $ rmEmptyWs $ ignoredToggleWS)
   , ((modm, xK_q),                 addName "Run default workspace launcer script"                 $ workspaceAction)
-  , ((modm.|. ctrl, xK_q),         addName "New workspace in prefix.sequence"                     $ newPrefixWS >> movePointer)
 
   , subtitle "Workspace prompts"
   , ((modm, xK_n),                 addName "Create or change workspace prompt"                    $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
@@ -142,7 +142,6 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
 
 
   , subtitle "Toggle scratchpads and workspaces"
-  --, ((modm, xK_section),         addName "Toggle smaller terminal pad"                          $ smallTerminalPad >> movePointer)
   , ((modm, xK_section),           addName "Toggle larger terminal pad"                           $ largeTerminalPad >> movePointer)
   , ((modm, xK_1),                 addName "Toggle home workspace"                                $ rmEmptyWs $ myViewWS "home" >> movePointer)
   , ((modm, xK_2),                 addName "Toggle chat workspace"                                $ rmEmptyWs $ myViewWS "chat" >> movePointer)
@@ -470,21 +469,13 @@ spawnShell = spawn myTerminal
 ------------------------------------------------------------------------
 -- Scratch pads:
 
-myScratchPads = [ --NS "smallTerminal" (term "smallTerminal") (res =? scratch "smallTerminal") bottomFloat
-                 NS "largeTerminal" (term "largeTerminal") (res =? scratch "largeTerminal") largeCenterFloat
+myScratchPads = [ NS "largeTerminal" (term "largeTerminal") (res =? scratch "largeTerminal") largeCenterFloat
                 ]
   where
     scratch sname = "scratchpad_" ++ sname
     term sname = myTerminal ++ " -name scratchpad_" ++ sname
     -- inTerm' sname scmd = myTerminal ++ " -name scratchpad_" ++ sname ++ " -e " ++  scmd
     res = resource
-
-    -- bottomFloat = customFloating $ W.RationalRect l t w h
-    --   where
-    --     h = 0.2
-    --     w = 1
-    --     t = 1 - h
-    --     l = (1 - w)/2
 
     largeCenterFloat = customFloating $ W.RationalRect l t w h
       where
