@@ -25,6 +25,7 @@ killall -q gnome-settings-daemon
 killall -q xbindkeys
 killall -q nm-applet
 killall -q dropboxd
+killall -q pulseaudio
 sleep 0.4
 
 # Launch a new dbus-session if not already running
