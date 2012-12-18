@@ -1,0 +1,14 @@
+#!/bin/bash
+
+name=$(wmctrl -d | grep  "[0-9]* \*" | tr -s ' '  | cut -d ' ' -f 9-)
+case $1 in
+    -p)
+        echo -n $(echo $name | cut -d '.' -f -1)
+        ;;
+    -s)
+        echo -n $(echo $name | cut -d '.' -f 2-)
+        ;;
+    *)
+        echo -n $name
+        ;;
+esac
