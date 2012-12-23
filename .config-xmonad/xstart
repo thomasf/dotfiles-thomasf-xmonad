@@ -23,6 +23,7 @@ killall -q ssh-agent
 killall -q gnome-keyring-daemon
 killall -q gnome-settings-daemon
 killall -q xbindkeys
+killall -q blueman-applet
 killall -q nm-applet
 killall -q dropboxd
 killall -q pulseaudio
@@ -67,8 +68,8 @@ export SSH_AGENT_PID
 # Initialize gnome settings daemon
 if [ $(which gnome-settings-daemon) ]; then
     gnome-settings-daemon 2>/dev/null &
+    sleep 0.5
     (
-        sleep 0.5
         if [ $(which gconftool-2) ]; then
 	        gconftool-2 -t bool -s /apps/nautilus/preferences/show_desktop false
 	        gconftool-2 -t bool -s /desktop/gnome/volume_manager/automount_drives false
@@ -133,6 +134,10 @@ fi
 # Launch the network manager applet
 [ $(which nm-applet) ] \
     && nm-applet --sm-disable &
+
+# Launch the bluetooth manager applet
+[ $(which blueman-applet) ] \
+    && blueman-applet &
 
 # Set the backbround color
 [ $(which bgset ) ] \
