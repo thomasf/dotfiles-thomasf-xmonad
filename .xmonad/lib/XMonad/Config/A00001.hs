@@ -188,9 +188,6 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
                                  then windows $ W.view w
                                  else DW.addWorkspace w
 
-    --  | Open small terminal pad
-    -- smallTerminalPad = namedScratchpadAction myScratchPads "smallTerminal"
-
     -- | Open larger terminal pad
     largeTerminalPad = namedScratchpadAction myScratchPads "largeTerminal"
 
