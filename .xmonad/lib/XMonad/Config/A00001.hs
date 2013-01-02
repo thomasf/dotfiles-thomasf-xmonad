@@ -1,7 +1,8 @@
 {-# LANGUAGE DeriveDataTypeable, FlexibleContexts,
   FlexibleInstances, MultiParamTypeClasses,
   NoMonomorphismRestriction, ScopedTypeVariables,
-  TypeSynonymInstances, UndecidableInstances #-}
+  TypeSynonymInstances, UndecidableInstances,
+  PostfixOperators #-}
 {-# OPTIONS_GHC -W -fno-warn-missing-signatures -fwarn-unused-imports #-}
 -----------------------------------------------------------------------------
 -- |
@@ -70,6 +71,7 @@ import           XMonad.Util.NamedActions
 import           XMonad.Util.NamedScratchpad
 import           XMonad.Util.Run
 import           XMonad.Util.WorkspaceCompare
+import qualified XMonad.Util.Dzen as DZ
 import qualified Solarized as Sol
 ------------------------------------------------------------------------
 -- Keyboard configuration:
@@ -99,7 +101,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm, xK_Return),            addName "Swap the focused window and the master window"        $ windows W.swapMaster >> movePointer)
   , ((modm, xK_t),                 addName "Push the window into tiling mode"                     $ withFocused (windows . W.sink) >> movePointer)
   , ((modm.|. ctrl, xK_c),         addName "kill"                                                 $ kill)
-  , ((modm, xK_u),                 addName "Focus urgent winow"                                   $ focusUrgent >> movePointer)
+  , ((modm, xK_u),                 addName "Focus urgent winow"                                   $ focusUrgent >> movePointer >> showWorkspaceName)
   , ((modm.|. ctrl, xK_u),         addName "Clear all urgent window statuses"                     $ clearUrgents)
 
   , subtitle "Cyclic display actions (D/F) [+=select] [+control=swap] [+shift=move window to]"
@@ -111,27 +113,27 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm.|. shft, xK_f),         addName "Move window to previous screen"                       $ shiftPrevScreen >> prevScreen >> movePointer)
 
   , subtitle "Workspace actions (E/R) [mod=select from prefix] [mod+control=select from all]"
-  , ((modm, xK_e),                 addName "Next workspace (prefix)"                              $ rmEmptyWs $ nextWsPrefix >> movePointer)
-  , ((modm, xK_r),                 addName "Previous workspace (prefix)"                          $ rmEmptyWs $ prevWsPrefix >> movePointer)
-  , ((modm.|. ctrl, xK_e),         addName "Next non empty workspace"                             $ rmEmptyWs $ nextWsNonEmpty >> movePointer)
-  , ((modm.|. ctrl, xK_r),         addName "Previous non empty workspace"                         $ rmEmptyWs $ prevWsNonEmpty >> movePointer)
-  , ((modm.|. alt, xK_e),          addName "New workspace in prefix.sequence"                     $ newPrefixWS >> movePointer)
+  , ((modm, xK_e),                 addName "Next workspace (prefix)"                              $ rmEmptyWs $ nextWsPrefix >> movePointer >> showWorkspaceName)
+  , ((modm, xK_r),                 addName "Previous workspace (prefix)"                          $ rmEmptyWs $ prevWsPrefix >> movePointer >> showWorkspaceName)
+  , ((modm.|. ctrl, xK_e),         addName "Next non empty workspace"                             $ rmEmptyWs $ nextWsNonEmpty >> movePointer >> showWorkspaceName)
+  , ((modm.|. ctrl, xK_r),         addName "Previous non empty workspace"                         $ rmEmptyWs $ prevWsNonEmpty >> movePointer >> showWorkspaceName)
+  , ((modm.|. alt, xK_e),          addName "New workspace in prefix.sequence"                     $ newPrefixWS >> movePointer >> showWorkspaceName)
 
   , subtitle "Other workspace actions"
-  , ((modm, xK_w),                 addName "Toggle previous workspace"                            $ rmEmptyWs $ toggleWS)
-  , ((modm.|. ctrl, xK_w),         addName "Toggle previous workspace skipping some workspaces"   $ rmEmptyWs $ ignoredToggleWS)
+  , ((modm, xK_w),                 addName "Toggle previous workspace"                            $ rmEmptyWs $ toggleWS >> showWorkspaceName)
+  , ((modm.|. ctrl, xK_w),         addName "Toggle previous workspace skipping some workspaces"   $ rmEmptyWs $ ignoredToggleWS >> showWorkspaceName)
   , ((modm, xK_q),                 addName "Run default workspace launcer script"                 $ workspaceAction)
 
   , subtitle "Workspace prompts"
-  , ((modm, xK_n),                 addName "Create or change workspace prompt"                    $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
-  , ((modm.|. shft, xK_n),         addName "Move window to other workspace prompt"                $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
-  , ((modm.|. ctrl, xK_n),         addName "Rename current workspace"                             $ DW.renameWorkspace myXPConfig >> movePointer)
-  , ((modm.|. ctrl, xK_BackSpace), addName "Remove current workspace"                             $ DW.removeWorkspace >> movePointer)
-  , ((modm, xK_o),                 addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l 23"] >> movePointer)
+  , ((modm, xK_n),                 addName "Create or change workspace prompt"                    $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer >> showWorkspaceName)
+  , ((modm.|. shft, xK_n),         addName "Move window to other workspace prompt"                $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer >> showWorkspaceName)
+  , ((modm.|. ctrl, xK_n),         addName "Rename current workspace"                             $ DW.renameWorkspace myXPConfig >> movePointer >> showWorkspaceName)
+  , ((modm.|. ctrl, xK_BackSpace), addName "Remove current workspace"                             $ DW.removeWorkspace >> movePointer >> showWorkspaceName)
+  , ((modm, xK_o),                 addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l 23"] >> movePointer >> showWorkspaceName)
 
   , subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]"
-  , ((modm, xK_space),             addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer)
-  , ((modm.|. ctrl, xK_space),     addName "Switch to default layout"                             $ sendMessage (JumpToLayout "tall h") >> movePointer)
+  , ((modm, xK_space),             addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
+  , ((modm.|. ctrl, xK_space),     addName "Switch to default layout"                             $ sendMessage (JumpToLayout "tall h") >> movePointer >> showLayoutName)
   , ((modm.|. alt, xK_space),      addName "Toggle fullscreen"                                    $ sendMessage (MT.Toggle MTI.NBFULL) >> movePointer)
   , ((modm.|. alt, xK_s),          addName "Toggle struts (ignore panels)"                        $ sendMessage ToggleStruts >> movePointer)
   , ((modm.|. alt, xK_b),          addName "Toggle window borders"                                $ sendMessage (MT.Toggle MTI.NOBORDERS) >> movePointer)
@@ -143,11 +145,11 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
 
   , subtitle "Toggle scratchpads and workspaces"
   , ((modm, xK_section),           addName "Toggle larger terminal pad"                           $ largeTerminalPad >> movePointer)
-  , ((modm, xK_1),                 addName "Toggle home workspace"                                $ rmEmptyWs $ myViewWS "home" >> movePointer)
-  , ((modm, xK_2),                 addName "Toggle chat workspace"                                $ rmEmptyWs $ myViewWS "chat" >> movePointer)
-  , ((modm, xK_3),                 addName "Toggle nodes workspace"                               $ rmEmptyWs $ myViewWS "nodes" >> movePointer)
-  , ((modm, xK_4),                 addName "Toggle mail workspace"                                $ rmEmptyWs $ myViewWS "mail" >> movePointer)
-  , ((modm, xK_0),                 addName "Toggle dashboard workspace"                           $ rmEmptyWs $ myViewWS "dash" >> movePointer)
+  , ((modm, xK_1),                 addName "Toggle home workspace"                                $ rmEmptyWs $ myViewWS "home" >> movePointer >> showWorkspaceName)
+  , ((modm, xK_2),                 addName "Toggle chat workspace"                                $ rmEmptyWs $ myViewWS "chat" >> movePointer >> showWorkspaceName)
+  , ((modm, xK_3),                 addName "Toggle nodes workspace"                               $ rmEmptyWs $ myViewWS "nodes" >> movePointer >> showWorkspaceName)
+  , ((modm, xK_4),                 addName "Toggle mail workspace"                                $ rmEmptyWs $ myViewWS "mail" >> movePointer >> showWorkspaceName)
+  , ((modm, xK_0),                 addName "Toggle dashboard workspace"                           $ rmEmptyWs $ myViewWS "dash" >> movePointer >> showWorkspaceName)
 
   ] where
 
@@ -253,8 +255,11 @@ myWorkspaces = [ "home", "temp.0", "chat", "nodes", "dash" ]
 -- restarting (with 'mod-q') to reset your layout state to the new
 -- defaults, as xmonad preserves your old layout settings by default.
 
+defaultFont = "-xos4-terminus-*-r-*-*-12-*-*-*-*-*-iso8859-*"
+largeFont = "-xos4-terminus-*-r-*-*-32-*-*-*-*-*-iso8859-*"
+
 -- | Base decoration theme
-baseTheme = defaultTheme { fontName            = "-xos4-terminus-*-r-*-*-12-*-*-*-*-*-iso8859-*"
+baseTheme = defaultTheme { fontName            = defaultFont
                          , decoHeight          = 12 }
 
 -- | Decoration theme for tabbed layouts
@@ -269,8 +274,7 @@ tabTheme = baseTheme { activeColor         = Sol.blue
                      , urgentBorderColor   = Sol.magenta }
 
 -- | The layouthoook
-myLayoutHook = showWorkspaceName $
-               Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22 2012)
+myLayoutHook = Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22 2012)
                MT.mkToggle (MT.single MTI.NOBORDERS) $
                MT.mkToggle (MT.single MTI.NBFULL) $
                onWorkspace "dash" (renamed [Replace "*"] $ tabsAlways) $
@@ -309,12 +313,6 @@ myLayoutHook = showWorkspaceName $
     im = withIM (1%7) (Role "buddy_list") Grid
     --titleDeco = deco titleTheme
     --deco t   = decoration shrinkText t Dwm
-    showWorkspaceName = showWName'
-                        defaultSWNConfig { swn_font    = "-xos4-terminus-*-r-*-*-32-*-*-*-*-*-iso8859-*"
-                                         , swn_bgcolor = Sol.blue
-                                         , swn_color   = Sol.base03
-                                         , swn_fade    = 2.5
-                                         }
 
 -----------------------------------------------------------------------
 -- Window rules:
@@ -410,7 +408,6 @@ myPP h = defaultPP
   }
   --where
   --  padWs ws = if ws == "NSP" then "" else pad ws
-
 
 ------------------------------------------------------------------------
 -- Startup hook
@@ -581,6 +578,29 @@ configFull = do
     -- | Determine the number of physical screens.
     -- countScreens :: (MonadIO m, Integral i) => m i
     -- countScreens = liftM genericLength . liftIO $ openDisplay "" >>= getScreenInfo
+
+showWorkspaceName = do
+  ws <- gets (W.currentTag . windowset)
+  return ws
+   >>= \d-> DZ.dzenConfig
+             (DZ.timeout 2.5
+              >=> DZ.onCurr (DZ.center 400 32)
+              >=> DZ.font largeFont
+              >=> DZ.addArgs ["-fg", Sol.base03]
+              >=> DZ.addArgs ["-bg", Sol.blue]
+             ) d
+
+showLayoutName = do
+  winset <- gets windowset
+  let ld = description . W.layout . W.workspace . W.current $ winset
+  return ld
+   >>= \d-> DZ.dzenConfig
+             (DZ.timeout 0.8
+              >=> DZ.onCurr (DZ.center 400 32)
+              >=> DZ.font largeFont
+              >=> DZ.addArgs ["-fg", Sol.base03]
+              >=> DZ.addArgs ["-bg", Sol.green]
+             ) d
 
 -- Local Variables:
 -- fill-column: 180
