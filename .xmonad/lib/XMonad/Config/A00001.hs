@@ -133,7 +133,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
 
   , subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]"
   , ((modm, xK_space),             addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
-  , ((modm.|. ctrl, xK_space),     addName "Switch to default layout"                             $ sendMessage (JumpToLayout "tall h") >> movePointer >> showLayoutName)
+  , ((modm.|. ctrl, xK_space),     addName "Switch to default layout"                             $ sendMessage (JumpToLayout "tabs") >> movePointer >> showLayoutName)
   , ((modm.|. alt, xK_space),      addName "Toggle fullscreen"                                    $ sendMessage (MT.Toggle MTI.NBFULL) >> movePointer)
   , ((modm.|. alt, xK_s),          addName "Toggle struts (ignore panels)"                        $ sendMessage ToggleStruts >> movePointer)
   , ((modm.|. alt, xK_b),          addName "Toggle window borders"                                $ sendMessage (MT.Toggle MTI.NOBORDERS) >> movePointer)
@@ -285,13 +285,13 @@ myLayoutHook = Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (o
                onWorkspace "im" (renamed [Replace "*"] $ im) $
                onWorkspace "reading" (renamed [Replace "*"] $ tabs) $
                lessBorders OnlyFloat
-               ((renamed [Replace "tall h"]      $ Mirror tallH) |||
+               ((renamed [Replace "tabs"]        $ tabsAlways) |||
+                (renamed [Replace "tall h"]      $ Mirror tallH) |||
                 (renamed [Replace "tall v"]      $ tallV) |||
                 (renamed [Replace "3col h"]      $ threeCol) |||
                 (renamed [Replace "3col v"]      $ Mirror threeCol) |||
                 (renamed [Replace "grid"]        $ grid ) |||
-                (renamed [Replace "spiral"]      $ spiral (6/7)) |||
-                (renamed [Replace "tabs"]        $ tabsAlways))
+                (renamed [Replace "spiral"]      $ spiral (6/7)))
   where
     tallH = Tall 1 (3/100) (4/5)
     tallV = Tall 1 (3/100) (3/4)
