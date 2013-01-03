@@ -6,4 +6,4 @@
 #  A good way of dealing with both xinit and xsession is to just source the xsession file from xinit.
 #
 
-. ${HOME}/.config-xmonad/xsession
+. ${HOME}/.config-xmonad/xstart
