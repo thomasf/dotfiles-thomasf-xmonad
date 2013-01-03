@@ -105,10 +105,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm.|. ctrl, xK_u),         addName "Clear all urgent window statuses"                     $ clearUrgents)
 
   , subtitle "Cyclic display actions (D/F) [+=select] [+control=swap] [+shift=move window to]"
-  , ((modm, xK_d),                 addName "Next screen"                                          $ nextScreen >> movePointer)
-  , ((modm, xK_f),                 addName "Previous screen"                                      $ prevScreen >> movePointer)
-  , ((modm.|. ctrl, xK_d),         addName "Swap current display witn next"                       $ swapNextScreen >> nextScreen >> movePointer)
-  , ((modm.|. ctrl, xK_f),         addName "Swap current display witn previous"                   $ swapPrevScreen >> nextScreen >> movePointer)
+  , ((modm, xK_d),                 addName "Next screen"                                          $ nextScreen >> movePointer >> showWorkspaceNameFast)
+  , ((modm, xK_f),                 addName "Previous screen"                                      $ prevScreen >> movePointer >> showWorkspaceNameFast)
+  , ((modm.|. ctrl, xK_d),         addName "Swap current display witn next"                       $ swapNextScreen >> showWorkspaceName >> nextScreen >> movePointer >> showWorkspaceName)
+  , ((modm.|. ctrl, xK_f),         addName "Swap current display witn previous"                   $ swapPrevScreen >> showWorkspaceName >> nextScreen >> movePointer >> showWorkspaceName)
   , ((modm.|. shft, xK_d),         addName "Move window to next screen"                           $ shiftNextScreen >> nextScreen >> movePointer)
   , ((modm.|. shft, xK_f),         addName "Move window to previous screen"                       $ shiftPrevScreen >> prevScreen >> movePointer)
 
@@ -120,8 +120,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm.|. alt, xK_e),          addName "New workspace in prefix.sequence"                     $ newPrefixWS >> movePointer >> showWorkspaceName)
 
   , subtitle "Other workspace actions"
-  , ((modm, xK_w),                 addName "Toggle previous workspace"                            $ rmEmptyWs $ toggleWS >> showWorkspaceName)
-  , ((modm.|. ctrl, xK_w),         addName "Toggle previous workspace skipping some workspaces"   $ rmEmptyWs $ ignoredToggleWS >> showWorkspaceName)
+  , ((modm, xK_w),                 addName "Toggle previous workspace"                            $ rmEmptyWs $ toggleWS >> showWorkspaceNameFast)
+  , ((modm.|. ctrl, xK_w),         addName "Toggle previous workspace skipping some workspaces"   $ rmEmptyWs $ ignoredToggleWS >> showWorkspaceNameFast)
   , ((modm, xK_q),                 addName "Run default workspace launcer script"                 $ workspaceAction)
 
   , subtitle "Workspace prompts"
@@ -145,11 +145,11 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
 
   , subtitle "Toggle scratchpads and workspaces"
   , ((modm, xK_section),           addName "Toggle larger terminal pad"                           $ largeTerminalPad >> movePointer)
-  , ((modm, xK_1),                 addName "Toggle home workspace"                                $ rmEmptyWs $ myViewWS "home" >> movePointer >> showWorkspaceName)
-  , ((modm, xK_2),                 addName "Toggle chat workspace"                                $ rmEmptyWs $ myViewWS "chat" >> movePointer >> showWorkspaceName)
-  , ((modm, xK_3),                 addName "Toggle nodes workspace"                               $ rmEmptyWs $ myViewWS "nodes" >> movePointer >> showWorkspaceName)
-  , ((modm, xK_4),                 addName "Toggle mail workspace"                                $ rmEmptyWs $ myViewWS "mail" >> movePointer >> showWorkspaceName)
-  , ((modm, xK_0),                 addName "Toggle dashboard workspace"                           $ rmEmptyWs $ myViewWS "dash" >> movePointer >> showWorkspaceName)
+  , ((modm, xK_1),                 addName "Toggle home workspace"                                $ rmEmptyWs $ myViewWS "home" >> movePointer >> showWorkspaceNameFast)
+  , ((modm, xK_2),                 addName "Toggle chat workspace"                                $ rmEmptyWs $ myViewWS "chat" >> movePointer >> showWorkspaceNameFast)
+  , ((modm, xK_3),                 addName "Toggle nodes workspace"                               $ rmEmptyWs $ myViewWS "nodes" >> movePointer >> showWorkspaceNameFast)
+  , ((modm, xK_4),                 addName "Toggle mail workspace"                                $ rmEmptyWs $ myViewWS "mail" >> movePointer >> showWorkspaceNameFast)
+  , ((modm, xK_0),                 addName "Toggle dashboard workspace"                           $ rmEmptyWs $ myViewWS "dash" >> movePointer >> showWorkspaceNameFast)
 
   ] where
 
@@ -579,16 +579,19 @@ configFull = do
     -- countScreens :: (MonadIO m, Integral i) => m i
     -- countScreens = liftM genericLength . liftIO $ openDisplay "" >>= getScreenInfo
 
-showWorkspaceName = do
+showWorkspaceName1 timeout bg = do
   ws <- gets (W.currentTag . windowset)
   return ws
    >>= \d-> DZ.dzenConfig
-             (DZ.timeout 2.5
+             (DZ.timeout timeout
               >=> DZ.onCurr (DZ.center 400 32)
               >=> DZ.font largeFont
               >=> DZ.addArgs ["-fg", Sol.base03]
-              >=> DZ.addArgs ["-bg", Sol.blue]
+              >=> DZ.addArgs ["-bg", bg]
              ) d
+
+showWorkspaceName = showWorkspaceName1 2.5 Sol.blue
+showWorkspaceNameFast = showWorkspaceName1 0.5 Sol.cyan
 
 showLayoutName = do
   winset <- gets windowset
