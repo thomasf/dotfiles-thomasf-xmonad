@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -e
+
+cd
+
+D=23
+Xnest :$D &
+export DISPLAY=:$D.0
+sleep 2
+
+# xrdb ~/.Xresources &
+# export __XSTART_NO_KILL=yes
+# source ~/.config-xmonad/xstart
+
+xclock &
+xclock &
+xclock &
+urxvt &
+
+xmonad
