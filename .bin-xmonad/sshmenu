@@ -12,10 +12,14 @@
 #
 
 set -e
+if  [ `which yeganesh` ]; then
+    args="yeganesh -p sshmenu -- -p SSH"
+else
+    args="dmenu -p SSH"
+fi
+cs=`cat ~/.ssh/config | grep ^Host | awk '{ print $2 }' | $args`
 
-cs=`cat ~/.ssh/config | grep ^Host | awk '{ print $2 }' | dmenu -p SSH`
-
-exec urxvt -name ssh_term -e sh -c \
+exec urxvt -e sh -c \
     "echo CONNECTING: ${cs};
      ssh ${cs};
      echo ;

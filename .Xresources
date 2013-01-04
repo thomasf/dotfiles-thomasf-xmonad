@@ -194,32 +194,6 @@ ncmpcpp*color14:                      #46a4ff
 ncmpcpp*color7:                       #FFFFFF
 ncmpcpp*color15:                      #FFFFFF
 
-
-!---- Terminal for ssh connections {
-ssh_term*background:                  #252627
-ssh_term*borderColor:                 #252627
-ssh_term*scrollBar:                   false
-ssh_term*foreground:                  #D8D8D8
-ssh_term*cursorColor:                 #999999
-ssh_term*colorBD:                     #ffffff
-ssh_term*colorUL:                     #99cc66
-ssh_term*color0:                      #3E3E3E
-ssh_term*color8:                      #525252
-ssh_term*color1:                      #CF516E
-ssh_term*color9:                      #E87B94
-ssh_term*color2:                      #799351
-ssh_term*color10:                     #8fa966
-ssh_term*color3:                      #ccc855
-ssh_term*color11:                     #d1c78e
-ssh_term*color12:                     #A4c9e0
-ssh_term*color4:                      #6FA5C7
-ssh_term*color5:                      #b374a7
-ssh_term*color13:                     #d1a3c8
-ssh_term*color6:                      #75a692
-ssh_term*color14:                     #89bca7
-ssh_term*color7:                      #BBBBBB
-ssh_term*color15:                     #EEEEEE
-
 ! Local Variables:
 ! eval: (rainbow-mode)
 ! End:
