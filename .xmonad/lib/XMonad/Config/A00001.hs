@@ -584,13 +584,13 @@ showWorkspaceName1 timeout bg = do
   return ws
    >>= \d-> DZ.dzenConfig
              (DZ.timeout timeout
-              >=> DZ.onCurr (DZ.center 400 32)
+              >=> DZ.onCurr (DZ.center 400 48)
               >=> DZ.font largeFont
               >=> DZ.addArgs ["-fg", Sol.base03]
               >=> DZ.addArgs ["-bg", bg]
              ) d
 
-showWorkspaceName = showWorkspaceName1 2.5 Sol.blue
+showWorkspaceName = showWorkspaceName1 2.5 Sol.yellow
 showWorkspaceNameOld = showWorkspaceName1 2.5 Sol.base1
 showWorkspaceNameFast = showWorkspaceName1 0.5 Sol.magenta
 showWorkspaceNameOldFast = showWorkspaceName1 0.5 Sol.base1
@@ -601,7 +601,7 @@ showLayoutName = do
   return ld
    >>= \d-> DZ.dzenConfig
              (DZ.timeout 0.8
-              >=> DZ.onCurr (DZ.center 400 32)
+              >=> DZ.onCurr (DZ.center 400 48)
               >=> DZ.font largeFont
               >=> DZ.addArgs ["-fg", Sol.base03]
               >=> DZ.addArgs ["-bg", Sol.green]
