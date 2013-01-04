@@ -99,7 +99,7 @@ LURxvt*pointerColorForeground: #586e75
 LURxvt*scrollColor:            #93a1a1
 LURxvt*borderColor:            #eee8d5
 LURxvt*color0:                 #073642
-LURxvt*color8:                 #fdf6e3
+LURxvt*color8:                 #657b83
 LURxvt*color10:                #93a1a1
 LURxvt*color11:                #839496
 LURxvt*color12:                #657b83
@@ -120,7 +120,7 @@ URxvt*borderColor:                    #073642
 URxvt*colorUL:                        #859900
 URxvt*colorBD:                        #268bd2
 URxvt*color0:                         #073642
-URxvt*color8:                         #002b36
+URxvt*color8:                         #839496
 URxvt*color1:                         #dc322f
 URxvt*color9:                         #cb4b16
 URxvt*color2:                         #859900
