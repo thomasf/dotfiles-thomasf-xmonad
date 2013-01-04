@@ -72,6 +72,7 @@ import           XMonad.Util.NamedScratchpad
 import           XMonad.Util.Run
 import           XMonad.Util.WorkspaceCompare
 import qualified XMonad.Util.Dzen as DZ
+import           XMonad.Util.NamedWindows
 import qualified Solarized as Sol
 ------------------------------------------------------------------------
 -- Keyboard configuration:
@@ -581,14 +582,13 @@ configFull = do
 
 showWorkspaceName1 timeout bg = do
   ws <- gets (W.currentTag . windowset)
-  return ws
-   >>= \d-> DZ.dzenConfig
-             (DZ.timeout timeout
-              >=> DZ.onCurr (DZ.center 400 48)
-              >=> DZ.font largeFont
-              >=> DZ.addArgs ["-fg", Sol.base03]
-              >=> DZ.addArgs ["-bg", bg]
-             ) d
+  DZ.dzenConfig
+    (DZ.timeout timeout
+     >=> DZ.onCurr (DZ.center 400 48)
+     >=> DZ.font largeFont
+     >=> DZ.addArgs ["-fg", Sol.base03]
+     >=> DZ.addArgs ["-bg", bg]
+    ) ws
 
 showWorkspaceName = showWorkspaceName1 2.5 Sol.yellow
 showWorkspaceNameOld = showWorkspaceName1 2.5 Sol.base1
@@ -598,15 +598,13 @@ showWorkspaceNameOldFast = showWorkspaceName1 0.5 Sol.base1
 showLayoutName = do
   winset <- gets windowset
   let ld = description . W.layout . W.workspace . W.current $ winset
-  return ld
-   >>= \d-> DZ.dzenConfig
-             (DZ.timeout 0.8
-              >=> DZ.onCurr (DZ.center 400 48)
-              >=> DZ.font largeFont
-              >=> DZ.addArgs ["-fg", Sol.base03]
-              >=> DZ.addArgs ["-bg", Sol.green]
-             ) d
+  DZ.dzenConfig
+    (DZ.timeout 0.8
+     >=> DZ.onCurr (DZ.center 400 48)
+     >=> DZ.font largeFont
+     >=> DZ.addArgs ["-fg", Sol.base03]
+     >=> DZ.addArgs ["-bg", Sol.green]
+    ) ld
 
--- Local Variables:
 -- fill-column: 180
 -- End:
