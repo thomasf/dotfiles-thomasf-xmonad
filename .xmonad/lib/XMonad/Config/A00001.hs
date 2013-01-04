@@ -107,10 +107,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , subtitle "Cyclic display actions (D/F) [+=select] [+control=swap] [+shift=move window to]"
   , ((modm, xK_d),                 addName "Next screen"                                          $ nextScreen >> movePointer >> showWorkspaceNameFast)
   , ((modm, xK_f),                 addName "Previous screen"                                      $ prevScreen >> movePointer >> showWorkspaceNameFast)
-  , ((modm.|. ctrl, xK_d),         addName "Swap current display witn next"                       $ swapNextScreen >> showWorkspaceName >> nextScreen >> movePointer >> showWorkspaceName)
-  , ((modm.|. ctrl, xK_f),         addName "Swap current display witn previous"                   $ swapPrevScreen >> showWorkspaceName >> nextScreen >> movePointer >> showWorkspaceName)
-  , ((modm.|. shft, xK_d),         addName "Move window to next screen"                           $ shiftNextScreen >> nextScreen >> movePointer)
-  , ((modm.|. shft, xK_f),         addName "Move window to previous screen"                       $ shiftPrevScreen >> prevScreen >> movePointer)
+  , ((modm.|. ctrl, xK_d),         addName "Swap current display witn next"                       $ swapNextScreen >> showWorkspaceNameOld >> nextScreen >> movePointer >> showWorkspaceName)
+  , ((modm.|. ctrl, xK_f),         addName "Swap current display witn previous"                   $ swapPrevScreen >> showWorkspaceNameOld >> nextScreen >> movePointer >> showWorkspaceName)
+  , ((modm.|. shft, xK_d),         addName "Move window to next screen"                           $ shiftNextScreen >> nextScreen >> movePointer >> showWorkspaceNameFast)
+  , ((modm.|. shft, xK_f),         addName "Move window to previous screen"                       $ shiftPrevScreen >> prevScreen >> movePointer >> showWorkspaceNameFast)
 
   , subtitle "Workspace actions (E/R) [mod=select from prefix] [mod+control=select from all]"
   , ((modm, xK_e),                 addName "Next workspace (prefix)"                              $ rmEmptyWs $ nextWsPrefix >> movePointer >> showWorkspaceName)
@@ -591,7 +591,9 @@ showWorkspaceName1 timeout bg = do
              ) d
 
 showWorkspaceName = showWorkspaceName1 2.5 Sol.blue
-showWorkspaceNameFast = showWorkspaceName1 0.5 Sol.cyan
+showWorkspaceNameOld = showWorkspaceName1 2.5 Sol.base1
+showWorkspaceNameFast = showWorkspaceName1 0.5 Sol.magenta
+showWorkspaceNameOldFast = showWorkspaceName1 0.5 Sol.base1
 
 showLayoutName = do
   winset <- gets windowset
