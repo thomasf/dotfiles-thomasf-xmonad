@@ -87,7 +87,7 @@ confModMask = super
 -- align-regexp rules: "addName", "\$"
 myKeys conf@(XConfig {XMonad.modMask = modm}) =
   [ subtitle "Application launching"
-  , ((modm.|. shft, xK_Return),    addName "launch terminal"                                      $ spawnShell)
+  , ((modm.|. shft .|. alt, xK_Return),    addName "launch xterm"                                      $ spawn "xterm")
 
   , subtitle "Cyclic window actions (J/K) [+=focus] [+control=cycle+keep focus] [+shift=move]"
   , ((modm, xK_j),                 addName "Focus next window on workspace"                       $ windows W.focusDown >> movePointer)
