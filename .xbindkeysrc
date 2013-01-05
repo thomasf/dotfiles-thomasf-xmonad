@@ -21,11 +21,11 @@
 # -------------------------
 # Open terminal
 
-"urxvt"
-  mod4 + shift + Return
-
-"urxvt -name LURxvt"
+"term"
   mod4 + control + Return
+
+"term o"
+  mod4 + alt + Return
 
 "sshmenu"
   mod4 + s

@@ -65,6 +65,8 @@ export GPG_AGENT_INFO
 export SSH_AUTH_SOCK
 export SSH_AGENT_PID
 
+touch ~/.config/darkmode
+
 # Initialize gnome settings daemon
 if [ $(which gnome-settings-daemon) ]; then
     gnome-settings-daemon 2>/dev/null &

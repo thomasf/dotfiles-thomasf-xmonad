@@ -14,11 +14,23 @@ case $cmd in
         shift 1
         exec urxvt -name LURxvt $*
         ;;
-    large)
+    d|dark)
         shift 1
-        xsexec urxvt -name large_term $*
+        exec urxvt $*
+        ;;
+    o|other)
+        shift 1
+        if [ -e ~/.config/darkmode ]; then
+            exec urxvt -name LURxvt $*
+        else
+            exec urxvt $*
+        fi
         ;;
     *)
-        exec urxvt $*
+        if [ -e ~/.config/darkmode ]; then
+            exec urxvt $*
+        else
+            exec urxvt -name LURxvt $*
+        fi
         ;;
 esac

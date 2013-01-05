@@ -1,0 +1,34 @@
+#!/bin/sh
+#
+# Switch between light and dark mode.
+#
+
+set -e
+
+golight() {
+    rm -f ~/.config/darkmode
+    bgset l
+}
+
+godark() {
+    [ ! $(id -u) -eq 0 ] && touch ~/.config/darkmode
+    bgset d
+}
+
+
+cmd=${1}
+case $cmd in
+    l|light)
+        golight
+        ;;
+    d|dark)
+        godark
+        ;;
+    t|toggle|*)
+        if [ -e ~/.config/darkmode ]; then
+            golight
+        else
+            godark
+        fi
+        ;;
+esac
