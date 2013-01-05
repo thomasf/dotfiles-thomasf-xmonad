@@ -132,9 +132,13 @@ if [ -f $HOME/.bin-xmonad/kbd ]; then
 fi
 
 # Launch org-mode popup
-[ $(which orgmode) ] \
-    && [ $(which urxvt) ] \
-    && urxvt -name xmessage -geometry 102x60 -e bash -c "orgmode;read" &
+# [ $(which orgmode) ] \
+#     && [ $(which urxvt) ] \
+#     && urxvt -name xmessage -geometry 102x60 -e bash -c "orgmode;read" &
+
+# Launch emacs-home
+[ $(which emacs-home) ] \
+    && emacs-home &
 
 # Launch google chrome
 [ $(which google-chrome) ] \
