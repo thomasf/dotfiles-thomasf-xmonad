@@ -592,8 +592,8 @@ showWorkspaceName1 timeout bg = do
 
 showWorkspaceName = showWorkspaceName1 2.5 Sol.yellow
 showWorkspaceNameOld = showWorkspaceName1 2.5 Sol.base1
-showWorkspaceNameFast = showWorkspaceName1 0.5 Sol.magenta
-showWorkspaceNameOldFast = showWorkspaceName1 0.5 Sol.base1
+showWorkspaceNameFast = showWorkspaceName1 0.8 Sol.magenta
+showWorkspaceNameOldFast = showWorkspaceName1 0.8 Sol.base1
 
 showLayoutName = do
   winset <- gets windowset
