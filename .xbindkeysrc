@@ -33,9 +33,6 @@
 # -------------------------
 # Window management
 
-"easyxmotion"
-  mod4 + y
-
 "xkill"
   mod4 + shift + control + c
 
