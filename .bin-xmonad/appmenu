@@ -11,9 +11,9 @@ set -e
 tr=urxvt
 
 if [ `which yeganesh` ]; then
-    cmd=`yeganesh -p appmenu -x`
+    cmd=`yeganesh -p appmenu -x -- -l 25`
 else
-    cmd=`dmenu_path | dmenu -i`
+    cmd=`dmenu_path | dmenu -i -l 25`
 fi
 
 case $cmd in
