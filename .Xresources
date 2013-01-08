@@ -85,7 +85,7 @@ URxvt*keysym.M-u:                     perl:url-select:select_next
 URxvt*url-select.launcher:            google-chrome
 URxvt*url-select.underline:           true
 URxvt*clipboard.autocopy:             true
-URxvt.keysym.M-v:                     perl:clipboard:paste
+URxvt.keysym.H-v:                     perl:clipboard:paste
 
 
 !---- Light URxvt (Solarized Light, 11pt) {
