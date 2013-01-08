@@ -128,9 +128,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm.|. alt, xK_e),          addName "New workspace in prefix.sequence"                     $ newPrefixWS >> movePointer >> showWorkspaceName)
 
   , subtitle "Other workspace actions"
-  , ((modm, xK_w),                 addName "Toggle previous workspace"                            $ rmEmptyWs $ toggleWS >> showWorkspaceNameFast)
-  , ((modm.|. ctrl, xK_w),         addName "Toggle previous workspace skipping some workspaces"   $ rmEmptyWs $ ignoredToggleWS >> showWorkspaceNameFast)
-  , ((modm, xK_q),                 addName "Run default workspace launcer script"                 $ workspaceAction)
+  , ((modm, xK_y),                 addName "Toggle previous workspace"                            $ rmEmptyWs $ toggleWS >> showWorkspaceNameFast)
+  , ((modm.|. ctrl, xK_y),         addName "Toggle previous workspace skipping some workspaces"   $ rmEmptyWs $ ignoredToggleWS >> showWorkspaceNameFast)
+  , ((modm, xK_a),                 addName "Run default workspace launcer script"                 $ workspaceAction)
 
   , subtitle "Workspace prompts"
   , ((modm, xK_n),                 addName "Create or change workspace prompt"                    $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer >> showWorkspaceName)
@@ -153,11 +153,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
 
   , subtitle "Toggle scratchpads and workspaces"
   , ((modm, xK_section),           addName "Toggle larger terminal pad"                           $ largeTerminalPad >> movePointer)
-  , ((modm.|. alt, xK_1),          addName "Toggle home workspace"                                $ rmEmptyWs $ myViewWS "home" >> movePointer >> showWorkspaceNameFast)
-  , ((modm.|. alt, xK_2),          addName "Toggle chat workspace"                                $ rmEmptyWs $ myViewWS "chat" >> movePointer >> showWorkspaceNameFast)
-  , ((modm.|. alt, xK_3),          addName "Toggle nodes workspace"                               $ rmEmptyWs $ myViewWS "nodes" >> movePointer >> showWorkspaceNameFast)
-  , ((modm.|. alt, xK_4),          addName "Toggle mail workspace"                                $ rmEmptyWs $ myViewWS "mail" >> movePointer >> showWorkspaceNameFast)
-  , ((modm,   xK_0),               addName "Toggle dashboard workspace"                           $ rmEmptyWs $ myViewWS "dash" >> movePointer >> showWorkspaceNameFast)
+  , ((modm, xK_7),                 addName "Toggle home workspace"                                $ rmEmptyWs $ myViewWS "home" >> movePointer >> showWorkspaceNameFast)
+  , ((modm, xK_8),                 addName "Toggle chat workspace"                                $ rmEmptyWs $ myViewWS "chat" >> movePointer >> showWorkspaceNameFast)
+  , ((modm, xK_9),                 addName "Toggle nodes workspace"                               $ rmEmptyWs $ myViewWS "nodes" >> movePointer >> showWorkspaceNameFast)
+  , ((modm, xK_0),                 addName "Toggle dashboard workspace"                           $ rmEmptyWs $ myViewWS "dash" >> movePointer >> showWorkspaceNameFast)
 
   ] where
 
@@ -182,7 +181,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
 
     -- | Toggle recent workspaces ignoring some of them
     ignoredToggleWS = toggleWS' [ "NSP"
-                                , "home", "nodes", "dash", "mail"
+                                , "home", "nodes", "dash"
                                 , "chat", "im" ] >> movePointer
 
     -- | View a workspace by name and maybe run workspace action
@@ -301,7 +300,6 @@ myLayoutHook = Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (o
                MT.mkToggle (MT.single MTI.NBFULL) $
                onWorkspace "dash" (renamed [Replace "*"] $ tabsAlways) $
                onWorkspace "chat" ((renamed [Replace "*"]) $ grid) $
-               onWorkspace "mail" ((renamed [Replace "*"]) $ grid) $
                onWorkspace "home" ((renamed [Replace "*"]) $ grid) $
                onWorkspace "nodes" ((renamed [Replace "*"]) $ grid) $
                onWorkspace "im" (renamed [Replace "*"] $ im) $
