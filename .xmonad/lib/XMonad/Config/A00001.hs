@@ -191,7 +191,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
       windows (W.greedyView wsid)
       maybeWorkspaceAction
 
-    -- | View a workspace by name and maybe run workspace action
+    -- | View a workspace by name
     myViewWS1 wsid = do
       DW.addHiddenWorkspace wsid
       windows (W.greedyView wsid)
@@ -228,7 +228,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
     gotoPrefixWorkspaceNonSuffix :: X ()
     gotoPrefixWorkspaceNonSuffix = do
       ws <- gets (W.currentTag . windowset)
-      myViewWS1 (takeWhile (/='.') ws)
+      myViewWS (takeWhile (/='.') ws)
 
     gotoPrefixWorkspaceSuffix suffix = do
       ws <- gets (W.currentTag . windowset)
