@@ -136,10 +136,6 @@ fi
 #     && [ $(which urxvt) ] \
 #     && urxvt -name xmessage -geometry 102x60 -e bash -c "orgmode;read" &
 
-# Launch emacs-home
-[ $(which emacs-home) ] \
-    && emacs-home &
-
 # Launch google chrome
 [ $(which google-chrome) ] \
     && google-chrome --no-startup-window 2>/dev/null &
