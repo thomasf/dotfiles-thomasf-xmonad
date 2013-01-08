@@ -270,9 +270,9 @@ tabTheme = baseTheme { activeColor         = Sol.blue
                      , inactiveBorderColor = Sol.base03
                      , activeTextColor     = Sol.base03
                      , inactiveTextColor   = Sol.blue
-                     , urgentColor         = Sol.magenta
+                     , urgentColor         = Sol.orange
                      , urgentTextColor     = Sol.base03
-                     , urgentBorderColor   = Sol.magenta }
+                     , urgentBorderColor   = Sol.orange }
 
 -- | The layouthoook
 myLayoutHook = Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22 2012)
