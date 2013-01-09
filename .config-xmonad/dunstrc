@@ -21,6 +21,7 @@
     separator_color = frame
     dmenu = ~/.bin-xmonad/dmenu -p dunst:
     browser = ~/.bin-xmonad/www
+    ignore_newline = false
 
 [frame]
     width = 3
