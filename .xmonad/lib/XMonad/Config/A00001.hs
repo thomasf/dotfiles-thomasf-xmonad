@@ -114,12 +114,12 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm.|. shft, xK_d),         addName "Move window to next screen"                           $ shiftNextScreen >> nextScreen >> movePointer >> showWorkspaceNameFast)
   , ((modm.|. shft, xK_f),         addName "Move window to previous screen"                       $ shiftPrevScreen >> prevScreen >> movePointer >> showWorkspaceNameFast)
 
-  , subtitle "Go to specific suffix workspace number"
-  , ((modm, xK_1),                 addName "Go to non prefixed workspace"                         $ rmEmptyWs $ gotoPrefixWorkspaceNonSuffix >> movePointer >> showWorkspaceNameFast)
-  , ((modm, xK_2),                 addName "Go to non prefixed workspace"                         $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 0 >> movePointer >> showWorkspaceNameFast)
-  , ((modm, xK_3),                 addName "Go to non prefixed workspace"                         $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 1 >> movePointer >> showWorkspaceNameFast)
-  , ((modm, xK_4),                 addName "Go to non prefixed workspace"                         $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 2 >> movePointer >> showWorkspaceNameFast)
-  , ((modm, xK_5),                 addName "Go to non prefixed workspace"                         $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 3 >> movePointer >> showWorkspaceNameFast)
+  -- , subtitle "Go to specific suffix workspace number"
+  -- , ((modm, xK_1),                 addName "Go to non prefixed workspace"                         $ rmEmptyWs $ gotoPrefixWorkspaceNonSuffix >> movePointer >> showWorkspaceNameFast)
+  -- , ((modm, xK_2),                 addName "Go to non prefixed workspace"                         $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 0 >> movePointer >> showWorkspaceNameFast)
+  -- , ((modm, xK_3),                 addName "Go to non prefixed workspace"                         $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 1 >> movePointer >> showWorkspaceNameFast)
+  -- , ((modm, xK_4),                 addName "Go to non prefixed workspace"                         $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 2 >> movePointer >> showWorkspaceNameFast)
+  -- , ((modm, xK_5),                 addName "Go to non prefixed workspace"                         $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 3 >> movePointer >> showWorkspaceNameFast)
 
   , subtitle "Workspace actions (E/R) [mod=select from prefix] [mod+control=select from all]"
   , ((modm, xK_e),                 addName "Next workspace (prefix)"                              $ rmEmptyWs $ nextWsPrefix >> movePointer >> showWorkspaceName)
@@ -154,9 +154,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
 
   , subtitle "Toggle scratchpads and workspaces"
   , ((modm, xK_section),           addName "Toggle larger terminal pad"                           $ largeTerminalPad >> movePointer)
-  , ((modm, xK_7),                 addName "Toggle home workspace"                                $ rmEmptyWs $ myViewWS "home" >> movePointer >> showWorkspaceNameFast)
-  , ((modm, xK_8),                 addName "Toggle chat workspace"                                $ rmEmptyWs $ myViewWS "chat" >> movePointer >> showWorkspaceNameFast)
-  , ((modm, xK_9),                 addName "Toggle nodes workspace"                               $ rmEmptyWs $ myViewWS "nodes" >> movePointer >> showWorkspaceNameFast)
+  , ((modm, xK_1),                 addName "Toggle home workspace"                                $ rmEmptyWs $ myViewWS "home" >> movePointer >> showWorkspaceNameFast)
+  , ((modm, xK_2),                 addName "Toggle chat workspace"                                $ rmEmptyWs $ myViewWS "chat" >> movePointer >> showWorkspaceNameFast)
+  , ((modm, xK_3),                 addName "Toggle nodes workspace"                               $ rmEmptyWs $ myViewWS "nodes" >> movePointer >> showWorkspaceNameFast)
+  , ((modm, xK_4),                 addName "Toggle mail workspace"                                $ rmEmptyWs $ myViewWS "mail" >> movePointer >> showWorkspaceNameFast)
   , ((modm, xK_0),                 addName "Toggle dashboard workspace"                           $ rmEmptyWs $ myViewWS "dash" >> movePointer >> showWorkspaceNameFast)
 
   ] where
@@ -225,14 +226,14 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
     -- | Sort workspaces by tag name, exclude hidden scrachpad workspace.
     getSortByTagNoSP = fmap (.namedScratchpadFilterOutWorkspace) getSortByTag
 
-    gotoPrefixWorkspaceNonSuffix :: X ()
-    gotoPrefixWorkspaceNonSuffix = do
-      ws <- gets (W.currentTag . windowset)
-      myViewWS (takeWhile (/='.') ws)
+    -- gotoPrefixWorkspaceNonSuffix :: X ()
+    -- gotoPrefixWorkspaceNonSuffix = do
+    --   ws <- gets (W.currentTag . windowset)
+    --   myViewWS (takeWhile (/='.') ws)
 
-    gotoPrefixWorkspaceSuffix suffix = do
-      ws <- gets (W.currentTag . windowset)
-      myViewWS1 ((takeWhile (/='.') ws) ++ "." ++ (show suffix))
+    -- gotoPrefixWorkspaceSuffix suffix = do
+    --   ws <- gets (W.currentTag . windowset)
+    --   myViewWS1 ((takeWhile (/='.') ws) ++ "." ++ (show suffix))
 
     -- | TODO: rewrite
     newPrefixWS :: X ()
