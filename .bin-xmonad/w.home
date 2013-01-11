@@ -5,4 +5,7 @@
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 #
 
-[ $(which emacs-home) ] && exec emacs-home
+if [ $(which emacs-home) ]; then
+    notify-send -a short "lauching emacs-home..."
+    exec emacs-home
+fi

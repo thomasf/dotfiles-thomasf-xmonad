@@ -2,7 +2,7 @@
 
 [global]
 #font = Monospace-12
-font =  -*-terminus-medium-r-normal--14-*-*-*-*-*-*-*
+font =  -*-terminus-bold-r-normal--18-*-*-*-*-*-*-*
 format = "[%a] %s %b"
 sort = yes
 indicate_hidden = yes
@@ -23,7 +23,7 @@ horizontal_padding = 8
 separator_color = frame
 dmenu = ~/.bin-xmonad/dmenu -p dunst:
 browser = ~/.bin-xmonad/www
-ignore_newline = false
+ignore_newline = no
 
 [frame]
 width = 3
@@ -59,13 +59,15 @@ appname = "NetworkManager"
 format = "%s %b"
 urgency = low
 background = "#6c71c4"
-foreground = "#fdf6e3"
+foreground = "#002b36"
 
-[mydesktop]
-appname = "mydesktop"
+[short]
+appname = "short"
 format = "%s %b"
 background = "#d33682"
-foreground = "#fdf6e3"
+foreground = "#002b36"
+timeout = 4
+
 # Local Variables:
 # eval: (rainbow-mode 1)
 # End:
