@@ -74,6 +74,7 @@ import           XMonad.Util.WorkspaceCompare
 import qualified XMonad.Util.Dzen as DZ
 import           XMonad.Util.NamedWindows
 import qualified Solarized as Sol
+import XMonad.Hooks.WorkspaceHistory (workspaceHistoryHook)
 ------------------------------------------------------------------------
 -- Keyboard configuration:
 
@@ -545,7 +546,7 @@ autoConfig=do
 configSimple = do
   myStatusProc <- spawnPipe myStatusBar
   return $ myUrgencyHook $ ewmh aDefaultConfig
-    { logHook = myXmobarLogHook myStatusProc
+    { logHook = myXmobarLogHook myStatusProc >> workspaceHistoryHook
     }
     where
       myStatusBar="xmobar ~/.xmonad/etc/xmobar-simple"
@@ -577,7 +578,7 @@ configFull = do
   spawn statusBarCmd
   spawn trayerBarCmd
   return $ myUrgencyHook $ ewmh aDefaultConfig
-    { logHook = myDzenLogHook xmonadBar
+    { logHook = myDzenLogHook xmonadBar >> workspaceHistoryHook
     , manageHook = myManageHook
     , startupHook = configStartupHook
     } where
