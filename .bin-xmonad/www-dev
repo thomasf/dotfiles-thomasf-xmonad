@@ -39,4 +39,6 @@ google-chrome \
     --no-default-browser-check \
     --no-first-run \
     $remote_debugging \
+    --class=www-dev \
+    --app=www-dev \
     $*
