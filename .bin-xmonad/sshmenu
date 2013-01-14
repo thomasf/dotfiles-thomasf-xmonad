@@ -19,7 +19,11 @@ else
 fi
 cs=`cat ~/.ssh/config | grep ^Host | awk '{ print $2 }' | $args`
 
-exec urxvt -e sh -c \
+if [ ! -e ~/.config/darkmode ]; then
+    termname="-name LURxvt"
+fi
+
+exec urxvt $termname -e sh -c \
     "echo CONNECTING: ${cs};
      ssh ${cs};
      echo ;
