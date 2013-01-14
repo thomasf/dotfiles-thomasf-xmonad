@@ -155,9 +155,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , subtitle "Toggle scratchpads and workspaces"
   , ((modm, xK_section),           addName "Toggle larger terminal pad"                           $ largeTerminalPad >> movePointer)
   , ((modm, xK_1),                 addName "Toggle home workspace"                                $ rmEmptyWs $ myViewWS "home" >> movePointer >> showWorkspaceNameFast)
-  , ((modm, xK_2),                 addName "Toggle chat workspace"                                $ rmEmptyWs $ myViewWS "chat" >> movePointer >> showWorkspaceNameFast)
-  , ((modm, xK_3),                 addName "Toggle nodes workspace"                               $ rmEmptyWs $ myViewWS "nodes" >> movePointer >> showWorkspaceNameFast)
-  , ((modm, xK_4),                 addName "Toggle mail workspace"                                $ rmEmptyWs $ myViewWS "mail" >> movePointer >> showWorkspaceNameFast)
+  , ((modm, xK_2),                 addName "Toggle scratch workspace"                             $ rmEmptyWs $ myViewWS "scratch" >> movePointer >> showWorkspaceNameFast)
+  , ((modm, xK_3),                 addName "Toggle chat workspace"                                $ rmEmptyWs $ myViewWS "chat" >> movePointer >> showWorkspaceNameFast)
+  , ((modm, xK_4),                 addName "Toggle nodes workspace"                               $ rmEmptyWs $ myViewWS "nodes" >> movePointer >> showWorkspaceNameFast)
+  , ((modm, xK_5),                 addName "Toggle mail workspace"                                $ rmEmptyWs $ myViewWS "mail" >> movePointer >> showWorkspaceNameFast)
   , ((modm, xK_0),                 addName "Toggle dashboard workspace"                           $ rmEmptyWs $ myViewWS "dash" >> movePointer >> showWorkspaceNameFast)
 
   ] where
@@ -176,14 +177,14 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
       when (null wins) $ workspaceAction
 
     -- | Remove current workpace if empty
-    rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "home", "nodes", "dash"]
+    rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "home", "nodes", "dash", "scratch"]
 
     -- | Toggle recent workspaces ignoring some of them
     toggleWS = toggleWS' [ "NSP" ] >> movePointer
 
     -- | Toggle recent workspaces ignoring some of them
     ignoredToggleWS = toggleWS' [ "NSP"
-                                , "home", "nodes", "dash"
+                                , "home", "nodes", "dash", "scratch"
                                 , "chat", "im" ] >> movePointer
 
     -- | View a workspace by name and maybe run workspace action
@@ -268,7 +269,7 @@ myFocusedBorderColor = Sol.magenta
 ------------------------------------------------------------------------
 -- Workspaces
 
-myWorkspaces = [ "home", "temp.0", "chat", "nodes", "dash" ]
+myWorkspaces = [ "home", "scratch", "chat", "nodes", "dash" ]
 
 ------------------------------------------------------------------------
 -- Layouts:
@@ -303,6 +304,7 @@ myLayoutHook = Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (o
                onWorkspace "dash" (renamed [Replace "*"] $ tabsAlways) $
                onWorkspace "chat" ((renamed [Replace "*"]) $ grid) $
                onWorkspace "home" ((renamed [Replace "*"]) $ grid) $
+               onWorkspace "scratch" ((renamed [Replace "*"]) $ grid) $
                onWorkspace "nodes" ((renamed [Replace "*"]) $ grid) $
                onWorkspace "im" (renamed [Replace "*"] $ im) $
                onWorkspace "read" (renamed [Replace "*"] $ tabs) $
