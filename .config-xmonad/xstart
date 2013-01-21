@@ -65,8 +65,6 @@ export GPG_AGENT_INFO
 export SSH_AUTH_SOCK
 export SSH_AGENT_PID
 
-touch ~/.config/darkmode
-
 # Initialize gnome settings daemon
 if [ $(which gnome-settings-daemon) ]; then
     gnome-settings-daemon 2>/dev/null &
@@ -172,6 +170,15 @@ if [ -f $HOME/.xbindkeysrc ]; then
     fi
 fi
 
+touch ~/.config/darkmode
+(
+    if [ $(which zenity ) ]; then
+        sleep 1
+        if ! zenity  --question --text="Keep dark mode?"; then
+            darkmode l
+        fi
+    fi
+) &
 # Function that displays a list of window managers to choose from.
 wm_selection() {
     avail_vms=""

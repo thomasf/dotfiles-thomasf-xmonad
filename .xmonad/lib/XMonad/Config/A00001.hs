@@ -386,7 +386,7 @@ myManageHook =
     centerFloatByResource =
       ["floating-center"]
     centerFloatByClass =
-      ["Xfce4-settings-manager", "Xfce4-appfinder", "Pinentry"]
+      ["Xfce4-settings-manager", "Xfce4-appfinder", "Pinentry", "Zenity"]
 
 ------------------------------------------------------------------------
 -- Event handling
