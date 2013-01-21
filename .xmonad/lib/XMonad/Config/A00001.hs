@@ -309,9 +309,9 @@ myLayoutHook = Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (o
                onWorkspace "im" (renamed [Replace "*"] $ im) $
                onWorkspace "read" (renamed [Replace "*"] $ tabs) $
                lessBorders OnlyFloat
-               ((renamed [Replace "tabs"]        $ tabsAlways) |||
-                (renamed [Replace "tall h"]      $ Mirror tallH) |||
+               ((renamed [Replace "tall h"]      $ Mirror tallH) |||
                 (renamed [Replace "tall v"]      $ tallV) |||
+                (renamed [Replace "tabs"]        $ tabsAlways) |||
                 (renamed [Replace "3col h"]      $ threeCol) |||
                 (renamed [Replace "3col v"]      $ Mirror threeCol) |||
                 (renamed [Replace "grid"]        $ grid ) |||
