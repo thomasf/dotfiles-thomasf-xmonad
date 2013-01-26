@@ -12,21 +12,31 @@
 #
 
 set -e
+
 if  [ `which yeganesh` ]; then
     args="yeganesh -p sshmenu -- -p SSH -l 30"
 else
     args="dmenu -p SSH -l 30"
 fi
+
 cs=`cat ~/.ssh/config | grep ^Host | awk '{ print $2 }' | $args`
 
 if [ ! -e ~/.config/darkmode ]; then
     termname="-name LURxvt"
 fi
 
-exec urxvt $termname -e sh -c \
-    "echo CONNECTING: ${cs};
-     ssh ${cs};
-     echo ;
-     echo \"CONNECTION LOST: \`date\` \";
-     echo \">>> ENTER KEY CLOSES TERMINAL!\";
-     read any"
+urxvt $termname -e sh -c \
+     "while :
+     do
+      echo -n \`tput setaf 3\`
+      echo Connecting: ${cs};
+      echo -n \`tput sgr0\`
+      ssh ${cs};
+      echo ;
+      echo \`tput setaf 1\`
+      echo \"Connection to ${cs} lost: \`date\` \";
+      echo \">>> Newline relaunches terminal\";
+      echo \`tput sgr0\`
+      read any;
+      clear;
+     done"
