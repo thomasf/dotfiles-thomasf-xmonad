@@ -6,8 +6,8 @@
 set -e
 
 golight() {
-    rm -f ~/.config/darkmode
     bgset l
+    rm -f ~/.config/darkmode
 }
 
 godark() {
