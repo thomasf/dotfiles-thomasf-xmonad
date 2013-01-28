@@ -603,6 +603,16 @@ configFull = do
     -- countScreens :: (MonadIO m, Integral i) => m i
     -- countScreens = liftM genericLength . liftIO $ openDisplay "" >>= getScreenInfo
 
+-- | Show active workspace name slow
+showWorkspaceName = showWorkspaceName1 2.5 Sol.yellow
+-- | Show inactve workspace name slow
+showWorkspaceNameOld = showWorkspaceName1 2.5 Sol.base1
+-- | Show active workspace name fast
+showWorkspaceNameFast = showWorkspaceName1 0.8 Sol.magenta
+-- | Show inactive workspace name fast
+showWorkspaceNameOldFast = showWorkspaceName1 0.8 Sol.base1
+
+-- | Show workspace name
 showWorkspaceName1 timeout bg = do
   ws <- gets (W.currentTag . windowset)
   DZ.dzenConfig
@@ -613,11 +623,8 @@ showWorkspaceName1 timeout bg = do
      >=> DZ.addArgs ["-bg", bg]
     ) ws
 
-showWorkspaceName = showWorkspaceName1 2.5 Sol.yellow
-showWorkspaceNameOld = showWorkspaceName1 2.5 Sol.base1
-showWorkspaceNameFast = showWorkspaceName1 0.8 Sol.magenta
-showWorkspaceNameOldFast = showWorkspaceName1 0.8 Sol.base1
 
+-- | Show current layout name
 showLayoutName = do
   winset <- gets windowset
   let ld = description . W.layout . W.workspace . W.current $ winset
