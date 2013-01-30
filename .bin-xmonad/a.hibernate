@@ -1,0 +1,3 @@
+#!/bin/sh
+
+os-action deauth silence lock hibernate
