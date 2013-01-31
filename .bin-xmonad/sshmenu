@@ -38,5 +38,4 @@ urxvt $termname -e sh -c \
       echo \">>> Newline relaunches terminal\";
       echo \`tput sgr0\`
       read any;
-      clear;
      done"
