@@ -159,6 +159,10 @@ fi
     && BROWSER=$(which www) \
     && export BROWSER
 
+# Launch miniserv
+[ -f ~/.config-base/miniserv/miniserv.py ] && \
+    python ~/.config-base/miniserv/miniserv.py -d &
+
 # Load keyboard macros/launchers
 # NOTE: it is very important that this is done
 #       *AFTER* all env variables have been set
