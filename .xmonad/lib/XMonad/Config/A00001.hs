@@ -374,7 +374,7 @@ myManageHook =
     doCenterFloatLarge = customFloating $ W.RationalRect l t w h
       where
         h = 0.8
-        w = 0.8
+        w = 0.6
         t = (1 - h)/2
         l = (1 - w)/2
 
