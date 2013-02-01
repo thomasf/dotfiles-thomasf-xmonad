@@ -364,12 +364,20 @@ myManageHook =
   , [className =? c -?>                                        doFloat       | c <- floatByClass]
   , [role      =? "pop-up" <&&> appName =? "google-chrome" -?> doCenterFloat]
   , [className =? c -?>                                        doCenterFloat | c <- centerFloatByClass]
+  , [resource  =? c -?>                                        doCenterFloatLarge | c <- centerFloatLargeByResource]
   , [resource  =? c -?>                                        doCenterFloat | c <- centerFloatByResource]
   , [transience]
   , [resource  =? "xmessage"          -?> doCenterFloat]
   , [title     =? "Onboard"           -?> doFloat]
   ]) <+> manageHook Desktop.desktopConfig -- < implies only manageDocks (ons jul 18 08:51 2012)
   where
+    doCenterFloatLarge = customFloating $ W.RationalRect l t w h
+      where
+        h = 0.8
+        w = 0.8
+        t = (1 - h)/2
+        l = (1 - w)/2
+
     doSink = ask >>= doF . W.sink
     role = stringProperty "WM_WINDOW_ROLE"
     androidEmulatorByClass =
@@ -385,6 +393,8 @@ myManageHook =
       ["Unity-2d-launcher", "Orage", "feh"]
     centerFloatByResource =
       ["floating-center"]
+    centerFloatLargeByResource =
+      ["floating-center-large"]
     centerFloatByClass =
       ["Xfce4-settings-manager", "Xfce4-appfinder", "Pinentry", "Zenity"]
 
