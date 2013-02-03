@@ -68,6 +68,13 @@ background = "#d33682"
 foreground = "#002b36"
 timeout = 4
 
+[shorter]
+appname = "shorter"
+format = "%s %b"
+background = "#268bd2"
+foreground = "#002b36"
+timeout = 2
+
 # Local Variables:
 # eval: (rainbow-mode 1)
 # End:
