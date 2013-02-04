@@ -38,6 +38,7 @@ import           XMonad                          hiding ( (|||) )
 import           XMonad.Actions.CycleWS hiding (toggleWS)
 import qualified XMonad.Actions.DynamicWorkspaces as DW
 import           XMonad.Actions.RotSlaves
+import           XMonad.Hooks.DynamicBars
 import           XMonad.Actions.UpdatePointer
 import           XMonad.Actions.WindowBringer    (gotoMenuArgs)
 import qualified XMonad.Config.Desktop as Desktop
@@ -429,7 +430,12 @@ myXmobarLogHook h = dynamicLogWithPP defaultPP
 
 myDzenLogHook h = dynamicLogWithPP $ myPP h
 
-myPP h = defaultPP
+myPP h = myBarPP
+  {    ppOutput  = hPutStrLn h  }
+
+myPropLogHook = dynamicLogString myBarPP >>= xmonadPropLog
+
+myBarPP = defaultPP
   { ppCurrent = dzenColor Sol.base03 Sol.blue . doublepad
   , ppVisible = dzenColor Sol.blue "" . doublepad
   , ppHidden  = const ""
@@ -437,7 +443,6 @@ myPP h = defaultPP
   , ppTitle   = dzenColor Sol.yellow "" . dzenEscape . trim
   , ppLayout  = dzenColor Sol.base01 "" . trim
   , ppSep     = dzenColor Sol.cyan "" "  *  "
-  , ppOutput  = hPutStrLn h
   , ppSort    = getSortByXineramaRule
   }
   --where
@@ -591,7 +596,7 @@ configFull = do
   spawn statusBarCmd
   spawn trayerBarCmd
   return $ myUrgencyHook $ ewmh aDefaultConfig
-    { logHook = myDzenLogHook xmonadBar >> workspaceHistoryHook
+    { logHook = myPropLogHook >> myDzenLogHook xmonadBar >> workspaceHistoryHook
     , manageHook = myManageHook
     , startupHook = configStartupHook
     } where
