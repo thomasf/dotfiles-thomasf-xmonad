@@ -16,7 +16,10 @@ else
     cmd=`dmenu_path | dmenu -p launch -i -l 25`
 fi
 
-case $cmd in
+set -- nil $cmd
+shift
+
+case $1 in
     saidar)
 	    exec $tr -name saidar -e saidar -c
 	    ;;
@@ -26,8 +29,14 @@ case $cmd in
     wireshark|synaptic|zenmap|firestarter|reboot|nm-connection-editor)
         exec gksudo $cmd
         ;;
-    shutdown)
-        exec gksudo "shutdown now -h"
+    man)
+        shift 1
+        init=""
+        [ -e ~/.emacs.d/init-low.el ] && init="-l ~/.emacs.d/init-low";
+        exec emacs -q $init -eval "(man \"$*\")"
+        ;;
+    reboot|shutdown|suspend|hibernate)
+        exec a.$cmd
         ;;
     *)
         exec $cmd
