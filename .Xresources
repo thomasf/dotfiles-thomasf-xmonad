@@ -40,13 +40,13 @@ Emacs*menubar.margin:                 0
 Emacs*shadowThickness:                1
 
 !---- Xmessage, zenburnesque {
-Xmessage*background:                  #3F3F3F
-Xmessage*foreground:                  #F0DFAF
+Xmessage*background:                  #002b36
+Xmessage*foreground:                  #839496
 Xmessage*form.*.shapeStyle:           rectangle
 Xmessage*Scrollbar.width:             4
 Xmessage*Scrollbar.borderWidth:       0
-Xmessage*Buttons:                     Quit
-Xmessage*defaultButton:               Quit
+! Xmessage*Buttons:                     Quit
+! Xmessage*defaultButton:               Quit
 Xmessage*geometry:                    +20+20
 
 !---- URxvt - General settings {
