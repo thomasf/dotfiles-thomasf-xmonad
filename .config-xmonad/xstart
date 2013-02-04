@@ -159,9 +159,15 @@ fi
     && BROWSER=$(which www) \
     && export BROWSER
 
+# xmobar
+[ $(which xmobar) ] && \
+    [ -f ~/.config-xmonad/xmobar/xmobar.config ] && \
+    xmobar ~/.config-xmonad/xmobar/xmobar.config -x 1 &
+
 # Launch miniserv
 [ -f ~/.config-base/miniserv/miniserv.py ] && \
     python ~/.config-base/miniserv/miniserv.py -d &
+
 
 # Load keyboard macros/launchers
 # NOTE: it is very important that this is done

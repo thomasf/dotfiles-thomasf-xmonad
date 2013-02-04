@@ -416,26 +416,25 @@ myEventHook = serverModeEventHook <+> fullscreenEventHook
 --
 doublepad =  wrap "  " "  " . trim
 
-myXmobarLogHook h = dynamicLogWithPP defaultPP
+
+myXmobarLogHook h = dynamicLogWithPP myXmobarPP
+
+myXmobarPP = defaultPP
   { ppCurrent = xmobarColor Sol.base03 Sol.blue . doublepad
   , ppVisible = xmobarColor Sol.blue "" . doublepad
   , ppHidden  = const ""
   , ppUrgent  = xmobarColor Sol.base03 Sol.orange . doublepad
-  , ppTitle   = xmobarColor Sol.yellow  "" . shorten 50 . trim
+  , ppTitle   = xmobarColor Sol.yellow "" . dzenEscape . trim
   , ppLayout  = xmobarColor Sol.base01 "" . trim
   , ppSep     = xmobarColor Sol.cyan "" "  *  "
-  , ppOutput  = hPutStrLn h
   , ppSort    = getSortByXineramaRule
   }
 
 myDzenLogHook h = dynamicLogWithPP $ myPP h
 
-myPP h = myBarPP
-  {    ppOutput  = hPutStrLn h  }
+myPropLogHook = dynamicLogString myXmobarPP >>= xmonadPropLog
 
-myPropLogHook = dynamicLogString myBarPP >>= xmonadPropLog
-
-myBarPP = defaultPP
+myPP h = defaultPP
   { ppCurrent = dzenColor Sol.base03 Sol.blue . doublepad
   , ppVisible = dzenColor Sol.blue "" . doublepad
   , ppHidden  = const ""
@@ -444,6 +443,7 @@ myBarPP = defaultPP
   , ppLayout  = dzenColor Sol.base01 "" . trim
   , ppSep     = dzenColor Sol.cyan "" "  *  "
   , ppSort    = getSortByXineramaRule
+  , ppOutput  = hPutStrLn h
   }
   --where
   --  padWs ws = if ws == "NSP" then "" else pad ws
