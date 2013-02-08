@@ -13,7 +13,7 @@ launchTerminal(){
     initial_delay=0.3
     relaunch_delay=1
     if [ $(which ${cmd}) ]; then
-        cmdstr="echo starting $cmd...; while :; do sleep $initial_delay; $cmd $cmdArgs; echo relaunching $cmd...; sleep $relaunch_delay; done;"
+        cmdstr="echo starting $cmd...; while :; do sleep $initial_delay; termcolors; $cmd $cmdArgs; echo relaunching $cmd...; sleep $relaunch_delay; done;"
         urxvt -title "${name}" -name "${name}" -e bash -c "${cmdstr}" &
     fi
 }

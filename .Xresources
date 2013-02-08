@@ -86,6 +86,7 @@ URxvt*url-select.launcher:            google-chrome
 URxvt*url-select.underline:           true
 URxvt*clipboard.autocopy:             true
 URxvt.keysym.H-v:                     perl:clipboard:paste
+URxvt*dynamicColors:                  on
 
 
 !---- Light URxvt (Solarized Light, 11pt) {
@@ -108,7 +109,7 @@ LURxvt*color7:                 #839496
 LURxvt*color15:                #002b36
 
 !---- Default URxvt (Solarized Dark, 12px) {
-URxvt*fading:                         30
+URxvt*fading:                         0
 URxvt*background:                     #002b36
 URxvt*foreground:                     #839496
 URxvt*fadeColor:                      #002b36
