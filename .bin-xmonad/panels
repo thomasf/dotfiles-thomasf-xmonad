@@ -8,15 +8,12 @@ else
     bg=0xfdf6e3
 fi
 
-if [ $(which xmobar) ]; then
-    pkill xmobar
-    xmobar ~/.config-xmonad/xmobar/${mode}-top-x0 -x 0 &
-    xmobar ~/.config-xmonad/xmobar/${mode}-top -x 1 &
-    xmobar ~/.config-xmonad/xmobar/${mode}-bottom -x 0 &
-    xmobar ~/.config-xmonad/xmobar/${mode}-bottom -x 1 &
-fi
+pids="$(pidof xmobar)"
+xmobar ~/.config-xmonad/xmobar/${mode}-top-x0 -x 0 &
+xmobar ~/.config-xmonad/xmobar/${mode}-top -x 1 &
+xmobar ~/.config-xmonad/xmobar/${mode}-bottom -x 0 &
+xmobar ~/.config-xmonad/xmobar/${mode}-bottom -x 1 &
 
-if [ $(which trayer) ]; then
-    pkill trayer
-    trayer --edge top --align right --widthtype percent --width 10 --height 18 --tint ${bg} --alpha 0 --transparent true &
-fi
+[ ! -z "${pids}" ] && sleep 1 && kill $pids
+pkill trayer
+trayer --edge top --align right --widthtype percent --width 10 --height 18 --tint ${bg} --alpha 0 --transparent true &
