@@ -1,8 +1,8 @@
 Config { font = "-*-fixed-*-*-*-*-*-*-*-*-*-*-*-*"
-       , borderColor = "#002b36"
+       , borderColor = "#fdf6e3"
        , border = NoBorder
-       , bgColor = "#002b36"
-       , fgColor = "#657b83"
+       , bgColor = "#fdf6e3"
+       , fgColor = "#839496"
        , position = TopSize L 100 18
        , lowerOnStart = True
        , hideOnStart = False
@@ -20,7 +20,7 @@ Config { font = "-*-fixed-*-*-*-*-*-*-*-*-*-*-*-*"
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%xm% }{ <fc=#2aa198>+</fc> %diskio% <fc=#2aa198>+</fc> %dynnetwork% <fc=#2aa198>+</fc> cpu%multicpu% <fc=#2aa198>+</fc> memf%memory% <fc=#2aa198>+</fc> bat%battery% <fc=#2aa198>+</fc> <fc=#002b36,#859900>%date%</fc>"
+       , template = "%xm% }{ <fc=#2aa198>+</fc> %diskio% <fc=#2aa198>+</fc> %dynnetwork% <fc=#2aa198>+</fc> cpu%multicpu% <fc=#2aa198>+</fc> memf%memory% <fc=#2aa198>+</fc> bat%battery% <fc=#2aa198>+</fc> <fc=#fdf6e3,#859900>%date%</fc>"
 
 -- Local Variables:
 -- eval: (rainbow-mode 1)

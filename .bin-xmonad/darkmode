@@ -8,11 +8,13 @@ set -e
 golight() {
     bgset l
     rm -f ~/.config/darkmode
+    panels
 }
 
 godark() {
-    [ ! $(id -u) -eq 0 ] && touch ~/.config/darkmode
     bgset d
+    [ ! $(id -u) -eq 0 ] && touch ~/.config/darkmode
+    panels
 }
 
 

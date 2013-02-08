@@ -1,14 +1,22 @@
 #!/bin/sh
 
+if [ -e ~/.config/darkmode ]; then
+    mode=dark
+    bg=0x002b36
+else
+    mode=light
+    bg=0xfdf6e3
+fi
+
 if [ $(which xmobar) ]; then
     pkill xmobar
-    xmobar ~/.config-xmonad/xmobar/dark-top-x0 -x 0 &
-    xmobar ~/.config-xmonad/xmobar/dark-top -x 1 &
-    xmobar ~/.config-xmonad/xmobar/dark-bottom -x 0 &
-    xmobar ~/.config-xmonad/xmobar/dark-bottom -x 1 &
+    xmobar ~/.config-xmonad/xmobar/${mode}-top-x0 -x 0 &
+    xmobar ~/.config-xmonad/xmobar/${mode}-top -x 1 &
+    xmobar ~/.config-xmonad/xmobar/${mode}-bottom -x 0 &
+    xmobar ~/.config-xmonad/xmobar/${mode}-bottom -x 1 &
 fi
 
 if [ $(which trayer) ]; then
     pkill trayer
-    trayer --edge top --align right --widthtype percent --width 10 --height 18 --tint 0x002b36 --alpha 0 --transparent true &
+    trayer --edge top --align right --widthtype percent --width 10 --height 18 --tint ${bg} --alpha 0 --transparent true &
 fi
