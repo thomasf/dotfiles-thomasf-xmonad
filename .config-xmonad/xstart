@@ -159,15 +159,8 @@ fi
     && BROWSER=$(which www) \
     && export BROWSER
 
-# xmobar and trayer
-if [ $(which xmobar) ]; then
-    xmobar ~/.config-xmonad/xmobar/xmobar-top-x0.config -x 0 &
-    xmobar ~/.config-xmonad/xmobar/xmobar-top.config -x 1 &
-    xmobar ~/.config-xmonad/xmobar/xmobar-bottom.config -x 0 &
-    xmobar ~/.config-xmonad/xmobar/xmobar-bottom.config -x 1 &
-    trayer --edge top --align right --widthtype percent --width 10 --height 18 --tint 0x002b36 --alpha 0 --transparent true &
-fi
-
+# panels
+[ -x ~/.bin-xmonad/panels ] && ~/.bin-xmonad/panels
 
 # Launch miniserv
 [ -f ~/.config-base/miniserv/miniserv.py ] && \

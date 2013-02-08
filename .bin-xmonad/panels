@@ -1,0 +1,14 @@
+#!/bin/sh
+
+if [ $(which xmobar) ]; then
+    pkill xmobar
+    xmobar ~/.config-xmonad/xmobar/xmobar-top-x0.config -x 0 &
+    xmobar ~/.config-xmonad/xmobar/xmobar-top.config -x 1 &
+    xmobar ~/.config-xmonad/xmobar/xmobar-bottom.config -x 0 &
+    xmobar ~/.config-xmonad/xmobar/xmobar-bottom.config -x 1 &
+fi
+
+if [ $(which trayer) ]; then
+    pkill trayer
+    trayer --edge top --align right --widthtype percent --width 10 --height 18 --tint 0x002b36 --alpha 0 --transparent true &
+fi
