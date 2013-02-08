@@ -159,9 +159,6 @@ fi
     && BROWSER=$(which www) \
     && export BROWSER
 
-# panels
-[ -x ~/.bin-xmonad/panels ] && ~/.bin-xmonad/panels
-
 # Launch miniserv
 [ -f ~/.config-base/miniserv/miniserv.py ] && \
     python ~/.config-base/miniserv/miniserv.py -d &
@@ -179,6 +176,7 @@ if [ -f $HOME/.xbindkeysrc ]; then
 fi
 
 touch ~/.config/darkmode
+[ -x ~/.bin-xmonad/panels ] && ~/.bin-xmonad/panels
 (
     if [ $(which zenity ) ]; then
         sleep 1
