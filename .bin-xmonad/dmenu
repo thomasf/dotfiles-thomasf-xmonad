@@ -5,5 +5,11 @@
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 # Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
 #
+if [ -e ~/.config/darkmode ]; then
+    bg="#002b36"
+else
+    bg="#fdf6e3"
+fi
 
-exec /usr/bin/dmenu -fn '-*-terminus-*-r-*-*-14-*-*-*-*-*-*' -nb '#002b36' -nf '#268bd2' -sb '#268bd2' -sf '#002b36' -i $*
+
+exec /usr/bin/dmenu -fn '-*-terminus-*-r-*-*-14-*-*-*-*-*-*' -nb "${bg}" -nf '#268bd2' -sb '#268bd2' -sf "${bg}" -i $*
