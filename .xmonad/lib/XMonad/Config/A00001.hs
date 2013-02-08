@@ -562,12 +562,11 @@ autoConfig=do
 --
 
 configSimple = do
-  myStatusProc <- spawnPipe myStatusBar
   return $ myUrgencyHook $ ewmh aDefaultConfig
-    { logHook = myXmobarLogHook myStatusProc >> workspaceHistoryHook
+    { logHook = myPropLogHook >> workspaceHistoryHook
+    , manageHook = myManageHook
+    , startupHook = myStartupHook
     }
-    where
-      myStatusBar="xmobar ~/.xmonad/etc/xmobar-simple"
 
 -----------------------------------------------------------------------------
 --
@@ -575,48 +574,11 @@ configSimple = do
 --
 --
 configFull = do
-  (sx, sy, sw, sh) <- getScreenDim 0
-  let
-    screenW = sw
-    xmonadW = screenW * 0.4
-    trayerW = 100
-    trayerO = screenW - trayerW
-    statusW = screenW * 0.6 - trayerW
-    statusO = screenW - statusW - trayerW
-    xmonadBarCmd = "dzen2 -xs 1 -bg '"++ Sol.base03 ++"' -ta l -w " ++ show xmonadW
-    trayerBarCmd = "trayer --transparent true --tint 0x002b36 --alpha 0 --edge top --align left"
-                   ++ " --widthtype pixel --width " ++ show trayerW
-                   ++ " --margin " ++ show trayerO
-                   ++ " --heighttype pixel --height 18"
-    statusBarCmd = "conky -c ~/.xmonad/etc/conkyrc-mainbar-config-full "
-                   ++ "| dzen2 -xs 1 -ta r -bg '" ++ Sol.base03 ++ "' -x " ++ show statusO ++ " -w " ++ show statusW
-    configStartupHook = myStartupHook
-
-  xmonadBar <- spawnPipe xmonadBarCmd
-  spawn statusBarCmd
-  spawn trayerBarCmd
   return $ myUrgencyHook $ ewmh aDefaultConfig
-    { logHook = myPropLogHook >> myDzenLogHook xmonadBar >> workspaceHistoryHook
+    { logHook = myPropLogHook >> workspaceHistoryHook
     , manageHook = myManageHook
-    , startupHook = configStartupHook
-    } where
-      -- | Return the dimensions (x, y, width, height) of screen n.
-      getScreenDim :: Num a => Int -> IO (a, a, a, a)
-      getScreenDim n = do
-        d <- openDisplay ""
-        screens  <- getScreenInfo d
-        closeDisplay d
-        let rn = screens !!(min (abs n) (length screens - 1))
-        case screens of
-          []        -> return (0, 0, 1024, 768) -- fallback
-          [r]       -> return (fromIntegral $ rect_x r , fromIntegral $ rect_y r ,
-                               fromIntegral $ rect_width r , fromIntegral $ rect_height r )
-          otherwise -> return (fromIntegral $ rect_x rn, fromIntegral $ rect_y rn,
-                           fromIntegral $ rect_width rn, fromIntegral $ rect_height rn)
-
-    -- | Determine the number of physical screens.
-    -- countScreens :: (MonadIO m, Integral i) => m i
-    -- countScreens = liftM genericLength . liftIO $ openDisplay "" >>= getScreenInfo
+    , startupHook = myStartupHook
+    }
 
 -- | Show active workspace name slow
 showWorkspaceName = showWorkspaceName1 2.5 Sol.yellow
