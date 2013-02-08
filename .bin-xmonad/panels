@@ -2,10 +2,10 @@
 
 if [ $(which xmobar) ]; then
     pkill xmobar
-    xmobar ~/.config-xmonad/xmobar/xmobar-top-x0.config -x 0 &
-    xmobar ~/.config-xmonad/xmobar/xmobar-top.config -x 1 &
-    xmobar ~/.config-xmonad/xmobar/xmobar-bottom.config -x 0 &
-    xmobar ~/.config-xmonad/xmobar/xmobar-bottom.config -x 1 &
+    xmobar ~/.config-xmonad/xmobar/dark-top-x0 -x 0 &
+    xmobar ~/.config-xmonad/xmobar/dark-top -x 1 &
+    xmobar ~/.config-xmonad/xmobar/dark-bottom -x 0 &
+    xmobar ~/.config-xmonad/xmobar/dark-bottom -x 1 &
 fi
 
 if [ $(which trayer) ]; then
