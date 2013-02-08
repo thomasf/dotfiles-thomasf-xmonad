@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ -e ~/.config/darkmode ]; then
     mode=dark
@@ -8,11 +8,23 @@ else
     bg=0xfdf6e3
 fi
 
+
+xStatus=`xrandr -q`
+connectedOutputs=$(echo "$xStatus" | grep " connected" | sed -e "s/\([A-Z0-9]\+\) connected.*/\1/")
+activeOutputs=$(echo "$xStatus" | grep -e " connected [^(]" | sed -e "s/\([A-Z0-9]\+\) connected.*/\1/")
+connected=$(echo $connectedOutputs | wc -w)
+active=$(echo $activeOutputs | wc -w)
+
 pids="$(pidof xmobar)"
 xmobar ~/.config-xmonad/xmobar/${mode}-top-x0 -x 0 &
-xmobar ~/.config-xmonad/xmobar/${mode}-top -x 1 &
 xmobar ~/.config-xmonad/xmobar/${mode}-bottom -x 0 &
-xmobar ~/.config-xmonad/xmobar/${mode}-bottom -x 1 &
+
+if [ $active -gt 1 ]; then
+    for i in $(seq 1 $(expr $active - 1)); do
+        xmobar ~/.config-xmonad/xmobar/${mode}-top -x ${i} &
+        xmobar ~/.config-xmonad/xmobar/${mode}-bottom -x ${i} &
+    done
+fi
 
 [ ! -z "${pids}" ] && sleep 1 && kill $pids
 pkill trayer
