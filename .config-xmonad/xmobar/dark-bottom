@@ -13,10 +13,12 @@ Config { font = "xft:Consolas-10"
                     , Run MPD ["-t",
                        " <statei> <artist> - <title> ",
                        "--", "-P", ">>", "-Z", "||", "-S", "><"] 10
+                    , Run Com "fortune" ["~/.config-base/fortunes"] "quote" 0
                     ]
+
        , sepChar = "%"
        , alignSep = "}{"
-       , template = " }{ <fc=#2aa198>+</fc> %ESSB% <fc=#2aa198>+</fc> <fc=#002b36,#2aa198>%mpd%</fc>"
+       , template = " %quote% }{ <fc=#2aa198>+</fc> %ESSB% <fc=#2aa198>+</fc> <fc=#002b36,#2aa198>%mpd%</fc>"
 
 -- Local Variables:
 -- eval: (rainbow-mode 1)
