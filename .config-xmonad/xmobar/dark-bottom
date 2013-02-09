@@ -1,4 +1,4 @@
-Config { font = "-*-fixed-*-*-*-*-*-*-*-*-*-*-*-*"
+Config { font = "xft:Consolas-10"
        , borderColor = "#002b36"
        , border = NoBorder
        , bgColor = "#002b36"
@@ -7,7 +7,9 @@ Config { font = "-*-fixed-*-*-*-*-*-*-*-*-*-*-*-*"
        , lowerOnStart = True
        , hideOnStart = False
        , persistent = True
-       , commands = [Run Weather "ESSB" ["-t","<station>: <tempC>C","-L","4","-H","23","--normal","#839496","--high","#839496","--low","#839496"] 36000
+       , commands = [Run Weather "ESSB" ["-t",
+                       "<tempC>C <skyCondition>",
+                       "-L","4","-H","23","--normal","#839496","--high","#839496","--low","#839496"] 36000
                     , Run MPD ["-t",
                        " <statei> <artist> - <title> ",
                        "--", "-P", ">>", "-Z", "||", "-S", "><"] 10
@@ -19,3 +21,4 @@ Config { font = "-*-fixed-*-*-*-*-*-*-*-*-*-*-*-*"
 -- Local Variables:
 -- eval: (rainbow-mode 1)
 -- End:
+-- station, stationState, year, month, day, hour, wind, visibility, skyCondition, tempC, tempF, dewPoint, rh, pressure

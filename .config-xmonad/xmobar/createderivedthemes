@@ -4,7 +4,7 @@ set -e
 
 echo "-- THIS IS A DERIVED THEME - DO NOT EDIT MANUALLY !!!" > dark-top-x0
 cat dark-top >> dark-top-x0
-sed -i 's/TopSize L 100 18/TopSize L 90 18/g' dark-top-x0
+sed -i 's/Top/TopW L 94/g' dark-top-x0
 
 for file in dark-*; do
     lightname=light${file##dark}
