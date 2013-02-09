@@ -17,7 +17,7 @@ monitor = 0
 follow = keyboard
 sticky_history = yes
 line_height = 0
-separator_height = 1;
+separator_height = 0;
 padding = 3
 horizontal_padding = 8
 separator_color = frame
@@ -26,8 +26,7 @@ browser = ~/.bin-xmonad/www
 ignore_newline = no
 
 [frame]
-width = 3
-color = "#073642"
+width = 0
 
 [shortcuts]
 close = ctrl+space
