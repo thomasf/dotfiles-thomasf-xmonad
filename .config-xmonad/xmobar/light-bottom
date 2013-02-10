@@ -14,7 +14,7 @@ Config { font = "xft:Consolas-10"
                     , Run MPD ["-t",
                        " <statei> <artist> - <title> ",
                        "--", "-P", ">>", "-Z", "||", "-S", "><"] 10
-                    , Run Com "fortune" ["~/.config-base/fortunes"] "quote" 0
+                    , Run Com "fortune" ["~/.config-base/fortunes"] "quote" 9000
                     ]
 
        , sepChar = "%"
