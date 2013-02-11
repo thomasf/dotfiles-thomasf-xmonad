@@ -33,7 +33,7 @@ case $cmd in
     wireshark|synaptic|zenmap|firestarter|reboot|nm-connection-editor)
         exec gksudo $cmd $*
         ;;
-    google-chrome)
+    google-chrome|w)
         exec www $*
         ;;
     man)
