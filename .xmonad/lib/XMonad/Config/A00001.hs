@@ -280,17 +280,17 @@ myWorkspaces = [ "home", "scratch", "chat", "nodes", "dash" ]
 -- restarting (with 'mod-q') to reset your layout state to the new
 -- defaults, as xmonad preserves your old layout settings by default.
 
-defaultFont = "-xos4-terminus-*-r-*-*-12-*-*-*-*-*-iso8859-*"
+defaultFont = "-xos4-terminus-*-r-*-*-16-*-*-*-*-*-iso8859-*"
 largeFont = "-xos4-terminus-*-r-*-*-32-*-*-*-*-*-iso8859-*"
 
 -- | Base decoration theme
 baseTheme = defaultTheme { fontName            = defaultFont
-                         , decoHeight          = 12 }
+                         , decoHeight          = 18 }
 
 -- | Decoration theme for tabbed layouts
-tabTheme = baseTheme { activeColor         = Sol.blue
+tabTheme = baseTheme { activeColor         = Sol.magenta
                      , inactiveColor       = Sol.base03
-                     , activeBorderColor   = Sol.blue
+                     , activeBorderColor   = Sol.magenta
                      , inactiveBorderColor = Sol.base03
                      , activeTextColor     = Sol.base03
                      , inactiveTextColor   = Sol.blue
