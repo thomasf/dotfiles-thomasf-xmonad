@@ -11,26 +11,32 @@ set -e
 tr=urxvt
 
 if [ `which yeganesh` ]; then
-    cmd=`yeganesh -p appmenu -x -- -p launch -l 25`
+    input=`yeganesh -p appmenu -x -- -p launch -l 25`
 else
-    cmd=`dmenu_path | dmenu -p launch -i -l 25`
+    input=`dmenu_path | dmenu -p launch -i -l 25`
 fi
 
-set -- nil $cmd
+set -- nil $input
 shift
 
-case $1 in
+cmd=$1
+shift || true
+
+
+case $cmd in
     saidar)
-	    exec $tr -name saidar -e saidar -c
+	    exec term -e saidar -c
 	    ;;
-    alsamixer|htop|irssi|weechat-curses|ncmpcpp|pamixer)
-        exec $tr -name $cmd -e $cmd
+    alsamixer|htop|irssi|weechat-curses|ncmpcpp|pamixer|dstat)
+        exec term -e $cmd $*
         ;;
     wireshark|synaptic|zenmap|firestarter|reboot|nm-connection-editor)
-        exec gksudo $cmd
+        exec gksudo $cmd $*
+        ;;
+    google-chrome)
+        exec www $*
         ;;
     man)
-        shift 1
         init=""
         [ -e ~/.emacs.d/init-low.el ] && init="-l ~/.emacs.d/init-low";
         exec emacs -q $init -eval "(man \"$*\")"
@@ -39,6 +45,6 @@ case $1 in
         exec a.$cmd
         ;;
     *)
-        exec $cmd
+        exec $cmd $*
         ;;
 esac

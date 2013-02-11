@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Opens an regular web browser
 #
@@ -6,6 +6,4 @@
 # Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
 #
 
-set -e
-
-google-chrome $*
+exec google-chrome $*
