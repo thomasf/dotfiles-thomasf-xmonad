@@ -288,15 +288,29 @@ baseTheme = defaultTheme { fontName            = defaultFont
                          , decoHeight          = 24 }
 
 -- | Decoration theme for tabbed layouts
-tabTheme = baseTheme { activeColor         = Sol.blue
-                     , inactiveColor       = Sol.base03
+tabTheme = baseTheme { activeTextColor     = Sol.base03
+                     , activeColor         = Sol.blue
                      , activeBorderColor   = Sol.blue
-                     , inactiveBorderColor = Sol.base03
-                     , activeTextColor     = Sol.base03
                      , inactiveTextColor   = Sol.blue
-                     , urgentColor         = Sol.orange
+                     , inactiveColor       = Sol.base03
+                     , inactiveBorderColor = Sol.base03
                      , urgentTextColor     = Sol.base03
+                     , urgentColor         = Sol.orange
                      , urgentBorderColor   = Sol.orange }
+
+-- | Decoration theme for scratch workspace tabs
+scratchTabTheme = tabTheme { activeTextColor     = Sol.base03
+                           , activeColor         = Sol.magenta
+                           , activeBorderColor   = Sol.magenta
+                           , inactiveTextColor   = Sol.base03
+                           , inactiveColor       = Sol.green
+                           , inactiveBorderColor = Sol.green
+                           , urgentTextColor     = Sol.base03
+                           , urgentColor         = Sol.orange
+                           , urgentBorderColor   = Sol.orange
+                           , decoHeight          = 64
+                           }
+
 
 -- | The layouthoook
 myLayoutHook = Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22 2012)
@@ -305,7 +319,7 @@ myLayoutHook = Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (o
                onWorkspace "dash" (renamed [Replace "*"] $ tabsAlways) $
                onWorkspace "chat" ((renamed [Replace "*"]) $ grid) $
                onWorkspace "home" ((renamed [Replace "*"]) $ grid) $
-               onWorkspace "scratch" ((renamed [Replace "*"]) $ grid) $
+               onWorkspace "scratch" ((renamed [Replace "*"]) $ tabsScratchWS) $
                onWorkspace "nodes" ((renamed [Replace "*"]) $ grid) $
                onWorkspace "im" (renamed [Replace "*"] $ im) $
                onWorkspace "read" (renamed [Replace "*"] $ tabs) $
@@ -333,6 +347,7 @@ myLayoutHook = Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (o
     --                            , draggerType = BordersDragger }
     threeCol = ThreeColMid 1 (3/100) (1/2)
     tabsAlways = tabbedAlways shrinkText tabTheme
+    tabsScratchWS = tabbedBottomAlways shrinkText scratchTabTheme
     tabs = tabbed shrinkText tabTheme
     grid = GridRatio (16/9)
     im = withIM (1%7) (Role "buddy_list") Grid
