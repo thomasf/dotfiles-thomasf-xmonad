@@ -308,8 +308,7 @@ scratchTabTheme = tabTheme { activeTextColor     = Sol.base03
                            , urgentTextColor     = Sol.base03
                            , urgentColor         = Sol.orange
                            , urgentBorderColor   = Sol.orange
-                           , decoHeight          = 64
-                           }
+                           , decoHeight          = 48 }
 
 
 -- | The layouthoook
@@ -347,7 +346,7 @@ myLayoutHook = Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (o
     --                            , draggerType = BordersDragger }
     threeCol = ThreeColMid 1 (3/100) (1/2)
     tabsAlways = tabbedAlways shrinkText tabTheme
-    tabsScratchWS = tabbedBottomAlways shrinkText scratchTabTheme
+    tabsScratchWS = tabbedBottom shrinkText scratchTabTheme
     tabs = tabbed shrinkText tabTheme
     grid = GridRatio (16/9)
     im = withIM (1%7) (Role "buddy_list") Grid
