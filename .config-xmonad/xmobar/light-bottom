@@ -19,7 +19,7 @@ Config { font = "xft:Consolas-10"
 
        , sepChar = "%"
        , alignSep = "}{"
-       , template = " %quote% }{ <fc=#2aa198>+</fc> %ESSB% <fc=#2aa198>+</fc> <fc=#fdf6e3,#2aa198>%mpd%</fc>"
+       , template = " %quote% }{ <fc=#2aa198>+</fc> %ESSB% <fc=#2aa198>+</fc> <fc=#b58900>%mpd%</fc>"
 
 -- Local Variables:
 -- eval: (rainbow-mode 1)

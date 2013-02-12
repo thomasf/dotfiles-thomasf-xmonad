@@ -285,12 +285,12 @@ largeFont = "-xos4-terminus-*-r-*-*-32-*-*-*-*-*-iso8859-*"
 
 -- | Base decoration theme
 baseTheme = defaultTheme { fontName            = defaultFont
-                         , decoHeight          = 18 }
+                         , decoHeight          = 24 }
 
 -- | Decoration theme for tabbed layouts
-tabTheme = baseTheme { activeColor         = Sol.magenta
+tabTheme = baseTheme { activeColor         = Sol.blue
                      , inactiveColor       = Sol.base03
-                     , activeBorderColor   = Sol.magenta
+                     , activeBorderColor   = Sol.blue
                      , inactiveBorderColor = Sol.base03
                      , activeTextColor     = Sol.base03
                      , inactiveTextColor   = Sol.blue
@@ -414,19 +414,19 @@ myEventHook = serverModeEventHook <+> fullscreenEventHook
 -- Perform an arbitrary action on each internal state change or X event.
 -- See the 'XMonad.Hooks.DynamicLog' extension for examples.
 --
-doublepad =  wrap "  " "  " . trim
+doublepad =  wrap " " "" . trim
 
 
 myXmobarLogHook h = dynamicLogWithPP myXmobarPP
 
 myXmobarPP = defaultPP
-  { ppCurrent = xmobarColor Sol.base03 Sol.blue . doublepad
-  , ppVisible = xmobarColor Sol.blue "" . doublepad
+  { ppCurrent = xmobarColor Sol.magenta "" . wrap "[" "]"
+  , ppVisible = xmobarColor Sol.green "" . wrap " " " "
   , ppHidden  = const ""
-  , ppUrgent  = xmobarColor Sol.base03 Sol.orange . doublepad
-  , ppTitle   = xmobarColor Sol.yellow "" . dzenEscape . trim
+  , ppUrgent  = xmobarColor Sol.red "" . wrap " !" "! "
+  , ppTitle   = xmobarColor Sol.yellow "" .  trim
   , ppLayout  = xmobarColor Sol.base01 "" . trim
-  , ppSep     = xmobarColor Sol.cyan "" "  *  "
+  , ppSep     = xmobarColor Sol.cyan "" "  +  "
   , ppSort    = getSortByXineramaRule
   }
 
