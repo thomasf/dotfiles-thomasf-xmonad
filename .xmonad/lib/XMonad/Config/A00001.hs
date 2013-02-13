@@ -298,8 +298,8 @@ tabTheme = baseTheme { activeTextColor     = Sol.base03
                      , urgentColor         = Sol.orange
                      , urgentBorderColor   = Sol.orange }
 
--- | Decoration theme for scratch workspace tabs
-scratchTabTheme = tabTheme { activeTextColor     = Sol.base03
+-- | Decoration theme for bottom tabs
+bottomTabTheme = tabTheme { activeTextColor     = Sol.base03
                            , activeColor         = Sol.magenta
                            , activeBorderColor   = Sol.magenta
                            , inactiveTextColor   = Sol.base03
@@ -315,11 +315,11 @@ scratchTabTheme = tabTheme { activeTextColor     = Sol.base03
 myLayoutHook = Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22 2012)
                MT.mkToggle (MT.single MTI.NOBORDERS) $
                MT.mkToggle (MT.single MTI.NBFULL) $
-               onWorkspace "dash" (renamed [Replace "*"] $ tabsAlways) $
+               onWorkspace "dash" (renamed [Replace "*"] $ tabsBottom) $
                onWorkspace "chat" ((renamed [Replace "*"]) $ grid) $
-               onWorkspace "home" ((renamed [Replace "*"]) $ grid) $
-               onWorkspace "scratch" ((renamed [Replace "*"]) $ tabsScratchWS) $
-               onWorkspace "nodes" ((renamed [Replace "*"]) $ grid) $
+               onWorkspace "home" ((renamed [Replace "*"]) $ tabsBottom) $
+               onWorkspace "scratch" ((renamed [Replace "*"]) $ tabsBottom) $
+               onWorkspace "nodes" ((renamed [Replace "*"]) $ tabsBottom) $
                onWorkspace "im" (renamed [Replace "*"] $ im) $
                onWorkspace "read" (renamed [Replace "*"] $ tabs) $
                lessBorders OnlyFloat
@@ -346,7 +346,7 @@ myLayoutHook = Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (o
     --                            , draggerType = BordersDragger }
     threeCol = ThreeColMid 1 (3/100) (1/2)
     tabsAlways = tabbedAlways shrinkText tabTheme
-    tabsScratchWS = tabbedBottom shrinkText scratchTabTheme
+    tabsBottom = tabbedBottom shrinkText bottomTabTheme
     tabs = tabbed shrinkText tabTheme
     grid = GridRatio (16/9)
     im = withIM (1%7) (Role "buddy_list") Grid
