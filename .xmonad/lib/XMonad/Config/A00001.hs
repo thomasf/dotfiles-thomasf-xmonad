@@ -280,7 +280,7 @@ myWorkspaces = [ "home", "scratch", "chat", "nodes", "dash" ]
 -- restarting (with 'mod-q') to reset your layout state to the new
 -- defaults, as xmonad preserves your old layout settings by default.
 
-defaultFont = "-xos4-terminus-*-r-*-*-16-*-*-*-*-*-iso8859-*"
+defaultFont = "-xos4-terminus-*-r-*-*-13-*-*-*-*-*-iso8859-*"
 largeFont = "-xos4-terminus-*-r-*-*-32-*-*-*-*-*-iso8859-*"
 
 -- | Base decoration theme
@@ -345,7 +345,7 @@ myLayoutHook = Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (o
     --                            , fracIncrement = (3/100)
     --                            , draggerType = BordersDragger }
     threeCol = ThreeColMid 1 (3/100) (1/2)
-    tabsAlways = tabbedAlways shrinkText tabTheme
+    tabsAlways = tabbedBottomAlways shrinkText bottomTabTheme
     tabsBottom = tabbedBottom shrinkText bottomTabTheme
     tabs = tabbed shrinkText tabTheme
     grid = GridRatio (16/9)
