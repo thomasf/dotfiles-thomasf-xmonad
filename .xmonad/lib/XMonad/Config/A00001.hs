@@ -179,7 +179,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
 
     -- | Remove current workpace if empty
     rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "home", "nodes", "dash", "scratch"
-                                                   , "share", "video", "files", "www"]
+                                                   , "share", "music", "video", "files", "www"]
 
     -- | Toggle recent workspaces ignoring some of them
     toggleWS = toggleWS' [ "NSP" ] >> movePointer
@@ -272,7 +272,7 @@ myFocusedBorderColor = Sol.magenta
 -- Workspaces
 
 myWorkspaces = [ "home", "scratch", "chat", "nodes", "dash",
-                 "www", "video", "share", "files" ]
+                 "www", "music", "video", "share", "files" ]
 
 ------------------------------------------------------------------------
 -- Layouts:
@@ -320,6 +320,7 @@ myLayoutHook = onWorkspace "video" (renameStar full) $
                MT.mkToggle (MT.single MTI.NBFULL) $
                onWorkspace "dash" (renameStar tabsBottom) $
                onWorkspace "chat" (renameStar gridWide) $
+               onWorkspace "music" (grid ||| tabsAlways) $
                onWorkspace "files" (grid ||| tabsAlways) $
                onWorkspace "home" (renameStar tabsBottom) $
                onWorkspace "scratch" (renameStar tabsBottom) $
