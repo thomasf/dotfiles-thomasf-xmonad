@@ -1,0 +1,14 @@
+#!/bin/sh
+#
+# Workspace launcher
+#
+# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
+#
+
+pavucontrol &
+ario &
+www-window \
+    "http://soundcloud.com" \
+    "http://mixcloud.com" \
+    "http://wfmu.org" \
+    "http://last.fm" &

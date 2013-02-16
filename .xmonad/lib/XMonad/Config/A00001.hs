@@ -320,7 +320,7 @@ myLayoutHook = onWorkspace "video" (renameStar full) $
                MT.mkToggle (MT.single MTI.NBFULL) $
                onWorkspace "dash" (renameStar tabsBottom) $
                onWorkspace "chat" (renameStar gridWide) $
-               onWorkspace "music" (grid ||| tabsAlways) $
+               onWorkspace "music" (tabsAlways) $
                onWorkspace "files" (grid ||| tabsAlways) $
                onWorkspace "home" (renameStar tabsBottom) $
                onWorkspace "scratch" (renameStar tabsBottom) $
