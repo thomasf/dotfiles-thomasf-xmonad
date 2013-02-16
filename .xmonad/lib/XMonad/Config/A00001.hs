@@ -312,7 +312,8 @@ bottomTabTheme = tabTheme { activeTextColor     = Sol.base03
 
 
 -- | The layouthoook
-myLayoutHook = Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22 2012)
+myLayoutHook = onWorkspace "movie" ((renamed [Replace "*"]) $ full ) $
+               Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22 2012)
                MT.mkToggle (MT.single MTI.NOBORDERS) $
                MT.mkToggle (MT.single MTI.NBFULL) $
                onWorkspace "dash" (renamed [Replace "*"] $ tabsBottom) $
@@ -331,6 +332,7 @@ myLayoutHook = Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (o
                 (renamed [Replace "grid"]        $ grid ) |||
                 (renamed [Replace "spiral"]      $ spiral (6/7)))
   where
+    full = noBorders (fullscreenFull Full)
     tallH = Tall 1 (3/100) (4/5)
     tallV = Tall 1 (3/100) (3/4)
     -- TODO: these might be usable with a bit of tweaking
