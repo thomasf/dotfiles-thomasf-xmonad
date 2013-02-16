@@ -61,7 +61,7 @@ import           XMonad.Layout.NoBorders
 import           XMonad.Layout.PerWorkspace      (onWorkspace)
 import           XMonad.Layout.Reflect
 import           XMonad.Layout.ShowWName
-import           XMonad.Layout.Spiral
+import qualified XMonad.Layout.Spiral as Spiral
 import           XMonad.Layout.Tabbed
 import           XMonad.Layout.ThreeColumns
 import           XMonad.Prompt
@@ -178,7 +178,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
       when (null wins) $ workspaceAction
 
     -- | Remove current workpace if empty
-    rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "home", "nodes", "dash", "scratch"]
+    rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "home", "nodes", "dash", "scratch"
+                                                   , "share", "video", "files", "www"]
 
     -- | Toggle recent workspaces ignoring some of them
     toggleWS = toggleWS' [ "NSP" ] >> movePointer
@@ -270,7 +271,8 @@ myFocusedBorderColor = Sol.magenta
 ------------------------------------------------------------------------
 -- Workspaces
 
-myWorkspaces = [ "home", "scratch", "chat", "nodes", "dash" ]
+myWorkspaces = [ "home", "scratch", "chat", "nodes", "dash",
+                 "www", "video", "share", "files" ]
 
 ------------------------------------------------------------------------
 -- Layouts:
@@ -312,29 +314,26 @@ bottomTabTheme = tabTheme { activeTextColor     = Sol.base03
 
 
 -- | The layouthoook
-myLayoutHook = onWorkspace "movie" ((renamed [Replace "*"]) $ full ) $
+myLayoutHook = onWorkspace "video" (renameStar full) $
                Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22 2012)
                MT.mkToggle (MT.single MTI.NOBORDERS) $
                MT.mkToggle (MT.single MTI.NBFULL) $
-               onWorkspace "dash" (renamed [Replace "*"] $ tabsBottom) $
-               onWorkspace "chat" ((renamed [Replace "*"]) $ grid) $
-               onWorkspace "home" ((renamed [Replace "*"]) $ tabsBottom) $
-               onWorkspace "scratch" ((renamed [Replace "*"]) $ tabsBottom) $
-               onWorkspace "nodes" ((renamed [Replace "*"]) $ tabsBottom) $
-               onWorkspace "im" (renamed [Replace "*"] $ im) $
-               onWorkspace "read" (renamed [Replace "*"] $ tabs) $
+               onWorkspace "dash" (renameStar tabsBottom) $
+               onWorkspace "chat" (renameStar gridWide) $
+               onWorkspace "files" (grid ||| tabsAlways) $
+               onWorkspace "home" (renameStar tabsBottom) $
+               onWorkspace "scratch" (renameStar tabsBottom) $
+               onWorkspace "nodes" (renameStar tabsBottom) $
+               onWorkspace "im" (renameStar im) $
+               onWorkspace "read" (renameStar tabs) $
                lessBorders OnlyFloat
-               ((renamed [Replace "tall h"]      $ Mirror tallH) |||
-                (renamed [Replace "tall v"]      $ tallV) |||
-                (renamed [Replace "tabs"]        $ tabsAlways) |||
-                (renamed [Replace "3col h"]      $ threeCol) |||
-                (renamed [Replace "3col v"]      $ Mirror threeCol) |||
-                (renamed [Replace "grid"]        $ grid ) |||
-                (renamed [Replace "spiral"]      $ spiral (6/7)))
+               (tallH ||| tallV ||| tabsAlways ||| threeCol |||  threeColV ||| gridWide ||| spiral)
   where
-    full = noBorders (fullscreenFull Full)
-    tallH = Tall 1 (3/100) (4/5)
-    tallV = Tall 1 (3/100) (3/4)
+    rename name = renamed [Replace name]
+    renameStar = renamed [Replace "*"]
+    full = rename "full" $ noBorders (fullscreenFull Full)
+    tallH = rename "tall h" $ Mirror $ Tall 1 (3/100) (4/5)
+    tallV = rename "tall v" $ Tall 1 (3/100) (3/4)
     -- TODO: these might be usable with a bit of tweaking
     -- tallH = mouseResizableTileMirrored { nmaster  = 1
     --                                    , masterFrac = (4/5)
@@ -346,12 +345,15 @@ myLayoutHook = onWorkspace "movie" ((renamed [Replace "*"]) $ full ) $
     --                            , slaveFrac = (1/2)
     --                            , fracIncrement = (3/100)
     --                            , draggerType = BordersDragger }
-    threeCol = ThreeColMid 1 (3/100) (1/2)
-    tabsAlways = tabbedBottomAlways shrinkText bottomTabTheme
-    tabsBottom = tabbedBottom shrinkText bottomTabTheme
-    tabs = tabbed shrinkText tabTheme
-    grid = GridRatio (16/9)
-    im = withIM (1%7) (Role "buddy_list") Grid
+    spiral = rename "spiral" $ Spiral.spiral (6/7)
+    threeCol = rename "3col h" $ ThreeColMid 1 (3/100) (1/2)
+    threeColV = rename "3col v" $ Mirror threeCol
+    tabsAlways = rename "tabs" $ tabbedBottomAlways shrinkText bottomTabTheme
+    tabsBottom = rename "tabs" $ tabbedBottom shrinkText bottomTabTheme
+    tabs = rename "tabs" $ tabbed shrinkText tabTheme
+    gridWide =  rename "grid" $ GridRatio (16/9)
+    grid = rename "grid" $ GridRatio (4/3)
+    im = renameStar $ withIM (1%7) (Role "buddy_list") Grid
     --titleDeco = deco titleTheme
     --deco t   = decoration shrinkText t Dwm
 

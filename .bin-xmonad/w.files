@@ -5,4 +5,4 @@
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 #
 
-exec nautilus ~/Downloads
+exec nautilus ~/ ~/Downloads
