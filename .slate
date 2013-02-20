@@ -56,7 +56,7 @@ bind down:cmd     focus down
 bind up:cmd;alt   focus behind
 bind down:cmd;alt focus behind
 
-bind g:esc grid padding:5 0:6,2 1:8,3
+bind g:esc grid padding:5 0:6,3 1:6,4
 
 # Window Hints
 bind p:cmd hint
