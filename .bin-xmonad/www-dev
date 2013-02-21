@@ -23,6 +23,7 @@ remote_debugging=""
 
 lsof -iTCP:9222 -sTCP:LISTEN -t || remote_debugging="--remote-debugging-port=9222"
 
+[ -z "${1}" ] && args="http://localhost:7345/files/index.html"
 
 google-chrome \
     --allow-file-access \
@@ -41,4 +42,5 @@ google-chrome \
     $remote_debugging \
     --class=www-dev \
     --app=www-dev \
+    $args \
     $*
