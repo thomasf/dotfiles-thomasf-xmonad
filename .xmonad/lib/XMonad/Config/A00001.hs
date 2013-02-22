@@ -142,8 +142,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm, xK_o),                 addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l 48"] >> movePointer >> showWorkspaceName)
 
   , subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]"
-  , ((modm, xK_space),             addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
-  , ((modm.|. ctrl, xK_space),     addName "Switch to default layout"                             $ sendMessage (JumpToLayout "tabs") >> movePointer >> showLayoutName)
+  , ((modm, xK_space),             addName "Show workspace name"                                  $ showWorkspaceNameFast)
+  , ((modm.|. ctrl, xK_space),     addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
+  -- , ((modm.|. alt, xK_space),     addName "Switch to default layout"                             $ sendMessage (JumpToLayout "tabs") >> movePointer >> showLayoutName)
   , ((modm.|. alt, xK_space),      addName "Toggle fullscreen"                                    $ sendMessage (MT.Toggle MTI.NBFULL) >> movePointer)
   , ((modm.|. alt, xK_s),          addName "Toggle struts (ignore panels)"                        $ sendMessage ToggleStruts >> movePointer)
   , ((modm.|. alt, xK_b),          addName "Toggle window borders"                                $ sendMessage (MT.Toggle MTI.NOBORDERS) >> movePointer)
