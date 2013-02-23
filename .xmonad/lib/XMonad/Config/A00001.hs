@@ -100,7 +100,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm.|. ctrl, xK_k),         addName "Rotate all windows backwards while keeping focus"     $ rotAllDown >> movePointer)
 
   , subtitle "Other window actions"
-  , ((modm, xK_space),                 addName "Move focus to master window"                          $ windows W.focusMaster >> movePointer)
+  , ((modm, xK_space),             addName "Move focus to master window"                          $ windows W.focusMaster >> movePointer)
   , ((modm, xK_Return),            addName "Swap the focused window and the master window"        $ windows W.swapMaster >> movePointer)
   , ((modm, xK_t),                 addName "Push the window into tiling mode"                     $ withFocused (windows . W.sink) >> movePointer)
   , ((modm.|. ctrl, xK_c),         addName "kill"                                                 $ kill)
@@ -180,8 +180,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
       when (null wins) $ workspaceAction
 
     -- | Remove current workpace if empty
-    rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "home", "nodes", "dash", "scratch"
-                                                   , "share", "music", "video", "files", "www"]
+    rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "home", "scratch", "www"]
 
     -- | Toggle recent workspaces ignoring some of them
     toggleWS = toggleWS' [ "NSP" ] >> movePointer
@@ -279,8 +278,7 @@ myFocusedBorderColor = Sol.magenta
 ------------------------------------------------------------------------
 -- Workspaces
 
-myWorkspaces = [ "home", "scratch", "chat", "nodes", "dash",
-                 "www", "music", "video", "share", "files" ]
+myWorkspaces = [ "home", "scratch", "www"]
 
 ------------------------------------------------------------------------
 -- Layouts:
@@ -447,12 +445,12 @@ doublepad =  wrap " " "" . trim
 myXmobarLogHook h = dynamicLogWithPP myXmobarPP
 
 myXmobarPP = defaultPP
-  { ppCurrent = xmobarColor Sol.magenta "" . wrap "[" "]"
+  { ppCurrent = xmobarColor Sol.yellow "" . wrap "-" "-"
   , ppVisible = xmobarColor Sol.green "" . wrap " " " "
   , ppHidden  = const ""
   , ppUrgent  = xmobarColor Sol.red "" . wrap " !" "! "
   , ppTitle   = xmobarColor Sol.yellow "" .  trim
-  , ppLayout  = xmobarColor Sol.base01 "" . trim
+  , ppLayout  = xmobarColor Sol.yellow "" . trim
   , ppSep     = xmobarColor Sol.cyan "" "  +  "
   , ppSort    = getSortByXineramaRule
   }
