@@ -341,8 +341,8 @@ myLayoutHook = onWorkspace "video" (renameStar full) $
     rename name = renamed [Replace name]
     renameStar = renamed [Replace "*"]
     full = rename "full" $ noBorders (fullscreenFull Full)
-    tallH = rename "tall h" $ Mirror $ Tall 1 (3/100) (4/5)
-    tallV = rename "tall v" $ Tall 1 (3/100) (3/4)
+    tallH = rename "tall h" $ Mirror $ Tall 2 (3/100) (4/5)
+    tallV = rename "tall v" $ Tall 2 (3/100) (1/2)
     -- TODO: these might be usable with a bit of tweaking
     -- tallH = mouseResizableTileMirrored { nmaster  = 1
     --                                    , masterFrac = (4/5)
@@ -355,7 +355,7 @@ myLayoutHook = onWorkspace "video" (renameStar full) $
     --                            , fracIncrement = (3/100)
     --                            , draggerType = BordersDragger }
     spiral = rename "spiral" $ Spiral.spiral (6/7)
-    threeCol = rename "3col h" $ ThreeColMid 1 (3/100) (1/2)
+    threeCol = rename "3col h" $ ThreeColMid 2 (3/100) (1/2)
     threeColV = rename "3col v" $ Mirror threeCol
     tabsAlways = rename "tabs" $ tabbedBottomAlways shrinkText bottomTabTheme
     tabsBottom = rename "tabs" $ tabbedBottom shrinkText bottomTabTheme
