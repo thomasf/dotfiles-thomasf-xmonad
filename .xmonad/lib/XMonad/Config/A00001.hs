@@ -100,7 +100,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm.|. ctrl, xK_k),         addName "Rotate all windows backwards while keeping focus"     $ rotAllDown >> movePointer)
 
   , subtitle "Other window actions"
-  , ((modm, xK_m),                 addName "Move focus to master window"                          $ windows W.focusMaster >> movePointer)
+  , ((modm, xK_space),                 addName "Move focus to master window"                          $ windows W.focusMaster >> movePointer)
   , ((modm, xK_Return),            addName "Swap the focused window and the master window"        $ windows W.swapMaster >> movePointer)
   , ((modm, xK_t),                 addName "Push the window into tiling mode"                     $ withFocused (windows . W.sink) >> movePointer)
   , ((modm.|. ctrl, xK_c),         addName "kill"                                                 $ kill)
@@ -125,11 +125,12 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , subtitle "Workspace actions (E/R) [mod=select from prefix] [mod+control=select from all]"
   , ((modm, xK_e),                 addName "Next workspace (prefix)"                              $ rmEmptyWs $ nextWsPrefix >> movePointer >> showWorkspaceName)
   , ((modm, xK_r),                 addName "Previous workspace (prefix)"                          $ rmEmptyWs $ prevWsPrefix >> movePointer >> showWorkspaceName)
-  , ((modm.|. ctrl, xK_e),         addName "Next non empty workspace"                             $ rmEmptyWs $ nextWsNonEmpty >> movePointer >> showWorkspaceName)
-  , ((modm.|. ctrl, xK_r),         addName "Previous non empty workspace"                         $ rmEmptyWs $ prevWsNonEmpty >> movePointer >> showWorkspaceName)
+  -- , ((modm.|. ctrl, xK_e),         addName "Next non empty workspace"                             $ rmEmptyWs $ nextWsNonEmpty >> movePointer >> showWorkspaceName)
+  -- , ((modm.|. ctrl, xK_r),         addName "Previous non empty workspace"                         $ rmEmptyWs $ prevWsNonEmpty >> movePointer >> showWorkspaceName)
   , ((modm.|. alt, xK_e),          addName "New workspace in prefix.sequence"                     $ newPrefixWS >> movePointer >> showWorkspaceName)
 
   , subtitle "Other workspace actions"
+  , ((modm, xK_b),                 addName "Goto workspacegroup basename workspace"               $ rmEmptyWs $ gotoPrefixWorkspaceNonSuffix >> showWorkspaceNameFast)
   , ((modm, xK_y),                 addName "Toggle previous workspace"                            $ rmEmptyWs $ toggleWS >> showWorkspaceNameFast)
   , ((modm.|. ctrl, xK_y),         addName "Toggle previous workspace skipping some workspaces"   $ rmEmptyWs $ ignoredToggleWS >> showWorkspaceNameFast)
   , ((modm, xK_a),                 addName "Run default workspace launcer script"                 $ workspaceAction)
@@ -142,7 +143,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm, xK_o),                 addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l 48"] >> movePointer >> showWorkspaceName)
 
   , subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]"
-  , ((modm, xK_space),             addName "Show workspace name"                                  $ showWorkspaceNameFast)
+  -- , ((modm, xK_space),             addName "Show workspace name"                                  $ showWorkspaceNameFast)
   , ((modm.|. ctrl, xK_space),     addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
   -- , ((modm.|. alt, xK_space),     addName "Switch to default layout"                             $ sendMessage (JumpToLayout "tabs") >> movePointer >> showLayoutName)
   , ((modm.|. alt, xK_space),      addName "Toggle fullscreen"                                    $ sendMessage (MT.Toggle MTI.NBFULL) >> movePointer)
@@ -201,6 +202,12 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
       DW.addHiddenWorkspace wsid
       windows (W.greedyView wsid)
 
+   -- | View a workspace by name and maybe run workspace action
+    myViewWS2 wsid = do
+      DW.addHiddenWorkspace wsid
+      windows (W.view wsid)
+      maybeWorkspaceAction
+
     -- | Select workspae prompt
     selectWorkspacePrompt = workspacePrompt myXPConfig $ \w ->
                             do s <- gets windowset
@@ -230,10 +237,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
     -- | Sort workspaces by tag name, exclude hidden scrachpad workspace.
     getSortByTagNoSP = fmap (.namedScratchpadFilterOutWorkspace) getSortByTag
 
-    -- gotoPrefixWorkspaceNonSuffix :: X ()
-    -- gotoPrefixWorkspaceNonSuffix = do
-    --   ws <- gets (W.currentTag . windowset)
-    --   myViewWS (takeWhile (/='.') ws)
+    gotoPrefixWorkspaceNonSuffix :: X ()
+    gotoPrefixWorkspaceNonSuffix = do
+      ws <- gets (W.currentTag . windowset)
+      myViewWS2 (takeWhile (/='.') ws)
 
     -- gotoPrefixWorkspaceSuffix suffix = do
     --   ws <- gets (W.currentTag . windowset)
