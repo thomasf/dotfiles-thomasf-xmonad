@@ -100,7 +100,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm.|. ctrl, xK_k),         addName "Rotate all windows backwards while keeping focus"     $ rotAllDown >> movePointer)
 
   , subtitle "Other window actions"
-  , ((modm, xK_space),                 addName "Move focus to master window"                          $ windows W.focusMaster >> movePointer)
+  , ((modm, xK_space),             addName "Move focus to master window"                          $ windows W.focusMaster >> movePointer)
   , ((modm, xK_Return),            addName "Swap the focused window and the master window"        $ windows W.swapMaster >> movePointer)
   , ((modm, xK_t),                 addName "Push the window into tiling mode"                     $ withFocused (windows . W.sink) >> movePointer)
   , ((modm.|. ctrl, xK_c),         addName "kill"                                                 $ kill)
