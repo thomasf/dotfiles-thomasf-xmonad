@@ -52,11 +52,10 @@ Xmessage*geometry:                    +20+20
 !---- URxvt - General settings {
 URxvt*:borderLess:                    true
 URxvt*internalBorder:                 4
-URxvt*cursorBlink:                    true
+URxvt*cursorBlink:                    false
 URxvt*font:                           xft:Anonymous Pro:pixelsize=13
 URxvt*jumpScroll:                     true
-URxvt*scrollstyle:                    plain
-URxvt*scrollBar_right:                true
+URxvt*scrollBar:                      off
 URxvt*saveLines:                      20000
 URxvt*scrollWithBuffer:               true
 URxvt*scrollTtyOutput:                false
