@@ -1,16 +1,18 @@
 # -*- mode: conf -*-
 
 [global]
-#font = Monospace-12
-font =  -*-terminus-bold-r-normal--18-*-*-*-*-*-*-*
+# font = Monospace 8
+# font =  -*-terminus-bold-r-normal--18-*-*-*-*-*-*-*
+font =  Monospace 12
+allow_markup = yes
 format = "[%a] %s %b"
 sort = yes
 indicate_hidden = yes
-alignment = right
+alignment = left
 bounce_freq = 0
-show_age_threshold = 60;
+show_age_threshold = 60
 word_wrap = yes
-geometry = "0x10-8+18"
+geometry = "0x10-0+18"
 transparency = 0
 idle_threshold = 120
 monitor = 0
@@ -18,8 +20,8 @@ follow = keyboard
 sticky_history = yes
 line_height = 0
 separator_height = 0;
-padding = 3
-horizontal_padding = 8
+padding = 4
+horizontal_padding = 4
 separator_color = frame
 dmenu = ~/.bin-xmonad/dmenu -p dunst:
 browser = ~/.bin-xmonad/www
