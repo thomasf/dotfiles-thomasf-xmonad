@@ -271,7 +271,7 @@ myFocusedBorderColor = Sol.magenta
 ------------------------------------------------------------------------
 -- Workspaces
 
-myWorkspaces = [ "home", "scratch", "www"]
+myWorkspaces = [ "home", "scratch", "www", "video", "music", "read", "files"]
 
 ------------------------------------------------------------------------
 -- Layouts:
