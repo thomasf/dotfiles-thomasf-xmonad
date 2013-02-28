@@ -115,18 +115,11 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm.|. shft, xK_d),         addName "Move window to next screen"                           $ shiftNextScreen >> nextScreen >> movePointer >> showWorkspaceNameFast)
   , ((modm.|. shft, xK_f),         addName "Move window to previous screen"                       $ shiftPrevScreen >> prevScreen >> movePointer >> showWorkspaceNameFast)
 
-  -- , subtitle "Go to specific suffix workspace number"
-  -- , ((modm, xK_1),                 addName "Go to non prefixed workspace"                         $ rmEmptyWs $ gotoPrefixWorkspaceNonSuffix >> movePointer >> showWorkspaceNameFast)
-  -- , ((modm, xK_2),                 addName "Go to non prefixed workspace"                         $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 0 >> movePointer >> showWorkspaceNameFast)
-  -- , ((modm, xK_3),                 addName "Go to non prefixed workspace"                         $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 1 >> movePointer >> showWorkspaceNameFast)
-  -- , ((modm, xK_4),                 addName "Go to non prefixed workspace"                         $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 2 >> movePointer >> showWorkspaceNameFast)
-  -- , ((modm, xK_5),                 addName "Go to non prefixed workspace"                         $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 3 >> movePointer >> showWorkspaceNameFast)
-
   , subtitle "Workspace actions (E/R) [mod=select from prefix] [mod+control=select from all]"
   , ((modm, xK_e),                 addName "Next workspace (prefix)"                              $ rmEmptyWs $ nextWsPrefix >> movePointer >> showWorkspaceName)
   , ((modm, xK_r),                 addName "Previous workspace (prefix)"                          $ rmEmptyWs $ prevWsPrefix >> movePointer >> showWorkspaceName)
-  -- , ((modm.|. ctrl, xK_e),         addName "Next non empty workspace"                             $ rmEmptyWs $ nextWsNonEmpty >> movePointer >> showWorkspaceName)
-  -- , ((modm.|. ctrl, xK_r),         addName "Previous non empty workspace"                         $ rmEmptyWs $ prevWsNonEmpty >> movePointer >> showWorkspaceName)
+  , ((modm.|. ctrl, xK_e),         addName "Next non empty workspace"                             $ rmEmptyWs $ nextWsNonEmpty >> movePointer >> showWorkspaceName)
+  , ((modm.|. ctrl, xK_r),         addName "Previous non empty workspace"                         $ rmEmptyWs $ prevWsNonEmpty >> movePointer >> showWorkspaceName)
   , ((modm.|. alt, xK_e),          addName "New workspace in prefix.sequence"                     $ newPrefixWS >> movePointer >> showWorkspaceName)
 
   , subtitle "Other workspace actions"
