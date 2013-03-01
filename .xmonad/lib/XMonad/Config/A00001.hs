@@ -175,7 +175,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
       when (null wins) $ workspaceAction
 
     -- | Remove current workpace if empty
-    rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "home", "scratch", "www"]
+    rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "home", "scratch"]
 
     -- | Toggle recent workspaces ignoring some of them
     toggleWS = toggleWS' [ "NSP" ] >> movePointer
@@ -273,7 +273,7 @@ myFocusedBorderColor = Sol.magenta
 ------------------------------------------------------------------------
 -- Workspaces
 
-myWorkspaces = [ "home", "scratch", "www", "video", "music", "read", "files"]
+myWorkspaces = [ "home", "scratch"]
 
 ------------------------------------------------------------------------
 -- Layouts:
