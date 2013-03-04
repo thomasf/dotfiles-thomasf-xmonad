@@ -290,19 +290,8 @@ largeFont = "-xos4-terminus-*-r-*-*-32-*-*-*-*-*-iso8859-*"
 baseTheme = defaultTheme { fontName            = defaultFont
                          , decoHeight          = 24 }
 
--- | Decoration theme for tabbed layouts
-tabTheme = baseTheme { activeTextColor     = Sol.base03
-                     , activeColor         = Sol.blue
-                     , activeBorderColor   = Sol.blue
-                     , inactiveTextColor   = Sol.blue
-                     , inactiveColor       = Sol.base03
-                     , inactiveBorderColor = Sol.base03
-                     , urgentTextColor     = Sol.base03
-                     , urgentColor         = Sol.orange
-                     , urgentBorderColor   = Sol.orange }
-
 -- | Decoration theme for bottom tabs
-bottomTabTheme = tabTheme { activeTextColor     = Sol.base03
+bottomTabTheme = baseTheme { activeTextColor     = Sol.base03
                            , activeColor         = Sol.magenta
                            , activeBorderColor   = Sol.magenta
                            , inactiveTextColor   = Sol.base03
@@ -312,7 +301,6 @@ bottomTabTheme = tabTheme { activeTextColor     = Sol.base03
                            , urgentColor         = Sol.orange
                            , urgentBorderColor   = Sol.orange
                            , decoHeight          = 48 }
-
 
 -- | The layouthoook
 myLayoutHook = onWorkspace "video" (renameStar full) $
@@ -327,7 +315,7 @@ myLayoutHook = onWorkspace "video" (renameStar full) $
                onWorkspace "scratch" (renameStar tabsBottom) $
                onWorkspace "nodes" (renameStar tabsBottom) $
                onWorkspace "im" (renameStar im) $
-               onWorkspace "read" (renameStar tabs) $
+               onWorkspace "read" (renameStar tabsBottom) $
                lessBorders OnlyFloat
                (tallH ||| tallV ||| tabsAlways ||| threeCol |||  threeColV ||| gridWide ||| spiral)
   where
@@ -352,12 +340,9 @@ myLayoutHook = onWorkspace "video" (renameStar full) $
     threeColV = rename "3col v" $ Mirror threeCol
     tabsAlways = rename "tabs" $ tabbedBottomAlways shrinkText bottomTabTheme
     tabsBottom = rename "tabs" $ tabbedBottom shrinkText bottomTabTheme
-    tabs = rename "tabs" $ tabbed shrinkText tabTheme
     gridWide =  rename "grid" $ GridRatio (16/9)
     grid = rename "grid" $ GridRatio (4/3)
     im = renameStar $ withIM (1%7) (Role "buddy_list") Grid
-    --titleDeco = deco titleTheme
-    --deco t   = decoration shrinkText t Dwm
 
 -----------------------------------------------------------------------
 -- Window rules:
