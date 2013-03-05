@@ -176,7 +176,6 @@ if [ -f $HOME/.xbindkeysrc ]; then
 fi
 
 touch ~/.config/darkmode
-[ -x ~/.bin-xmonad/panels ] && ~/.bin-xmonad/panels
 (
     if [ $(which zenity ) ]; then
         sleep 1
@@ -184,6 +183,7 @@ touch ~/.config/darkmode
             darkmode l
         fi
     fi
+    [ -x ~/.bin-xmonad/panels ] && ~/.bin-xmonad/panels
 ) &
 # Function that displays a list of window managers to choose from.
 wm_selection() {
