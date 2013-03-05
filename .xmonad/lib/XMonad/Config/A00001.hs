@@ -425,13 +425,13 @@ doublepad =  wrap " " "" . trim
 myXmobarLogHook h = dynamicLogWithPP myXmobarPP
 
 myXmobarPP = defaultPP
-  { ppCurrent = xmobarColor Sol.yellow "" . wrap "-" "-"
+  { ppCurrent = xmobarColor Sol.magenta "" . wrap "-" "-"
   , ppVisible = xmobarColor Sol.green "" . wrap " " " "
   , ppHidden  = const ""
-  , ppUrgent  = xmobarColor Sol.red "" . wrap " !" "! "
+  , ppUrgent  = xmobarColor Sol.red "" . wrap " !*" "*! "
   , ppTitle   = xmobarColor Sol.yellow "" .  trim
-  , ppLayout  = xmobarColor Sol.yellow "" . trim
-  , ppSep     = xmobarColor Sol.cyan "" "  +  "
+  , ppLayout  = const ""
+  , ppSep     = xmobarColor Sol.yellow "" " :: "
   , ppSort    = getSortByXineramaRule
   }
 
