@@ -13,6 +13,7 @@ gtk-xft-antialias=1
 gtk-xft-hinting=1
 gtk-xft-hintstyle="hintslight"
 gtk-xft-rgba="rgb"
+gtk-key-theme-name = "Emacs"
 
 
 # include ".gtkrc2-local"
