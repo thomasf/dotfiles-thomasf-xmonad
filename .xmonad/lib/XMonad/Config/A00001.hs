@@ -100,7 +100,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm.|. ctrl, xK_k),         addName "Rotate all windows backwards while keeping focus"     $ rotAllDown >> movePointer)
 
   , subtitle "Other window actions"
-  , ((modm, xK_space),             addName "Move focus to master window"                          $ windows W.focusMaster >> movePointer)
+  , ((modm, xK_space),             addName "Show some info..."                          $ showInfo)
   , ((modm, xK_Return),            addName "Swap the focused window and the master window"        $ windows W.swapMaster >> movePointer)
   , ((modm, xK_t),                 addName "Push the window into tiling mode"                     $ withFocused (windows . W.sink) >> movePointer)
   , ((modm.|. ctrl, xK_c),         addName "kill"                                                 $ kill)
@@ -283,8 +283,10 @@ myWorkspaces = [ "home", "scratch"]
 -- restarting (with 'mod-q') to reset your layout state to the new
 -- defaults, as xmonad preserves your old layout settings by default.
 
-defaultFont = "-xos4-terminus-*-r-*-*-13-*-*-*-*-*-iso8859-*"
-largeFont = "-xos4-terminus-*-r-*-*-32-*-*-*-*-*-iso8859-*"
+sizedFont px = "-xos4-terminus-*-r-*-*-" ++ px  ++ "-*-*-*-*-*-iso8859-*"
+defaultFont = sizedFont "13"
+largeFont = sizedFont "16"
+hugeFont = sizedFont "32"
 
 -- | Base decoration theme
 baseTheme = defaultTheme { fontName            = defaultFont
@@ -600,7 +602,7 @@ showWorkspaceName1 timeout bg = do
   DZ.dzenConfig
     (DZ.timeout timeout
      >=> DZ.onCurr (DZ.center 400 48)
-     >=> DZ.font largeFont
+     >=> DZ.font hugeFont
      >=> DZ.addArgs ["-fg", Sol.base03]
      >=> DZ.addArgs ["-bg", bg]
     ) ws
@@ -613,10 +615,26 @@ showLayoutName = do
   DZ.dzenConfig
     (DZ.timeout 0.8
      >=> DZ.onCurr (DZ.center 400 48)
-     >=> DZ.font largeFont
+     >=> DZ.font hugeFont
      >=> DZ.addArgs ["-fg", Sol.base03]
      >=> DZ.addArgs ["-bg", Sol.green]
     ) ld
+
+showInfo = do
+  ws <- gets (W.currentTag . windowset)
+  winset <- gets windowset
+  wt <- maybe (return "") (fmap show . getName) . W.peek $ winset
+  let ld = description . W.layout . W.workspace . W.current $ winset
+  DZ.dzenConfig
+    (DZ.timeout 2
+     >=> DZ.onCurr (DZ.center 700 48)
+     >=> DZ.font (sizedFont "18")
+     >=> DZ.addArgs ["-fg", Sol.base03]
+     >=> DZ.addArgs ["-bg", Sol.orange]
+     >=> DZ.addArgs ["-l", "1"]
+     >=> DZ.addArgs ["-e", "onstart=uncollapse"]
+     >=> DZ.addArgs ["-sa", "center"]
+    ) (wt ++ "\n -" ++ ws ++ "-  ::  " ++ ld)
 
 -- fill-column: 180
 -- End:
