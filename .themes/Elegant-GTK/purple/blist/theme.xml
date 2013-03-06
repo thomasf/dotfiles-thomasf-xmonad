@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<theme type="pidgin buddy list" 
+name="Elegant GNOME" 
+author="Szabo Istvan" 
+image="elegant-gnome.png"
+>
+
+<description>
+The Pidgin theme that fixes an inapropriate behaviour of the Pidgin with the Elegant GTK theme
+</description>
+
+<blist color=""/>
+
+<selected text_color="" background_color=""/>
+
+<groups>
+<expanded background="" color="#ffffff" font=""/>
+<collapsed background="" color="#ffffff" font=""/>
+</groups>
+
+<buddys>
+<placement status_icon="0" 
+   name="1" 
+   emblem="2" 
+   protocol_icon="3"
+   buddy_icon="4" 
+   show_status="1"
+/>
+
+<background color=""/>
+
+<contact_text font="" color="#ffffff"/>
+
+<online_text font="" color="#ffffff"/>
+<away_text font="" color="#ffffff"/>
+<offline_text font="" color="#ffffff"/>
+<idle_text font="" color="#bdbdbd"/>
+
+<message_text font="" color=""/>
+<message_nick_said_text font="" color=""/>
+
+<status_text font="" color="#bdbdbd"/>
+</buddys>
+</theme>

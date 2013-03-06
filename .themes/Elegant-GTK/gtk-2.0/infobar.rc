@@ -1,0 +1,40 @@
+# -- Infobar background style --------------------------------------------------
+style "infobar"
+{	
+	GtkButton::interior_focus = 0
+
+	engine "pixmap"
+	{
+		image 
+		{
+			function		= BOX
+			state			= NORMAL
+			shadow			= OUT
+			file			= "Infobar/button.png"		
+			border			= {4, 4, 4, 4}
+			stretch			= TRUE
+		}
+
+		image
+		{
+			function		= BOX
+			state			= PRELIGHT
+			recolorable		= TRUE
+			shadow			= OUT
+			file			= "Infobar/button-prelight.png"
+			border			= {4, 4, 4, 4}
+			stretch			= TRUE
+		}
+
+		image
+		{
+			function		= BOX
+			state			= ACTIVE
+			file			= "Infobar/button-pressed.png"
+			border			= {4, 4, 4, 4}
+			stretch			= TRUE
+		}
+    }
+}
+widget_class "*<GtkInfoBar>*" style "infobar"
+# ------------------------------------------------------------------------------

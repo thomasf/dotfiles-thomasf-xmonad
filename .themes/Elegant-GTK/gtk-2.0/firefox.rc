@@ -1,0 +1,19 @@
+# -- Firefox settings ----------------------------------------------------------
+style "ff-statusbar"
+{
+	xthickness	= 4
+	ythickness	= 3
+}
+widget	"MozillaGtkWidget*Statusbar*"	style   "ff-statusbar"
+#-------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
