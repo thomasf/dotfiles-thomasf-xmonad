@@ -20,7 +20,6 @@ gtk-key-theme-name = "Emacs"
 # compactify gnome2
 style "gtkcompact" {
   font_name="Sans 8"
-  # font_name="Terminus 8"
   GtkButton::default_border={0,0,0,0}
   GtkButton::default_outside_border={0,0,0,0}
   GtkButtonBox::child_min_width=0
