@@ -57,6 +57,26 @@ class "GtkButton" style "gtkcompactextra"
 class "GtkToolbar" style "gtkcompactextra"
 class "GtkPaned" style "gtkcompactextra"
 
+style "gnome-color-chooser-tooltips" {
+  bg[NORMAL] = "#FFFFAF"
+  fg[NORMAL] = "#000000"
+}
+widget "gtk-tooltip*" style "gnome-color-chooser-tooltips"
+
+# style "eclipse" {
+#   font_name = "Sans 12"
+#   bg[NORMAL] = "#d6d3ce"
+#   bg[ACTIVE] = "#c7c2bc"
+#   bg[INSENSITIVE] = "#828282"
+#   bg[PRELIGHT] = "#3a6ea5"
+#   fg[NORMAL] = "#000000"
+#   fg[ACTIVE] = "#000000"
+#   fg[INSENSITIVE] = "#d4d0c8"
+#   fg[PRELIGHT] = "#ffffff"
+# }
+# class "GtkWidget" style "eclipse"
+
+
 # Desktop icon
 style "desktop-icon" {
  NautilusIconContainer::frame_text = 1
