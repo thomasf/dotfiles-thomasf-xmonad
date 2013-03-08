@@ -7,4 +7,7 @@
     || ln -fs "$(pwd)/.config-xmonad/dunstrc" "${HOME}/.config/"
 
 [ -e "${HOME}/.config/gtk-3.0" ] \
-    || ln -fs "$(pwd)/.config-xmonad/gtk-3.0" "${HOME}/.config/"
+    || ln -fs "$(pwd)/.config-xmonad/gtk/gtk-3.0" "${HOME}/.config/"
+
+[ -e "${HOME}/.config/.themes" ] \
+    || ln -fs "$(pwd)/.config-xmonad/gtk/themes" "${HOME}/.themes"
