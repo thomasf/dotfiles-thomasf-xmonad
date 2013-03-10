@@ -1,0 +1,8 @@
+#!/bin/sh
+#
+# Eclipse wrapper
+#
+# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
+# Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
+#
+exec env GTK2_RC_FILES=${HOME}/.config-xmonad/gtk/gtk-2.0/eclipse4 ~/.opt/eclipse-juno-sr2/eclipse "$@"

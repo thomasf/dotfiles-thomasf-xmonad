@@ -12,25 +12,25 @@ cmd=${1}
 case $cmd in
     l|light)
         shift 1
-        exec urxvt -name LURxvt $*
+        exec urxvt -name LURxvt "$@"
         ;;
     d|dark)
         shift 1
-        exec urxvt $*
+        exec urxvt "$@"
         ;;
     o|other)
         shift 1
         if [ -e ~/.config/darkmode ]; then
-            exec urxvt -name LURxvt $*
+            exec urxvt -name LURxvt "$@"
         else
-            exec urxvt $*
+            exec urxvt "$@"
         fi
         ;;
     *)
         if [ -e ~/.config/darkmode ]; then
-            exec urxvt $*
+            exec urxvt "$@"
         else
-            exec urxvt -name LURxvt $*
+            exec urxvt -name LURxvt "$@"
         fi
         ;;
 esac

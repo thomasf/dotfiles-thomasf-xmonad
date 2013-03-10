@@ -1,0 +1,4 @@
+include "common"
+
+gtk-theme-name="Elegant-GTK"
+class "GtkWidget" style "solarized-dark"

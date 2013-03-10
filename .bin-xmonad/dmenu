@@ -12,4 +12,4 @@ else
 fi
 
 
-exec /usr/bin/dmenu -fn '-*-terminus-*-r-*-*-14-*-*-*-*-*-*' -nb "${bg}" -nf '#268bd2' -sb '#268bd2' -sf "${bg}" -i $*
+exec /usr/bin/dmenu -fn '-*-terminus-*-r-*-*-14-*-*-*-*-*-*' -nb "${bg}" -nf '#268bd2' -sb '#268bd2' -sf "${bg}" -i "$@"

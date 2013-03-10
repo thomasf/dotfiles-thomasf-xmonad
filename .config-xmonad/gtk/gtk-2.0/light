@@ -1,0 +1,4 @@
+include "common"
+
+gtk-theme-name = "Radiance"
+class "GtkWidget" style "solarized-light"

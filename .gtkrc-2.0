@@ -1,1 +1,1 @@
-include ".config-xmonad/gtk/gtk-2.0/gtkrc-2.0"
+include ".config-xmonad/gtk/gtk-2.0/default"
