@@ -1,0 +1,4 @@
+#!/bin/sh
+#
+
+exec ~/.opt/NecessitasQtSDK/QtCreator/bin/necessitas "$@"
