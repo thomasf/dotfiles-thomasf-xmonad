@@ -45,12 +45,11 @@ style "gtkcompact" {
   GtkTreeView::fixed-height-mode = TRUE
   GtkWidget::focus_padding = 0
 }
-
 class "GtkWidget" style "gtkcompact"
 
 style "gtkcompactextra" {
-  xthickness=0
-  ythickness=0
+  xthickness = 0
+  ythickness = 0
 }
 class "GtkButton" style "gtkcompactextra"
 class "GtkToolbar" style "gtkcompactextra"
@@ -80,12 +79,19 @@ widget "*PanelApplet*" style "modpanel"
 widget "*Applet*" style "modpanel"
 
 style "solarized-light" {
-  base[NORMAL] = "#fdf6e3"
-  bg[NORMAL] = "#eee8d5"
+  text[NORMAL]	 = "#657b83"
+  bg[SELECTED]	 = "#d33682"
+  base[SELECTED] = "#d33682"
+  fg[SELECTED]	 = "#fdf6e3"
+  text[SELECTED] = "#000000"
+  base[NORMAL]   = "#fdf6e3"
+  bg[NORMAL]     = "#eee8d5"
 }
 
 style "solarized-dark" {
-  base[NORMAL] = "#002b36"
-  bg[NORMAL] = "#073642"
+  bg[SELECTED]	 = "#d33682"
+  base[SELECTED] = "#d33682"
+  base[NORMAL]   = "#002b36"
+  bg[NORMAL]     = "#073642"
 }
 

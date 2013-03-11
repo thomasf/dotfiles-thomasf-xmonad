@@ -1,3 +1,9 @@
 include "common"
 gtk-theme-name = "Radiance"
+
 class "GtkWidget" style "solarized-light"
+
+style "gnome-color-chooser-tooltips" {
+  bg[NORMAL] = "#eee8d5"
+  fg[NORMAL] = "#586e75"
+}
