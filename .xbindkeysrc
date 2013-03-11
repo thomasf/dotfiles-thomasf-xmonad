@@ -13,19 +13,13 @@
   mod4 + p
 
 "xfce4-appfinder"
-  mod4 + control + shift + p
-
-"gmrun"
-  mod4 + control + alt + shift + p
+  mod4 + control + p
 
 # -------------------------
 # Open terminal
 
 "term"
   mod4 + control + Return
-
-"term o"
-  mod4 + alt + Return
 
 "sshmenu"
   mod4 + s
@@ -44,3 +38,37 @@
 
 "scrot screenshot-%Y-%m-%d_%h-%m-%s_$wx$h.png' -e 'mv $f ~/Pictures/scrot/'"
   mod4 + Alt_L + Print
+
+
+# -------------------------
+# Multimedia keys
+
+"mpc toggle"
+    XF86AudioPlay
+
+# "urxvt -e ncmpcpp"
+#     Shift + XF86AudioPlay
+
+"mpc stop"
+    XF86AudioStop
+
+"mpc prev"
+    Shift + XF86AudioPrev
+
+"mpc next"
+    Shift + XF86AudioNext
+
+"mpc seek -00:00:10"
+    XF86AudioPrev
+
+"mpc seek +00:00:10"
+    XF86AudioNext
+
+# "volume mute"
+#     XF86AudioMute
+
+# "volume down"
+#     XF86AudioLowerVolume
+
+# "volume up"
+#     XF86AudioRaiseVolume
