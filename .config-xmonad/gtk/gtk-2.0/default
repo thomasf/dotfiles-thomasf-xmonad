@@ -1,7 +1,8 @@
+gtk-theme-name = "Radiance"
 include "common"
 
 # gtk-theme-name = "Radiance"
-gtk-theme-name = "Radiance"
+
 # gtk-theme-name="Elegant-GTK"
 
 class "GtkWidget" style "solarized-light"

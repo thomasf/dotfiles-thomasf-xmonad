@@ -1,6 +1,5 @@
-include "common"
-
 gtk-theme-name="Adwaita"
+include "common"
 
 style "gnome-color-chooser-tooltips" {
   bg[NORMAL] = "#eee8d5"

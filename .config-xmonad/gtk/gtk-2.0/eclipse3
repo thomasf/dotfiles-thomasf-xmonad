@@ -1,5 +1,5 @@
-include "common"
 gtk-theme-name = "Radiance"
+include "common"
 
 class "GtkWidget" style "solarized-light"
 
