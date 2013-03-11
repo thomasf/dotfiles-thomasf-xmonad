@@ -1,3 +1,5 @@
+# -*- mode: conf-unix -*-
+
 gtk-theme-name = "Radiance"
 include "common"
 
@@ -7,3 +9,7 @@ style "gnome-color-chooser-tooltips" {
   bg[NORMAL] = "#eee8d5"
   fg[NORMAL] = "#586e75"
 }
+
+# Local Variables:
+# eval: (rainbow-mode 1)
+# End:

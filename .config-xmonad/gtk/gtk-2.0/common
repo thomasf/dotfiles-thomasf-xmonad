@@ -1,3 +1,5 @@
+# -*- mode: conf-unix -*-
+
 gtk-icon-theme-name = "gnome"
 gtk-font-name = "Cantarell 11"
 gtk-cursor-theme-name = "DMZ-White"
@@ -92,3 +94,7 @@ style "solarized-dark" {
   base[NORMAL]   = "#002b36"
   bg[NORMAL]     = "#073642"
 }
+
+# Local Variables:
+# eval: (rainbow-mode 1)
+# End:

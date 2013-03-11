@@ -1,4 +1,10 @@
+# -*- mode: conf-unix -*-
+
 include "common"
 
 gtk-theme-name="Elegant-GTK"
 class "GtkWidget" style "solarized-dark"
+
+# Local Variables:
+# eval: (rainbow-mode 1)
+# End:

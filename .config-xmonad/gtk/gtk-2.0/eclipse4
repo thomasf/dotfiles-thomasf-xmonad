@@ -1,3 +1,5 @@
+# -*- mode: conf-unix -*-
+
 gtk-theme-name="Adwaita"
 include "common"
 
@@ -6,5 +8,6 @@ style "gnome-color-chooser-tooltips" {
   fg[NORMAL] = "#657b83"
 }
 
-
-
+# Local Variables:
+# eval: (rainbow-mode 1)
+# End:

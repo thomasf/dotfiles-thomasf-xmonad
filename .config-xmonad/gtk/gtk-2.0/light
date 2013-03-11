@@ -1,4 +1,10 @@
+# -*- mode: conf-unix -*-
+
 include "common"
 
 gtk-theme-name = "Radiance"
 class "GtkWidget" style "solarized-light"
+
+# Local Variables:
+# eval: (rainbow-mode 1)
+# End:
