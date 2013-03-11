@@ -135,7 +135,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
   , ((modm.|. shft, xK_n),         addName "Move window to other workspace prompt"                $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer >> showWorkspaceName)
   , ((modm.|. ctrl, xK_n),         addName "Rename current workspace"                             $ DW.renameWorkspace myXPConfig >> movePointer >> showWorkspaceName)
   , ((modm.|. ctrl, xK_BackSpace), addName "Remove current workspace"                             $ DW.removeWorkspace >> movePointer >> showWorkspaceName)
-  , ((modm, xK_o),                 addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l 48"] >> movePointer >> showWorkspaceName)
+  , ((modm, xK_o),                 addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l", "48"] >> movePointer >> showWorkspaceName)
 
   , subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]"
   -- , ((modm, xK_space),             addName "Show workspace name"                                  $ showWorkspaceNameFast)
