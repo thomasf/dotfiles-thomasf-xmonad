@@ -309,12 +309,12 @@ myLayoutHook = onWorkspace "video" (renameStar full) $
                Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22 2012)
                MT.mkToggle (MT.single MTI.NOBORDERS) $
                MT.mkToggle (MT.single MTI.NBFULL) $
-               onWorkspace "dash" (renameStar tabsBottom) $
+               onWorkspace "dash" (tabsBottom ||| grid) $
                onWorkspace "chat" (renameStar gridWide) $
                onWorkspace "music" (tabsAlways) $
                onWorkspace "files" (grid ||| tabsAlways) $
-               onWorkspace "home" (renameStar tabsBottom) $
-               onWorkspace "scratch" (renameStar tabsBottom) $
+               onWorkspace "home" (tabsBottom ||| grid) $
+               onWorkspace "scratch" (tabsBottom ||| grid) $
                onWorkspace "nodes" (renameStar tabsBottom) $
                onWorkspace "im" (renameStar im) $
                onWorkspace "read" (renameStar tabsBottom) $
