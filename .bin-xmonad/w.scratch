@@ -5,5 +5,4 @@
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 #
 
-www-window &
-
+exec www-window http://localhost:7345/files/index.html

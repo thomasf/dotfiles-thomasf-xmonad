@@ -3,9 +3,6 @@
 # Opens an url in a new browser window
 #
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
-# Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
 #
 
-set -e
-
-google-chrome -new-window $*
+exec google-chrome --new-window "$@"

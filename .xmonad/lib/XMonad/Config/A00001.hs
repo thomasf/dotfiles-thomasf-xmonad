@@ -167,7 +167,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
     -- | Run script with same name as "w.workspacename"
     workspaceAction = do
       ws <- gets (W.currentTag . windowset)
-      spawn ("w." ++ takeWhile (/='.') ws)
+      safeSpawn ("w." ++ takeWhile (/='.') ws) [ ]
 
     -- | Run script with same name as "w.workspacename" if the workspace is empty
     maybeWorkspaceAction = do

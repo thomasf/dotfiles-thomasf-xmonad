@@ -3,7 +3,6 @@
 # Start a new google chrome session for development
 #
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
-# Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
 #
 # Command line switches reference: http://src.chromium.org/svn/trunk/src/chrome/common/chrome_switches.cc
 
@@ -25,7 +24,7 @@ lsof -iTCP:9222 -sTCP:LISTEN -t || remote_debugging="--remote-debugging-port=922
 
 [ -z "${1}" ] && args="http://localhost:7345/files/index.html"
 
-google-chrome \
+exec google-chrome \
     --allow-file-access \
     --enable-memory-info \
     --enable-extension-timeline-api \
@@ -43,4 +42,4 @@ google-chrome \
     --class=www-dev \
     --app=www-dev \
     $args \
-    $*
+    "$@"
