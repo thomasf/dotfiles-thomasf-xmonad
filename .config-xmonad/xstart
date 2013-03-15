@@ -8,11 +8,14 @@
 #
 # https://wiki.archlinux.org/index.php/ConsoleKit
 
+[[ -e ~/.config/xstart-local ]] && \
+    source ~/.config/xstart-local
+
 # A a hack for one specific console
-hostname=`hostname`
-[[ $hostname == mat ]] \
-    && xrandr --output VGA1 --right-of LVDS1 --primary \
-    && xrandr --output VGA1 --mode 1920x1080
+# hostname=`hostname`
+# [[ $hostname == mat ]] \
+#     && xrandr --output VGA1 --right-of LVDS1 --primary \
+#     && xrandr --output VGA1 --mode 1920x1080
 
 # First, try to kill everyhing that might be started below
 # It's important that applications are launched from this

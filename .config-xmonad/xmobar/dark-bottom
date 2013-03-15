@@ -1,4 +1,4 @@
-Config { font = "xft:Consolas-10"
+Config { font = "xft:Pt Sans-11"
        , borderColor = "#002b36"
        , border = NoBorder
        , bgColor = "#002b36"

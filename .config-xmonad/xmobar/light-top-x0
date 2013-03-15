@@ -1,6 +1,6 @@
 -- THIS IS A DERIVED THEME - DO NOT EDIT MANUALLY !!!
 -- THIS IS A DERIVED THEME - DO NOT EDIT MANUALLY !!!
-Config { font = "xft:Consolas-10"
+Config { font = "xft:Consolas-11"
        , borderColor = "#fdf6e3"
        , border = NoBorder
        , bgColor = "#fdf6e3"
