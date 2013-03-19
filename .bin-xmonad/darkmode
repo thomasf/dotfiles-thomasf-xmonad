@@ -7,16 +7,17 @@ set -e
 
 golight() {
     bgset l
+    xrdb ~/.config-xmonad/xresources/light || true
     rm -f ~/.config/darkmode
     panels
 }
 
 godark() {
     bgset d
+    xrdb ~/.config-xmonad/xresources/dark || true
     [ ! $(id -u) -eq 0 ] && touch ~/.config/darkmode
     panels
 }
-
 
 cmd=${1}
 case $cmd in
