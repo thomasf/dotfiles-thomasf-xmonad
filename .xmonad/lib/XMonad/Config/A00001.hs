@@ -267,8 +267,9 @@ myTerminal = "urxvt"
 ------------------------------------------------------------------------
 -- Border colors for unfocused and focused windows, respectively.
 --
-myNormalBorderColor  = Sol.green
-myFocusedBorderColor = Sol.magenta
+myNormalColor  = Sol.green
+myFocusedColor = Sol.magenta
+myUrgentColor = Sol.blue
 
 ------------------------------------------------------------------------
 -- Workspaces
@@ -294,14 +295,14 @@ baseTheme = defaultTheme { fontName            = defaultFont
 
 -- | Decoration theme for bottom tabs
 bottomTabTheme = baseTheme { activeTextColor     = Sol.base03
-                           , activeColor         = Sol.magenta
-                           , activeBorderColor   = Sol.magenta
+                           , activeColor         = myFocusedColor
+                           , activeBorderColor   = myFocusedColor
                            , inactiveTextColor   = Sol.base03
-                           , inactiveColor       = Sol.green
-                           , inactiveBorderColor = Sol.green
+                           , inactiveColor       = myNormalColor
+                           , inactiveBorderColor = myNormalColor
                            , urgentTextColor     = Sol.base03
-                           , urgentColor         = Sol.orange
-                           , urgentBorderColor   = Sol.orange
+                           , urgentColor         = myUrgentColor
+                           , urgentBorderColor   = myUrgentColor
                            , decoHeight          = 48 }
 
 -- | The layouthoook
@@ -427,10 +428,10 @@ doublepad =  wrap " " "" . trim
 myXmobarLogHook h = dynamicLogWithPP myXmobarPP
 
 myXmobarPP = defaultPP
-  { ppCurrent = xmobarColor Sol.magenta "" . wrap "-" "-"
-  , ppVisible = xmobarColor Sol.green "" . wrap " " " "
+  { ppCurrent = xmobarColor myFocusedColor "" . wrap "-" "-"
+  , ppVisible = xmobarColor myNormalColor "" . wrap " " " "
   , ppHidden  = const ""
-  , ppUrgent  = xmobarColor Sol.red "" . wrap " !*" "*! "
+  , ppUrgent  = xmobarColor myUrgentColor "" . wrap " !*" "*! "
   , ppTitle   = xmobarColor Sol.yellow "" .  trim
   , ppLayout  = const ""
   , ppSep     = xmobarColor Sol.yellow "" " :: "
@@ -445,7 +446,7 @@ myPP h = defaultPP
   { ppCurrent = dzenColor Sol.base03 Sol.blue . doublepad
   , ppVisible = dzenColor Sol.blue "" . doublepad
   , ppHidden  = const ""
-  , ppUrgent  = dzenColor Sol.base03 Sol.orange . doublepad
+  , ppUrgent  = dzenColor Sol.base03 myUrgentColor . doublepad
   , ppTitle   = dzenColor Sol.yellow "" . dzenEscape . trim
   , ppLayout  = dzenColor Sol.base01 "" . trim
   , ppSep     = dzenColor Sol.cyan "" "  *  "
@@ -471,7 +472,7 @@ myStartupHook = return ()
 
 myUrgencyHook =
   withUrgencyHookC BorderUrgencyHook
-    { urgencyBorderColor = Sol.orange }
+    { urgencyBorderColor = myUrgentColor }
     urgencyConfig
       { suppressWhen = XMonad.Hooks.UrgencyHook.Focused }
 
@@ -530,8 +531,8 @@ aDefaultConfig =
   , borderWidth        = 4
   , modMask            = confModMask
   , workspaces         = myWorkspaces
-  , normalBorderColor  = myNormalBorderColor
-  , focusedBorderColor = myFocusedBorderColor
+  , normalBorderColor  = myNormalColor
+  , focusedBorderColor = myFocusedColor
   , keys               = emptyKeys
   , layoutHook         = myLayoutHook
   , manageHook         = myManageHook
