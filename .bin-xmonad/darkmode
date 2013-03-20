@@ -3,19 +3,19 @@
 # Switch between light and dark mode.
 #
 
-set -e
+# set -e
 
 golight() {
-    bgset l
-    xrdb ~/.config-xmonad/xresources/light || true
     rm -f ~/.config/darkmode
+    xsetroot -solid '#eee8d5'
+    xrdb ~/.config-xmonad/xresources/light
     panels
 }
 
 godark() {
-    bgset d
-    xrdb ~/.config-xmonad/xresources/dark || true
     [ ! $(id -u) -eq 0 ] && touch ~/.config/darkmode
+    xsetroot -solid '#073642'
+    xrdb ~/.config-xmonad/xresources/dark
     panels
 }
 
@@ -35,3 +35,7 @@ case $cmd in
         fi
         ;;
 esac
+
+# Local Variables:
+# eval: (rainbow-mode)
+# End:
