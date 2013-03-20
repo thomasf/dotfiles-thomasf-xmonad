@@ -8,6 +8,10 @@
 #
 # https://wiki.archlinux.org/index.php/ConsoleKit
 
+# Set the backbround color
+[ $(which xsetroot ) ] \
+    && xsetroot -solid '#073642' &
+
 [[ -e ~/.config/xstart-local ]] && \
     source ~/.config/xstart-local
 
@@ -154,10 +158,6 @@ fi
 [ $(which blueman-applet) ] \
     && blueman-applet &
 
-# Set the backbround color
-[ $(which xsetroot ) ] \
-    && xsetroot -solid '#073642' &
-
 # Set a default web browser
 [ $(which www) ] \
     && BROWSER=$(which www) \
@@ -179,15 +179,15 @@ if [ -f $HOME/.xbindkeysrc ]; then
     fi
 fi
 
-touch ~/.config/darkmode
 (
+    darkmodearg=d
     if [ $(which zenity ) ]; then
         sleep 1
-        if ! zenity  --question --text="Keep dark mode?"; then
-            darkmode l
+        if ! zenity  --question --text="darkmode?"; then
+            darkmodearg=l
         fi
     fi
-    [ -x ~/.bin-xmonad/panels ] && ~/.bin-xmonad/panels
+    darkmode $darkmodearg
 ) &
 # Function that displays a list of window managers to choose from.
 wm_selection() {
