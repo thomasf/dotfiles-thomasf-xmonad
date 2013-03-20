@@ -25,10 +25,10 @@ shift || true
 
 case $cmd in
     saidar)
-	    exec term -e saidar -c
+        exec urxvt -e saidar -c
 	    ;;
     alsamixer|htop|irssi|weechat-curses|ncmpcpp|pamixer|dstat)
-        exec term -e $cmd $*
+        exec urxvt -e $cmd $*
         ;;
     wireshark|synaptic|zenmap|firestarter|reboot|nm-connection-editor)
         exec gksudo $cmd $*

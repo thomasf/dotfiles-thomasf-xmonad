@@ -21,13 +21,10 @@ fi
 
 cs=`cat ~/.ssh/config | grep ^Host | awk '{ print $2 }' | $args`
 
-if [ ! -e ~/.config/darkmode ]; then
-    termname="-name LURxvt"
-fi
-
-urxvt $termname -e sh -c \
+urxvt -e sh -c \
      "while :
      do
+      termcolors
       echo -n \`tput setaf 3\`
       echo Connecting: ${cs};
       echo -n \`tput sgr0\`
