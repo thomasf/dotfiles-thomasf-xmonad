@@ -1,8 +1,0 @@
-#!/bin/sh
-#
-# Workspace launcher
-#
-# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
-#
-
-exec www-window http://localhost:7345/files/index.html

@@ -267,7 +267,7 @@ myUrgentColor = Sol.blue
 ------------------------------------------------------------------------
 -- Workspaces
 
-myWorkspaces = [ "home", "scratch"]
+myWorkspaces = [ "scratch", "scratch.0"]
 
 ------------------------------------------------------------------------
 -- Layouts:
@@ -308,7 +308,6 @@ myLayoutHook = onWorkspace "video" (renameStar full) $
                onWorkspace "music" (tabsAlways) $
                onWorkspace "files" (grid ||| tabsAlways) $
                onWorkspace "home" (tabsBottom ||| grid) $
-               onWorkspace "scratch" (tabsBottom ||| grid) $
                onWorkspace "nodes" (renameStar tabsBottom) $
                onWorkspace "im" (renameStar im) $
                onWorkspace "read" (renameStar tabsBottom) $
