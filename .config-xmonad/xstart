@@ -12,7 +12,7 @@
 [ $(which xsetroot ) ] \
     && xsetroot -solid '#073642' &
 
-[[ -e ~/.config/xstart-local ]] && \
+[[ -e ~/.config-xmonad/xstart-local ]] && \
     source ~/.config-xmonad/xstart-local
 
 # A a hack for one specific console
