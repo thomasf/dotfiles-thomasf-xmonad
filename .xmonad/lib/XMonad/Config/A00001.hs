@@ -484,7 +484,8 @@ myXPConfig = defaultXPConfig
  , bgHLight = Sol.yellow
  , fgHLight = Sol.base03
  , promptBorderWidth = 0
- , font = "-xos4-terminus-*-r-*-*-16-*-*-*-*-*-iso8859-*" }
+ , font = "-xos4-terminus-*-r-*-*-16-*-*-*-*-*-iso8859-*"
+ , promptKeymap = emacsLikeXPKeymap }
 
 -- myAutocompleteXPConfig = myXPConfig
 --   { autoComplete = Just 500000  }
