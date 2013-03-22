@@ -81,11 +81,7 @@ import           XMonad.Util.EZConfig
 -- Keyboard configuration:
 
 -- simply for convenience and readability
-super = mod4Mask
-alt   = mod1Mask
-ctrl  = controlMask
-shft  = shiftMask
-confModMask = super
+confModMask = mod4Mask
 
 
 -- align-regexp rules: "addName", "\$"
