@@ -368,12 +368,12 @@ myManageHook =
   , [title     =? "Onboard"           -?> doFloat]
   ]) <+> manageHook Desktop.desktopConfig -- < implies only manageDocks (ons jul 18 08:51 2012)
   where
-    doCenterFloatLarge = customFloating $ W.RationalRect l t w h
+    doCenterFloatLarge = customFloating $ W.RationalRect left top width height
       where
-        h = 0.8
-        w = 0.6
-        t = (1 - h)/2
-        l = (1 - w)/2
+        width = 0.6
+        height = 0.8
+        left = (1 - width) / 2
+        top = (1 - height) / 2
 
     doSink = ask >>= doF . W.sink
     role = stringProperty "WM_WINDOW_ROLE"
