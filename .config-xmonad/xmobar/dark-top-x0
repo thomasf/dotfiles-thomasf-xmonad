@@ -11,7 +11,7 @@ Config { font = "xft:Consolas-11"
        , commands = [ Run DynNetwork ["-t", "<dev> t<tx>k r<rx>k", "-L","0","-H","1000","--normal","#93a1a1","--high","#859900"] 30
                     , Run MultiCpu ["-t", "<bar>", "-L","3","-H","80","--normal","#93a1a1","--high","#dc322f"] 10
                     , Run Memory ["-t","<fc=#93a1a1><rest></fc>M"] 30
-                    , Run DiskIO [("/", "/ w<fc=#93a1a1><write></fc> r<fc=#93a1a1><read></fc>")] [] 20
+                    -- , Run DiskIO [("/", "/ w<fc=#93a1a1><write></fc> r<fc=#93a1a1><read></fc>")] [] 20
                     , Run Battery ["-t", "<leftbar>", "-L", "10", "-H", "80", "-p", "3"
                                   , "--"
                                   , "-L", "-15", "-H", "-5", "-l", "#93a1a1", "-m", "#93a1a1", "-h", "#93a1a1"] 600
@@ -20,7 +20,7 @@ Config { font = "xft:Consolas-11"
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%xm% }{ <fc=#2aa198>+</fc> %diskio% <fc=#2aa198>+</fc> %dynnetwork% <fc=#2aa198>+</fc> memf%memory% <fc=#2aa198>+</fc> cpu%multicpu% <fc=#2aa198>+</fc> bat%battery% <fc=#002b36,#859900>%sthmlDate%</fc>"
+       , template = "%xm% }{ <fc=#2aa198>+</fc> %dynnetwork% <fc=#2aa198>+</fc> memf%memory% <fc=#2aa198>+</fc> cpu%multicpu% <fc=#2aa198>+</fc> bat%battery% <fc=#002b36,#859900>%sthmlDate%</fc>"
 
 -- Local Variables:
 -- eval: (rainbow-mode 1)
