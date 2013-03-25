@@ -99,8 +99,8 @@ myKeys conf =
   , ("M-o a",           addName "application menu"                                     $ safeSpawn "appmenu" [])
   , ("M-o w",           addName "Launch www"                                              $ safeSpawn "www" [])
   , ("M-o t",           addName "Launch term"                                              $ safeSpawn "urxvt" [])
-  , ("M-o e",           addName "Launch emacs"                                              $ safeSpawn "emacs" [])
-  , ("M-o g",           addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l", "48"] >> movePointer >> showWorkspaceName)
+  -- , ("M-o e",           addName "Launch emacs"                                              $ safeSpawn "emacs" [])
+  , ("M-o o",           addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l", "48"] >> movePointer >> showWorkspaceName)
 
   ]) ++
   ((subtitle "Other window actions":) $ mkNamedKeymap conf $
