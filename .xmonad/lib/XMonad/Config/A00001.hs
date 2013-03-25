@@ -94,6 +94,15 @@ myKeys conf =
   , ("M-C-j",           addName "Rotate all windows forward while keeping focus"       $ rotAllUp >> movePointer)
   , ("M-C-k",           addName "Rotate all windows backwards while keeping focus"     $ rotAllDown >> movePointer)
   ]) ++
+  ((subtitle "prefixed testing...":) $ mkNamedKeymap conf $
+  [ ("M-o s",           addName "SSH menu"                                             $ safeSpawn "sshmenu" [])
+  , ("M-o a",           addName "application menu"                                     $ safeSpawn "appmenu" [])
+  , ("M-o w",           addName "Launch www"                                              $ safeSpawn "www" [])
+  , ("M-o t",           addName "Launch term"                                              $ safeSpawn "urxvt" [])
+  , ("M-o e",           addName "Launch emacs"                                              $ safeSpawn "emacs" [])
+  , ("M-o g",           addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l", "48"] >> movePointer >> showWorkspaceName)
+
+  ]) ++
   ((subtitle "Other window actions":) $ mkNamedKeymap conf $
   [ -- ("M-<Space>",       addName "Show some info..."                                    $ showInfo)
   ("M-<Return>",      addName "Swap the focused window and the master window"        $ windows W.swapMaster >> movePointer)
@@ -128,7 +137,6 @@ myKeys conf =
   , ("M-S-n",           addName "Move window to other workspace prompt"                $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer >> showWorkspaceName)
   , ("M-C-n",           addName "Rename current workspace"                             $ DW.renameWorkspace myXPConfig >> movePointer >> showWorkspaceName)
   , ("M-C-<Backspace>", addName "Remove current workspace"                             $ DW.removeWorkspace >> movePointer >> showWorkspaceName)
-  , ("M-o",             addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l", "48"] >> movePointer >> showWorkspaceName)
   ]) ++
   ((subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]":) $ mkNamedKeymap conf $
   [ ("M-C-<Space>",     addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
@@ -361,10 +369,11 @@ myManageHook =
   , [className =? c -?>                                        doFloat       | c <- floatByClass]
   , [role      =? "pop-up" <&&> appName =? "google-chrome" -?> doCenterFloat]
   , [className =? c -?>                                        doCenterFloat | c <- centerFloatByClass]
+  , [className =? c -?>                                        doCenterFloatLarge | c <- centerFloatLargeByClass]
   , [resource  =? c -?>                                        doCenterFloatLarge | c <- centerFloatLargeByResource]
   , [resource  =? c -?>                                        doCenterFloat | c <- centerFloatByResource]
   , [transience]
-  , [resource  =? "xmessage"          -?> doCenterFloat]
+  , [resource  =? "xmessage"          -?> doCenterFloatLarge]
   , [title     =? "Onboard"           -?> doFloat]
   ]) <+> manageHook Desktop.desktopConfig -- < implies only manageDocks (ons jul 18 08:51 2012)
   where
@@ -393,7 +402,9 @@ myManageHook =
     centerFloatLargeByResource =
       ["floating-center-large"]
     centerFloatByClass =
-      ["Xfce4-settings-manager", "Xfce4-appfinder", "Pinentry", "Zenity"]
+      ["Xfce4-settings-manager", "Pinentry"]
+    centerFloatLargeByClass =
+      ["Xfce4-appfinder", "Zenity"]
 
 ------------------------------------------------------------------------
 -- Event handling
@@ -503,12 +514,13 @@ myScratchPads = [ NS "largeTerminal" (term "largeTerminal") (res =? scratch "lar
     -- inTerm' sname scmd = myTerminal ++ " -name scratchpad_" ++ sname ++ " -e " ++  scmd
     res = resource
 
-    largeCenterFloat = customFloating $ W.RationalRect l t w h
+    largeCenterFloat = customFloating $ W.RationalRect left top width height
       where
-        h = 0.8
-        w = 0.8
-        t = (1 - h)/2
-        l = (1 - w)/2
+        width = 0.8
+        height = 0.8
+        left = (1 - width) /2
+        top = (1 - height) /2
+
 
 ------------------------------------------------------------------------
 -- Default configuration

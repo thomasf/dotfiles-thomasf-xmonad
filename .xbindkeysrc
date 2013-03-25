@@ -9,20 +9,8 @@
 # -------------------------
 # Application launchers
 
-"appmenu"
-  mod4 + p
-
 "xfce4-appfinder"
   mod4 + control + p
-
-# -------------------------
-# Open terminal
-
-"urxvt"
-  mod4 + control + Return
-
-"sshmenu"
-  mod4 + s
 
 # -------------------------
 # Window management
@@ -45,9 +33,6 @@
 
 "mpc toggle"
     XF86AudioPlay
-
-# "urxvt -e ncmpcpp"
-#     Shift + XF86AudioPlay
 
 "mpc stop"
     XF86AudioStop
