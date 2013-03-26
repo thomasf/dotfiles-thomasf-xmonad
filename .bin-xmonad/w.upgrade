@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# Workspace launcher
+#
+# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
+#
+upgradeall &
+(
+    sleep 0.5;
+    urxvt -cd ~/.opt &
+    sleep 0.5;
+    urxvt -cd ~/.emacs.d &
+) &
