@@ -369,6 +369,8 @@ myManageHook =
   , [resource  =? r -?>                                        doFloat       | r <- floatByResource]
   , [className =? c -?>                                        doFloat       | c <- floatByClass]
   , [role      =? "pop-up" <&&> appName =? "google-chrome" -?> doCenterFloat]
+  , [className =? "Zenity" <&&> title =? "Question" -?>        doCenterFloat]
+  , [className =? "Zenity" -?>                                 doCenterFloatLarge]
   , [className =? c -?>                                        doCenterFloat | c <- centerFloatByClass]
   , [className =? c -?>                                        doCenterFloatLarge | c <- centerFloatLargeByClass]
   , [resource  =? c -?>                                        doCenterFloatLarge | c <- centerFloatLargeByResource]
@@ -405,7 +407,7 @@ myManageHook =
     centerFloatByClass =
       ["Xfce4-settings-manager", "Pinentry"]
     centerFloatLargeByClass =
-      ["Xfce4-appfinder", "Zenity"]
+      ["Xfce4-appfinder"]
 
 ------------------------------------------------------------------------
 -- Event handling
