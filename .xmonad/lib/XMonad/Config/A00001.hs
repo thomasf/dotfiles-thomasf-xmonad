@@ -96,7 +96,7 @@ myKeys conf =
   ]) ++
   ((subtitle "prefixed testing...":) $ mkNamedKeymap conf $
   [ ("M-o s",           addName "SSH menu"                                             $ safeSpawn "sshmenu" [])
-  , ("M-o a",           addName "application menu"                                     $ safeSpawn "appmenu" [])
+  , ("M-o p",           addName "application menu"                                     $ safeSpawn "appmenu" [])
   , ("M-o w",           addName "Launch www"                                           $ safeSpawn "www" [])
   , ("M-o d",           addName "Launch www-dev"                                       $ safeSpawn "www-dev" [])
   , ("M-o t",           addName "Launch term"                                          $ safeSpawn "urxvt" [])
