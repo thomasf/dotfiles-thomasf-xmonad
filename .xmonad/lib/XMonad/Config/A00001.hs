@@ -95,12 +95,13 @@ myKeys conf =
   , ("M-C-k",           addName "Rotate all windows backwards while keeping focus"     $ rotAllDown >> movePointer)
   ]) ++
   ((subtitle "prefixed testing...":) $ mkNamedKeymap conf $
-  [ ("M-o s",           addName "SSH menu"                                             $ safeSpawn "sshmenu" [])
-  , ("M-o p",           addName "application menu"                                     $ safeSpawn "appmenu" [])
-  , ("M-o w",           addName "Launch www"                                           $ safeSpawn "www" [])
-  , ("M-o d",           addName "Launch www-dev"                                       $ safeSpawn "www-dev" [])
-  , ("M-o t",           addName "Launch term"                                          $ safeSpawn "urxvt" [])
-  , ("M-o n",           addName "Launch nautilus"                                      $ safeSpawn "nautilus" [])
+  [ ("M-o s",           spawn' "sshmenu")
+  , ("M-o p",           spawn' "appmenu")
+  , ("M-o w",           spawn' "www")
+  , ("M-o d",           spawn' "www-dev")
+  , ("M-o t",           spawn' "urxvt")
+  , ("M-o n",           spawn' "nautilus")
+  , ("M-o h",           spawn'  "zeal")
   , ("M-o o",           addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l", "48"] >> movePointer >> showWorkspaceName)
 
   ]) ++
