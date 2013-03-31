@@ -135,9 +135,9 @@ myKeys conf =
   , ("M-a",             addName "Run default workspace launcer script"                 $ workspaceAction)
   ]) ++
   ((subtitle "Workspace prompts":) $ mkNamedKeymap conf $
-  [ ("M-n",             addName "Create or change workspace prompt"                    $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer >> showWorkspaceName)
-  , ("M-S-n",           addName "Move window to other workspace prompt"                $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer >> showWorkspaceName)
-  , ("M-C-n",           addName "Rename current workspace"                             $ DW.renameWorkspace myXPConfig >> movePointer >> showWorkspaceName)
+  [ ("M-m",             addName "Create or change workspace prompt"                    $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer >> showWorkspaceName)
+  , ("M-S-m",           addName "Move window to other workspace prompt"                $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer >> showWorkspaceName)
+  , ("M-C-m",           addName "Rename current workspace"                             $ DW.renameWorkspace myXPConfig >> movePointer >> showWorkspaceName)
   , ("M-C-<Backspace>", addName "Remove current workspace"                             $ DW.removeWorkspace >> movePointer >> showWorkspaceName)
   ]) ++
   ((subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]":) $ mkNamedKeymap conf $
