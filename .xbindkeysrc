@@ -7,12 +7,6 @@
   mod4 + control + F1
 
 # -------------------------
-# Application launchers
-
-"xfce4-appfinder"
-  mod4 + control + p
-
-# -------------------------
 # Window management
 
 "xkill"

@@ -97,13 +97,13 @@ myKeys conf =
   ((subtitle "prefixed testing...":) $ mkNamedKeymap conf $
   [ ("M-o s",           spawn' "sshmenu")
   , ("M-o p",           spawn' "appmenu")
+  , ("M-o M-p",         spawn' "xfce4-appfinder")
   , ("M-o w",           spawn' "www")
   , ("M-o d",           spawn' "www-dev")
   , ("M-o t",           spawn' "urxvt")
   , ("M-o n",           spawn' "nautilus")
   , ("M-o h",           spawn'  "zeal")
   , ("M-o o",           addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l", "48"] >> movePointer >> showWorkspaceName)
-
   ]) ++
   ((subtitle "Other window actions":) $ mkNamedKeymap conf $
   [ -- ("M-<Space>",       addName "Show some info..."                                    $ showInfo)
@@ -151,13 +151,17 @@ myKeys conf =
   , ("M-.",             addName "Deincrement the number of windows in the master area" $ sendMessage (IncMasterN (-1)) >> movePointer)
   ]) ++
   ((subtitle "Toggle scratchpads and workspaces":) $ mkNamedKeymap conf $
-  [ ("M-<Space>",       addName "Toggle larger terminal pad"                           $ largeTerminalPad >> movePointer)
-  , ("M-1",             addName "Toggle home workspace"                                $ rmEmptyWs $ myViewWS "home" >> movePointer >> showWorkspaceNameFast)
-  , ("M-2",             addName "Toggle scratch workspace"                             $ rmEmptyWs $ myViewWS "scratch" >> movePointer >> showWorkspaceNameFast)
-  , ("M-3",             addName "Toggle chat workspace"                                $ rmEmptyWs $ myViewWS "chat" >> movePointer >> showWorkspaceNameFast)
-  , ("M-4",             addName "Toggle nodes workspace"                               $ rmEmptyWs $ myViewWS "nodes" >> movePointer >> showWorkspaceNameFast)
-  , ("M-5",             addName "Toggle mail workspace"                                $ rmEmptyWs $ myViewWS "mail" >> movePointer >> showWorkspaceNameFast)
-  , ("M-0",             addName "Toggle dashboard workspace"                           $ rmEmptyWs $ myViewWS "dash" >> movePointer >> showWorkspaceNameFast)
+  [ ("M-<Space>",       addName "Toggle larger terminal pad"                             $ largeTerminalPad >> movePointer)
+  , ("M-i h",             addName "Toggle home workspace"                                $ rmEmptyWs $ myViewWS "home" >> movePointer >> showWorkspaceNameFast)
+  , ("M-i s",             addName "Toggle scratch workspace"                             $ rmEmptyWs $ myViewWS "scratch" >> movePointer >> showWorkspaceNameFast)
+  , ("M-i c",             addName "Toggle chat workspace"                                $ rmEmptyWs $ myViewWS "chat" >> movePointer >> showWorkspaceNameFast)
+  , ("M-i n",             addName "Toggle nodes workspace"                               $ rmEmptyWs $ myViewWS "nodes" >> movePointer >> showWorkspaceNameFast)
+  , ("M-i m",             addName "Toggle mail workspace"                                $ rmEmptyWs $ myViewWS "mail" >> movePointer >> showWorkspaceNameFast)
+  , ("M-i d",             addName "Toggle dashboard workspace"                           $ rmEmptyWs $ myViewWS "dash" >> movePointer >> showWorkspaceNameFast)
+  , ("M-i v",             addName "Toggle video workspace"                               $ rmEmptyWs $ myViewWS "video" >> movePointer >> showWorkspaceNameFast)
+  , ("M-i r",             addName "Toggle read workspace"                                $ rmEmptyWs $ myViewWS "read" >> movePointer >> showWorkspaceNameFast)
+  , ("M-i f",             addName "Toggle files workspace"                               $ rmEmptyWs $ myViewWS "files" >> movePointer >> showWorkspaceNameFast)
+
   ])
   where
     -- | Move mouse pointer to bottom right of the current window
@@ -530,7 +534,7 @@ myScratchPads = [ NS "largeTerminal" (term "largeTerminal") (res =? scratch "lar
 -- Default configuration
 
 aDefaultConfig =
-  addDescrKeys' ((confModMask, xK_F1), showKeybindings) myKeys $ defaultConfig
+  addDescrKeys' ((confModMask, xK_h), showKeybindings) myKeys $ defaultConfig
   { terminal           = myTerminal
   , focusFollowsMouse  = False
   , borderWidth        = 4
