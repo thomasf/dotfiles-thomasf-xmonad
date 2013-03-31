@@ -150,6 +150,21 @@ myKeys conf =
   , ("M-,",             addName "Increment the number of windows in the master area"   $ sendMessage (IncMasterN 1) >> movePointer)
   , ("M-.",             addName "Deincrement the number of windows in the master area" $ sendMessage (IncMasterN (-1)) >> movePointer)
   ]) ++
+  ((subtitle "Multi media keys":) $ mkNamedKeymap conf $
+  [ ("<XF86AudioPlay>",   spawn' "mpc toggle")
+  , ("<XF86AudioStop",    spawn' "mpc stop")
+  , ("S-<XF86AudioPrev>", spawn' "mpc prev")
+  , ("S-<XF86AudioNext>", spawn' "mpc next")
+  , ("<XF86AudioPrev>",   spawn' "mpc seek -00:00:10")
+  , ("<XF86AudioNext>",   spawn' "mpc seek +00:00:10")
+  , ("<XF86AudioStop>",   spawn' "mpc stop")
+ ]) ++
+  ((subtitle "misc":) $ mkNamedKeymap conf $
+  [ ("M-<Print>",   spawn' "xfce4-screenshooter")
+  , ("M-C-<Print>",     addName "scrot focused window" $ safeSpawn "scrot" ["-u", "screenshot-%Y-%m-%d_%H-%M-%S_$wx$h.png", "-e", "mv $f ~/Pictures/scrot/"])
+  , ("M-M1-<Print>",     addName "scrot full" $ safeSpawn "scrot" ["screenshot-%Y-%m-%d_%H-%M-%S_$wx$h.png", "-e", "mv $f ~/Pictures/scrot/"])
+  , ("M-S-C-c", spawn' "xkill")
+ ]) ++
   ((subtitle "Toggle scratchpads and workspaces":) $ mkNamedKeymap conf $
   [ ("M-<Space>",       addName "Toggle larger terminal pad"                             $ largeTerminalPad >> movePointer)
   , ("M-i h",             addName "Toggle home workspace"                                $ rmEmptyWs $ myViewWS "home" >> movePointer >> showWorkspaceNameFast)

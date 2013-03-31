@@ -29,7 +29,6 @@ killall -q gpg-agent
 killall -q ssh-agent
 killall -q gnome-keyring-daemon
 killall -q gnome-settings-daemon
-killall -q xbindkeys
 killall -q blueman-applet
 killall -q nm-applet
 killall -q dropboxd
@@ -167,17 +166,6 @@ fi
 [ -f ~/.config-base/miniserv/miniserv.py ] && \
     python ~/.config-base/miniserv/miniserv.py -d &
 
-
-# Load keyboard macros/launchers
-# NOTE: it is very important that this is done
-#       *AFTER* all env variables have been set
-if [ -f $HOME/.xbindkeysrc ]; then
-    if  [ $(which xbindkeys) ]; then
-        xbindkeys
-    else
-        xmessage "Warning: xbindkeys is not found"
-    fi
-fi
 
 (
     darkmodearg=d
