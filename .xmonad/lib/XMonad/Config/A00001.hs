@@ -95,19 +95,19 @@ myKeys conf =
   , ("M-C-k",           addName "Rotate all windows backwards while keeping focus"     $ rotAllDown >> movePointer)
   ]) ++
   ((subtitle "prefixed testing...":) $ mkNamedKeymap conf $
-  [ ("M-o s",           spawn' "sshmenu")
-  , ("M-o p",           spawn' "appmenu")
-  , ("M-o M-p",         spawn' "xfce4-appfinder")
-  , ("M-o w",           spawn' "www")
-  , ("M-o d",           spawn' "www-dev")
-  , ("M-o t",           spawn' "urxvt")
-  , ("M-o n",           spawn' "nautilus")
-  , ("M-o h",           spawn'  "zeal")
-  , ("M-o o",           addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l", "48"] >> movePointer >> showWorkspaceName)
+  [ ("M-o s",   spawn' "sshmenu")
+  , ("M-o p",   spawn' "appmenu")
+  , ("M-o M-p", spawn' "xfce4-appfinder")
+  , ("M-o w",   spawn' "www")
+  , ("M-o d",   spawn' "www-dev")
+  , ("M-o t",   spawn' "urxvt")
+  , ("M-o n",   spawn' "nautilus")
+  , ("M-o h",   spawn'  "zeal")
+  , ("M-o o",   addName "Goto workspace by window search prompt"                       $ gotoMenuArgs ["-l", "48"] >> movePointer >> showWorkspaceName)
   ]) ++
   ((subtitle "Other window actions":) $ mkNamedKeymap conf $
   [ -- ("M-<Space>",       addName "Show some info..."                                    $ showInfo)
-  ("M-<Return>",      addName "Swap the focused window and the master window"        $ windows W.swapMaster >> movePointer)
+  ("M-<Return>",        addName "Swap the focused window and the master window"        $ windows W.swapMaster >> movePointer)
   , ("M-t",             addName "Push the window into tiling mode"                     $ withFocused (windows . W.sink) >> movePointer)
   , ("M-C-c",           addName "kill"                                                 $ kill)
   , ("M-u",             addName "Focus urgent winow"                                   $ focusUrgent >> movePointer >> showWorkspaceName)
@@ -160,23 +160,22 @@ myKeys conf =
   , ("<XF86AudioStop>",   spawn' "mpc stop")
  ]) ++
   ((subtitle "misc":) $ mkNamedKeymap conf $
-  [ ("M-<Print>",   spawn' "xfce4-screenshooter")
-  , ("M-C-<Print>",     addName "scrot focused window" $ safeSpawn "scrot" ["-u", "screenshot-%Y-%m-%d_%H-%M-%S_$wx$h.png", "-e", "mv $f ~/Pictures/scrot/"])
-  , ("M-M1-<Print>",     addName "scrot full" $ safeSpawn "scrot" ["screenshot-%Y-%m-%d_%H-%M-%S_$wx$h.png", "-e", "mv $f ~/Pictures/scrot/"])
-  , ("M-S-C-c", spawn' "xkill")
+  [ ("M-<Print>",    spawn' "xfce4-screenshooter")
+  , ("M-C-<Print>",  addName "scrot focused window" $ safeSpawn "scrot" ["-u", "screenshot-%Y-%m-%d_%H-%M-%S_$wx$h.png", "-e", "mv $f ~/Pictures/scrot/"])
+  , ("M-M1-<Print>", addName "scrot full"           $ safeSpawn "scrot" ["screenshot-%Y-%m-%d_%H-%M-%S_$wx$h.png", "-e", "mv $f ~/Pictures/scrot/"])
+  , ("M-S-C-c",      spawn' "xkill")
  ]) ++
   ((subtitle "Toggle scratchpads and workspaces":) $ mkNamedKeymap conf $
-  [ ("M-<Space>",       addName "Toggle larger terminal pad"                             $ largeTerminalPad >> movePointer)
-  , ("M-i h",             addName "Toggle home workspace"                                $ rmEmptyWs $ myViewWS "home" >> movePointer >> showWorkspaceNameFast)
-  , ("M-i s",             addName "Toggle scratch workspace"                             $ rmEmptyWs $ myViewWS "scratch" >> movePointer >> showWorkspaceNameFast)
-  , ("M-i c",             addName "Toggle chat workspace"                                $ rmEmptyWs $ myViewWS "chat" >> movePointer >> showWorkspaceNameFast)
-  , ("M-i n",             addName "Toggle nodes workspace"                               $ rmEmptyWs $ myViewWS "nodes" >> movePointer >> showWorkspaceNameFast)
-  , ("M-i m",             addName "Toggle mail workspace"                                $ rmEmptyWs $ myViewWS "mail" >> movePointer >> showWorkspaceNameFast)
-  , ("M-i d",             addName "Toggle dashboard workspace"                           $ rmEmptyWs $ myViewWS "dash" >> movePointer >> showWorkspaceNameFast)
-  , ("M-i v",             addName "Toggle video workspace"                               $ rmEmptyWs $ myViewWS "video" >> movePointer >> showWorkspaceNameFast)
-  , ("M-i r",             addName "Toggle read workspace"                                $ rmEmptyWs $ myViewWS "read" >> movePointer >> showWorkspaceNameFast)
-  , ("M-i f",             addName "Toggle files workspace"                               $ rmEmptyWs $ myViewWS "files" >> movePointer >> showWorkspaceNameFast)
-
+  [ ("M-<Space>", addName "Toggle larger terminal pad" $ largeTerminalPad >> movePointer)
+  , ("M-i h",     addName "Toggle home workspace"      $ myViewWS3 "home")
+  , ("M-i s",     addName "Toggle scratch workspace"   $ myViewWS3 "scratch")
+  , ("M-i c",     addName "Toggle chat workspace"      $ myViewWS3 "chat")
+  , ("M-i n",     addName "Toggle nodes workspace"     $ myViewWS3 "nodes")
+  , ("M-i m",     addName "Toggle mail workspace"      $ myViewWS3 "mail")
+  , ("M-i d",     addName "Toggle dashboard workspace" $ myViewWS3 "dash")
+  , ("M-i v",     addName "Toggle video workspace"     $ myViewWS3 "video")
+  , ("M-i r",     addName "Toggle read workspace"      $ myViewWS3 "read")
+  , ("M-i f",     addName "Toggle files workspace"     $ myViewWS3 "files")
   ])
   where
     -- | Move mouse pointer to bottom right of the current window
@@ -219,6 +218,12 @@ myKeys conf =
       DW.addHiddenWorkspace wsid
       windows (W.view wsid)
       maybeWorkspaceAction
+
+    -- | View a workspace by name, remove left over empty workspace and move pointer
+    myViewWS3 wsid = do
+      rmEmptyWs $ myViewWS wsid
+      movePointer
+      showWorkspaceNameFast
 
     -- | Select workspae prompt
     selectWorkspacePrompt = workspacePrompt myXPConfig $ \w ->
