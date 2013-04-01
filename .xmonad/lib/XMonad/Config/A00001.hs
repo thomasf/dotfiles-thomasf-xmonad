@@ -135,8 +135,6 @@ myKeys conf =
   , ("M-3",             addName "Goto workspacegroup .1"                               $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 1 >> showWorkspaceNameFast)
   , ("M-4",             addName "Goto workspacegroup .2"                               $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 2 >> showWorkspaceNameFast)
   , ("M-5",             addName "Goto workspacegroup .3"                               $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 3 >> showWorkspaceNameFast)
-  , ("M-y",             addName "Toggle previous workspace"                            $ rmEmptyWs $ toggleWS >> showWorkspaceNameFast)
-  , ("M-C-y",           addName "Toggle previous workspace skipping some workspaces"   $ rmEmptyWs $ ignoredToggleWS >> showWorkspaceNameFast)
   ]) ++
   ((subtitle "Workspace prompts":) $ mkNamedKeymap conf $
   [ ("M-m",             addName "Create or change workspace prompt"                    $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer >> showWorkspaceName)
@@ -171,16 +169,17 @@ myKeys conf =
  ]) ++
   ((subtitle "Toggle scratchpads and workspaces":) $ mkNamedKeymap conf $
   [ ("M-<Space>", addName "Show larger terminal pad" $ largeTerminalPad >> movePointer)
-  , ("M-i h",     addName "Show home workspace"      $ myViewWS3 "home")
-  , ("M-i s",     addName "Show scratch workspace"   $ myViewWS3 "scratch")
-  , ("M-i c",     addName "Show chat workspace"      $ myViewWS3 "chat")
-  , ("M-i n",     addName "Show nodes workspace"     $ myViewWS3 "nodes")
-  , ("M-i m",     addName "Show mail workspace"      $ myViewWS3 "mail")
-  , ("M-i d",     addName "Show dashboard workspace" $ myViewWS3 "dash")
+  , ("M-i M-h",   addName "Show home workspace"      $ myViewWS3 "home")
+  , ("M-9",       addName "Show scratch workspace"   $ myViewWS3 "scratch")
+  , ("M-i M-c",   addName "Show chat workspace"      $ myViewWS3 "chat")
+  , ("M-i M-n",   addName "Show nodes workspace"     $ myViewWS3 "nodes")
+  , ("M-i M-m",   addName "Show mail workspace"      $ myViewWS3 "mail")
   , ("M-0",       addName "Show dashboard workspace" $ myViewWS3 "dash")
-  , ("M-i v",     addName "Show video workspace"     $ myViewWS3 "video")
-  , ("M-i r",     addName "Show read workspace"      $ myViewWS3 "read")
-  , ("M-i f",     addName "Show files workspace"     $ myViewWS3 "files")
+  , ("M-i M-v",   addName "Show video workspace"     $ myViewWS3 "video")
+  , ("M-i M-r",   addName "Show read workspace"      $ myViewWS3 "read")
+  , ("M-i M-f",   addName "Show files workspace"     $ myViewWS3 "files")
+  , ("M-i M-i",   addName "Toggle previous workspace"                            $ rmEmptyWs $ toggleWS >> showWorkspaceNameFast)
+  , ("M-i i",     addName "Toggle previous workspace skipping some workspaces"   $ rmEmptyWs $ ignoredToggleWS >> showWorkspaceNameFast)
   ])
   where
     -- | Move mouse pointer to bottom right of the current window
