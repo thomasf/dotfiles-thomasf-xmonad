@@ -554,7 +554,7 @@ myScratchPads = [ NS "largeTerminal" (term "largeTerminal") (res =? scratch "lar
 -- Default configuration
 
 aDefaultConfig =
-  addDescrKeys' ((confModMask, xK_h), showKeybindings) myKeys $ defaultConfig
+  addDescrKeys' ((confModMask, xK_F1), showKeybindings) myKeys $ defaultConfig
   { terminal           = myTerminal
   , focusFollowsMouse  = False
   , borderWidth        = 4
