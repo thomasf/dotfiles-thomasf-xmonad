@@ -104,6 +104,7 @@ myKeys conf =
   , ("M-o n",   spawn' "nautilus")
   , ("M-o h",   spawn'  "zeal")
   , ("M-o o",   addName "Goto workspace by window search prompt"                       $ gotoMenuArgs ["-l", "48"] >> movePointer >> showWorkspaceName)
+  , ("M-o a",           addName "Run default workspace launcer script"                 $ workspaceAction)
   ]) ++
   ((subtitle "Other window actions":) $ mkNamedKeymap conf $
   [ -- ("M-<Space>",       addName "Show some info..."                                    $ showInfo)
@@ -136,7 +137,6 @@ myKeys conf =
   , ("M-5",             addName "Goto workspacegroup .3"                               $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 3 >> showWorkspaceNameFast)
   , ("M-y",             addName "Toggle previous workspace"                            $ rmEmptyWs $ toggleWS >> showWorkspaceNameFast)
   , ("M-C-y",           addName "Toggle previous workspace skipping some workspaces"   $ rmEmptyWs $ ignoredToggleWS >> showWorkspaceNameFast)
-  , ("M-o a",           addName "Run default workspace launcer script"                 $ workspaceAction)
   ]) ++
   ((subtitle "Workspace prompts":) $ mkNamedKeymap conf $
   [ ("M-m",             addName "Create or change workspace prompt"                    $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer >> showWorkspaceName)
