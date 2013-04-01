@@ -129,10 +129,14 @@ myKeys conf =
   , ("M-M1-e",          addName "New workspace in prefix.sequence"                     $ newPrefixWS >> movePointer >> showWorkspaceName)
   ]) ++
   ((subtitle "Other workspace actions":) $ mkNamedKeymap conf $
-  [ ("M-b",             addName "Goto workspacegroup basename workspace"               $ rmEmptyWs $ gotoPrefixWorkspaceNonSuffix >> showWorkspaceNameFast)
+  [ ("M-1",             addName "Goto workspacegroup basename workspace"               $ rmEmptyWs $ gotoPrefixWorkspaceNonSuffix >> showWorkspaceNameFast)
+  , ("M-2",             addName "Goto workspacegroup .0"                               $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 0 >> showWorkspaceNameFast)
+  , ("M-3",             addName "Goto workspacegroup .1"                               $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 1 >> showWorkspaceNameFast)
+  , ("M-4",             addName "Goto workspacegroup .2"                               $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 2 >> showWorkspaceNameFast)
+  , ("M-5",             addName "Goto workspacegroup .3"                               $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 3 >> showWorkspaceNameFast)
   , ("M-y",             addName "Toggle previous workspace"                            $ rmEmptyWs $ toggleWS >> showWorkspaceNameFast)
   , ("M-C-y",           addName "Toggle previous workspace skipping some workspaces"   $ rmEmptyWs $ ignoredToggleWS >> showWorkspaceNameFast)
-  , ("M-a",             addName "Run default workspace launcer script"                 $ workspaceAction)
+  , ("M-o a",           addName "Run default workspace launcer script"                 $ workspaceAction)
   ]) ++
   ((subtitle "Workspace prompts":) $ mkNamedKeymap conf $
   [ ("M-m",             addName "Create or change workspace prompt"                    $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer >> showWorkspaceName)
@@ -166,16 +170,17 @@ myKeys conf =
   , ("M-S-C-c",      spawn' "xkill")
  ]) ++
   ((subtitle "Toggle scratchpads and workspaces":) $ mkNamedKeymap conf $
-  [ ("M-<Space>", addName "Toggle larger terminal pad" $ largeTerminalPad >> movePointer)
-  , ("M-i h",     addName "Toggle home workspace"      $ myViewWS3 "home")
-  , ("M-i s",     addName "Toggle scratch workspace"   $ myViewWS3 "scratch")
-  , ("M-i c",     addName "Toggle chat workspace"      $ myViewWS3 "chat")
-  , ("M-i n",     addName "Toggle nodes workspace"     $ myViewWS3 "nodes")
-  , ("M-i m",     addName "Toggle mail workspace"      $ myViewWS3 "mail")
-  , ("M-i d",     addName "Toggle dashboard workspace" $ myViewWS3 "dash")
-  , ("M-i v",     addName "Toggle video workspace"     $ myViewWS3 "video")
-  , ("M-i r",     addName "Toggle read workspace"      $ myViewWS3 "read")
-  , ("M-i f",     addName "Toggle files workspace"     $ myViewWS3 "files")
+  [ ("M-<Space>", addName "Show larger terminal pad" $ largeTerminalPad >> movePointer)
+  , ("M-i h",     addName "Show home workspace"      $ myViewWS3 "home")
+  , ("M-i s",     addName "Show scratch workspace"   $ myViewWS3 "scratch")
+  , ("M-i c",     addName "Show chat workspace"      $ myViewWS3 "chat")
+  , ("M-i n",     addName "Show nodes workspace"     $ myViewWS3 "nodes")
+  , ("M-i m",     addName "Show mail workspace"      $ myViewWS3 "mail")
+  , ("M-i d",     addName "Show dashboard workspace" $ myViewWS3 "dash")
+  , ("M-0",       addName "Show dashboard workspace" $ myViewWS3 "dash")
+  , ("M-i v",     addName "Show video workspace"     $ myViewWS3 "video")
+  , ("M-i r",     addName "Show read workspace"      $ myViewWS3 "read")
+  , ("M-i f",     addName "Show files workspace"     $ myViewWS3 "files")
   ])
   where
     -- | Move mouse pointer to bottom right of the current window
@@ -259,9 +264,9 @@ myKeys conf =
       ws <- gets (W.currentTag . windowset)
       myViewWS2 (takeWhile (/='.') ws)
 
-    -- gotoPrefixWorkspaceSuffix suffix = do
-    --   ws <- gets (W.currentTag . windowset)
-    --   myViewWS1 ((takeWhile (/='.') ws) ++ "." ++ (show suffix))
+    gotoPrefixWorkspaceSuffix suffix = do
+      ws <- gets (W.currentTag . windowset)
+      myViewWS1 ((takeWhile (/='.') ws) ++ "." ++ (show suffix))
 
     -- | TODO: rewrite
     newPrefixWS :: X ()
