@@ -103,8 +103,8 @@ myKeys conf =
   , ("M-o t",   spawn' "urxvt")
   , ("M-o n",   spawn' "nautilus")
   , ("M-o h",   spawn'  "zeal")
-  , ("M-o o",   addName "Goto workspace by window search prompt"                       $ gotoMenuArgs ["-l", "48"] >> movePointer >> showWorkspaceName)
-  , ("M-o a",           addName "Run default workspace launcer script"                 $ workspaceAction)
+  , ("M-o o",   addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l", "48"] >> movePointer >> showWorkspaceName)
+  , ("M-o a",   addName "Run default workspace launcer script"                 $ workspaceAction)
   ]) ++
   ((subtitle "Other window actions":) $ mkNamedKeymap conf $
   [ -- ("M-<Space>",       addName "Show some info..."                                    $ showInfo)
@@ -129,13 +129,13 @@ myKeys conf =
   , ("M-C-M1-r",        addName "Previous non empty workspace"                         $ rmEmptyWs $ prevWsNonEmpty >> movePointer >> showWorkspaceName)
   , ("M-M1-e",          addName "New workspace in prefix.sequence"                     $ newPrefixWS >> movePointer >> showWorkspaceName)
   ]) ++
-  ((subtitle "Other workspace actions":) $ mkNamedKeymap conf $
-  [ ("M-1",             addName "Goto workspacegroup basename workspace"               $ rmEmptyWs $ gotoPrefixWorkspaceNonSuffix >> showWorkspaceNameFast)
-  , ("M-2",             addName "Goto workspacegroup .0"                               $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 0 >> showWorkspaceNameFast)
-  , ("M-3",             addName "Goto workspacegroup .1"                               $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 1 >> showWorkspaceNameFast)
-  , ("M-4",             addName "Goto workspacegroup .2"                               $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 2 >> showWorkspaceNameFast)
-  , ("M-5",             addName "Goto workspacegroup .3"                               $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 3 >> showWorkspaceNameFast)
-  ]) ++
+  -- ((subtitle "Other workspace actions":) $ mkNamedKeymap conf $
+  -- [ ("M-1",             addName "Goto workspacegroup basename workspace"               $ rmEmptyWs $ gotoPrefixWorkspaceNonSuffix >> showWorkspaceNameFast)
+  -- , ("M-2",             addName "Goto workspacegroup .0"                               $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 0 >> showWorkspaceNameFast)
+  -- , ("M-3",             addName "Goto workspacegroup .1"                               $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 1 >> showWorkspaceNameFast)
+  -- , ("M-4",             addName "Goto workspacegroup .2"                               $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 2 >> showWorkspaceNameFast)
+  -- , ("M-5",             addName "Goto workspacegroup .3"                               $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 3 >> showWorkspaceNameFast)
+  -- ]) ++
   ((subtitle "Workspace prompts":) $ mkNamedKeymap conf $
   [ ("M-m",             addName "Create or change workspace prompt"                    $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer >> showWorkspaceName)
   , ("M-S-m",           addName "Move window to other workspace prompt"                $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer >> showWorkspaceName)
@@ -170,8 +170,8 @@ myKeys conf =
   ((subtitle "Toggle scratchpads and workspaces":) $ mkNamedKeymap conf $
   [ ("M-<Space>", addName "Show larger terminal pad" $ largeTerminalPad >> movePointer)
   , ("M-i M-h",   addName "Show home workspace"      $ myViewWS3 "home")
-  , ("M-9",       addName "Show scratch workspace"   $ myViewWS3 "scratch")
-  , ("M-i M-c",   addName "Show chat workspace"      $ myViewWS3 "chat")
+  , ("M-1",       addName "Show scratch workspace"   $ myViewWS3 "scratch")
+  , ("M-2",       addName "Show chat workspace"      $ myViewWS3 "chat")
   , ("M-i M-n",   addName "Show nodes workspace"     $ myViewWS3 "nodes")
   , ("M-i M-m",   addName "Show mail workspace"      $ myViewWS3 "mail")
   , ("M-0",       addName "Show dashboard workspace" $ myViewWS3 "dash")
