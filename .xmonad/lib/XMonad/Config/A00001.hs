@@ -77,6 +77,8 @@ import           XMonad.Util.NamedWindows
 import qualified Solarized as Sol
 import XMonad.Hooks.WorkspaceHistory (workspaceHistoryHook)
 import           XMonad.Util.EZConfig
+import           XMonad.Operations
+import System.Exit ( exitWith, ExitCode(ExitSuccess) )
 ------------------------------------------------------------------------
 -- Keyboard configuration:
 
@@ -90,9 +92,9 @@ myKeys conf =
   [ ("M-j",             addName "Focus next window on workspace"                       $ windows W.focusDown >> movePointer)
   , ("M-k",             addName "Focus previous window on workspace"                   $ windows W.focusUp >> movePointer)
   , ("M-S-j",           addName "Swap focused with next on workspace"                  $ windows W.swapDown >> movePointer)
+  , ("M-C-j",           addName "Swap focused with next on workspace"                  $ windows W.swapDown >> movePointer)
   , ("M-S-k",           addName "Swap focused with previous on workspace"              $ windows W.swapUp >> movePointer)
-  , ("M-C-j",           addName "Rotate all windows forward while keeping focus"       $ rotAllUp >> movePointer)
-  , ("M-C-k",           addName "Rotate all windows backwards while keeping focus"     $ rotAllDown >> movePointer)
+  , ("M-C-k",           addName "Swap focused with previous on workspace"              $ windows W.swapUp >> movePointer)
   ]) ++
   ((subtitle "prefixed testing...":) $ mkNamedKeymap conf $
   [ ("M-o s",   spawn' "sshmenu")
@@ -168,18 +170,24 @@ myKeys conf =
   , ("M-S-C-c",      spawn' "xkill")
  ]) ++
   ((subtitle "Toggle scratchpads and workspaces":) $ mkNamedKeymap conf $
-  [ ("M-<Space>", addName "Show larger terminal pad" $ largeTerminalPad >> movePointer)
-  , ("M-i h",   addName "Show home workspace"      $ myViewWS3 "home")
-  , ("M-1",       addName "Show scratch workspace"   $ myViewWS3 "scratch")
-  , ("M-2",       addName "Show chat workspace"      $ myViewWS3 "chat")
-  , ("M-i n",   addName "Show nodes workspace"     $ myViewWS3 "nodes")
-  , ("M-i m",   addName "Show mail workspace"      $ myViewWS3 "mail")
-  , ("M-0",       addName "Show dashboard workspace" $ myViewWS3 "dash")
-  , ("M-i v",   addName "Show video workspace"     $ myViewWS3 "video")
-  , ("M-i r",   addName "Show read workspace"      $ myViewWS3 "read")
-  , ("M-i f",   addName "Show files workspace"     $ myViewWS3 "files")
-  , ("M-i M-i",   addName "Toggle previous workspace"                            $ rmEmptyWs $ toggleWS >> showWorkspaceNameFast)
-  , ("M-i i",     addName "Toggle previous workspace skipping some workspaces"   $ rmEmptyWs $ ignoredToggleWS >> showWorkspaceNameFast)
+  [ ("M-<Space>", addName "Show larger terminal pad"                           $ largeTerminalPad >> movePointer)
+  , ("M-i h",     addName "Show home workspace"                                $ myViewWS3 "home")
+  , ("M-1",       addName "Show scratch workspace"                             $ myViewWS3 "scratch")
+  , ("M-2",       addName "Show chat workspace"                                $ myViewWS3 "chat")
+  , ("M-i n",     addName "Show nodes workspace"                               $ myViewWS3 "nodes")
+  , ("M-i m",     addName "Show mail workspace"                                $ myViewWS3 "mail")
+  , ("M-0",       addName "Show dashboard workspace"                           $ myViewWS3 "dash")
+  , ("M-i v",     addName "Show video workspace"                               $ myViewWS3 "video")
+  , ("M-i r",     addName "Show read workspace"                                $ myViewWS3 "read")
+  , ("M-i f",     addName "Show files workspace"                               $ myViewWS3 "files")
+  , ("M-i M-i",   addName "Toggle previous workspace"                          $ rmEmptyWs $ toggleWS >> showWorkspaceNameFast)
+  , ("M-i i",     addName "Toggle previous workspace skipping some workspaces" $ rmEmptyWs $ ignoredToggleWS >> showWorkspaceNameFast)
+ ]) ++
+  ((subtitle "Quit/restart":) $ mkNamedKeymap conf $
+  [ ("M-q r", addName "restart xmonad" $ restart "xmonad" True)
+  , ("M-q x", addName "restart xmonad without keeping state" $ restart "xmonad" False)
+  , ("M-q k k k", addName "KILL xmonad" $ io $ exitWith ExitSuccess)
+
   ])
   where
     -- | Move mouse pointer to bottom right of the current window
