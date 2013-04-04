@@ -180,7 +180,7 @@ myKeys conf =
   , ("M-i r",     addName "Show read workspace"                                $ myViewWS3 "read")
   , ("M-i f",     addName "Show files workspace"                               $ myViewWS3 "files")
   , ("M-i M-i",   addName "Toggle previous workspace"                          $ rmEmptyWs $ toggleWS >> showWorkspaceNameFast)
-  , ("M-y",       addName "cycle ws"                                           $ myCycleRecentWs)
+  , ("M-y",       addName "cycle ws"                                           $ myCycleRecentWs xK_y xK_u)
   , ("M-i i",     addName "Toggle previous workspace skipping some workspaces" $ rmEmptyWs $ ignoredToggleWS >> showWorkspaceNameFast)
  ]) ++
   ((subtitle "Quit/restart":) $ mkNamedKeymap conf $
@@ -263,10 +263,11 @@ myKeys conf =
                    =<< findWorkspace getSortByTagNoSP Prev (HiddenWSTagGroup '.') 1
 
     -- | Cycle recent ws
-    myCycleRecentWs = cycleRecentWS [ xK_Alt_L, xK_Alt_R
-                                    , xK_Super_L, xK_Super_R
-                                    , xK_Hyper_L, xK_Hyper_R
-                                    , xK_Control_L, xK_Control_R] xK_y xK_u >> showWorkspaceNameFast
+    myCycleRecentWs keyForward keyBackward = cycleRecentWS
+                                             [ xK_Alt_L, xK_Alt_R
+                                             , xK_Super_L, xK_Super_R
+                                             , xK_Hyper_L, xK_Hyper_R
+                                             , xK_Control_L, xK_Control_R] keyForward keyBackward >> showWorkspaceNameFast
 
     -- | Sort workspaces by tag name, exclude hidden scrachpad workspace.
     getSortByTagNoSP = fmap (.namedScratchpadFilterOutWorkspace) getSortByTag
