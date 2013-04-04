@@ -79,21 +79,20 @@ import XMonad.Hooks.WorkspaceHistory (workspaceHistoryHook)
 import           XMonad.Util.EZConfig
 import           XMonad.Operations
 import System.Exit ( exitWith, ExitCode(ExitSuccess) )
+import XMonad.Actions.CycleRecentWS
+
 ------------------------------------------------------------------------
 -- Keyboard configuration:
 
 -- simply for convenience and readability
 confModMask = mod4Mask
 
-
 -- align-regexp rules: "addName", "\$"
 myKeys conf =
  ((subtitle "Cyclic window actions (J/K) [+=focus] [+control=cycle+keep focus] [+shift=move]":) $ mkNamedKeymap conf $
   [ ("M-j",             addName "Focus next window on workspace"                       $ windows W.focusDown >> movePointer)
   , ("M-k",             addName "Focus previous window on workspace"                   $ windows W.focusUp >> movePointer)
-  , ("M-S-j",           addName "Swap focused with next on workspace"                  $ windows W.swapDown >> movePointer)
   , ("M-C-j",           addName "Swap focused with next on workspace"                  $ windows W.swapDown >> movePointer)
-  , ("M-S-k",           addName "Swap focused with previous on workspace"              $ windows W.swapUp >> movePointer)
   , ("M-C-k",           addName "Swap focused with previous on workspace"              $ windows W.swapUp >> movePointer)
   ]) ++
   ((subtitle "prefixed testing...":) $ mkNamedKeymap conf $
@@ -181,14 +180,14 @@ myKeys conf =
   , ("M-i r",     addName "Show read workspace"                                $ myViewWS3 "read")
   , ("M-i f",     addName "Show files workspace"                               $ myViewWS3 "files")
   , ("M-i M-i",   addName "Toggle previous workspace"                          $ rmEmptyWs $ toggleWS >> showWorkspaceNameFast)
+  , ("M-y",       addName "cycle ws"                                           $ myCycleRecentWs)
   , ("M-i i",     addName "Toggle previous workspace skipping some workspaces" $ rmEmptyWs $ ignoredToggleWS >> showWorkspaceNameFast)
  ]) ++
   ((subtitle "Quit/restart":) $ mkNamedKeymap conf $
-  [ ("M-q r", addName "restart xmonad" $ restart "xmonad" True)
-  , ("M-q x", addName "restart xmonad without keeping state" $ restart "xmonad" False)
-  , ("M-q k k k", addName "KILL xmonad" $ io $ exitWith ExitSuccess)
-
-  ])
+  [ ("M-q r",     addName "restart xmonad"                       $ restart "xmonad" True)
+  , ("M-q x",     addName "restart xmonad without keeping state" $ restart "xmonad" False)
+  , ("M-q k k k", addName "KILL xmonad"                          $ io $ exitWith ExitSuccess)
+ ])
   where
     -- | Move mouse pointer to bottom right of the current window
     movePointer = updatePointer (Relative 0.99 0.99)
@@ -262,6 +261,12 @@ myKeys conf =
     -- | Select previous workspac with same prefix
     prevWsPrefix = windows . W.greedyView
                    =<< findWorkspace getSortByTagNoSP Prev (HiddenWSTagGroup '.') 1
+
+    -- | Cycle recent ws
+    myCycleRecentWs = cycleRecentWS [ xK_Alt_L, xK_Alt_R
+                                    , xK_Super_L, xK_Super_R
+                                    , xK_Hyper_L, xK_Hyper_R
+                                    , xK_Control_L, xK_Control_R] xK_y xK_u >> showWorkspaceNameFast
 
     -- | Sort workspaces by tag name, exclude hidden scrachpad workspace.
     getSortByTagNoSP = fmap (.namedScratchpadFilterOutWorkspace) getSortByTag
