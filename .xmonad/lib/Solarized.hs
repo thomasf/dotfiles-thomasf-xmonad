@@ -16,6 +16,8 @@ blue    = "#268bd2"
 cyan    = "#2aa198"
 green   = "#859900"
 
+blueD   = "#00629D"
+blueL   = "#69B7F0"
 
 -- Local Variables:
 -- eval: (rainbow-mode 1)

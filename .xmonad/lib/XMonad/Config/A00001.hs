@@ -305,6 +305,8 @@ myTerminal = "urxvt"
 myNormalColor  = Sol.green
 myFocusedColor = Sol.magenta
 myUrgentColor = Sol.blue
+myUrgentColor2bg = Sol.blueL
+myUrgentColor2fg = Sol.blueD
 
 ------------------------------------------------------------------------
 -- Workspaces
@@ -470,30 +472,14 @@ myXmobarPP = defaultPP
   { ppCurrent = xmobarColor myFocusedColor "" . wrap "-" "-"
   , ppVisible = xmobarColor myNormalColor "" . wrap " " " "
   , ppHidden  = const ""
-  , ppUrgent  = xmobarColor myUrgentColor "" . wrap " !*" "*! "
+  , ppUrgent  = xmobarColor myUrgentColor2fg myUrgentColor2bg . wrap " !*" "*! "
   , ppTitle   = xmobarColor Sol.yellow "" .  trim
   , ppLayout  = const ""
   , ppSep     = xmobarColor Sol.yellow "" " :: "
   , ppSort    = getSortByXineramaRule
   }
 
-myDzenLogHook h = dynamicLogWithPP $ myPP h
-
 myPropLogHook = dynamicLogString myXmobarPP >>= xmonadPropLog
-
-myPP h = defaultPP
-  { ppCurrent = dzenColor Sol.base03 Sol.blue . doublepad
-  , ppVisible = dzenColor Sol.blue "" . doublepad
-  , ppHidden  = const ""
-  , ppUrgent  = dzenColor Sol.base03 myUrgentColor . doublepad
-  , ppTitle   = dzenColor Sol.yellow "" . dzenEscape . trim
-  , ppLayout  = dzenColor Sol.base01 "" . trim
-  , ppSep     = dzenColor Sol.cyan "" "  *  "
-  , ppSort    = getSortByXineramaRule
-  , ppOutput  = hPutStrLn h
-  }
-  --where
-  --  padWs ws = if ws == "NSP" then "" else pad ws
 
 ------------------------------------------------------------------------
 -- Startup hook
