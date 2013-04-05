@@ -297,47 +297,28 @@ myKeys conf =
                        [(r,_)] -> Just r
                        _       -> Nothing
 
-
-
-
-------------------------------------------------------------------------
--- Basic random
---
 myTerminal = "urxvt"
--- myShell = "bash"
 
-------------------------------------------------------------------------
--- Border colors for unfocused and focused windows, respectively.
---
+-- | Colors
 myNormalColor  = Sol.green
 myFocusedColor = Sol.magenta
 myUrgentColor = Sol.blue
 myUrgentColor2bg = Sol.blueL
 myUrgentColor2fg = Sol.blueD
 
-------------------------------------------------------------------------
--- Workspaces
-
+-- | Workspaces
 myWorkspaces = [ "scratch", "scratch.0"]
 
-------------------------------------------------------------------------
--- Layouts:
-
--- You can specify and transform your layouts by modifying these values.
--- If you change layout bindings be sure to use 'mod-shift-space' after
--- restarting (with 'mod-q') to reset your layout state to the new
--- defaults, as xmonad preserves your old layout settings by default.
-
+-- | Fonts
 sizedFont px = "-xos4-terminus-*-r-*-*-" ++ px  ++ "-*-*-*-*-*-iso8859-*"
+smallFont = sizedFont "12"
 defaultFont = sizedFont "13"
 largeFont = sizedFont "16"
 hugeFont = sizedFont "32"
 
--- | Base decoration theme
+-- | Decoration/Themes
 baseTheme = defaultTheme { fontName            = defaultFont
                          , decoHeight          = 24 }
-
--- | Decoration theme for bottom tabs
 bottomTabTheme = baseTheme { activeTextColor     = Sol.base03
                            , activeColor         = myFocusedColor
                            , activeBorderColor   = myFocusedColor
@@ -348,9 +329,16 @@ bottomTabTheme = baseTheme { activeTextColor     = Sol.base03
                            , urgentColor         = myUrgentColor
                            , urgentBorderColor   = myUrgentColor
                            , decoHeight          = 48 }
+smallBottomTabTheme = bottomTabTheme { fontName = smallFont
+                                     , decoHeight = 4
+                                     , activeTextColor = myFocusedColor
+                                     , inactiveTextColor = myNormalColor
+                                     , urgentTextColor = myUrgentColor }
 
--- | The layouthoook
+
+-- | Layout hook
 myLayoutHook = onWorkspace "video" (renameStar full) $
+               onWorkspace "vbox" (renameStar $  MT.mkToggle (MT.single MTI.NBFULL) $ noBorders $ smallTabsAlways) $
                Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22 2012)
                MT.mkToggle (MT.single MTI.NOBORDERS) $
                MT.mkToggle (MT.single MTI.NBFULL) $
@@ -384,6 +372,7 @@ myLayoutHook = onWorkspace "video" (renameStar full) $
     spiral = rename "spiral" $ Spiral.spiral (6/7)
     threeCol = rename "3col h" $ ThreeColMid 2 (3/100) (1/2)
     threeColV = rename "3col v" $ Mirror threeCol
+    smallTabsAlways = rename "tabs" $ tabbedBottomAlways shrinkText smallBottomTabTheme
     tabsAlways = rename "tabs" $ tabbedBottomAlways shrinkText bottomTabTheme
     tabsBottom = rename "tabs" $ tabbedBottom shrinkText bottomTabTheme
     gridWide =  rename "grid" $ GridRatio (16/9)
