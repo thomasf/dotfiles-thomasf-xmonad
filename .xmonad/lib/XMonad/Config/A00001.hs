@@ -576,7 +576,7 @@ aDefaultConfig =
 -----------------------------------------------------------------------------
 -- | Auto config!
 --
-autoConfig=do
+autoConfig = do
   host <- fmap nodeName getSystemID
   return =<< chooseConfigByHost host
     where
@@ -660,5 +660,7 @@ showInfo = do
      >=> DZ.addArgs ["-sa", "center"]
     ) (wt ++ "\n -" ++ ws ++ "-  ::  " ++ ld)
 
+
+-- Local Variables:
 -- fill-column: 180
 -- End:
