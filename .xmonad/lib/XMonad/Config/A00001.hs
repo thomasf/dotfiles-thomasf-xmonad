@@ -263,8 +263,13 @@ myKeys conf =
     prevWsPrefix = windows . W.greedyView
                    =<< findWorkspace getSortByTagNoSP Prev (HiddenWSTagGroup '.') 1
 
+   -- | CycleRecentWs that does not include visible but non-focused workspaces
+    cycleRecentWS' = cycleWindowSets options
+     where options w = map (W.view `flip` w) (recentTags w)
+           recentTags w = map W.tag $ W.hidden w ++ [W.workspace (W.current w)]
+
     -- | Cycle recent ws
-    myCycleRecentWs keyForward keyBackward = cycleRecentWS
+    myCycleRecentWs keyForward keyBackward = cycleRecentWS'
                                              [ xK_Alt_L, xK_Alt_R
                                              , xK_Super_L, xK_Super_R
                                              , xK_Hyper_L, xK_Hyper_R
