@@ -263,10 +263,11 @@ myKeys conf =
     prevWsPrefix = windows . W.greedyView
                    =<< findWorkspace getSortByTagNoSP Prev (HiddenWSTagGroup '.') 1
 
-   -- | CycleRecentWs that does not include visible but non-focused workspaces
+   -- | CycleRecentWs that does not include visible but non-focused workspaces and filter out NSP
     cycleRecentWS' = cycleWindowSets options
      where options w = map (W.view `flip` w) (recentTags w)
-           recentTags w = map W.tag $ W.hidden w ++ [W.workspace (W.current w)]
+           recentTags w = filterNSP map W.tag $ W.hidden w ++ [W.workspace (W.current w)]
+           filterNSP = fmap (.namedScratchpadFilterOutWorkspace)
 
     -- | Cycle recent ws
     myCycleRecentWs keyForward keyBackward = cycleRecentWS'
