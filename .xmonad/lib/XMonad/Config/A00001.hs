@@ -179,6 +179,7 @@ myKeys conf =
   , ("M-q x x x", addName "restart xmonad without keeping state" $ restart "xmonad" False)
   , ("M-q k k k", addName "KILL xmonad"                          $ io $ exitWith ExitSuccess)
   , ("M-q s s s", addName "suspend computer"                     $ spawn "a.suspend")
+  , ("M-q p p p", addName "power off computer"                   $ spawn "a.shutdown")
  ])
   where
     -- | Move mouse pointer to bottom right of the current window
