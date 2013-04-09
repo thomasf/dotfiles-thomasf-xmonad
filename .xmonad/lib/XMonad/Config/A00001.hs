@@ -126,17 +126,8 @@ myKeys conf =
   ((subtitle "Workspace actions (E/R) [mod=select from prefix] [mod+control=select from all]":) $ mkNamedKeymap conf $
   [ ("M-e",             addName "Next workspace (prefix)"                              $ rmEmptyWs $ nextWsPrefix >> movePointer >> showWorkspaceName)
   , ("M-r",             addName "Previous workspace (prefix)"                          $ rmEmptyWs $ prevWsPrefix >> movePointer >> showWorkspaceName)
-  , ("M-C-M1-e",        addName "Next non empty workspace"                             $ rmEmptyWs $ nextWsNonEmpty >> movePointer >> showWorkspaceName)
-  , ("M-C-M1-r",        addName "Previous non empty workspace"                         $ rmEmptyWs $ prevWsNonEmpty >> movePointer >> showWorkspaceName)
-  , ("M-M1-e",          addName "New workspace in prefix.sequence"                     $ newPrefixWS >> movePointer >> showWorkspaceName)
+  , ("M-C-e",          addName "New workspace in prefix.sequence"                     $ newPrefixWS >> movePointer >> showWorkspaceName)
   ]) ++
-  -- ((subtitle "Other workspace actions":) $ mkNamedKeymap conf $
-  -- [ ("M-1",             addName "Goto workspacegroup basename workspace"               $ rmEmptyWs $ gotoPrefixWorkspaceNonSuffix >> showWorkspaceNameFast)
-  -- , ("M-2",             addName "Goto workspacegroup .0"                               $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 0 >> showWorkspaceNameFast)
-  -- , ("M-3",             addName "Goto workspacegroup .1"                               $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 1 >> showWorkspaceNameFast)
-  -- , ("M-4",             addName "Goto workspacegroup .2"                               $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 2 >> showWorkspaceNameFast)
-  -- , ("M-5",             addName "Goto workspacegroup .3"                               $ rmEmptyWs $ gotoPrefixWorkspaceSuffix 3 >> showWorkspaceNameFast)
-  -- ]) ++
   ((subtitle "Workspace prompts":) $ mkNamedKeymap conf $
   [ ("M-m",             addName "Create or change workspace prompt"                    $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer >> showWorkspaceName)
   , ("M-S-m",           addName "Move window to other workspace prompt"                $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer >> showWorkspaceName)
@@ -264,7 +255,7 @@ myKeys conf =
                    =<< findWorkspace getSortByTagNoSP Prev (HiddenWSTagGroup '.') 1
 
    -- | CycleRecentWs that does not include visible but non-focused workspaces and filter out NSP
-    cycleRecentWS' = cycleWindowSets options
+    cycleRecentWS' = cycleWindowSets' options
      where options w = map (W.view `flip` w) (recentTags w)
            recentTags w = filterNSP map W.tag $ W.hidden w ++ [W.workspace (W.current w)]
            filterNSP = fmap (.namedScratchpadFilterOutWorkspace)
@@ -274,7 +265,8 @@ myKeys conf =
                                              [ xK_Alt_L, xK_Alt_R
                                              , xK_Super_L, xK_Super_R
                                              , xK_Hyper_L, xK_Hyper_R
-                                             , xK_Control_L, xK_Control_R] keyForward keyBackward >> showWorkspaceNameFast
+                                             , xK_Control_L, xK_Control_R]
+                                               keyForward keyBackward showWorkspaceNameFast
 
     -- | Sort workspaces by tag name, exclude hidden scrachpad workspace.
     getSortByTagNoSP = fmap (.namedScratchpadFilterOutWorkspace) getSortByTag
