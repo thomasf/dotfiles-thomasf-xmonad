@@ -254,7 +254,8 @@ myKeys conf =
     prevWsPrefix = windows . W.greedyView
                    =<< findWorkspace getSortByTagNoSP Prev (HiddenWSTagGroup '.') 1
 
-   -- | CycleRecentWs that does not include visible but non-focused workspaces and filter out NSP
+
+    -- | CycleRecentWs that does not include visible but non-focused workspaces and filter out NSP
     cycleRecentWS' = cycleWindowSets' options
      where options w = map (W.view `flip` w) (recentTags w)
            recentTags w = filterNSP map W.tag $ W.hidden w ++ [W.workspace (W.current w)]
@@ -271,14 +272,14 @@ myKeys conf =
     -- | Sort workspaces by tag name, exclude hidden scrachpad workspace.
     getSortByTagNoSP = fmap (.namedScratchpadFilterOutWorkspace) getSortByTag
 
-    gotoPrefixWorkspaceNonSuffix :: X ()
-    gotoPrefixWorkspaceNonSuffix = do
-      ws <- gets (W.currentTag . windowset)
-      myViewWS2 (takeWhile (/='.') ws)
+    -- gotoPrefixWorkspaceNonSuffix :: X ()
+    -- gotoPrefixWorkspaceNonSuffix = do
+    --   ws <- gets (W.currentTag . windowset)
+    --   myViewWS2 (takeWhile (/='.') ws)
 
-    gotoPrefixWorkspaceSuffix suffix = do
-      ws <- gets (W.currentTag . windowset)
-      myViewWS1 ((takeWhile (/='.') ws) ++ "." ++ (show suffix))
+    -- gotoPrefixWorkspaceSuffix suffix = do
+    --   ws <- gets (W.currentTag . windowset)
+    --   myViewWS1 ((takeWhile (/='.') ws) ++ "." ++ (show suffix))
 
     -- | TODO: rewrite
     newPrefixWS :: X ()
