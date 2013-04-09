@@ -157,6 +157,10 @@ fi
 [ $(which blueman-applet) ] \
     && blueman-applet &
 
+# Launch gpome (binds apple hw control keys)
+[ $(which gpomme) ] \
+    && gpomme &
+
 # Set a default web browser
 [ $(which www) ] \
     && BROWSER=$(which www) \
