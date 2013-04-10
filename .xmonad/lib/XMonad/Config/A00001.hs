@@ -180,6 +180,7 @@ myKeys conf =
   , ("M-q k k k", addName "KILL xmonad"                          $ io $ exitWith ExitSuccess)
   , ("M-q s s s", addName "suspend computer"                     $ spawn "a.suspend")
   , ("M-q p p p", addName "power off computer"                   $ spawn "a.shutdown")
+  , ("M-q l l l", addName "leave computer"                       $ spawn "a.leave")
  ])
   where
     -- | Move mouse pointer to bottom right of the current window
