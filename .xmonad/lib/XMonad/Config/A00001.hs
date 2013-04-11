@@ -441,7 +441,7 @@ myManageHook =
     centerFloatLargeByResource =
       ["floating-center-large"]
     centerFloatByClass =
-      ["Xfce4-settings-manager", "Pinentry"]
+      ["Xfce4-settings-manager", "Pinentry", "connected-app"]
     centerFloatLargeByClass =
       ["Xfce4-appfinder"]
 
