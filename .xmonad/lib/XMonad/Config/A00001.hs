@@ -170,9 +170,9 @@ myKeys conf =
   , ("M-i v",     addName "Show video workspace"                               $ myViewWS3 "video")
   , ("M-i r",     addName "Show read workspace"                                $ myViewWS3 "read")
   , ("M-i f",     addName "Show files workspace"                               $ myViewWS3 "files")
-  , ("M-i M-i",   addName "Toggle previous workspace"                          $ rmEmptyWs $ toggleWS >> showWorkspaceNameFast)
-  , ("M-y",       addName "cycle ws"                                           $ myCycleRecentWs xK_y xK_u)
-  , ("M-i i",     addName "Toggle previous workspace skipping some workspaces" $ rmEmptyWs $ ignoredToggleWS >> showWorkspaceNameFast)
+  -- , ("M-i M-i",   addName "Toggle previous workspace"                          $ rmEmptyWs $ toggleWS >> showWorkspaceNameFast)
+  , ("M-y",       addName "cycle ws"                                           $ rmEmptyWs $ myCycleRecentWs xK_y xK_u)
+  -- , ("M-i i",     addName "Toggle previous workspace skipping some workspaces" $ rmEmptyWs $ ignoredToggleWS >> showWorkspaceNameFast)
  ]) ++
   ((subtitle "Quit/restart":) $ mkNamedKeymap conf $
   [ ("M-q r",             addName "restart xmonad"                       $ restart "xmonad" True)
@@ -202,13 +202,13 @@ myKeys conf =
     -- | Remove current workpace if empty
     rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "home", "scratch"]
 
-    -- | Toggle recent workspaces ignoring some of them
-    toggleWS = toggleWS' [ "NSP" ] >> movePointer
+    -- -- | Toggle recent workspaces ignoring some of them
+    -- toggleWS = toggleWS' [ "NSP" ] >> movePointer
 
-    -- | Toggle recent workspaces ignoring some of them
-    ignoredToggleWS = toggleWS' [ "NSP"
-                                , "home", "nodes", "dash", "scratch"
-                                , "chat", "im" ] >> movePointer
+    -- -- | Toggle recent workspaces ignoring some of them
+    -- ignoredToggleWS = toggleWS' [ "NSP"
+    --                             , "home", "nodes", "dash", "scratch"
+    --                             , "chat", "im" ] >> movePointer
 
     -- | View a workspace by name and maybe run workspace action
     myViewWS wsid = do
