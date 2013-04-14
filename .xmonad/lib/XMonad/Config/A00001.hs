@@ -170,15 +170,12 @@ myKeys conf =
   , ("M-i v",     addName "Show video workspace"                               $ myViewWS3 "video")
   , ("M-i r",     addName "Show read workspace"                                $ myViewWS3 "read")
   , ("M-i f",     addName "Show files workspace"                               $ myViewWS3 "files")
-  -- , ("M-i M-i",   addName "Toggle previous workspace"                          $ rmEmptyWs $ toggleWS >> showWorkspaceNameFast)
-  , ("M-y",       addName "cycle ws"                                           $ rmEmptyWs $ myCycleRecentWs xK_y xK_u)
-  -- , ("M-i i",     addName "Toggle previous workspace skipping some workspaces" $ rmEmptyWs $ ignoredToggleWS >> showWorkspaceNameFast)
+  , ("M-i M-i",   addName "cycle ws"                                           $ rmEmptyWs $ myCycleRecentWs xK_i xK_o)
  ]) ++
-  ((subtitle "Quit/restart":) $ mkNamedKeymap conf $
+  ((subtitle "exit/quit/leave/reboot...":) $ mkNamedKeymap conf $
   [ ("M-q r",             addName "restart xmonad"                       $ restart "xmonad" True)
   , ("M-q x x x",         addName "restart xmonad without keeping state" $ restart "xmonad" False)
   , ("M-q k k k",         addName "KILL xmonad"                          $ io $ exitWith ExitSuccess)
-  , ("M-q <Space> s s s", addName "suspend computer"                     $ spawn "a.suspend")
   , ("M-q <Space> h h h", addName "hibernate computer"                   $ spawn "a.hibernate")
   , ("M-q <Space> s s s", addName "suspend computer"                     $ spawn "a.suspend")
   , ("M-q <Space> p p p", addName "power off computer"                   $ spawn "a.shutdown")
@@ -572,7 +569,7 @@ aDefaultConfig =
     -- | Display keyboard mappings using zenity
     showKeybindings :: [((KeyMask, KeySym), NamedAction)] -> NamedAction
     showKeybindings x = addName "Show Keybindings" $ io $ do
-      h <- spawnPipe "zenity --text-info"
+      h <- spawnPipe "zenity --text-info --font=terminus"
       System.IO.UTF8.hPutStr h (unlines $ showKm x)
       hClose h
       return ()
