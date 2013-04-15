@@ -94,8 +94,10 @@ myKeys conf =
   , ("M-k",             addName "Focus previous window on workspace"                   $ windows W.focusUp >> movePointer)
   , ("M-C-j",           addName "Swap focused with next on workspace"                  $ windows W.swapDown >> movePointer)
   , ("M-C-k",           addName "Swap focused with previous on workspace"              $ windows W.swapUp >> movePointer)
+  , ("M-S-j",           addName "Swap focused with next on workspace"                  $ windows W.swapDown >> movePointer)
+  , ("M-S-k",           addName "Swap focused with previous on workspace"              $ windows W.swapUp >> movePointer)
   ]) ++
-  ((subtitle "prefixed testing...":) $ mkNamedKeymap conf $
+  ((subtitle "Application launching.":) $ mkNamedKeymap conf $
   [ ("M-o s",   spawn' "sshmenu")
   , ("M-o p",   spawn' "appmenu")
   , ("M-o M-p", spawn' "xfce4-appfinder")
@@ -104,7 +106,6 @@ myKeys conf =
   , ("M-o t",   spawn' "urxvt")
   , ("M-o n",   spawn' "nautilus")
   , ("M-o h",   spawn'  "zeal")
-  , ("M-o o",   addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l", "48"] >> movePointer >> showWorkspaceName)
   , ("M-o a",   addName "Run default workspace launcer script"                 $ workspaceAction)
   ]) ++
   ((subtitle "Other window actions":) $ mkNamedKeymap conf $
@@ -114,6 +115,8 @@ myKeys conf =
   , ("M-C-c",           addName "kill"                                                 $ kill)
   , ("M-u",             addName "Focus urgent winow"                                   $ focusUrgent >> movePointer >> showWorkspaceName)
   , ("M-C-u",           addName "Clear all urgent window statuses"                     $ clearUrgents)
+  , ("M-y",   addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l", "48"] >> movePointer >> showWorkspaceName)
+
   ]) ++
   ((subtitle "Cyclic display actions (D/F) [+=select] [+control=swap] [+shift=move window to]":) $ mkNamedKeymap conf $
   [ ("M-d",             addName "Next screen"                                          $ nextScreen >> movePointer >> showWorkspaceNameFast)
@@ -171,6 +174,7 @@ myKeys conf =
   , ("M-i r",     addName "Show read workspace"                                $ myViewWS3 "read")
   , ("M-i f",     addName "Show files workspace"                               $ myViewWS3 "files")
   , ("M-i M-i",   addName "cycle ws"                                           $ rmEmptyWs $ myCycleRecentWs xK_i xK_o)
+
  ]) ++
   ((subtitle "exit/quit/leave/reboot...":) $ mkNamedKeymap conf $
   [ ("M-q r",             addName "restart xmonad"                       $ restart "xmonad" True)
@@ -486,7 +490,9 @@ myPropLogHook = dynamicLogString myXmobarPP >>= xmonadPropLog
 -- per-workspace layout choices.
 --
 
-myStartupHook = return ()
+myStartupHook = do
+  spawn "notify-send -a short 'Hello!'"
+  return ()
 
 
 ------------------------------------------------------------------------
