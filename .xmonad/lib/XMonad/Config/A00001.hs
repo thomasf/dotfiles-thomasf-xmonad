@@ -131,12 +131,6 @@ myKeys conf =
   , ("M-r",             addName "Previous workspace (prefix)"                          $ rmEmptyWs $ prevWsPrefix >> movePointer >> showWorkspaceName)
   , ("M-C-e",          addName "New workspace in prefix.sequence"                     $ newPrefixWS >> movePointer >> showWorkspaceName)
   ]) ++
-  ((subtitle "Workspace prompts":) $ mkNamedKeymap conf $
-  [ ("M-m",             addName "Create or change workspace prompt"                    $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer >> showWorkspaceName)
-  , ("M-S-m",           addName "Move window to other workspace prompt"                $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer >> showWorkspaceName)
-  , ("M-C-m",           addName "Rename current workspace"                             $ DW.renameWorkspace myXPConfig >> movePointer >> showWorkspaceName)
-  , ("M-C-<Backspace>", addName "Remove current workspace"                             $ DW.removeWorkspace >> movePointer >> showWorkspaceName)
-  ]) ++
   ((subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]":) $ mkNamedKeymap conf $
   [ ("M-C-<Space>",     addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
   , ("M-M1-<Space>",    addName "Toggle fullscreen"                                    $ sendMessage (MT.Toggle MTI.NBFULL) >> movePointer)
@@ -163,18 +157,21 @@ myKeys conf =
   , ("M-S-C-c",      spawn' "xkill")
  ]) ++
   ((subtitle "Toggle scratchpads and workspaces":) $ mkNamedKeymap conf $
-  [ ("M-<Space>", addName "Show larger terminal pad"                           $ largeTerminalPad >> movePointer)
-  , ("M-i h",     addName "Show home workspace"                                $ myViewWS3 "home")
-  , ("M-1",       addName "Show scratch workspace"                             $ myViewWS3 "scratch")
-  , ("M-2",       addName "Show chat workspace"                                $ myViewWS3 "chat")
-  , ("M-i n",     addName "Show nodes workspace"                               $ myViewWS3 "nodes")
-  , ("M-i m",     addName "Show mail workspace"                                $ myViewWS3 "mail")
-  , ("M-0",       addName "Show dashboard workspace"                           $ myViewWS3 "dash")
-  , ("M-i v",     addName "Show video workspace"                               $ myViewWS3 "video")
-  , ("M-i r",     addName "Show read workspace"                                $ myViewWS3 "read")
-  , ("M-i f",     addName "Show files workspace"                               $ myViewWS3 "files")
-  , ("M-i M-i",   addName "cycle ws"                                           $ rmEmptyWs $ myCycleRecentWs xK_i xK_o)
-
+  [ ("M-<Space>",           addName "Show larger terminal pad"                           $ largeTerminalPad >> movePointer)
+  , ("M-i h",               addName "Show home workspace"                                $ myViewWS3 "home")
+  , ("M-1",                 addName "Show scratch workspace"                             $ myViewWS3 "scratch")
+  , ("M-2",                 addName "Show chat workspace"                                $ myViewWS3 "chat")
+  , ("M-i n",               addName "Show nodes workspace"                               $ myViewWS3 "nodes")
+  , ("M-i m",               addName "Show mail workspace"                                $ myViewWS3 "mail")
+  , ("M-0",                 addName "Show dashboard workspace"                           $ myViewWS3 "dash")
+  , ("M-i v",               addName "Show video workspace"                               $ myViewWS3 "video")
+  , ("M-i r",               addName "Show read workspace"                                $ myViewWS3 "read")
+  , ("M-i f",               addName "Show files workspace"                               $ myViewWS3 "files")
+  , ("M-i M-i",             addName "cycle ws"                                           $ rmEmptyWs $ myCycleRecentWs xK_i xK_o)
+  , ("M-i <Space> <Space>", addName "Create or change workspace prompt"                  $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer >> showWorkspaceName)
+  , ("M-i <Space> m",       addName "Move window to other workspace prompt"              $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer >> showWorkspaceName)
+  , ("M-i <Space> r",       addName "Rename current workspace"                           $ DW.renameWorkspace myXPConfig >> movePointer >> showWorkspaceName)
+  , ("M-i <Space> !",       addName "Remove current workspace"                           $ DW.removeWorkspace >> movePointer >> showWorkspaceName)
  ]) ++
   ((subtitle "exit/quit/leave/reboot...":) $ mkNamedKeymap conf $
   [ ("M-q r",             addName "restart xmonad"                       $ restart "xmonad" True)
