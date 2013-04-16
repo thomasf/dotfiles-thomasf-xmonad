@@ -79,7 +79,7 @@ import XMonad.Hooks.WorkspaceHistory (workspaceHistoryHook)
 import           XMonad.Util.EZConfig
 import           XMonad.Operations
 import System.Exit ( exitWith, ExitCode(ExitSuccess) )
-import XMonad.Actions.CycleRecentWS
+import XMonad.Actions.CycleRecentWSAddons
 
 ------------------------------------------------------------------------
 -- Keyboard configuration:
@@ -576,6 +576,7 @@ aDefaultConfig =
       System.IO.UTF8.hPutStr h (unlines $ showKm x)
       hClose h
       return ()
+
 
 -----------------------------------------------------------------------------
 -- | Auto config!
