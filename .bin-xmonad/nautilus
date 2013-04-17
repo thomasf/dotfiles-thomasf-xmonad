@@ -3,25 +3,31 @@
 # Nautilus wrapper
 #
 
-source ~/.config-base/bash/common
-source "${__BASH}/z"
 
-if [ $(which wsname) ]; then
-    name="$(wsname -p)"
-    case $name in
-        home|temp|chat|nodes|mail|dash|NSP)
-            cd ${HOME}
-            ;;
-        emacs)
-            cd ~/.emacs.d
-            ;;
-        www|share)
-            cd ~/Downloads
-            ;;
-        *)
-            _z "${HOME}" "${name/-/ }"
-            ;;
-    esac
+if [ $# -eq 0 ]; then
+
+    source ~/.config-base/bash/common
+    source "${__BASH}/z"
+
+    if [ $(which wsname) ]; then
+        name="$(wsname -p)"
+        case $name in
+            home|temp|chat|nodes|mail|dash|NSP)
+                cd ${HOME}
+                ;;
+            emacs)
+                cd ~/.emacs.d
+                ;;
+            www|share)
+                cd ~/Downloads
+                ;;
+            *)
+                _z "${HOME}" "${name/-/ }"
+                ;;
+        esac
+    fi
+    exec /usr/bin/nautilus .
+else
+    exec /usr/bin/nautilus "$@"
+
 fi
-
-exec /usr/bin/nautilus "$@" .
