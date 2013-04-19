@@ -200,7 +200,7 @@ myKeys conf =
       when (null wins) $ workspaceAction
 
     -- | Remove current workpace if empty
-    rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "home", "scratch"]
+    rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP" ]
 
     -- -- | Toggle recent workspaces ignoring some of them
     -- toggleWS = toggleWS' [ "NSP" ] >> movePointer
