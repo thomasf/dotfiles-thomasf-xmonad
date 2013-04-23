@@ -52,7 +52,6 @@ import           XMonad.Layout.Renamed
 import           XMonad.Layout.NoBorders
 import           XMonad.Layout.PerWorkspace      (onWorkspace)
 import qualified XMonad.Layout.Spiral as Spiral
-import           XMonad.Layout.ThreeColumns
 import           XMonad.Prompt hiding (height)
 import           XMonad.Prompt.Workspace
 import qualified XMonad.StackSet                 as W
@@ -272,7 +271,7 @@ myLayoutHook =
   onWorkspace "read" (renameStar tabs) $
   onWorkspace "dash" (wide' ||| grid) $
   lessBorders OnlyFloat $
-  (tall ||| wide ||| tabs ||| threeCol |||  threeColV ||| gridWide ||| spiral)
+  (tall ||| wide ||| tabs ||| gridWide ||| spiral)
   where
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
@@ -281,9 +280,7 @@ myLayoutHook =
     wide = rename "wide" $ Tall 2 (3/100) (1/2)
     wide' = rename "wide" $ Mirror $ Tall 1 (0) 0.6
     spiral = rename "spiral" $ Spiral.spiral (6/7)
-    threeCol = rename "3col|" $ ThreeColMid 2 (3/100) (1/2)
-    threeColV = rename "3col-" $ Mirror threeCol
-    tabs = rename "tabs" $ Mirror $ Tall 1 (0) 0.95
+    tabs = rename "tabs" $ Mirror $ Tall 1 (0) 0.93
     gridWide =  rename "grid" $ GridRatio (16/9)
     grid = rename "grid" $ GridRatio (4/3)
     im = renameStar $ withIM (1%7) (Role "buddy_list") Grid
