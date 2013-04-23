@@ -83,6 +83,7 @@ import System.Exit ( exitWith, ExitCode(ExitSuccess) )
 import System.Environment (getEnv)
 import XMonad.Actions.CycleRecentWSAddons
 
+
 ------------------------------------------------------------------------
 -- Keyboard configuration:
 
@@ -91,7 +92,10 @@ confModMask = mod4Mask
 
 -- align-regexp rules: "addName", "\$"
 myKeys conf =
- ((subtitle "Cyclic window actions (J/K) [+=focus] [+control=cycle+keep focus] [+shift=move]":) $ mkNamedKeymap conf $
+  ((subtitle "....":) $ mkNamedKeymap conf $
+  [ ("M-<F2>",   addName "friends browser desktop.."                       $ myViewWS' "friends")
+  ]) ++
+  ((subtitle "Cyclic window actions (J/K) [+=focus] [+control=cycle+keep focus] [+shift=move]":) $ mkNamedKeymap conf $
   [ ("M-j",             addName "Focus next window on workspace"                       $ windows W.focusDown >> movePointer)
   , ("M-k",             addName "Focus previous window on workspace"                   $ windows W.focusUp >> movePointer)
   , ("M-C-j",           addName "Swap focused with next on workspace"                  $ windows W.swapDown >> movePointer)
@@ -111,14 +115,12 @@ myKeys conf =
   , ("M-o a",   addName "Run default workspace launcer script"                 $ workspaceAction)
   ]) ++
   ((subtitle "Other window actions":) $ mkNamedKeymap conf $
-  [ -- ("M-<Space>",       addName "Show some info..."                                    $ showInfo)
-  ("M-<Return>",        addName "Swap the focused window and the master window"        $ windows W.swapMaster >> movePointer)
+  [ ("M-<Return>",        addName "Swap the focused window and the master window"        $ windows W.swapMaster >> movePointer)
   , ("M-t",             addName "Push the window into tiling mode"                     $ withFocused (windows . W.sink) >> movePointer)
   , ("M-C-c",           addName "kill"                                                 $ kill)
   , ("M-u",             addName "Focus urgent winow"                                   $ focusUrgent >> movePointer >> showWorkspaceName)
   , ("M-C-u",           addName "Clear all urgent window statuses"                     $ clearUrgents)
-  , ("M-y",   addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l", "48"] >> movePointer >> showWorkspaceName)
-
+  , ("M-y",             addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l", "48"] >> movePointer >> showWorkspaceName)
   ]) ++
   ((subtitle "Cyclic display actions (D/F) [+=select] [+control=swap] [+shift=move window to]":) $ mkNamedKeymap conf $
   [ ("M-d",             addName "Next screen"                                          $ nextScreen >> movePointer >> showWorkspaceNameFast)
@@ -131,7 +133,6 @@ myKeys conf =
   ((subtitle "Workspace actions (E/R) [mod=select from prefix] [mod+control=select from all]":) $ mkNamedKeymap conf $
   [ ("M-e",             addName "Next workspace (prefix)"                              $ rmEmptyWs $ nextWsPrefix >> movePointer >> showWorkspaceName)
   , ("M-r",             addName "Previous workspace (prefix)"                          $ rmEmptyWs $ prevWsPrefix >> movePointer >> showWorkspaceName)
-  , ("M-C-e",          addName "New workspace in prefix.sequence"                     $ newPrefixWS >> movePointer >> showWorkspaceName)
   ]) ++
   ((subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]":) $ mkNamedKeymap conf $
   [ ("M-C-<Space>",     addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
@@ -160,17 +161,17 @@ myKeys conf =
  ]) ++
   ((subtitle "Toggle scratchpads and workspaces":) $ mkNamedKeymap conf $
   [ ("M-<Space>",           addName "Show larger terminal pad"                           $ largeTerminalPad >> movePointer)
-  , ("M-i b",               addName "Show vbo workspace"                                 $ myViewWS3 "vbox")
-  , ("M-i c",               addName "Show chat workspace"                                $ myViewWS3 "chat")
-  , ("M-i d",               addName "Show dashboard workspace"                           $ myViewWS3 "dash")
-  , ("M-i f",               addName "Show files workspace"                               $ myViewWS3 "files")
-  , ("M-i h",               addName "Show home workspace"                                $ myViewWS3 "home")
-  , ("M-i m",               addName "Show mail workspace"                                $ myViewWS3 "mail")
-  , ("M-i n",               addName "Show nodes workspace"                               $ myViewWS3 "nodes")
-  , ("M-i r",               addName "Show read workspace"                                $ myViewWS3 "read")
-  , ("M-i s",               addName "Show scratch workspace"                             $ myViewWS3 "scratch")
-  , ("M-i v",               addName "Show video workspace"                               $ myViewWS3 "video")
-  , ("M-i w",               addName "Show www workspace"                                 $ myViewWS3 "www")
+  , ("M-i b",               addName "Show vbo workspace"                                 $ myViewWS' "vbox")
+  , ("M-i c",               addName "Show chat workspace"                                $ myViewWS' "chat")
+  , ("M-i d",               addName "Show dashboard workspace"                           $ myViewWS' "dash")
+  , ("M-i f",               addName "Show files workspace"                               $ myViewWS' "files")
+  , ("M-i h",               addName "Show home workspace"                                $ myViewWS' "home")
+  , ("M-i m",               addName "Show mail workspace"                                $ myViewWS' "mail")
+  , ("M-i n",               addName "Show nodes workspace"                               $ myViewWS' "nodes")
+  , ("M-i r",               addName "Show read workspace"                                $ myViewWS' "read")
+  , ("M-i s",               addName "Show scratch workspace"                             $ myViewWS' "scratch")
+  , ("M-i v",               addName "Show video workspace"                               $ myViewWS' "video")
+  , ("M-i w",               addName "Show www workspace"                                 $ myViewWS' "www")
   , ("M-i M-i",             addName "cycle ws"                                           $ rmEmptyWs $ myCycleRecentWs xK_i xK_o)
   , ("M-i <Space> <Space>", addName "Create or change workspace prompt"                  $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer >> showWorkspaceName)
   , ("M-i <Space> m",       addName "Move window to other workspace prompt"              $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer >> showWorkspaceName)
@@ -204,33 +205,14 @@ myKeys conf =
     -- | Remove current workpace if empty
     rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP" ]
 
-    -- -- | Toggle recent workspaces ignoring some of them
-    -- toggleWS = toggleWS' [ "NSP" ] >> movePointer
-
-    -- -- | Toggle recent workspaces ignoring some of them
-    -- ignoredToggleWS = toggleWS' [ "NSP"
-    --                             , "home", "nodes", "dash", "scratch"
-    --                             , "chat", "im" ] >> movePointer
-
     -- | View a workspace by name and maybe run workspace action
     myViewWS wsid = do
       DW.addHiddenWorkspace wsid
       windows (W.greedyView wsid)
       maybeWorkspaceAction
 
-    -- | View a workspace by name
-    myViewWS1 wsid = do
-      DW.addHiddenWorkspace wsid
-      windows (W.greedyView wsid)
-
-   -- | View a workspace by name and maybe run workspace action
-    myViewWS2 wsid = do
-      DW.addHiddenWorkspace wsid
-      windows (W.view wsid)
-      maybeWorkspaceAction
-
     -- | View a workspace by name, remove left over empty workspace and move pointer
-    myViewWS3 wsid = do
+    myViewWS' wsid = do
       rmEmptyWs $ myViewWS wsid
       movePointer
       showWorkspaceNameFast
@@ -245,14 +227,6 @@ myKeys conf =
     -- | Open larger terminal pad
     largeTerminalPad = namedScratchpadAction myScratchPads "largeTerminal"
 
-    -- | Select next non empty workspace
-    nextWsNonEmpty = windows . W.greedyView
-                     =<< findWorkspace getSortByTagNoSP Next HiddenNonEmptyWS 1
-
-    -- | Select previous non empty workspace
-    prevWsNonEmpty = windows . W.greedyView
-                     =<< findWorkspace getSortByTagNoSP Prev HiddenNonEmptyWS 1
-
     -- |  Select next workspace with same prefix
     nextWsPrefix = windows . W.greedyView
                    =<< findWorkspace getSortByTagNoSP Next (HiddenWSTagGroup '.') 1
@@ -262,7 +236,7 @@ myKeys conf =
                    =<< findWorkspace getSortByTagNoSP Prev (HiddenWSTagGroup '.') 1
 
 
-    -- | CycleRecentWs that does not include visible but non-focused workspaces and filter out NSP
+    -- | CycleRecentWs that does not include visible but non-focused workspaces or NSP
     cycleRecentWS' = cycleWindowSets' options
      where options w = map (W.view `flip` w) (recentTags w)
            recentTags w = filterNSP map W.tag $ W.hidden w ++ [W.workspace (W.current w)]
@@ -278,30 +252,6 @@ myKeys conf =
 
     -- | Sort workspaces by tag name, exclude hidden scrachpad workspace.
     getSortByTagNoSP = fmap (.namedScratchpadFilterOutWorkspace) getSortByTag
-
-    -- gotoPrefixWorkspaceNonSuffix :: X ()
-    -- gotoPrefixWorkspaceNonSuffix = do
-    --   ws <- gets (W.currentTag . windowset)
-    --   myViewWS2 (takeWhile (/='.') ws)
-
-    -- gotoPrefixWorkspaceSuffix suffix = do
-    --   ws <- gets (W.currentTag . windowset)
-    --   myViewWS1 ((takeWhile (/='.') ws) ++ "." ++ (show suffix))
-
-    -- | TODO: rewrite
-    newPrefixWS :: X ()
-    newPrefixWS = withWindowSet $ \w -> do
-      thisWS <- gets (W.currentTag . windowset)
-      let wss = W.workspaces w
-          currentTagPrefix = takeWhile (/='.') thisWS
-          cws = map W.tag $ filter (\ws -> (currentTagPrefix ++ ".") `isPrefixOf` W.tag ws && isJust (W.stack ws)) wss
-          num = head $ [0..] \\ catMaybes (map (readMaybe . drop ((length currentTagPrefix) +1 )) cws)
-          new = currentTagPrefix ++ "." ++ (show num)
-      when (not $ new `elem` (map W.tag wss)) $ myViewWS new
-      windows $ W.view new
-        where readMaybe s = case reads s of
-                       [(r,_)] -> Just r
-                       _       -> Nothing
 
 myTerminal = "urxvt"
 
@@ -323,58 +273,54 @@ largeFont = sizedFont "16"
 hugeFont = sizedFont "32"
 
 -- | Decoration/Themes
-baseTheme = defaultTheme { fontName            = defaultFont
-                         , decoHeight          = 24 }
-bottomTabTheme = baseTheme { activeTextColor     = Sol.base03
-                           , activeColor         = myFocusedColor
-                           , activeBorderColor   = myFocusedColor
-                           , inactiveTextColor   = Sol.base03
-                           , inactiveColor       = myNormalColor
-                           , inactiveBorderColor = myNormalColor
-                           , urgentTextColor     = Sol.base03
-                           , urgentColor         = myUrgentColor
-                           , urgentBorderColor   = myUrgentColor
-                           , decoHeight          = 48 }
-smallBottomTabTheme = bottomTabTheme { fontName = smallFont
-                                     , decoHeight = 4
-                                     , activeTextColor = myFocusedColor
-                                     , inactiveTextColor = myNormalColor
-                                     , urgentTextColor = myUrgentColor }
+baseTheme =
+  defaultTheme { fontName            = defaultFont
+               , decoHeight          = 24 }
+
+bottomTabTheme =
+  baseTheme { activeTextColor     = Sol.base03
+            , activeColor         = myFocusedColor
+            , activeBorderColor   = myFocusedColor
+            , inactiveTextColor   = Sol.base03
+            , inactiveColor       = myNormalColor
+            , inactiveBorderColor = myNormalColor
+            , urgentTextColor     = Sol.base03
+            , urgentColor         = myUrgentColor
+            , urgentBorderColor   = myUrgentColor
+            , decoHeight          = 48 }
+
+smallBottomTabTheme =
+  bottomTabTheme { fontName = smallFont
+                 , decoHeight = 4
+                 , activeTextColor = myFocusedColor
+                 , inactiveTextColor = myNormalColor
+                 , urgentTextColor = myUrgentColor }
 
 
 -- | Layout hook
-myLayoutHook = onWorkspace "video" (renameStar full) $
-               onWorkspace "vbox" (renameStar $  MT.mkToggle (MT.single MTI.NBFULL) $ noBorders $ smallTabsAlways) $
-               Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22 2012)
-               MT.mkToggle (MT.single MTI.NOBORDERS) $
-               MT.mkToggle (MT.single MTI.NBFULL) $
-               onWorkspace "dash" (tabsBottom ||| grid) $
-               onWorkspace "chat" (renameStar gridWide) $
-               onWorkspace "music" (tabsAlways) $
-               onWorkspace "files" (grid ||| tabsAlways) $
-               onWorkspace "home" (tabsBottom ||| grid) $
-               onWorkspace "nodes" (renameStar tabsBottom) $
-               onWorkspace "im" (renameStar im) $
-               onWorkspace "read" (renameStar tabsBottom) $
-               lessBorders OnlyFloat
-               (tallH ||| tallV ||| tabsAlways ||| threeCol |||  threeColV ||| gridWide ||| spiral)
+myLayoutHook =
+  onWorkspace "friends" (rename "*friends*" $ tabsBottom) $
+  onWorkspace "video" (renameStar full) $
+  onWorkspace "vbox" (renameStar $  MT.mkToggle (MT.single MTI.NBFULL) $ noBorders $ smallTabsAlways) $
+  Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22 2012)
+  MT.mkToggle (MT.single MTI.NOBORDERS) $
+  MT.mkToggle (MT.single MTI.NBFULL) $
+  onWorkspace "dash" (tabsBottom ||| grid) $
+  onWorkspace "chat" (renameStar gridWide) $
+  onWorkspace "music" (tabsAlways) $
+  onWorkspace "files" (grid ||| tabsAlways) $
+  onWorkspace "home" (tabsBottom ||| grid) $
+  onWorkspace "nodes" (renameStar tabsBottom) $
+  onWorkspace "im" (renameStar im) $
+  onWorkspace "read" (renameStar tabsBottom) $
+  lessBorders OnlyFloat
+  (tallH ||| tallV ||| tabsAlways ||| threeCol |||  threeColV ||| gridWide ||| spiral)
   where
     rename name = renamed [Replace name]
     renameStar = renamed [Replace "*"]
     full = rename "full" $ noBorders (fullscreenFull Full)
     tallH = rename "tall h" $ Mirror $ Tall 2 (3/100) (4/5)
     tallV = rename "tall v" $ Tall 2 (3/100) (1/2)
-    -- TODO: these might be usable with a bit of tweaking
-    -- tallH = mouseResizableTileMirrored { nmaster  = 1
-    --                                    , masterFrac = (4/5)
-    --                                    , slaveFrac = (1/2)
-    --                                    , fracIncrement = (3/100)
-    --                                    , draggerType = BordersDragger }
-    -- tallV = mouseResizableTile { nmaster  = 1
-    --                            , masterFrac = (3/4)
-    --                            , slaveFrac = (1/2)
-    --                            , fracIncrement = (3/100)
-    --                            , draggerType = BordersDragger }
     spiral = rename "spiral" $ Spiral.spiral (6/7)
     threeCol = rename "3col h" $ ThreeColMid 2 (3/100) (1/2)
     threeColV = rename "3col v" $ Mirror threeCol
@@ -387,11 +333,6 @@ myLayoutHook = onWorkspace "video" (renameStar full) $
 
 -----------------------------------------------------------------------
 -- Window rules:
-
--- Execute arbitrary actions and WindowSet manipulations when managing
--- a new window. You can use this to, for example, always float a
--- particular program, or have a client always appear on a particular
--- workspace.
 --
 -- To find the property name associated with a program, use
 -- > xprop | grep WM_CLASS
@@ -404,21 +345,22 @@ myManageHook :: ManageHook
 
 myManageHook =
   fullscreenManageHook <+>  namedScratchpadManageHook myScratchPads <+> (composeOne . concat $
-  [ [resource  =? r -?>                                        doIgnore      | r <- ignoreByResource]
-  , [className =? c -?>                                        doIgnore      | c <- ignoreByClass]
-  , [className =? c -?>                                        doSink        | c <- androidEmulatorByClass]
-  , [resource  =? r -?>                                        doFloat       | r <- floatByResource]
-  , [className =? c -?>                                        doFloat       | c <- floatByClass]
+  [ [resource  =? r -?>                                        doIgnore           | r <- ["Do", "desktop_window", "kdesktop"]]
+  , [className =? c -?>                                        doIgnore           | c <- ["Unity-2d-panel", "Xfce4-notifyd", "Xfdesktop"]]
+  , [className =? c -?>                                        doSink             | c <- ["emulator64-mips", "emulator-arm", "emulator-x86"
+                                                                                    ,"emulator64-arm", "emulator64-x86", "emulator-mips"]]
+  , [resource  =? r -?>                                        doFloat            | r <- ["speedbar", "floating"]]
+  , [className =? c -?>                                        doFloat            | c <- ["Unity-2d-launcher", "Orage", "feh"]]
   , [role      =? "pop-up" <&&> appName =? "google-chrome" -?> doCenterFloat]
   , [className =? "Zenity" <&&> title =? "Question" -?>        doCenterFloat]
   , [className =? "Zenity" -?>                                 doCenterFloatLarge]
-  , [className =? c -?>                                        doCenterFloat | c <- centerFloatByClass]
-  , [className =? c -?>                                        doCenterFloatLarge | c <- centerFloatLargeByClass]
-  , [resource  =? c -?>                                        doCenterFloatLarge | c <- centerFloatLargeByResource]
-  , [resource  =? c -?>                                        doCenterFloat | c <- centerFloatByResource]
+  , [className =? c -?>                                        doCenterFloat      | c <- ["Xfce4-settings-manager", "Pinentry", "connected-app"]]
+  , [className =? c -?>                                        doCenterFloatLarge | c <-  ["Xfce4-appfinder"]]
+  , [resource  =? c -?>                                        doCenterFloatLarge | c <-  ["floating-center-large"]]
+  , [resource  =? c -?>                                        doCenterFloat      | c <-  ["floating-center"]]
   , [transience]
-  , [resource  =? "xmessage"          -?> doCenterFloatLarge]
-  , [title     =? "Onboard"           -?> doFloat]
+  , [resource  =? "xmessage" -?>                               doCenterFloatLarge]
+  , [title     =? "Onboard"  -?>                               doFloat]
   ]) <+> manageHook Desktop.desktopConfig -- < implies only manageDocks (ons jul 18 08:51 2012)
   where
     doCenterFloatLarge = customFloating $ W.RationalRect left top width height
@@ -427,28 +369,8 @@ myManageHook =
         height = 0.8
         left = (1 - width) / 2
         top = (1 - height) / 2
-
     doSink = ask >>= doF . W.sink
     role = stringProperty "WM_WINDOW_ROLE"
-    androidEmulatorByClass =
-      ["emulator64-mips", "emulator-arm", "emulator-x86"
-      ,"emulator64-arm", "emulator64-x86", "emulator-mips"]
-    ignoreByResource =
-      ["Do", "desktop_window", "kdesktop"]
-    ignoreByClass =
-      ["Unity-2d-panel", "Xfce4-notifyd", "Xfdesktop"]
-    floatByResource =
-      ["speedbar", "floating"]
-    floatByClass =
-      ["Unity-2d-launcher", "Orage", "feh"]
-    centerFloatByResource =
-      ["floating-center"]
-    centerFloatLargeByResource =
-      ["floating-center-large"]
-    centerFloatByClass =
-      ["Xfce4-settings-manager", "Pinentry", "connected-app"]
-    centerFloatLargeByClass =
-      ["Xfce4-appfinder"]
 
 ------------------------------------------------------------------------
 -- Event handling
