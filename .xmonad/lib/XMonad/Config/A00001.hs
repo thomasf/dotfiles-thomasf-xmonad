@@ -26,20 +26,13 @@ module XMonad.Config.A00001
     ) where
 
 import System.Directory (doesFileExist)
-import Data.Maybe (isJust, catMaybes)
-import Data.List
 import           Control.Monad
-import qualified Data.Map                        as M
 import           Data.Ratio ((%))
-import           Graphics.X11.Xinerama
 import           System.IO
 import qualified System.IO.UTF8
-import           System.Posix.Unistd             (getSystemID, nodeName)
 import           XMonad                          hiding ( (|||) )
 import           XMonad.Actions.CycleWS hiding (toggleWS)
 import qualified XMonad.Actions.DynamicWorkspaces as DW
-import           XMonad.Actions.RotSlaves
-import           XMonad.Hooks.DynamicBars
 import           XMonad.Actions.UpdatePointer
 import           XMonad.Actions.WindowBringer    (gotoMenuArgs)
 import qualified XMonad.Config.Desktop as Desktop
@@ -49,8 +42,6 @@ import           XMonad.Hooks.ManageDocks as MD
 import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.ServerMode
 import           XMonad.Hooks.UrgencyHook
-import           XMonad.Layout.MouseResizableTile
-import           XMonad.Layout.Decoration
 import           XMonad.Layout.Fullscreen
 import           XMonad.Layout.Grid
 import           XMonad.Layout.IM
@@ -60,12 +51,9 @@ import qualified XMonad.Layout.MultiToggle.Instances as MTI
 import           XMonad.Layout.Renamed
 import           XMonad.Layout.NoBorders
 import           XMonad.Layout.PerWorkspace      (onWorkspace)
-import           XMonad.Layout.Reflect
-import           XMonad.Layout.ShowWName
 import qualified XMonad.Layout.Spiral as Spiral
-import           XMonad.Layout.Tabbed
 import           XMonad.Layout.ThreeColumns
-import           XMonad.Prompt
+import           XMonad.Prompt hiding (height)
 import           XMonad.Prompt.Workspace
 import qualified XMonad.StackSet                 as W
 import           XMonad.Util.EZConfig
@@ -74,11 +62,8 @@ import           XMonad.Util.NamedScratchpad
 import           XMonad.Util.Run
 import           XMonad.Util.WorkspaceCompare
 import qualified XMonad.Util.Dzen as DZ
-import           XMonad.Util.NamedWindows
 import qualified Solarized as Sol
 import XMonad.Hooks.WorkspaceHistory (workspaceHistoryHook)
-import           XMonad.Util.EZConfig
-import           XMonad.Operations
 import System.Exit ( exitWith, ExitCode(ExitSuccess) )
 import System.Environment (getEnv)
 import XMonad.Actions.CycleRecentWSAddons
@@ -133,6 +118,7 @@ myKeys conf =
   ((subtitle "Workspace actions (E/R) [mod=select from prefix] [mod+control=select from all]":) $ mkNamedKeymap conf $
   [ ("M-e",             addName "Next workspace (prefix)"                              $ rmEmptyWs $ nextWsPrefix >> movePointer >> showWorkspaceName)
   , ("M-r",             addName "Previous workspace (prefix)"                          $ rmEmptyWs $ prevWsPrefix >> movePointer >> showWorkspaceName)
+  , ("M-S-<Space>", addName "reset layout" $ setLayout $ XMonad.layoutHook conf)
   ]) ++
   ((subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]":) $ mkNamedKeymap conf $
   [ ("M-C-<Space>",     addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
@@ -253,80 +239,51 @@ myKeys conf =
     -- | Sort workspaces by tag name, exclude hidden scrachpad workspace.
     getSortByTagNoSP = fmap (.namedScratchpadFilterOutWorkspace) getSortByTag
 
-myTerminal = "urxvt"
-
 -- | Colors
 myNormalColor  = Sol.green
 myFocusedColor = Sol.magenta
 myUrgentColor = Sol.blue
 myUrgentColor2bg = Sol.blueL
 myUrgentColor2fg = Sol.blueD
-
--- | Workspaces
-myWorkspaces = [ "scratch", "scratch.0"]
+myNormalBorderColor darkmode = if darkmode then Sol.base02 else Sol.base2
 
 -- | Fonts
 sizedFont px = "-xos4-terminus-*-r-*-*-" ++ px  ++ "-*-*-*-*-*-iso8859-*"
-smallFont = sizedFont "12"
-defaultFont = sizedFont "13"
-largeFont = sizedFont "16"
-hugeFont = sizedFont "32"
+largeFont = sizedFont "32"
 
--- | Decoration/Themes
-baseTheme =
-  defaultTheme { fontName            = defaultFont
-               , decoHeight          = 24 }
-
-bottomTabTheme =
-  baseTheme { activeTextColor     = Sol.base03
-            , activeColor         = myFocusedColor
-            , activeBorderColor   = myFocusedColor
-            , inactiveTextColor   = Sol.base03
-            , inactiveColor       = myNormalColor
-            , inactiveBorderColor = myNormalColor
-            , urgentTextColor     = Sol.base03
-            , urgentColor         = myUrgentColor
-            , urgentBorderColor   = myUrgentColor
-            , decoHeight          = 48 }
-
-smallBottomTabTheme =
-  bottomTabTheme { fontName = smallFont
-                 , decoHeight = 4
-                 , activeTextColor = myFocusedColor
-                 , inactiveTextColor = myNormalColor
-                 , urgentTextColor = myUrgentColor }
-
+-- | Workspaces
+myWorkspaces = [ "scratch", "scratch.0"]
+myTerminal = "urxvt"
 
 -- | Layout hook
 myLayoutHook =
-  onWorkspace "friends" (rename "*friends*" $ tabsBottom) $
+  onWorkspace "friends" (rename "*friends*" tabs) $
   onWorkspace "video" (renameStar full) $
-  onWorkspace "vbox" (renameStar $  MT.mkToggle (MT.single MTI.NBFULL) $ noBorders $ smallTabsAlways) $
+  onWorkspace "vbox" (renameStar full) $
   Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22 2012)
   MT.mkToggle (MT.single MTI.NOBORDERS) $
   MT.mkToggle (MT.single MTI.NBFULL) $
-  onWorkspace "dash" (tabsBottom ||| grid) $
   onWorkspace "chat" (renameStar gridWide) $
-  onWorkspace "music" (tabsAlways) $
-  onWorkspace "files" (grid ||| tabsAlways) $
-  onWorkspace "home" (tabsBottom ||| grid) $
-  onWorkspace "nodes" (renameStar tabsBottom) $
+  onWorkspace "music" (tabs) $
+  onWorkspace "files" (grid ||| tabs) $
+  onWorkspace "home" (tabs ||| grid) $
+  onWorkspace "nodes" (renameStar tabs) $
   onWorkspace "im" (renameStar im) $
-  onWorkspace "read" (renameStar tabsBottom) $
-  lessBorders OnlyFloat
-  (tallH ||| tallV ||| tabsAlways ||| threeCol |||  threeColV ||| gridWide ||| spiral)
+  onWorkspace "read" (renameStar tabs) $
+  onWorkspace "dash" (wide' ||| grid) $
+  lessBorders OnlyFloat $
+  (tall ||| wide ||| tabs ||| threeCol |||  threeColV ||| gridWide ||| spiral)
   where
-    rename name = renamed [Replace name]
+    rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
     full = rename "full" $ noBorders (fullscreenFull Full)
-    tallH = rename "tall h" $ Mirror $ Tall 2 (3/100) (4/5)
-    tallV = rename "tall v" $ Tall 2 (3/100) (1/2)
+    tall = rename "tall" $ Mirror $ Tall 2 (3/100) (4/5)
+    wide = rename "wide" $ Tall 2 (3/100) (1/2)
+    wide' = rename "wide" $ Mirror $ Tall 1 (0) 0.6
     spiral = rename "spiral" $ Spiral.spiral (6/7)
-    threeCol = rename "3col h" $ ThreeColMid 2 (3/100) (1/2)
-    threeColV = rename "3col v" $ Mirror threeCol
-    smallTabsAlways = rename "tabs" $ tabbedBottomAlways shrinkText smallBottomTabTheme
-    tabsAlways = rename "tabs" $ tabbedBottomAlways shrinkText bottomTabTheme
-    tabsBottom = rename "tabs" $ tabbedBottom shrinkText bottomTabTheme
+    threeCol = rename "3col|" $ ThreeColMid 2 (3/100) (1/2)
+    threeColV = rename "3col-" $ Mirror threeCol
+    tabs = rename "tabs" $ Mirror $ Tall 1 (0) 0.95
     gridWide =  rename "grid" $ GridRatio (16/9)
     grid = rename "grid" $ GridRatio (4/3)
     im = renameStar $ withIM (1%7) (Role "buddy_list") Grid
@@ -434,14 +391,6 @@ myXPConfig = defaultXPConfig
  , font = "-xos4-terminus-*-r-*-*-16-*-*-*-*-*-iso8859-*"
  , promptKeymap = emacsLikeXPKeymap }
 
--- myAutocompleteXPConfig = myXPConfig
---   { autoComplete = Just 500000  }
-
-------------------------------------------------------------------------
--- Commands:
-
-spawnShell :: X ()
-spawnShell = spawn myTerminal
 
 ------------------------------------------------------------------------
 -- Scratch pads:
@@ -461,12 +410,9 @@ myScratchPads = [ NS "largeTerminal" (term "largeTerminal") (res =? scratch "lar
         left = (1 - width) /2
         top = (1 - height) /2
 
-
------------------------------------------------------------------------------
---
+------------------------------------------------------------------------
 --  a00001Config
---
---
+
 a00001Config = do
   home <- io $ getEnv "HOME"
   darkmode <- doesFileExist $ home ++ "/.config/darkmode"
@@ -476,7 +422,7 @@ a00001Config = do
   , borderWidth        = 2
   , modMask            = confModMask
   , workspaces         = myWorkspaces
-  , normalBorderColor  = if darkmode then Sol.base02 else Sol.base2
+  , normalBorderColor  = myNormalBorderColor darkmode
   , focusedBorderColor = myFocusedColor
   , keys               = emptyKeys
   , layoutHook         = myLayoutHook
@@ -497,25 +443,22 @@ a00001Config = do
       return ()
 
 -- | Show active workspace name slow
-showWorkspaceName = showWorkspaceName1 2.5 Sol.yellow
+showWorkspaceName = showWorkspaceName' 2.5 Sol.yellow
 -- | Show inactve workspace name slow
-showWorkspaceNameOld = showWorkspaceName1 2.5 Sol.base1
+showWorkspaceNameOld = showWorkspaceName' 2.5 Sol.base1
 -- | Show active workspace name fast
-showWorkspaceNameFast = showWorkspaceName1 0.8 Sol.magenta
--- | Show inactive workspace name fast
-showWorkspaceNameOldFast = showWorkspaceName1 0.8 Sol.base1
+showWorkspaceNameFast = showWorkspaceName' 0.8 Sol.magenta
 
 -- | Show workspace name
-showWorkspaceName1 timeout bg = do
+showWorkspaceName' timeout bg = do
   ws <- gets (W.currentTag . windowset)
   DZ.dzenConfig
     (DZ.timeout timeout
      >=> DZ.onCurr (DZ.center 400 48)
-     >=> DZ.font hugeFont
+     >=> DZ.font largeFont
      >=> DZ.addArgs ["-fg", Sol.base03]
      >=> DZ.addArgs ["-bg", bg]
     ) ws
-
 
 -- | Show current layout name
 showLayoutName = do
@@ -524,26 +467,10 @@ showLayoutName = do
   DZ.dzenConfig
     (DZ.timeout 0.8
      >=> DZ.onCurr (DZ.center 400 48)
-     >=> DZ.font hugeFont
+     >=> DZ.font largeFont
      >=> DZ.addArgs ["-fg", Sol.base03]
      >=> DZ.addArgs ["-bg", Sol.green]
     ) ld
-
-showInfo = do
-  ws <- gets (W.currentTag . windowset)
-  winset <- gets windowset
-  wt <- maybe (return "") (fmap show . getName) . W.peek $ winset
-  let ld = description . W.layout . W.workspace . W.current $ winset
-  DZ.dzenConfig
-    (DZ.timeout 2
-     >=> DZ.onCurr (DZ.center 700 48)
-     >=> DZ.font (sizedFont "18")
-     >=> DZ.addArgs ["-fg", Sol.base03]
-     >=> DZ.addArgs ["-bg", Sol.orange]
-     >=> DZ.addArgs ["-l", "1"]
-     >=> DZ.addArgs ["-e", "onstart=uncollapse"]
-     >=> DZ.addArgs ["-sa", "center"]
-    ) (wt ++ "\n -" ++ ws ++ "-  ::  " ++ ld)
 
 
 -- Local Variables:

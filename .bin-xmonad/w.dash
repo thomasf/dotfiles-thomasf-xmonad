@@ -20,5 +20,5 @@ launchTerminal(){
 
 launchTerminal "pamixer" "pamixer" "-a 2"
 launchTerminal "htop" "htop"
-launchTerminal "dstat" "dstat" "--time --load --cpu --mem --swap --disk --fs --net --socket --sys 30"
+# launchTerminal "dstat" "dstat" "--time --load --cpu --mem --swap --disk --fs --net --socket --sys 30"
 launchTerminal "ncmpcpp" "ncmpcpp"
