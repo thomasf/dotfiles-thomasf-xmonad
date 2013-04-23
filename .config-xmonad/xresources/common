@@ -96,17 +96,14 @@ scratchpad_largeTerminal*internalBorder:   0
 htop*internalBorder:                       0
 htop*saveLines:                            0
 htop*scrollBar:                            false
-htop*font:                                 xft:Terminus:pixelsize=14
 
 dstat*internalBorder:                      8
 dstat*saveLines:                           1000
 dstat*scrollBar:                           8
-dstat*font:                                xft:Terminus:pixelsize=14
 
 pamixer*internalBorder:                    0
 pamixer*saveLines:                         0
 pamixer*scrollBar:                         false
-pamixer*font:                              xft:Terminus:pixelsize=14
 
 ssh_tmux*scrollBar:                        false
 ssh_tmux*saveLines:                        0
@@ -116,7 +113,7 @@ ssh_tmux*font:                             xft:Anonymous Pro:pixelsize=16
 ncmpcpp*scrollBar:                         false
 ncmpcpp*saveLines:                         0
 ncmpcpp*internalBorder:                    0
-ncmpcpp*font:                              xft:Anonymous Pro:pixelsize=18
+ncmpcpp*font:                              xft:Anonymous Pro:pixelsize=16
 
 
 ! Local Variables:
