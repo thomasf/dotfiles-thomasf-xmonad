@@ -465,10 +465,6 @@ myEventHook = serverModeEventHook <+> fullscreenEventHook
 -- Perform an arbitrary action on each internal state change or X event.
 -- See the 'XMonad.Hooks.DynamicLog' extension for examples.
 --
-doublepad =  wrap " " "" . trim
-
-
-myXmobarLogHook h = dynamicLogWithPP myXmobarPP
 
 myXmobarPP = defaultPP
   { ppCurrent = xmobarColor myFocusedColor "" . wrap "-" "-"
@@ -483,18 +479,15 @@ myXmobarPP = defaultPP
 
 myPropLogHook = dynamicLogString myXmobarPP >>= xmonadPropLog
 
+myLogHook = do
+  myPropLogHook
+  workspaceHistoryHook
+
 ------------------------------------------------------------------------
 -- Startup hook
---
--- Perform an arbitrary action each time xmonad starts or is restarted
--- with mod-q.  Used by, e.g., XMonad.Layout.PerWorkspace to initialize
--- per-workspace layout choices.
---
 
 myStartupHook = do
-  spawn "notify-send -a short 'Hello!'"
   return ()
-
 
 ------------------------------------------------------------------------
 -- Urgency hook
@@ -504,11 +497,6 @@ myUrgencyHook =
     { urgencyBorderColor = myUrgentColor }
     urgencyConfig
       { suppressWhen = XMonad.Hooks.UrgencyHook.Focused }
-
-
-------------------------------------------------------------------------
--- Mouse bindings: default actions bound to mouse events
---
 
 
 ------------------------------------------------------------------------
@@ -552,40 +540,9 @@ myScratchPads = [ NS "largeTerminal" (term "largeTerminal") (res =? scratch "lar
         top = (1 - height) /2
 
 
-------------------------------------------------------------------------
--- Default configuration
-
-aDefaultConfig =
-  addDescrKeys' ((confModMask, xK_F1), showKeybindings) myKeys $ defaultConfig
-  { terminal           = myTerminal
-  , focusFollowsMouse  = False
-  , borderWidth        = 3
-  , modMask            = confModMask
-  , workspaces         = myWorkspaces
-  , normalBorderColor  = myNormalColor
-  , focusedBorderColor = myFocusedColor
-  , keys               = emptyKeys
-  , layoutHook         = myLayoutHook
-  , manageHook         = myManageHook
-  , handleEventHook    = myEventHook
-  , startupHook        = myStartupHook
-  , logHook = myPropLogHook >> workspaceHistoryHook
-  } where
-    --  | An empty keymap
-    emptyKeys c = mkKeymap c [ ]
-
-    -- | Display keyboard mappings using zenity
-    showKeybindings :: [((KeyMask, KeySym), NamedAction)] -> NamedAction
-    showKeybindings x = addName "Show Keybindings" $ io $ do
-      h <- spawnPipe "zenity --text-info --font=terminus"
-      System.IO.UTF8.hPutStr h (unlines $ showKm x)
-      hClose h
-      return ()
-
-
 -----------------------------------------------------------------------------
 --
---  a00001Config is an more involved setup with more tray bars and such
+--  a00001Config
 --
 --
 a00001Config = do
@@ -604,7 +561,7 @@ a00001Config = do
   , manageHook         = myManageHook
   , handleEventHook    = myEventHook
   , startupHook        = myStartupHook
-  , logHook = myPropLogHook >> workspaceHistoryHook
+  , logHook = myLogHook
   } where
     --  | An empty keymap
     emptyKeys c = mkKeymap c [ ]
