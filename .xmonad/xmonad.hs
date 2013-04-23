@@ -4,10 +4,10 @@ import XMonad.Config.A00001
 import XMonad.Util.Replace (replace)
 import Control.Monad (when)
 import System.Environment (getArgs)
+import qualified Solarized as Sol
 
 main :: IO ()
-
 main = do
   args <- getArgs
   when ("--replace" `elem` args) replace
-  xmonad =<< autoConfig
+  xmonad =<< a00001Config

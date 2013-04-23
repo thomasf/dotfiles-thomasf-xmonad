@@ -22,9 +22,10 @@
 module XMonad.Config.A00001
     ( -- * Usage
       -- $usage
-      autoConfig
+      a00001Config
     ) where
 
+import System.Directory (doesFileExist)
 import Data.Maybe (isJust, catMaybes)
 import Data.List
 import           Control.Monad
@@ -79,6 +80,7 @@ import XMonad.Hooks.WorkspaceHistory (workspaceHistoryHook)
 import           XMonad.Util.EZConfig
 import           XMonad.Operations
 import System.Exit ( exitWith, ExitCode(ExitSuccess) )
+import System.Environment (getEnv)
 import XMonad.Actions.CycleRecentWSAddons
 
 ------------------------------------------------------------------------
@@ -557,7 +559,7 @@ aDefaultConfig =
   addDescrKeys' ((confModMask, xK_F1), showKeybindings) myKeys $ defaultConfig
   { terminal           = myTerminal
   , focusFollowsMouse  = False
-  , borderWidth        = 4
+  , borderWidth        = 3
   , modMask            = confModMask
   , workspaces         = myWorkspaces
   , normalBorderColor  = myNormalColor
@@ -567,6 +569,7 @@ aDefaultConfig =
   , manageHook         = myManageHook
   , handleEventHook    = myEventHook
   , startupHook        = myStartupHook
+  , logHook = myPropLogHook >> workspaceHistoryHook
   } where
     --  | An empty keymap
     emptyKeys c = mkKeymap c [ ]
@@ -581,42 +584,38 @@ aDefaultConfig =
 
 
 -----------------------------------------------------------------------------
--- | Auto config!
 --
-autoConfig = do
-  host <- fmap nodeName getSystemID
-  return =<< chooseConfigByHost host
-    where
-      chooseConfigByHost c
-        | c == "wonky"      = configSimple
-        | otherwise        = configFull
+--  a00001Config is an more involved setup with more tray bars and such
+--
+--
+a00001Config = do
+  home <- io $ getEnv "HOME"
+  darkmode <- doesFileExist $ home ++ "/.config/darkmode"
+  return $ myUrgencyHook $ ewmh $ addDescrKeys' ((confModMask, xK_F1), showKeybindings) myKeys $ defaultConfig {
+    terminal           = myTerminal
+  , focusFollowsMouse  = False
+  , borderWidth        = 2
+  , modMask            = confModMask
+  , workspaces         = myWorkspaces
+  , normalBorderColor  = if darkmode then Sol.base02 else Sol.base2
+  , focusedBorderColor = myFocusedColor
+  , keys               = emptyKeys
+  , layoutHook         = myLayoutHook
+  , manageHook         = myManageHook
+  , handleEventHook    = myEventHook
+  , startupHook        = myStartupHook
+  , logHook = myPropLogHook >> workspaceHistoryHook
+  } where
+    --  | An empty keymap
+    emptyKeys c = mkKeymap c [ ]
 
------------------------------------------------------------------------------
---
---  ConfigSimple is a default configuration with a simple xmobar setup
---
---  Should run and be compatible with most situations and quick set ups
---
---
-
-configSimple = do
-  return $ myUrgencyHook $ ewmh aDefaultConfig
-    { logHook = myPropLogHook >> workspaceHistoryHook
-    , manageHook = myManageHook
-    , startupHook = myStartupHook
-    }
-
------------------------------------------------------------------------------
---
---  ConfigFull is an more involved setup with more tray bars and such
---
---
-configFull = do
-  return $ myUrgencyHook $ ewmh aDefaultConfig
-    { logHook = myPropLogHook >> workspaceHistoryHook
-    , manageHook = myManageHook
-    , startupHook = myStartupHook
-    }
+    -- | Display keyboard mappings using zenity
+    showKeybindings :: [((KeyMask, KeySym), NamedAction)] -> NamedAction
+    showKeybindings x = addName "Show Keybindings" $ io $ do
+      h <- spawnPipe "zenity --text-info --font=terminus"
+      System.IO.UTF8.hPutStr h (unlines $ showKm x)
+      hClose h
+      return ()
 
 -- | Show active workspace name slow
 showWorkspaceName = showWorkspaceName1 2.5 Sol.yellow

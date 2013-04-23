@@ -10,6 +10,7 @@ golight() {
     xsetroot -solid '#eee8d5'
     xrdb ~/.config-xmonad/xresources/light
     panels
+    xmonad --restart
 }
 
 godark() {
@@ -17,6 +18,8 @@ godark() {
     xsetroot -solid '#073642'
     xrdb ~/.config-xmonad/xresources/dark
     panels
+    xmonad --restart
+
 }
 
 cmd=${1}
