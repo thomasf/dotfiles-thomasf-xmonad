@@ -271,13 +271,11 @@ myLayoutHook =
   onWorkspace "read" (renameStar tabs) $
   onWorkspace "dash" (wide' ||| grid) $
   lessBorders OnlyFloat $
-  (wide ||| tall ||| tabs ||| gridWide ||| spiral)
+  (wide ||| tabs ||| gridWide ||| spiral)
   where
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
-    full = rename "full" $ noBorders (fullscreenFull Full
-                                     )
-    tall = rename "tall" $ HintedTile 1 (3/100) (3/4) Center Tall
+    full = rename "full" $ noBorders (fullscreenFull Full)
     wide = rename "wide" $ HintedTile 2 (3/100) (4/5) Center Wide
     wide' = rename "wide" $ HintedTile 1 0 0.6 Center Wide
     spiral = rename "spiral" $ Spiral.spiral (6/7)
