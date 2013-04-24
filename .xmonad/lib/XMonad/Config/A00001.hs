@@ -30,7 +30,7 @@ import           Control.Monad
 import           Data.Ratio ((%))
 import           System.IO
 import qualified System.IO.UTF8
-import           XMonad                          hiding ( (|||) )
+import           XMonad hiding ( (|||), Tall )
 import           XMonad.Actions.CycleWS hiding (toggleWS)
 import qualified XMonad.Actions.DynamicWorkspaces as DW
 import           XMonad.Actions.UpdatePointer
@@ -43,7 +43,8 @@ import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.ServerMode
 import           XMonad.Hooks.UrgencyHook
 import           XMonad.Layout.Fullscreen
-import           XMonad.Layout.Grid
+import           XMonad.Layout.HintedGrid
+import           XMonad.Layout.HintedTile
 import           XMonad.Layout.IM
 import           XMonad.Layout.LayoutCombinators
 import qualified XMonad.Layout.MultiToggle as MT
@@ -267,23 +268,22 @@ myLayoutHook =
   onWorkspace "files" (grid ||| tabs) $
   onWorkspace "home" (tabs ||| grid) $
   onWorkspace "nodes" (renameStar tabs) $
-  onWorkspace "im" (renameStar im) $
   onWorkspace "read" (renameStar tabs) $
   onWorkspace "dash" (wide' ||| grid) $
   lessBorders OnlyFloat $
-  (tall ||| wide ||| tabs ||| gridWide ||| spiral)
+  (wide ||| tall ||| tabs ||| gridWide ||| spiral)
   where
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
-    full = rename "full" $ noBorders (fullscreenFull Full)
-    tall = rename "tall" $ Mirror $ Tall 2 (3/100) (4/5)
-    wide = rename "wide" $ Tall 2 (3/100) (1/2)
-    wide' = rename "wide" $ Mirror $ Tall 1 (0) 0.6
+    full = rename "full" $ noBorders (fullscreenFull Full
+                                     )
+    tall = rename "tall" $ HintedTile 1 (3/100) (3/4) Center Tall
+    wide = rename "wide" $ HintedTile 2 (3/100) (4/5) Center Wide
+    wide' = rename "wide" $ HintedTile 1 0 0.6 Center Wide
     spiral = rename "spiral" $ Spiral.spiral (6/7)
-    tabs = rename "tabs" $ Mirror $ Tall 1 (0) 0.93
-    gridWide =  rename "grid" $ GridRatio (16/9)
-    grid = rename "grid" $ GridRatio (4/3)
-    im = renameStar $ withIM (1%7) (Role "buddy_list") Grid
+    tabs = rename "tabs" $ HintedTile 1 0 0.93 Center Wide
+    gridWide =  rename "grid" $ GridRatio (16/9) False
+    grid = rename "grid" $ GridRatio (4/3) False
 
 -----------------------------------------------------------------------
 -- Window rules:
