@@ -27,7 +27,6 @@ module XMonad.Config.A00001
 
 import System.Directory (doesFileExist)
 import           Control.Monad
-import           Data.Ratio ((%))
 import           System.IO
 import qualified System.IO.UTF8
 import           XMonad hiding ( (|||) )
@@ -44,10 +43,9 @@ import           XMonad.Hooks.ServerMode
 import           XMonad.Hooks.UrgencyHook
 import           XMonad.Layout.Fullscreen
 import           XMonad.Layout.Grid
-import           XMonad.Layout.IM
 import           XMonad.Layout.LayoutCombinators
-import qualified XMonad.Layout.MultiToggle as MT
-import qualified XMonad.Layout.MultiToggle.Instances as MTI
+import           XMonad.Layout.MultiToggle
+import           XMonad.Layout.MultiToggle.Instances
 import           XMonad.Layout.Renamed
 import           XMonad.Layout.NoBorders
 import           XMonad.Layout.PerWorkspace      (onWorkspace)
@@ -121,9 +119,9 @@ myKeys conf =
   ]) ++
   ((subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]":) $ mkNamedKeymap conf $
   [ ("M-C-<Space>",     addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
-  , ("M-M1-<Space>",    addName "Toggle fullscreen"                                    $ sendMessage (MT.Toggle MTI.NBFULL) >> movePointer)
+  , ("M-M1-<Space>",    addName "Toggle fullscreen"                                    $ sendMessage (Toggle NBFULL) >> movePointer)
   , ("M-M1-s",          addName "Toggle struts (ignore panels)"                        $ sendMessage ToggleStruts >> movePointer)
-  , ("M-M1-b",          addName "Toggle window borders"                                $ sendMessage (MT.Toggle MTI.NOBORDERS) >> movePointer)
+  , ("M-M1-b",          addName "Toggle window borders"                                $ sendMessage (Toggle NOBORDERS) >> movePointer)
   , ("M-h",             addName "Shrink the master area"                               $ sendMessage Shrink >> movePointer)
   , ("M-l",             addName "Expand the master area"                               $ sendMessage Expand >> movePointer)
   , ("M-,",             addName "Increment the number of windows in the master area"   $ sendMessage (IncMasterN 1) >> movePointer)
@@ -260,8 +258,8 @@ myLayoutHook =
   onWorkspace "video" (renameStar full) $
   onWorkspace "vbox" (renameStar full) $
   Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22 2012)
-  MT.mkToggle (MT.single MTI.NOBORDERS) $
-  MT.mkToggle (MT.single MTI.NBFULL) $
+  mkToggle (single NOBORDERS) $
+  mkToggle (single NBFULL) $
   onWorkspace "chat" (renameStar gridWide) $
   onWorkspace "music" (tabs) $
   onWorkspace "files" (grid ||| tabs) $
