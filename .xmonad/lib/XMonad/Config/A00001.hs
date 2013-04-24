@@ -30,7 +30,7 @@ import           Control.Monad
 import           Data.Ratio ((%))
 import           System.IO
 import qualified System.IO.UTF8
-import           XMonad hiding ( (|||), Tall )
+import           XMonad hiding ( (|||) )
 import           XMonad.Actions.CycleWS hiding (toggleWS)
 import qualified XMonad.Actions.DynamicWorkspaces as DW
 import           XMonad.Actions.UpdatePointer
@@ -43,8 +43,7 @@ import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.ServerMode
 import           XMonad.Hooks.UrgencyHook
 import           XMonad.Layout.Fullscreen
-import           XMonad.Layout.HintedGrid
-import           XMonad.Layout.HintedTile
+import           XMonad.Layout.Grid
 import           XMonad.Layout.IM
 import           XMonad.Layout.LayoutCombinators
 import qualified XMonad.Layout.MultiToggle as MT
@@ -245,7 +244,7 @@ myFocusedColor = Sol.magenta
 myUrgentColor = Sol.blue
 myUrgentColor2bg = Sol.blueL
 myUrgentColor2fg = Sol.blueD
-myNormalBorderColor darkmode = if darkmode then Sol.base02 else Sol.base2
+myNormalBorderColor darkmode = if darkmode then Sol.base03 else Sol.base3
 
 -- | Fonts
 sizedFont px = "-xos4-terminus-*-r-*-*-" ++ px  ++ "-*-*-*-*-*-iso8859-*"
@@ -276,12 +275,12 @@ myLayoutHook =
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
     full = rename "full" $ noBorders (fullscreenFull Full)
-    wide = rename "wide" $ HintedTile 2 (3/100) (4/5) Center Wide
-    dash = rename "dash" $ HintedTile 1 0 0.6 Center Wide
+    wide = rename "wide" $ Mirror $ Tall 2 (3/100) (4/5)
+    dash = rename "dash" $ Mirror $ Tall 1 0 0.6
     spiral = rename "spiral" $ Spiral.spiral (6/7)
-    tabs = rename "tabs" $ HintedTile 1 0 0.93 Center Wide
-    gridWide = rename "grid" $ GridRatio (16/9) False
-    grid = rename "grid" $ GridRatio (4/3) False
+    tabs = rename "tabs" $ Mirror $ Tall 1 0 0.93
+    gridWide = rename "grid" $ GridRatio (16/9)
+    grid = rename "grid" $ GridRatio (4/3)
 
 -----------------------------------------------------------------------
 -- Window rules:
@@ -414,7 +413,7 @@ a00001Config = do
   return $ myUrgencyHook $ ewmh $ addDescrKeys' ((confModMask, xK_F1), showKeybindings) myKeys $ defaultConfig {
     terminal           = myTerminal
   , focusFollowsMouse  = False
-  , borderWidth        = 2
+  , borderWidth        = 3
   , modMask            = confModMask
   , workspaces         = myWorkspaces
   , normalBorderColor  = myNormalBorderColor darkmode
