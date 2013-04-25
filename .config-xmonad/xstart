@@ -8,6 +8,9 @@
 #
 # https://wiki.archlinux.org/index.php/ConsoleKit
 
+# Fixes OpenJDK for usage with XMonad (or other non parenting window managers)
+export _JAVA_AWT_WM_NONREPARENTING=1
+
 # Set the backbround color
 [ $(which xsetroot ) ] \
     && xsetroot -solid '#073642' &
