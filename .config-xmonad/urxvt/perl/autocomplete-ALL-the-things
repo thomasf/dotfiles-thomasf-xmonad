@@ -1,0 +1,217 @@
+#!/usr/bin/perl
+#########################################################################
+# Copyright (C) 2012-2013  Wojciech Siewierski                          #
+#                                                                       #
+# This program is free software: you can redistribute it and/or modify  #
+# it under the terms of the GNU General Public License as published by  #
+# the Free Software Foundation, either version 3 of the License, or     #
+# (at your option) any later version.                                   #
+#                                                                       #
+# This program is distributed in the hope that it will be useful,       #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of        #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         #
+# GNU General Public License for more details.                          #
+#                                                                       #
+# You should have received a copy of the GNU General Public License     #
+# along with this program.  If not, see <http://www.gnu.org/licenses/>. #
+#########################################################################
+
+
+sub on_user_command {
+    my ($self, $cmd) = @_;
+
+    if ($cmd eq 'aAtt:complete' or
+        $cmd eq 'aAtt:skeleton-complete' or
+        $cmd eq 'aAtt:skeleton-word-complete') {
+
+        # transforms the completed word into a regex matching the completions
+        my $completion_function;
+
+        # character before each match
+        my $separator;
+
+        # regex matching every character in the completed word
+        my $char_class_to_complete;
+
+        if ($cmd eq 'aAtt:skeleton-complete') {
+            $completion_function = skeleton_to_regex('.*?');
+            # \W used instead of \b to match between two non-word characters
+            $separator              = '\W';
+            $char_class_to_complete = '\S';
+        } elsif ($cmd eq 'aAtt:skeleton-word-complete') {
+            $completion_function = skeleton_to_regex('\w*');
+        }
+
+
+        my ($row, $col) = $self->screen_cur; # get cursor coordinates
+
+        # use the last used word or read the word behind the cursor
+        my $word_to_complete = $self->{last_word} //
+                               get_current_word($self, $row, $col,
+                                                $char_class_to_complete);
+
+        if ($word_to_complete) {
+            # ignore the completed word itself
+            $self->{completed}{$word_to_complete} = 1;
+
+            # continue the last search or start from the current row
+            my $completion = find_match($self,
+                                        $word_to_complete,
+                                        $self->{next_row} // $row,
+                                        $completion_function,
+                                        $separator);
+            if ($completion) {
+                # save the last completed word unless continuing the last search
+                $self->{last_word} //= $word_to_complete;
+
+                replace_text($self,
+                             $self->{last_completion} // $word_to_complete,
+                             $completion);
+                $self->{last_completion} = $completion;
+            }
+        }
+        return 1;
+    } elsif ($cmd eq 'aAtt:undo') {
+        undo_completion($self);
+
+        return 1;
+    }
+
+    # forget the last completion on any other command
+    completion_history_cleanup($self);
+
+    ()
+}
+
+sub on_key_press {
+    my ($self, $event, $keysym) = @_;
+
+    # forget the last completion when the user presses any ASCII key
+    if ($keysym <= 127) { # if ASCII
+        completion_history_cleanup($self);
+    }
+
+    ()
+}
+
+######################################################################
+
+sub replace_text {
+    my ($self, $current_text, $replacement) = @_;
+
+    # "press" backspace to erase the text; probably not portable
+    $self->tt_paste($self->locale_encode("" x length $current_text));
+
+    # print out the replacement
+    $self->tt_write($self->locale_encode($replacement));
+}
+
+######################################################################
+
+sub get_current_word {
+    my ($self, $row, $col, $char_class) = @_;
+
+    $char_class //= '\w';
+
+    $_ = substr($self->ROW_t($row), 0, $col); # get the current line up to the cursor...
+    s/.*?($char_class*)$/$1/;                          # ...and read the last word from it
+    return $_;
+}
+
+######################################################################
+
+# See: https://github.com/baohaojun/skeleton-complete
+sub skeleton_to_regex {
+    my $regex_between = shift;
+
+    sub {
+        $_ = shift;
+
+        # sorry for this lispy code, I couldn't resist ;)
+        (join "$regex_between",
+         (map quotemeta,
+          (split //)))
+    }
+}
+
+######################################################################
+
+sub skip_duplicates {
+    my ($self, $word_to_match, $current_row, $regex_modifier, $separator) = @_;
+    # arguments needed for find_match tail recursion
+
+    my $completion = shift @{$self->{matches_in_row}}; # get the rightmost one
+
+    # check for duplicates
+    if (exists $self->{completed}{$completion}) {
+        # skip this completion
+        return find_match($self, $word_to_match, $current_row, $regex_modifier, $separator);
+    } else {
+        $self->{completed}{$completion} = 1;
+        return $completion;
+    }
+}
+
+######################################################################
+
+sub find_match {
+    my ($self, $word_to_match, $current_row, $regex_modifier, $separator) = @_;
+
+    # cycle through all the matches in the current row if not starting a new search
+    if (@{$self->{matches_in_row}}) {
+        return skip_duplicates($self, $word_to_match, $current_row, $regex_modifier, $separator);
+    }
+
+
+    # default identity modifier
+    $regex_modifier //= sub { quotemeta shift };
+    $separator        = '\b';
+
+    my $regexp = $regex_modifier->($word_to_match);
+
+    my $i;
+    # search through all the rows starting with current one or one above the last checked
+    for ($i = $current_row; $i >= 0; --$i) {
+        my $line = $self->ROW_t($i);   # get the line of text from the row
+
+        $_ = $line;
+
+        # find all the matches in the current line
+        my $match;
+        push @{$self->{matches_in_row}}, $match while ($_, $match) = /(.*$separator)($regexp\w*)/i;
+        # corner case: match at the very beginning of line
+        push @{$self->{matches_in_row}}, $line =~ /^($regexp\w*)/i;
+
+        if (@{$self->{matches_in_row}}) {
+            # remember which row should be searched next
+            $self->{next_row} = --$i;
+            return skip_duplicates($self, $word_to_match, $i, $regex_modifier, $separator);
+        }
+    }
+
+    # no more possible completions, revert to the original word
+    undo_completion($self) if $i < 0;
+
+    return undef;
+}
+
+######################################################################
+
+sub completion_history_cleanup {
+    my ($self) = @_;
+
+    delete $self->{last_word};
+    delete $self->{last_completion};
+    delete $self->{next_row};
+    delete $self->{matches_in_row};
+    delete $self->{completed};
+}
+
+######################################################################
+
+sub undo_completion {
+    my ($self) = @_;
+
+    replace_text($self, $self->{last_completion}, $self->{last_word});
+    completion_history_cleanup($self);
+}
