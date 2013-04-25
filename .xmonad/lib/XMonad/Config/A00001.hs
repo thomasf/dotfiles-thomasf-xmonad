@@ -41,10 +41,11 @@ import           XMonad.Actions.UpdatePointer
 import           XMonad.Actions.WindowBringer    (gotoMenuArgs)
 import qualified XMonad.Config.Desktop as Desktop
 import           XMonad.Hooks.DynamicLog
-import           XMonad.Hooks.EwmhDesktops       (ewmh)
+import           XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
 import           XMonad.Hooks.ManageDocks as MD
 import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.ServerMode
+import           XMonad.Hooks.SetWMName
 import           XMonad.Hooks.UrgencyHook
 import           XMonad.Hooks.WorkspaceHistory (workspaceHistoryHook)
 import           XMonad.Layout.Fullscreen
@@ -337,7 +338,7 @@ myManageHook =
 -- return (All True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
 --
-myEventHook = serverModeEventHook <+> fullscreenEventHook
+myHandleEventHook = serverModeEventHook <+> ewmhDesktopsEventHook <+> fullscreenEventHook
 
 ------------------------------------------------------------------------
 -- Status bars and logging
@@ -357,16 +358,17 @@ myXmobarPP = defaultPP
   , ppSort    = getSortByXineramaRule
   }
 
-myPropLogHook = dynamicLogString myXmobarPP >>= xmonadPropLog
-
 myLogHook = do
-  myPropLogHook
+  dynamicLogString myXmobarPP >>= xmonadPropLog
   workspaceHistoryHook
+  ewmhDesktopsLogHook
 
 ------------------------------------------------------------------------
 -- Startup hook
 
 myStartupHook = do
+  ewmhDesktopsStartup
+  setWMName "LG3D"
   return ()
 
 ------------------------------------------------------------------------
@@ -408,8 +410,8 @@ myScratchPads = [ NS "largeTerminal" (term "largeTerminal") (res =? scratch "lar
       where
         width = 0.8
         height = 0.8
-        left = (1 - width) /2
-        top = (1 - height) /2
+        left = (1 - width) / 2
+        top = (1 - height) / 2
 
 ------------------------------------------------------------------------
 --  a00001Config
@@ -417,7 +419,7 @@ myScratchPads = [ NS "largeTerminal" (term "largeTerminal") (res =? scratch "lar
 a00001Config = do
   home <- io $ getEnv "HOME"
   darkmode <- doesFileExist $ home ++ "/.config/darkmode"
-  return $ myUrgencyHook $ ewmh $ addDescrKeys' ((confModMask, xK_F1), showKeybindings) myKeys $ defaultConfig {
+  return $ myUrgencyHook $ addDescrKeys' ((confModMask, xK_F1), showKeybindings) myKeys $ defaultConfig {
     terminal           = myTerminal
   , focusFollowsMouse  = False
   , borderWidth        = 3
@@ -428,7 +430,7 @@ a00001Config = do
   , keys               = emptyKeys
   , layoutHook         = myLayoutHook
   , manageHook         = myManageHook
-  , handleEventHook    = myEventHook
+  , handleEventHook    = myHandleEventHook
   , startupHook        = myStartupHook
   , logHook = myLogHook
   } where
