@@ -25,11 +25,16 @@ module XMonad.Config.A00001
       a00001Config
     ) where
 
-import System.Directory (doesFileExist)
 import           Control.Monad
+import           Data.Ratio ((%))
+import qualified Solarized as Sol
+import           System.Directory (doesFileExist)
+import           System.Environment (getEnv)
+import           System.Exit ( exitWith, ExitCode(ExitSuccess) )
 import           System.IO
 import qualified System.IO.UTF8
 import           XMonad hiding ( (|||) )
+import           XMonad.Actions.CycleRecentWSAddons
 import           XMonad.Actions.CycleWS hiding (toggleWS)
 import qualified XMonad.Actions.DynamicWorkspaces as DW
 import           XMonad.Actions.UpdatePointer
@@ -41,30 +46,27 @@ import           XMonad.Hooks.ManageDocks as MD
 import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.ServerMode
 import           XMonad.Hooks.UrgencyHook
+import           XMonad.Hooks.WorkspaceHistory (workspaceHistoryHook)
 import           XMonad.Layout.Fullscreen
 import           XMonad.Layout.Grid
+import           XMonad.Layout.IM
 import           XMonad.Layout.LayoutCombinators
 import           XMonad.Layout.MultiToggle
 import           XMonad.Layout.MultiToggle.Instances
-import           XMonad.Layout.Renamed
 import           XMonad.Layout.NoBorders
 import           XMonad.Layout.PerWorkspace      (onWorkspace)
+import           XMonad.Layout.Reflect
+import           XMonad.Layout.Renamed
 import qualified XMonad.Layout.Spiral as Spiral
 import           XMonad.Prompt hiding (height)
 import           XMonad.Prompt.Workspace
 import qualified XMonad.StackSet                 as W
+import qualified XMonad.Util.Dzen as DZ
 import           XMonad.Util.EZConfig
 import           XMonad.Util.NamedActions
 import           XMonad.Util.NamedScratchpad
 import           XMonad.Util.Run
 import           XMonad.Util.WorkspaceCompare
-import qualified XMonad.Util.Dzen as DZ
-import qualified Solarized as Sol
-import XMonad.Hooks.WorkspaceHistory (workspaceHistoryHook)
-import System.Exit ( exitWith, ExitCode(ExitSuccess) )
-import System.Environment (getEnv)
-import XMonad.Actions.CycleRecentWSAddons
-
 
 ------------------------------------------------------------------------
 -- Keyboard configuration:
@@ -267,9 +269,11 @@ myLayoutHook =
   onWorkspace "nodes" (renameStar tabs) $
   onWorkspace "read" (renameStar tabs) $
   onWorkspace "dash" (dash ||| grid) $
+  onWorkspace "im" (im) $
   lessBorders OnlyFloat $
-  (wide ||| tabs ||| gridWide ||| spiral)
+  standard
   where
+    standard = (wide ||| tabs ||| gridWide ||| spiral)
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
     full = rename "full" $ noBorders (fullscreenFull Full)
@@ -279,6 +283,11 @@ myLayoutHook =
     tabs = rename "tabs" $ Mirror $ Tall 1 0 0.93
     gridWide = rename "grid" $ GridRatio (16/9)
     grid = rename "grid" $ GridRatio (4/3)
+    im = rename "im" $ withIM (1%9) pidginRoster $ reflectHoriz $ withIM (1%8) skypeRoster standard
+      where
+        pidginRoster = ClassName "Pidgin" `And` Role "buddy_list"
+        skypeRoster  = ClassName "Skype"  `And` Role "MainWindow"
+
 
 -----------------------------------------------------------------------
 -- Window rules:
