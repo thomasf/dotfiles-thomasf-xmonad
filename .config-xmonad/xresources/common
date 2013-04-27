@@ -61,6 +61,7 @@ URxvt*urgentOnBell:                   true
 URxvt*visualBell:                     false
 URxvt*perl-lib:                       .config-xmonad/urxvt/perl
 URxvt*perl-ext-common:                clipboard,confirm-paste,url-select,font,searchable-scrollback,selection-popup,keyboard-select
+! URxvt*perl-ext-common:                clipboard,confirm-paste,url-select,font,searchable-scrollback,selection-popup,keyboard-select,autocomplete-ALL-the-things
 URxvt*tabbed.autohide:                false
 URxvt*tabbed.tabbar-fg:               10
 URxvt*tabbed.tabbar-bg:               0
@@ -76,6 +77,9 @@ URxvt*searchable-scrollback:          M-s
 URxvt*keysym.M-s:                     perl:keyboard-select:search
 URxvt*keysym.M-Escape:                perl:keyboard-select:activate
 URxvt*keysym.M-u:                     perl:url-select:select_next
+! URxvt*keysym.M-m:                     perl:aAtt:complete
+! URxvt*keysym.M-m:                     perl:aAtt:skeleton-complete
+! URxvt*keysym.M-m:                     perl:aAtt:skeleton-word-complete
 URxvt*url-select.launcher:            google-chrome
 URxvt*url-select.underline:           true
 URxvt*clipboard.autocopy:             true
