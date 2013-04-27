@@ -78,7 +78,7 @@ confModMask = mod4Mask
 -- align-regexp rules: "addName", "\$"
 myKeys conf =
   ((subtitle "....":) $ mkNamedKeymap conf $
-  [ ("M-<F2>",   addName "friends browser desktop.."                       $ myViewWS' "friends")
+  [ ("M-<F2>",   myViewWS' "friends")
   ]) ++
   ((subtitle "Cyclic window actions (J/K) [+=focus] [+control=cycle+keep focus] [+shift=move]":) $ mkNamedKeymap conf $
   [ ("M-j",             addName "Focus next window on workspace"                       $ windows W.focusDown >> movePointer)
@@ -88,10 +88,10 @@ myKeys conf =
   , ("M-S-j",           addName "Swap focused with next on workspace"                  $ windows W.swapDown >> movePointer)
   , ("M-S-k",           addName "Swap focused with previous on workspace"              $ windows W.swapUp >> movePointer)
   ]) ++
-  ((subtitle "Application launching.":) $ mkNamedKeymap conf $
+  ((subtitle "Application launching":) $ mkNamedKeymap conf $
   [ ("M-o s",   spawn' "sshmenu")
-  , ("M-o p",   spawn' "appmenu")
-  , ("M-o M-p", spawn' "xfce4-appfinder")
+  , ("M-o o",   spawn' "appmenu")
+  , ("M-o p",   spawn' "xfce4-appfinder")
   , ("M-o w",   spawn' "www")
   , ("M-o d",   spawn' "www-dev")
   , ("M-o t",   spawn' "urxvt")
@@ -100,12 +100,12 @@ myKeys conf =
   , ("M-o a",   addName "Run default workspace launcer script"                 $ workspaceAction)
   ]) ++
   ((subtitle "Other window actions":) $ mkNamedKeymap conf $
-  [ ("M-<Return>",        addName "Swap the focused window and the master window"        $ windows W.swapMaster >> movePointer)
+  [ ("M-<Return>",      addName "Swap the focused window and the master window"        $ windows W.swapMaster >> movePointer)
   , ("M-t",             addName "Push the window into tiling mode"                     $ withFocused (windows . W.sink) >> movePointer)
   , ("M-C-c",           addName "kill"                                                 $ kill)
   , ("M-u",             addName "Focus urgent winow"                                   $ focusUrgent >> movePointer >> showWorkspaceName)
-  , ("M-C-u",           addName "Clear all urgent window statuses"                     $ clearUrgents)
   , ("M-y",             addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l", "48"] >> movePointer >> showWorkspaceName)
+  , ("M-C-u",           addName "Clear all urgent window statuses"                     $ clearUrgents)
   ]) ++
   ((subtitle "Cyclic display actions (D/F) [+=select] [+control=swap] [+shift=move window to]":) $ mkNamedKeymap conf $
   [ ("M-d",             addName "Next screen"                                          $ nextScreen >> movePointer >> showWorkspaceNameFast)
@@ -118,7 +118,7 @@ myKeys conf =
   ((subtitle "Workspace actions (E/R) [mod=select from prefix] [mod+control=select from all]":) $ mkNamedKeymap conf $
   [ ("M-e",             addName "Next workspace (prefix)"                              $ rmEmptyWs $ nextWsPrefix >> movePointer >> showWorkspaceName)
   , ("M-r",             addName "Previous workspace (prefix)"                          $ rmEmptyWs $ prevWsPrefix >> movePointer >> showWorkspaceName)
-  , ("M-S-<Space>", addName "reset layout" $ setLayout $ XMonad.layoutHook conf)
+  , ("M-S-<Space>",     addName "reset layout" $ setLayout $ XMonad.layoutHook conf)
   ]) ++
   ((subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]":) $ mkNamedKeymap conf $
   [ ("M-C-<Space>",     addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
@@ -147,17 +147,17 @@ myKeys conf =
  ]) ++
   ((subtitle "Toggle scratchpads and workspaces":) $ mkNamedKeymap conf $
   [ ("M-<Space>",           addName "Show larger terminal pad"                           $ largeTerminalPad >> movePointer)
-  , ("M-i b",               addName "Show vbo workspace"                                 $ myViewWS' "vbox")
-  , ("M-i c",               addName "Show chat workspace"                                $ myViewWS' "chat")
-  , ("M-i d",               addName "Show dashboard workspace"                           $ myViewWS' "dash")
-  , ("M-i f",               addName "Show files workspace"                               $ myViewWS' "files")
-  , ("M-i h",               addName "Show home workspace"                                $ myViewWS' "home")
-  , ("M-i m",               addName "Show mail workspace"                                $ myViewWS' "mail")
-  , ("M-i n",               addName "Show nodes workspace"                               $ myViewWS' "nodes")
-  , ("M-i r",               addName "Show read workspace"                                $ myViewWS' "read")
-  , ("M-i s",               addName "Show scratch workspace"                             $ myViewWS' "scratch")
-  , ("M-i v",               addName "Show video workspace"                               $ myViewWS' "video")
-  , ("M-i w",               addName "Show www workspace"                                 $ myViewWS' "www")
+  , ("M-i b",               myViewWS' "vbox")
+  , ("M-i c",               myViewWS' "chat")
+  , ("M-i d",               myViewWS' "dash")
+  , ("M-i f",               myViewWS' "files")
+  , ("M-i h",               myViewWS' "home")
+  , ("M-i m",               myViewWS' "mail")
+  , ("M-i n",               myViewWS' "nodes")
+  , ("M-i r",               myViewWS' "read")
+  , ("M-i s",               myViewWS' "scratch")
+  , ("M-i v",               myViewWS' "video")
+  , ("M-i w",               myViewWS' "www")
   , ("M-i M-i",             addName "cycle ws"                                           $ rmEmptyWs $ myCycleRecentWs xK_i xK_o)
   , ("M-i <Space> <Space>", addName "Create or change workspace prompt"                  $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer >> showWorkspaceName)
   , ("M-i <Space> m",       addName "Move window to other workspace prompt"              $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer >> showWorkspaceName)
@@ -198,7 +198,7 @@ myKeys conf =
       maybeWorkspaceAction
 
     -- | View a workspace by name, remove left over empty workspace and move pointer
-    myViewWS' wsid = do
+    myViewWS' wsid = addName("Show " ++ wsid ++ " workspace ") $ do
       rmEmptyWs $ myViewWS wsid
       movePointer
       showWorkspaceNameFast
