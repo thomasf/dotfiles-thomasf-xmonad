@@ -178,16 +178,6 @@ myKeys conf =
     -- | Move mouse pointer to bottom right of the current window
     movePointer = updatePointer (Relative 0.99 0.99)
 
-    -- | Run script with same name as "w.workspacename"
-    workspaceAction = do
-      ws <- gets (W.currentTag . windowset)
-      safeSpawn ("w." ++ takeWhile (/='.') ws) [ ]
-
-    -- | Run script with same name as "w.workspacename" if the workspace is empty
-    maybeWorkspaceAction = do
-      wins <- gets (W.integrate' . W.stack . W.workspace . W.current . windowset)
-      when (null wins) $ workspaceAction
-
     -- | Remove current workpace if empty
     rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP" ]
 
@@ -475,6 +465,15 @@ showLayoutName = do
      >=> DZ.addArgs ["-bg", Sol.green]
     ) ld
 
+-- | Run script with same name as "w.workspacename"
+workspaceAction = do
+  ws <- gets (W.currentTag . windowset)
+  safeSpawn ("w." ++ takeWhile (/='.') ws) [ ]
+
+-- | Run script with same name as "w.workspacename" if the workspace is empty
+maybeWorkspaceAction = do
+  wins <- gets (W.integrate' . W.stack . W.workspace . W.current . windowset)
+  when (null wins) $ workspaceAction
 
 -- Local Variables:
 -- fill-column: 180
