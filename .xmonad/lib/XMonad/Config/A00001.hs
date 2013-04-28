@@ -36,7 +36,9 @@ import qualified System.IO.UTF8
 import           XMonad hiding ( (|||) )
 import           XMonad.Actions.CycleRecentWSAddons
 import           XMonad.Actions.CycleWS hiding (toggleWS)
+import           XMonad.Actions.DwmPromote
 import qualified XMonad.Actions.DynamicWorkspaces as DW
+import           XMonad.Actions.SpawnOn
 import           XMonad.Actions.UpdatePointer
 import           XMonad.Actions.WindowBringer    (gotoMenuArgs)
 import qualified XMonad.Config.Desktop as Desktop
@@ -100,7 +102,7 @@ myKeys conf =
   , ("M-o a",   addName "Run default workspace launcer script"                 $ workspaceAction)
   ]) ++
   ((subtitle "Other window actions":) $ mkNamedKeymap conf $
-  [ ("M-<Return>",      addName "Swap the focused window and the master window"        $ windows W.swapMaster >> movePointer)
+  [ ("M-<Return>",      addName "Swap the focused window and the master window"        $ dwmpromote >> movePointer)
   , ("M-t",             addName "Push the window into tiling mode"                     $ withFocused (windows . W.sink) >> movePointer)
   , ("M-C-c",           addName "kill"                                                 $ kill)
   , ("M-u",             addName "Focus urgent winow"                                   $ focusUrgent >> movePointer >> showWorkspaceName)
@@ -174,6 +176,7 @@ myKeys conf =
   , ("M-q <Space> r r r", addName "reboot computer"                      $ spawn "a.reboot")
  ])
   where
+    spawn' cmd'  = addName cmd' $ spawnHere cmd'
     -- | Move mouse pointer to bottom right of the current window
     movePointer = updatePointer (Relative 0.99 0.99)
 
@@ -291,7 +294,7 @@ myLayoutHook =
 myManageHook :: ManageHook
 
 myManageHook =
-  fullscreenManageHook <+>  namedScratchpadManageHook myScratchPads <+> (composeOne . concat $
+  manageSpawn <+> fullscreenManageHook <+> namedScratchpadManageHook myScratchPads <+> (composeOne . concat $
   [ [resource  =? r -?>                                        doIgnore           | r <- ["Do", "desktop_window", "kdesktop"]]
   , [className =? c -?>                                        doIgnore           | c <- ["Unity-2d-panel", "Xfce4-notifyd", "Xfdesktop"]]
   , [className =? c -?>                                        doSink             | c <- ["emulator64-mips", "emulator-arm", "emulator-x86"
