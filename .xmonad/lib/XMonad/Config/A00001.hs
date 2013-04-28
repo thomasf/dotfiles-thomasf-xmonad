@@ -124,7 +124,6 @@ myKeys conf =
   [ ("M-C-<Space>",     addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
   , ("M-M1-<Space>",    addName "Toggle fullscreen"                                    $ sendMessage (Toggle NBFULL) >> movePointer)
   , ("M-M1-s",          addName "Toggle struts (ignore panels)"                        $ sendMessage ToggleStruts >> movePointer)
-  , ("M-M1-b",          addName "Toggle window borders"                                $ sendMessage (Toggle NOBORDERS) >> movePointer)
   , ("M-h",             addName "Shrink the master area"                               $ sendMessage Shrink >> movePointer)
   , ("M-l",             addName "Expand the master area"                               $ sendMessage Expand >> movePointer)
   , ("M-,",             addName "Increment the number of windows in the master area"   $ sendMessage (IncMasterN 1) >> movePointer)
@@ -251,7 +250,6 @@ myLayoutHook =
   onWorkspace "video" (renameStar full) $
   onWorkspace "vbox" (renameStar full) $
   Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22 2012)
-  mkToggle (single NOBORDERS) $
   mkToggle (single NBFULL) $
   onWorkspace "chat" (renameStar gridWide) $
   onWorkspace "music" (tabs) $
