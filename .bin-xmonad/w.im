@@ -5,4 +5,5 @@
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 #
 
+LD_PRELOAD=/usr/lib/i386-linux-gnu/mesa/libGL.so.1 skype &
 exec pidgin

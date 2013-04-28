@@ -25,6 +25,7 @@ module XMonad.Config.A00001
       a00001Config
     ) where
 
+import           Data.List
 import           Control.Monad
 import           Data.Ratio ((%))
 import qualified Solarized as Sol
@@ -274,10 +275,17 @@ myLayoutHook =
     tabs = rename "tabs" $ Mirror $ Tall 1 0 0.93
     gridWide = rename "grid" $ GridRatio (16/9)
     grid = rename "grid" $ GridRatio (4/3)
-    im = rename "im" $ withIM (1%9) pidginRoster $ reflectHoriz $ withIM (1%8) skypeRoster standard
+    im = withIM (1%9) pidginRoster $ reflectHoriz $ withIM (1%8) skypeRoster
+         (gridWide ||| grid ||| spiral)
       where
         pidginRoster = ClassName "Pidgin" `And` Role "buddy_list"
-        skypeRoster  = ClassName "Skype"  `And` Role "MainWindow"
+        skypeRoster  = (ClassName "Skype")
+                       `And` (Not (Title "Options"))
+                       `And` (Not (Title "Add a Skype Contact"))
+                       `And` (Not (Title "Start a conference call"))
+                       `And` (Not (Role "ConversationsWindow"))
+                       `And` (Not (Role "CallWindowForm"))
+                       `And` (Not (Role "CallWindow"))
 
 
 -----------------------------------------------------------------------
@@ -297,7 +305,10 @@ myManageHook =
   [ [resource  =? r -?>                                        doIgnore           | r <- ["Do", "desktop_window", "kdesktop"]]
   , [className =? c -?>                                        doIgnore           | c <- ["Unity-2d-panel", "Xfce4-notifyd", "Xfdesktop"]]
   , [className =? c -?>                                        doSink             | c <- ["emulator64-mips", "emulator-arm", "emulator-x86"
-                                                                                    ,"emulator64-arm", "emulator64-x86", "emulator-mips"]]
+                                                                                         ,"emulator64-arm", "emulator64-x86", "emulator-mips"]]
+  , [className =? "Skype" <&&> title =? "Options" -?> doCenterFloatLarge]
+  , [className =? "Skype" <&&> startsWith' title "Profile for " -?> doCenterFloat]
+  , [className =? "Skype" <&&> startsWith' title "Add a Skype Contact" -?> doCenterFloatLarge]
   , [resource  =? r -?>                                        doFloat            | r <- ["speedbar", "floating"]]
   , [className =? c -?>                                        doFloat            | c <- ["Unity-2d-launcher", "Orage", "feh"]]
   , [role      =? "pop-up" <&&> appName =? "google-chrome" -?> doCenterFloat]
@@ -315,6 +326,8 @@ myManageHook =
     doCenterFloatLarge = myCenterFloat 0.6 0.8
     doSink = ask >>= doF . W.sink
     role = stringProperty "WM_WINDOW_ROLE"
+    startsWith' :: Eq a => Query [a] -> [a] -> Query Bool
+    startsWith' q prefix = fmap (isPrefixOf prefix) q
 
 ------------------------------------------------------------------------
 -- Event handling
