@@ -25,8 +25,8 @@ module XMonad.Config.A00001
       a00001Config
     ) where
 
-import           Data.List
 import           Control.Monad
+import           Data.List
 import           Data.Ratio ((%))
 import qualified Solarized as Sol
 import           System.Directory (doesFileExist)
@@ -47,11 +47,11 @@ import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
 import           XMonad.Hooks.ManageDocks as MD
 import           XMonad.Hooks.ManageHelpers
-import           XMonad.Hooks.ServerMode
 import           XMonad.Hooks.SetWMName
 import           XMonad.Hooks.UrgencyHook
 import           XMonad.Hooks.WorkspaceHistory (workspaceHistoryHook)
 import           XMonad.Layout.Fullscreen
+import           XMonad.Layout.Gaps
 import           XMonad.Layout.Grid
 import           XMonad.Layout.IM
 import           XMonad.Layout.LayoutCombinators
@@ -125,7 +125,7 @@ myKeys conf =
   subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]": mkNamedKeymap conf
   [ ("M-C-<Space>",  addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
   , ("M-M1-<Space>", addName "Toggle fullscreen"                                    $ sendMessage (Toggle NBFULL) >> movePointer)
-  , ("M-M1-s",       addName "Toggle struts (ignore panels)"                        $ sendMessage ToggleStruts >> movePointer)
+  , ("M-M1-s",       addName "Toggle struts (ignore panels)"                        $ sendMessage ToggleGaps >> movePointer)
   , ("M-h",          addName "Shrink the master area"                               $ sendMessage Shrink >> movePointer)
   , ("M-l",          addName "Expand the master area"                               $ sendMessage Expand >> movePointer)
   , ("M-,",          addName "Increment the number of windows in the master area"   $ sendMessage (IncMasterN 1) >> movePointer)
@@ -252,8 +252,6 @@ myLayoutHook =
   onWorkspace "friends" (rename "*friends*" tabs) $
   onWorkspace "video" (renameStar full) $
   onWorkspace "vbox" (renameStar full) $
-  Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22 2012)
-  mkToggle (single NBFULL) $
   onWorkspace "chat" (renameStar gridWide) $
   onWorkspace "music" tabs $
   onWorkspace "files" (grid ||| tabs) $
@@ -265,17 +263,19 @@ myLayoutHook =
   lessBorders OnlyFloat
   standard
   where
+    ft = mkToggle (single NBFULL)
+    avoidPanels = gaps [(U,18), (D,18)]
     standard = wide ||| tabs ||| gridWide ||| spiral
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
     full = rename "full" $ noBorders (fullscreenFull Full)
-    wide = rename "wide" $ Mirror $ Tall 2 (3/100) (4/5)
-    dash = rename "dash" $ Mirror $ Tall 1 0 0.6
-    spiral = rename "spiral" $ Spiral.spiral (6/7)
-    tabs = rename "tabs" $ Mirror $ Tall 1 0 0.93
-    gridWide = rename "grid" $ GridRatio (16/9)
-    grid = rename "grid" $ GridRatio (4/3)
-    im = withIM (1%9) pidginRoster $ reflectHoriz $ withIM (1%8) skypeRoster
+    wide = rename "wide" $ avoidPanels $ ft $ Mirror $ Tall 2 (3/100) (4/5)
+    dash = rename "dash" $ avoidPanels $ ft $ Mirror $ Tall 1 0 0.6
+    spiral = rename "spiral" $ avoidPanels $ ft $ Spiral.spiral (6/7)
+    tabs = rename "tabs" $ avoidPanels $ ft $ Mirror $ Tall 1 0 0.93
+    gridWide = rename "grid" $ avoidPanels $ ft $ GridRatio (16/9)
+    grid = rename "grid" $ avoidPanels $ ft $ GridRatio (4/3)
+    im = avoidPanels $ withIM (1%9) pidginRoster $ reflectHoriz $ withIM (1%8) skypeRoster
          (gridWide ||| grid ||| spiral)
       where
         pidginRoster = ClassName "Pidgin" `And` Role "buddy_list"
@@ -336,7 +336,8 @@ myManageHook =
 -- return (All True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
 --
-myHandleEventHook = serverModeEventHook <+> ewmhDesktopsEventHook <+> fullscreenEventHook
+myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook
+
 
 ------------------------------------------------------------------------
 -- Status bars and logging
