@@ -30,7 +30,7 @@ import           Data.Ratio ((%))
 import qualified Solarized as Sol
 import           System.Directory (doesFileExist)
 import           System.Environment (getEnv)
-import           System.Exit ( exitWith, ExitCode(ExitSuccess) )
+import           System.Exit ( exitSuccess )
 import           System.IO
 import qualified System.IO.UTF8
 import           XMonad hiding ( (|||) )
@@ -77,61 +77,60 @@ import           XMonad.Util.WorkspaceCompare
 -- simply for convenience and readability
 confModMask = mod4Mask
 
--- align-regexp rules: "addName", "\$"
 myKeys conf =
-  ((subtitle "....":) $ mkNamedKeymap conf $
+  subtitle "....": mkNamedKeymap conf
   [ ("M-<F2>",   myViewWS' "friends")
-  ]) ++
-  ((subtitle "Cyclic window actions (J/K) [+=focus] [+control=cycle+keep focus] [+shift=move]":) $ mkNamedKeymap conf $
-  [ ("M-j",             addName "Focus next window on workspace"                       $ windows W.focusDown >> movePointer)
-  , ("M-k",             addName "Focus previous window on workspace"                   $ windows W.focusUp >> movePointer)
-  , ("M-C-j",           addName "Swap focused with next on workspace"                  $ windows W.swapDown >> movePointer)
-  , ("M-C-k",           addName "Swap focused with previous on workspace"              $ windows W.swapUp >> movePointer)
-  , ("M-S-j",           addName "Swap focused with next on workspace"                  $ windows W.swapDown >> movePointer)
-  , ("M-S-k",           addName "Swap focused with previous on workspace"              $ windows W.swapUp >> movePointer)
-  ]) ++
-  ((subtitle "Application launching":) $ mkNamedKeymap conf $
-  [ ("M-o s",   spawn' "sshmenu")
-  , ("M-o o",   spawn' "appmenu")
-  , ("M-o p",   spawn' "xfce4-appfinder")
-  , ("M-o w",   spawn' "www")
-  , ("M-o d",   spawn' "www-dev")
-  , ("M-o t",   spawn' "urxvt")
-  , ("M-o n",   spawn' "nautilus")
-  , ("M-o h",   spawn'  "zeal")
-  , ("M-o a",   addName "Run default workspace launcer script"                 $ workspaceAction)
-  ]) ++
-  ((subtitle "Other window actions":) $ mkNamedKeymap conf $
-  [ ("M-<Return>",      addName "Swap the focused window and the master window"        $ dwmpromote >> movePointer)
-  , ("M-t",             addName "Push the window into tiling mode"                     $ withFocused (windows . W.sink) >> movePointer)
-  , ("M-C-c",           addName "kill"                                                 $ kill)
-  , ("M-u",             addName "Focus urgent winow"                                   $ focusUrgent >> movePointer >> showWorkspaceName)
-  , ("M-y",             addName "Goto workspace by window search prompt"               $ gotoMenuArgs ["-l", "48"] >> movePointer >> showWorkspaceName)
-  , ("M-C-u",           addName "Clear all urgent window statuses"                     $ clearUrgents)
-  ]) ++
-  ((subtitle "Cyclic display actions (D/F) [+=select] [+control=swap] [+shift=move window to]":) $ mkNamedKeymap conf $
-  [ ("M-d",             addName "Next screen"                                          $ nextScreen >> movePointer >> showWorkspaceNameFast)
-  , ("M-f",             addName "Previous screen"                                      $ prevScreen >> movePointer >> showWorkspaceNameFast)
-  , ("M-C-d",           addName "Swap current display witn next"                       $ swapNextScreen >> showWorkspaceNameOld >> nextScreen >> movePointer >> showWorkspaceName)
-  , ("M-C-f",           addName "Swap current display witn previous"                   $ swapPrevScreen >> showWorkspaceNameOld >> nextScreen >> movePointer >> showWorkspaceName)
-  , ("M-S-d",           addName "Move window to next screen"                           $ shiftNextScreen >> nextScreen >> movePointer >> showWorkspaceNameFast)
-  , ("M-S-f",           addName "Move window to previous screen"                       $ shiftPrevScreen >> prevScreen >> movePointer >> showWorkspaceNameFast)
-  ]) ++
-  ((subtitle "Workspace actions (E/R) [mod=select from prefix] [mod+control=select from all]":) $ mkNamedKeymap conf $
-  [ ("M-e",             addName "Next workspace (prefix)"                              $ rmEmptyWs $ nextWsPrefix >> movePointer >> showWorkspaceName)
-  , ("M-r",             addName "Previous workspace (prefix)"                          $ rmEmptyWs $ prevWsPrefix >> movePointer >> showWorkspaceName)
-  , ("M-S-<Space>",     addName "reset layout" $ setLayout $ XMonad.layoutHook conf)
-  ]) ++
-  ((subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]":) $ mkNamedKeymap conf $
-  [ ("M-C-<Space>",     addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
-  , ("M-M1-<Space>",    addName "Toggle fullscreen"                                    $ sendMessage (Toggle NBFULL) >> movePointer)
-  , ("M-M1-s",          addName "Toggle struts (ignore panels)"                        $ sendMessage ToggleStruts >> movePointer)
-  , ("M-h",             addName "Shrink the master area"                               $ sendMessage Shrink >> movePointer)
-  , ("M-l",             addName "Expand the master area"                               $ sendMessage Expand >> movePointer)
-  , ("M-,",             addName "Increment the number of windows in the master area"   $ sendMessage (IncMasterN 1) >> movePointer)
-  , ("M-.",             addName "Deincrement the number of windows in the master area" $ sendMessage (IncMasterN (-1)) >> movePointer)
-  ]) ++
-  ((subtitle "Multi media keys":) $ mkNamedKeymap conf $
+  ] ++
+  subtitle "Cyclic window actions (J/K) [+=focus] [+control=cycle+keep focus] [+shift=move]": mkNamedKeymap conf
+  [ ("M-j",             addName "Focus next window on workspace"          $ windows W.focusDown >> movePointer)
+  , ("M-k",             addName "Focus previous window on workspace"      $ windows W.focusUp >> movePointer)
+  , ("M-C-j",           addName "Swap focused with next on workspace"     $ windows W.swapDown >> movePointer)
+  , ("M-C-k",           addName "Swap focused with previous on workspace" $ windows W.swapUp >> movePointer)
+  , ("M-S-j",           addName "Swap focused with next on workspace"     $ windows W.swapDown >> movePointer)
+  , ("M-S-k",           addName "Swap focused with previous on workspace" $ windows W.swapUp >> movePointer)
+  ] ++
+  subtitle "Application launching": mkNamedKeymap conf
+  [ ("M-o s", spawn' "sshmenu")
+  , ("M-o o", spawn' "appmenu")
+  , ("M-o p", spawn' "xfce4-appfinder")
+  , ("M-o w", spawn' "www")
+  , ("M-o d", spawn' "www-dev")
+  , ("M-o t", spawn' "urxvt")
+  , ("M-o n", spawn' "nautilus")
+  , ("M-o h", spawn'  "zeal")
+  , ("M-o a", addName "Run default workspace launcer script" workspaceAction)
+  ] ++
+  subtitle "Other window actions": mkNamedKeymap conf
+  [ ("M-<Return>", addName "Swap the focused window and the master window" $ dwmpromote >> movePointer)
+  , ("M-t",        addName "Push the window into tiling mode"              $ withFocused (windows . W.sink) >> movePointer)
+  , ("M-C-c",      addName "kill"                                            kill)
+  , ("M-u",        addName "Focus urgent winow"                            $ focusUrgent >> movePointer >> showWorkspaceName)
+  , ("M-y",        addName "Goto workspace by window search prompt"        $ gotoMenuArgs ["-l", "48"] >> movePointer >> showWorkspaceName)
+  , ("M-C-u",      addName "Clear all urgent window statuses"                clearUrgents)
+  ] ++
+  subtitle "Cyclic display actions (D/F) [+=select] [+control=swap] [+shift=move window to]": mkNamedKeymap conf
+  [ ("M-d",   addName "Next screen"                        $ nextScreen >> movePointer >> showWorkspaceNameFast)
+  , ("M-f",   addName "Previous screen"                    $ prevScreen >> movePointer >> showWorkspaceNameFast)
+  , ("M-C-d", addName "Swap current display witn next"     $ swapNextScreen >> showWorkspaceNameOld >> nextScreen >> movePointer >> showWorkspaceName)
+  , ("M-C-f", addName "Swap current display witn previous" $ swapPrevScreen >> showWorkspaceNameOld >> nextScreen >> movePointer >> showWorkspaceName)
+  , ("M-S-d", addName "Move window to next screen"         $ shiftNextScreen >> nextScreen >> movePointer >> showWorkspaceNameFast)
+  , ("M-S-f", addName "Move window to previous screen"     $ shiftPrevScreen >> prevScreen >> movePointer >> showWorkspaceNameFast)
+  ] ++
+  subtitle "Workspace actions (E/R) [mod=select from prefix] [mod+control=select from all]": mkNamedKeymap conf
+  [ ("M-e",         addName "Next workspace (prefix)"     $ rmEmptyWs $ nextWsPrefix >> movePointer >> showWorkspaceName)
+  , ("M-r",         addName "Previous workspace (prefix)" $ rmEmptyWs $ prevWsPrefix >> movePointer >> showWorkspaceName)
+  , ("M-S-<Space>", addName "reset layout"                $ setLayout $ XMonad.layoutHook conf)
+  ] ++
+  subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]": mkNamedKeymap conf
+  [ ("M-C-<Space>",  addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
+  , ("M-M1-<Space>", addName "Toggle fullscreen"                                    $ sendMessage (Toggle NBFULL) >> movePointer)
+  , ("M-M1-s",       addName "Toggle struts (ignore panels)"                        $ sendMessage ToggleStruts >> movePointer)
+  , ("M-h",          addName "Shrink the master area"                               $ sendMessage Shrink >> movePointer)
+  , ("M-l",          addName "Expand the master area"                               $ sendMessage Expand >> movePointer)
+  , ("M-,",          addName "Increment the number of windows in the master area"   $ sendMessage (IncMasterN 1) >> movePointer)
+  , ("M-.",          addName "Deincrement the number of windows in the master area" $ sendMessage (IncMasterN (-1)) >> movePointer)
+  ] ++
+  subtitle "Multi media keys": mkNamedKeymap conf
   [ ("<XF86AudioPlay>",   spawn' "mpc toggle")
   , ("<XF86AudioStop",    spawn' "mpc stop")
   , ("S-<XF86AudioPrev>", spawn' "mpc prev")
@@ -139,15 +138,15 @@ myKeys conf =
   , ("<XF86AudioPrev>",   spawn' "mpc seek -00:00:10")
   , ("<XF86AudioNext>",   spawn' "mpc seek +00:00:10")
   , ("<XF86AudioStop>",   spawn' "mpc stop")
- ]) ++
-  ((subtitle "misc":) $ mkNamedKeymap conf $
+ ] ++
+  subtitle "misc": mkNamedKeymap conf
   [ ("M-<Print>",    spawn' "xfce4-screenshooter")
   , ("M-C-<Print>",  addName "scrot focused window" $ safeSpawn "scrot" ["-u", "screenshot-%Y-%m-%d_%H-%M-%S_$wx$h.png", "-e", "mv $f ~/Pictures/scrot/"])
   , ("M-M1-<Print>", addName "scrot full"           $ safeSpawn "scrot" ["screenshot-%Y-%m-%d_%H-%M-%S_$wx$h.png", "-e", "mv $f ~/Pictures/scrot/"])
   , ("M-S-C-c",      spawn' "xkill")
- ]) ++
-  ((subtitle "Toggle scratchpads and workspaces":) $ mkNamedKeymap conf $
-  [ ("M-<Space>",           addName "Show larger terminal pad"                           $ largeTerminalPad >> movePointer)
+  ] ++
+  subtitle "Toggle scratchpads and workspaces": mkNamedKeymap conf
+  [ ("M-<Space>",           addName "Show larger terminal pad"              $ largeTerminalPad >> movePointer)
   , ("M-i b",               myViewWS' "vbox")
   , ("M-i c",               myViewWS' "chat")
   , ("M-i d",               myViewWS' "dash")
@@ -159,22 +158,22 @@ myKeys conf =
   , ("M-i s",               myViewWS' "scratch")
   , ("M-i v",               myViewWS' "video")
   , ("M-i w",               myViewWS' "www")
-  , ("M-i M-i",             addName "cycle ws"                                           $ rmEmptyWs $ myCycleRecentWs xK_i xK_o)
-  , ("M-i <Space> <Space>", addName "Create or change workspace prompt"                  $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer >> showWorkspaceName)
-  , ("M-i <Space> m",       addName "Move window to other workspace prompt"              $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer >> showWorkspaceName)
-  , ("M-i <Space> r",       addName "Rename current workspace"                           $ DW.renameWorkspace myXPConfig >> movePointer >> showWorkspaceName)
-  , ("M-i <Space> 0",       addName "Remove current workspace"                           $ DW.removeWorkspace >> movePointer >> showWorkspaceName)
- ]) ++
-  ((subtitle "exit/quit/leave/reboot...":) $ mkNamedKeymap conf $
+  , ("M-i M-i",             addName "cycle ws"                              $ rmEmptyWs $ myCycleRecentWs xK_i xK_o)
+  , ("M-i <Space> <Space>", addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer >> showWorkspaceName)
+  , ("M-i <Space> m",       addName "Move window to other workspace prompt" $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer >> showWorkspaceName)
+  , ("M-i <Space> r",       addName "Rename current workspace"              $ DW.renameWorkspace myXPConfig >> movePointer >> showWorkspaceName)
+  , ("M-i <Space> 0",       addName "Remove current workspace"              $ DW.removeWorkspace >> movePointer >> showWorkspaceName)
+ ] ++
+  subtitle "exit/quit/leave/reboot...": mkNamedKeymap conf
   [ ("M-q r",             addName "restart xmonad"                       $ restart "xmonad" True)
   , ("M-q x x x",         addName "restart xmonad without keeping state" $ restart "xmonad" False)
-  , ("M-q k k k",         addName "KILL xmonad"                          $ io $ exitWith ExitSuccess)
+  , ("M-q k k k",         addName "KILL xmonad"                          $ io exitSuccess)
   , ("M-q <Space> h h h", addName "hibernate computer"                   $ spawn "a.hibernate")
   , ("M-q <Space> s s s", addName "suspend computer"                     $ spawn "a.suspend")
   , ("M-q <Space> p p p", addName "power off computer"                   $ spawn "a.shutdown")
   , ("M-q <Space> l l l", addName "leave computer"                       $ spawn "a.leave")
   , ("M-q <Space> r r r", addName "reboot computer"                      $ spawn "a.reboot")
- ])
+ ]
   where
     spawn' cmd'  = addName cmd' $ spawnHere cmd'
     -- | Move mouse pointer to bottom right of the current window
@@ -255,17 +254,17 @@ myLayoutHook =
   Desktop.desktopLayoutModifiers $ -- < only implies avoidStruts (ons jul 18 08:22 2012)
   mkToggle (single NBFULL) $
   onWorkspace "chat" (renameStar gridWide) $
-  onWorkspace "music" (tabs) $
+  onWorkspace "music" tabs $
   onWorkspace "files" (grid ||| tabs) $
   onWorkspace "home" (tabs ||| grid) $
   onWorkspace "nodes" (renameStar tabs) $
   onWorkspace "read" (renameStar tabs) $
   onWorkspace "dash" (dash ||| grid) $
-  onWorkspace "im" (im) $
-  lessBorders OnlyFloat $
+  onWorkspace "im" im $
+  lessBorders OnlyFloat
   standard
   where
-    standard = (wide ||| tabs ||| gridWide ||| spiral)
+    standard = wide ||| tabs ||| gridWide ||| spiral
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
     full = rename "full" $ noBorders (fullscreenFull Full)
@@ -313,12 +312,7 @@ myManageHook =
   , [title     =? "Onboard"  -?>                               doFloat]
   ]) <+> manageHook Desktop.desktopConfig -- < implies only manageDocks (ons jul 18 08:51 2012)
   where
-    doCenterFloatLarge = customFloating $ W.RationalRect left top width height
-      where
-        width = 0.6
-        height = 0.8
-        left = (1 - width) / 2
-        top = (1 - height) / 2
+    doCenterFloatLarge = myCenterFloat 0.6 0.8
     doSink = ask >>= doF . W.sink
     role = stringProperty "WM_WINDOW_ROLE"
 
@@ -397,12 +391,15 @@ myScratchPads = [ NS "largeTerminal" (term "largeTerminal") (res =? scratch "lar
     -- inTerm' sname scmd = myTerminal ++ " -name scratchpad_" ++ sname ++ " -e " ++  scmd
     res = resource
 
-    largeCenterFloat = customFloating $ W.RationalRect left top width height
-      where
-        width = 0.8
-        height = 0.8
-        left = (1 - width) / 2
-        top = (1 - height) / 2
+    largeCenterFloat = myCenterFloat 0.8 0.8
+
+
+myCenterFloat w h = customFloating $ W.RationalRect left top width height
+  where
+    width = w
+    height = h
+    left = (1 - width) / 2
+    top = (1 - height) / 2
 
 ------------------------------------------------------------------------
 --  a00001Config
@@ -474,7 +471,7 @@ workspaceAction = do
 -- | Run script with same name as "w.workspacename" if the workspace is empty
 maybeWorkspaceAction = do
   wins <- gets (W.integrate' . W.stack . W.workspace . W.current . windowset)
-  when (null wins) $ workspaceAction
+  when (null wins) workspaceAction
 
 -- Local Variables:
 -- fill-column: 180
