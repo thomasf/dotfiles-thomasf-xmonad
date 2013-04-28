@@ -252,6 +252,8 @@ myLayoutHook =
   onWorkspace "friends" (rename "*friends*" tabs) $
   onWorkspace "video" (renameStar full) $
   onWorkspace "vbox" (renameStar full) $
+  gaps [(U,18), (D,18)] $
+  mkToggle (single NBFULL) $
   onWorkspace "chat" (renameStar gridWide) $
   onWorkspace "music" tabs $
   onWorkspace "files" (grid ||| tabs) $
@@ -263,19 +265,17 @@ myLayoutHook =
   lessBorders OnlyFloat
   standard
   where
-    ft = mkToggle (single NBFULL)
-    avoidPanels = gaps [(U,18), (D,18)]
     standard = wide ||| tabs ||| gridWide ||| spiral
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
     full = rename "full" $ noBorders (fullscreenFull Full)
-    wide = rename "wide" $ avoidPanels $ ft $ Mirror $ Tall 2 (3/100) (4/5)
-    dash = rename "dash" $ avoidPanels $ ft $ Mirror $ Tall 1 0 0.6
-    spiral = rename "spiral" $ avoidPanels $ ft $ Spiral.spiral (6/7)
-    tabs = rename "tabs" $ avoidPanels $ ft $ Mirror $ Tall 1 0 0.93
-    gridWide = rename "grid" $ avoidPanels $ ft $ GridRatio (16/9)
-    grid = rename "grid" $ avoidPanels $ ft $ GridRatio (4/3)
-    im = avoidPanels $ withIM (1%9) pidginRoster $ reflectHoriz $ withIM (1%8) skypeRoster
+    wide = rename "wide" $ Mirror $ Tall 2 (3/100) (4/5)
+    dash = rename "dash" $ Mirror $ Tall 1 0 0.6
+    spiral = rename "spiral" $ Spiral.spiral (6/7)
+    tabs = rename "tabs" $ Mirror $ Tall 1 0 0.93
+    gridWide = rename "grid" $ GridRatio (16/9)
+    grid = rename "grid" $ GridRatio (4/3)
+    im =  withIM (1%9) pidginRoster $ reflectHoriz $ withIM (1%8) skypeRoster
          (gridWide ||| grid ||| spiral)
       where
         pidginRoster = ClassName "Pidgin" `And` Role "buddy_list"
