@@ -126,7 +126,7 @@ myKeys conf =
   subtitle "Workspace actions (E/R) [mod=select from prefix] [mod+control=select from all]": mkNamedKeymap conf
   [ ("M-e",         addName "Next workspace (prefix)"     $ rmEmptyWs $ nextWsPrefix >> movePointer >> showWorkspaceName)
   , ("M-r",         addName "Previous workspace (prefix)" $ rmEmptyWs $ prevWsPrefix >> movePointer >> showWorkspaceName)
-  , ("M-S-<Space>", addName "reset layout"                $ setLayout $ XMonad.layoutHook conf)
+  , ("M-S-<Space>", addName "reset layout"                $ setLayout (XMonad.layoutHook conf) >> movePointer >> showLayoutName)
   ] ++
   subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]": mkNamedKeymap conf
   [ ("M-C-<Space>",  addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
@@ -247,7 +247,7 @@ myMouseBindings =
       button10 =  10
       gestures = M.fromList
                  [ ([], \w -> focus w >> windowMenu)
-                 , ([R, D], \_ -> sendMessage NextLayout)
+                 , ([R, D], \_ -> sendMessage NextLayout >> showLayoutName)
                  , ([U], \w -> focus w >> Nav2d.windowSwap U False)
                  , ([D], \w -> focus w >> Nav2d.windowSwap D False)
                  , ([L], \w -> focus w >> Nav2d.windowSwap L False)
