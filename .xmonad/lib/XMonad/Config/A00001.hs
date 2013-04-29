@@ -27,6 +27,7 @@ module XMonad.Config.A00001
 
 import           Control.Monad
 import           Data.List
+import qualified Data.Map as M
 import           Data.Ratio ((%))
 import qualified Solarized as Sol
 import           System.Directory (doesFileExist)
@@ -39,22 +40,27 @@ import           XMonad.Actions.CycleRecentWSAddons
 import           XMonad.Actions.CycleWS hiding (toggleWS)
 import           XMonad.Actions.DwmPromote
 import qualified XMonad.Actions.DynamicWorkspaces as DW
+import           XMonad.Actions.GridSelect
+import           XMonad.Actions.MouseGestures
+import qualified XMonad.Actions.Navigation2D as Nav2d
 import           XMonad.Actions.SpawnOn
 import           XMonad.Actions.UpdatePointer
 import           XMonad.Actions.WindowBringer    (gotoMenuArgs)
 import qualified XMonad.Config.Desktop as Desktop
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
-import           XMonad.Hooks.ManageDocks as MD
 import           XMonad.Hooks.ManageHelpers
+import           XMonad.Hooks.Minimize
 import           XMonad.Hooks.SetWMName
 import           XMonad.Hooks.UrgencyHook
 import           XMonad.Hooks.WorkspaceHistory (workspaceHistoryHook)
+import           XMonad.Layout.BoringWindows hiding (Replace)
 import           XMonad.Layout.Fullscreen
 import           XMonad.Layout.Gaps
 import           XMonad.Layout.Grid
 import           XMonad.Layout.IM
 import           XMonad.Layout.LayoutCombinators
+import           XMonad.Layout.Minimize
 import           XMonad.Layout.MultiToggle
 import           XMonad.Layout.MultiToggle.Instances
 import           XMonad.Layout.NoBorders
@@ -71,7 +77,7 @@ import           XMonad.Util.NamedActions
 import           XMonad.Util.NamedScratchpad
 import           XMonad.Util.Run
 import           XMonad.Util.WorkspaceCompare
-
+import           XMonad.Util.XUtils (fi)
 ------------------------------------------------------------------------
 -- Keyboard configuration:
 
@@ -231,6 +237,24 @@ myKeys conf =
     -- | Sort workspaces by tag name, exclude hidden scrachpad workspace.
     getSortByTagNoSP = fmap (.namedScratchpadFilterOutWorkspace) getSortByTag
 
+
+
+-- | Mouse bindings
+myMouseBindings =
+    [ ((0, button10), mouseGesture gestures) ]
+    where
+      button10 :: Button
+      button10 =  10
+      gestures = M.fromList
+                 [ ([], \w -> focus w >> windowMenu)
+                 , ([R, D], \_ -> sendMessage NextLayout)
+                 , ([U], \w -> focus w >> Nav2d.windowSwap U False)
+                 , ([D], \w -> focus w >> Nav2d.windowSwap D False)
+                 , ([L], \w -> focus w >> Nav2d.windowSwap L False)
+                 , ([R], \w -> focus w >> Nav2d.windowSwap R False)
+                 ]
+
+
 -- | Colors
 myNormalColor  = Sol.green
 myFocusedColor = Sol.magenta
@@ -254,6 +278,7 @@ myLayoutHook =
   onWorkspace "vbox" (renameStar full) $
   gaps [(U,18), (D,18)] $
   mkToggle (single NBFULL) $
+  boringWindows $
   onWorkspace "chat" (renameStar gridWide) $
   onWorkspace "music" tabs $
   onWorkspace "files" (grid ||| tabs) $
@@ -269,7 +294,7 @@ myLayoutHook =
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
     full = rename "full" $ noBorders (fullscreenFull Full)
-    wide = rename "wide" $ Mirror $ Tall 2 (3/100) (4/5)
+    wide = rename "wide" $ minimize $ Mirror $ Tall 2 (3/100) (4/5)
     dash = rename "dash" $ Mirror $ Tall 1 0 0.6
     spiral = rename "spiral" $ Spiral.spiral (6/7)
     tabs = rename "tabs" $ Mirror $ Tall 1 0 0.93
@@ -302,7 +327,7 @@ myManageHook :: ManageHook
 
 myManageHook =
   manageSpawn <+> fullscreenManageHook <+> namedScratchpadManageHook myScratchPads <+> (composeOne . concat $
-  [ [resource  =? r -?>                                        doIgnore           | r <- ["Do", "desktop_window", "kdesktop"]]
+  [ [resource  =? r -?>                                        doIgnore           | r <- ["Do", "desktop_window", "kdesktop", "Panel"]]
   , [className =? c -?>                                        doIgnore           | c <- ["Unity-2d-panel", "Xfce4-notifyd", "Xfdesktop"]]
   , [className =? c -?>                                        doSink             | c <- ["emulator64-mips", "emulator-arm", "emulator-x86"
                                                                                          ,"emulator64-arm", "emulator64-x86", "emulator-mips"]]
@@ -336,7 +361,7 @@ myManageHook =
 -- return (All True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
 --
-myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook
+myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> minimizeEventHook
 
 
 ------------------------------------------------------------------------
@@ -435,7 +460,8 @@ a00001Config = do
   , handleEventHook    = myHandleEventHook
   , startupHook        = myStartupHook
   , logHook = myLogHook
-  } where
+  } `additionalMouseBindings` myMouseBindings
+   where
     --  | An empty keymap
     emptyKeys c = mkKeymap c [ ]
 
@@ -487,6 +513,43 @@ maybeWorkspaceAction = do
   wins <- gets (W.integrate' . W.stack . W.workspace . W.current . windowset)
   when (null wins) workspaceAction
 
+
+windowMenu :: X ()
+windowMenu = withFocused $ \w -> do
+    Rectangle x y wh ht <- getSize w
+    Rectangle sx sy swh sht <- gets $ screenRect . W.screenDetail . W.current . windowset
+    let originFractX = (fi x - fi sx + fi wh / 2) / fi swh
+        originFractY = (fi y - fi sy + fi ht / 2) / fi sht
+        gsConfig = (buildDefaultGSConfig colorizer)
+                    { gs_originFractX = originFractX
+                    , gs_originFractY = originFractY }
+        actions = [ ("Cancel menu", return ())
+                  , ("Close"      , kill)
+                  , ("Restore minimized window" , sendMessage RestoreNextMinimizedWin)
+                  , ("Minimize"   , minimizeWindow w)
+                  ]
+    runSelectedAction gsConfig actions
+      where
+    colorizer :: a -> Bool -> X (String, String)
+    colorizer _ isFg = do
+        fBC <- asks (focusedBorderColor . config)
+        nBC <- asks (normalBorderColor . config)
+        return $ if isFg
+                    then (fBC, nBC)
+                    else (nBC, fBC)
+
+    getSize :: Window -> X (Rectangle)
+    getSize w = do
+      d  <- asks display
+      wa <- io $ getWindowAttributes d w
+      let x = fi $ wa_x wa
+          y = fi $ wa_y wa
+          wh = fi $ wa_width wa
+          ht = fi $ wa_height wa
+      return (Rectangle x y wh ht)
+
+
 -- Local Variables:
 -- fill-column: 180
 -- End:
+
