@@ -46,9 +46,9 @@ import qualified XMonad.Actions.Navigation2D as Nav2d
 import           XMonad.Actions.SpawnOn
 import           XMonad.Actions.UpdatePointer
 import           XMonad.Actions.WindowBringer    (gotoMenuArgs)
-import qualified XMonad.Config.Desktop as Desktop
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
+import           XMonad.Hooks.ManageDocks
 import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.Minimize
 import           XMonad.Hooks.SetWMName
@@ -346,7 +346,7 @@ myManageHook =
   , [transience]
   , [resource  =? "xmessage" -?>                               doCenterFloatLarge]
   , [title     =? "Onboard"  -?>                               doFloat]
-  ]) <+> manageHook Desktop.desktopConfig -- < implies only manageDocks (ons jul 18 08:51 2012)
+  ]) <+> manageDocks
   where
     doCenterFloatLarge = myCenterFloat 0.6 0.8
     doSink = ask >>= doF . W.sink
