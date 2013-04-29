@@ -125,7 +125,7 @@ myKeys conf =
   subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]": mkNamedKeymap conf
   [ ("M-C-<Space>",  addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
   , ("M-M1-<Space>", addName "Toggle fullscreen"                                    $ sendMessage (Toggle NBFULL) >> movePointer)
-  , ("M-M1-s",       addName "Toggle struts (ignore panels)"                        $ sendMessage ToggleGaps >> movePointer)
+  , ("M-M1-s",       addName "Toggle visibiltiy of panels"                          $ sendMessage ToggleGaps >> movePointer)
   , ("M-h",          addName "Shrink the master area"                               $ sendMessage Shrink >> movePointer)
   , ("M-l",          addName "Expand the master area"                               $ sendMessage Expand >> movePointer)
   , ("M-,",          addName "Increment the number of windows in the master area"   $ sendMessage (IncMasterN 1) >> movePointer)
