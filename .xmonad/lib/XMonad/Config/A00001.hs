@@ -111,7 +111,7 @@ myKeys conf =
   [ ("M-<Return>", addName "Swap the focused window and the master window" $ dwmpromote >> movePointer)
   , ("M-t",        addName "Push the window into tiling mode"              $ withFocused (windows . W.sink) >> movePointer)
   , ("M-C-c",      addName "kill"                                            kill)
-  , ("M-u",        addName "Focus urgent winow"                            $ focusUrgent >> movePointer >> showWorkspaceName)
+  , ("M-u",        addName "Focus urgent winow"                            $ focusUrgent >> restoreFocused >> movePointer >> showWorkspaceName)
   , ("M-y",        addName "Goto workspace by window search prompt"        $ gotoMenuArgs ["-l", "48"] >> movePointer >> showWorkspaceName)
   , ("M-C-u",      addName "Clear all urgent window statuses"                clearUrgents)
   ] ++
@@ -237,6 +237,10 @@ myKeys conf =
     -- | Sort workspaces by tag name, exclude hidden scrachpad workspace.
     getSortByTagNoSP = fmap (.namedScratchpadFilterOutWorkspace) getSortByTag
 
+    -- | Restore focused window from minimized state
+    restoreFocused = do
+      withFocused $ \w -> do
+        sendMessage (RestoreMinimizedWin w)
 
 
 -- | Mouse bindings
@@ -512,7 +516,6 @@ workspaceAction = do
 maybeWorkspaceAction = do
   wins <- gets (W.integrate' . W.stack . W.workspace . W.current . windowset)
   when (null wins) workspaceAction
-
 
 windowMenu :: X ()
 windowMenu = withFocused $ \w -> do
