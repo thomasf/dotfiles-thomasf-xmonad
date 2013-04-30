@@ -40,7 +40,6 @@ import           XMonad.Actions.CycleRecentWSAddons
 import           XMonad.Actions.CycleWS hiding (toggleWS)
 import           XMonad.Actions.DwmPromote
 import qualified XMonad.Actions.DynamicWorkspaces as DW
-import           XMonad.Actions.GridSelect
 import           XMonad.Actions.MouseGestures
 import qualified XMonad.Actions.Navigation2D as Nav2d
 import           XMonad.Actions.SpawnOn
@@ -77,7 +76,6 @@ import           XMonad.Util.NamedActions
 import           XMonad.Util.NamedScratchpad
 import           XMonad.Util.Run
 import           XMonad.Util.WorkspaceCompare
-import           XMonad.Util.XUtils (fi)
 ------------------------------------------------------------------------
 -- Keyboard configuration:
 
@@ -97,14 +95,14 @@ myKeys conf =
   , ("M-S-k",           addName "Swap focused with previous on workspace" $ windows W.swapUp >> movePointer)
   ] ++
   subtitle "Application launching": mkNamedKeymap conf
-  [ ("M-o s", spawn' "sshmenu")
-  , ("M-o o", spawn' "appmenu")
-  , ("M-o p", spawn' "xfce4-appfinder")
-  , ("M-o w", spawn' "www")
-  , ("M-o d", spawn' "www-dev")
-  , ("M-o t", spawn' "urxvt")
-  , ("M-o n", spawn' "nautilus")
-  , ("M-o h", spawn'  "zeal")
+  [ ("M-o s", spawnh "sshmenu")
+  , ("M-o o", spawnh "appmenu")
+  , ("M-o p", spawnh "xfce4-appfinder")
+  , ("M-o w", spawnh "www")
+  , ("M-o d", spawnh "www-dev")
+  , ("M-o t", spawnh "urxvt")
+  , ("M-o n", spawnh "nautilus")
+  , ("M-o h", spawnh  "zeal")
   , ("M-o a", addName "Run default workspace launcer script" workspaceAction)
   ] ++
   subtitle "Other window actions": mkNamedKeymap conf
@@ -138,19 +136,19 @@ myKeys conf =
   , ("M-.",          addName "Deincrement the number of windows in the master area" $ sendMessage (IncMasterN (-1)) >> movePointer)
   ] ++
   subtitle "Multi media keys": mkNamedKeymap conf
-  [ ("<XF86AudioPlay>",   spawn' "mpc toggle")
-  , ("<XF86AudioStop",    spawn' "mpc stop")
-  , ("S-<XF86AudioPrev>", spawn' "mpc prev")
-  , ("S-<XF86AudioNext>", spawn' "mpc next")
-  , ("<XF86AudioPrev>",   spawn' "mpc seek -00:00:10")
-  , ("<XF86AudioNext>",   spawn' "mpc seek +00:00:10")
-  , ("<XF86AudioStop>",   spawn' "mpc stop")
+  [ ("<XF86AudioPlay>",   spawnh "mpc toggle")
+  , ("<XF86AudioStop",    spawnh "mpc stop")
+  , ("S-<XF86AudioPrev>", spawnh "mpc prev")
+  , ("S-<XF86AudioNext>", spawnh "mpc next")
+  , ("<XF86AudioPrev>",   spawnh "mpc seek -00:00:10")
+  , ("<XF86AudioNext>",   spawnh "mpc seek +00:00:10")
+  , ("<XF86AudioStop>",   spawnh "mpc stop")
  ] ++
   subtitle "misc": mkNamedKeymap conf
-  [ ("M-<Print>",    spawn' "xfce4-screenshooter")
+  [ ("M-<Print>",    spawnh "xfce4-screenshooter")
   , ("M-C-<Print>",  addName "scrot focused window" $ safeSpawn "scrot" ["-u", "screenshot-%Y-%m-%d_%H-%M-%S_$wx$h.png", "-e", "mv $f ~/Pictures/scrot/"])
   , ("M-M1-<Print>", addName "scrot full"           $ safeSpawn "scrot" ["screenshot-%Y-%m-%d_%H-%M-%S_$wx$h.png", "-e", "mv $f ~/Pictures/scrot/"])
-  , ("M-S-C-c",      spawn' "xkill")
+  , ("M-S-C-c",      spawnh "xkill")
   ] ++
   subtitle "Toggle scratchpads and workspaces": mkNamedKeymap conf
   [ ("M-<Space>",           addName "Show larger terminal pad"              $ largeTerminalPad >> movePointer)
@@ -182,7 +180,7 @@ myKeys conf =
   , ("M-q <Space> r r r", addName "reboot computer"                      $ spawn "a.reboot")
  ]
   where
-    spawn' cmd'  = addName cmd' $ spawnHere cmd'
+    spawnh cmd'  = addName cmd' $ spawnHere cmd'
     -- | Move mouse pointer to bottom right of the current window
     movePointer = updatePointer (Relative 0.99 0.99)
 
