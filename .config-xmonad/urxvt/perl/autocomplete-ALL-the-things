@@ -25,21 +25,20 @@ sub on_user_command {
         $cmd eq 'aAtt:skeleton-word-complete') {
 
         # transforms the completed word into a regex matching the completions
-        my $completion_function;
+        my $completion_function = sub { quotemeta shift }; # identity
 
-        # character before each match
-        my $separator;
+        # regex matching a character before each match
+        my $separator = '[^-\w]';
 
         # regex matching every character in the completed word
-        my $char_class_to_complete;
+        my $char_class_to_complete = '[-\w]';
 
         if ($cmd eq 'aAtt:skeleton-complete') {
             $completion_function = skeleton_to_regex('.*?');
-            # \W used instead of \b to match between two non-word characters
-            $separator              = '\W';
+            $separator              = '[^-\w]';
             $char_class_to_complete = '\S';
         } elsif ($cmd eq 'aAtt:skeleton-word-complete') {
-            $completion_function = skeleton_to_regex('\w*');
+            $completion_function = skeleton_to_regex('[-\w]*');
         }
 
 
@@ -111,8 +110,6 @@ sub replace_text {
 sub get_current_word {
     my ($self, $row, $col, $char_class) = @_;
 
-    $char_class //= '\w';
-
     $_ = substr($self->ROW_t($row), 0, $col); # get the current line up to the cursor...
     s/.*?($char_class*)$/$1/;                          # ...and read the last word from it
     return $_;
@@ -156,16 +153,13 @@ sub skip_duplicates {
 
 sub find_match {
     my ($self, $word_to_match, $current_row, $regex_modifier, $separator) = @_;
+    $self->{matches_in_row} //= [];
 
     # cycle through all the matches in the current row if not starting a new search
     if (@{$self->{matches_in_row}}) {
         return skip_duplicates($self, $word_to_match, $current_row, $regex_modifier, $separator);
     }
 
-
-    # default identity modifier
-    $regex_modifier //= sub { quotemeta shift };
-    $separator        = '\b';
 
     my $regexp = $regex_modifier->($word_to_match);
 
@@ -178,7 +172,7 @@ sub find_match {
 
         # find all the matches in the current line
         my $match;
-        push @{$self->{matches_in_row}}, $match while ($_, $match) = /(.*$separator)($regexp\w*)/i;
+        push @{$self->{matches_in_row}}, $match while ($_, $match) = /(.*$separator)(${regexp}[-\w]*)/i;
         # corner case: match at the very beginning of line
         push @{$self->{matches_in_row}}, $line =~ /^($regexp\w*)/i;
 
