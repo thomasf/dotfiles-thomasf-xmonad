@@ -102,8 +102,10 @@ myKeys conf =
   , ("M-o d", spawnh "www-dev")
   , ("M-o t", spawnh "urxvt")
   , ("M-o n", spawnh "nautilus")
-  , ("M-o h", spawnh  "zeal")
+  , ("M-o z", spawnh  "zeal")
   , ("M-o a", addName "Run default workspace launcer script" workspaceAction)
+  , ("M-o v", toggleScratch "pamixer")
+  , ("M-o h", toggleScratch "htop")
   ] ++
   subtitle "Other window actions": mkNamedKeymap conf
   [ ("M-<Return>", addName "Swap the focused window and the master window" $ dwmpromote >> movePointer)
@@ -151,7 +153,7 @@ myKeys conf =
   , ("M-S-C-c",      spawnh "xkill")
   ] ++
   subtitle "Toggle scratchpads and workspaces": mkNamedKeymap conf
-  [ ("M-<Space>",           addName "Show larger terminal pad"              $ largeTerminalPad >> movePointer)
+  [ ("M-<Space>",           toggleScratch "largeTerminal")
   , ("M-i b",               myViewWS' "vbox")
   , ("M-i c",               myViewWS' "chat")
   , ("M-i d",               myViewWS' "dash")
@@ -206,8 +208,8 @@ myKeys conf =
                                  then windows $ W.view w
                                  else DW.addWorkspace w
 
-    -- | Open larger terminal pad
-    largeTerminalPad = namedScratchpadAction myScratchPads "largeTerminal"
+    -- | Toggle scratch pad
+    toggleScratch cmd' = addName("Toggle " ++ cmd' ++ " scratchpad ") $ namedScratchpadAction myScratchPads cmd'
 
     -- |  Select next workspace with same prefix
     nextWsPrefix = windows . W.greedyView
@@ -424,15 +426,16 @@ myXPConfig = defaultXPConfig
 ------------------------------------------------------------------------
 -- Scratch pads:
 
-myScratchPads = [ NS "largeTerminal" (term "largeTerminal") (res =? scratch "largeTerminal") largeCenterFloat
+myScratchPads = [ NS "largeTerminal" (term "largeTerminal") (res =? scratch "largeTerminal") $ myCenterFloat 0.8 0.8
+                , termScratch "pamixer" $ myCenterFloat 0.7 0.2
+                , termScratch "htop" $ myCenterFloat 0.9 0.9
                 ]
   where
     scratch sname = "scratchpad_" ++ sname
-    term sname = myTerminal ++ " -name scratchpad_" ++ sname
-    -- inTerm' sname scmd = myTerminal ++ " -name scratchpad_" ++ sname ++ " -e " ++  scmd
+    term sname = myTerminal ++ " -name " ++ scratch sname
+    termScratch scmd = NS scmd (inTerm' scmd scmd) (res =? scratch scmd)
+    inTerm' sname scmd = term sname ++ " -e " ++  scmd
     res = resource
-
-    largeCenterFloat = myCenterFloat 0.8 0.8
 
 
 myCenterFloat w h = customFloating $ W.RationalRect left top width height
