@@ -104,8 +104,8 @@ myKeys conf =
   , ("M-o n", spawnh "nautilus")
   , ("M-o z", spawnh  "zeal")
   , ("M-o a", addName "Run default workspace launcer script" workspaceAction)
-  , ("M-o v", toggleScratch "pamixer")
-  , ("M-o h", toggleScratch "htop")
+  , ("M-o M-v", toggleScratch "pamixer")
+  , ("M-o M-h", toggleScratch "htop")
   ] ++
   subtitle "Other window actions": mkNamedKeymap conf
   [ ("M-<Return>", addName "Swap the focused window and the master window" $ dwmpromote >> movePointer)
