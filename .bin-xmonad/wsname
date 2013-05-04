@@ -1,6 +1,10 @@
 #!/bin/bash
 [ $(which wmctrl) ] || exit 1
 name=$(wmctrl -d | grep  "[0-9]* \*" | tr -s ' '  | cut -d ' ' -f 10-)
+
+[[ -z $name ]] \
+    && name=$(wmctrl -d | grep  "[0-9]* \*" | tr -s ' '  | cut -d ' ' -f 9-)
+
 case $1 in
     -p)
         echo -n $(echo $name | cut -d '.' -f -1)
