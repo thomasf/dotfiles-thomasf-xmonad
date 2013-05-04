@@ -152,7 +152,9 @@ myKeys conf =
   , ("M-C-<Print>",  addName "scrot focused window" $ safeSpawn "scrot" ["-u", "screenshot-%Y-%m-%d_%H-%M-%S_$wx$h.png", "-e", "mv $f ~/Pictures/scrot/"])
   , ("M-M1-<Print>", addName "scrot full"           $ safeSpawn "scrot" ["screenshot-%Y-%m-%d_%H-%M-%S_$wx$h.png", "-e", "mv $f ~/Pictures/scrot/"])
   , ("M-S-C-c",      spawnh "xkill")
-  , ("<XF86Eject>",  addName "print screen" $ sendKey 0 xK_Print)
+  , ("<XF86Eject>",  addName "print " $ spawn "xdotool click -clearmodifiers 2")
+  , ("M-<XF86Eject>",  addName "print screen" $ sendKey controlMask xK_Print)
+
   ] ++
   subtitle "Toggle scratchpads and workspaces": mkNamedKeymap conf
   [ ("M-<Space>",           toggleScratch "largeTerminal")
