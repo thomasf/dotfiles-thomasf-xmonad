@@ -105,8 +105,8 @@ myKeys conf =
   , ("M-o n", spawnh "nautilus")
   , ("M-o z", spawnh  "zeal")
   , ("M-o a", addName "Run default workspace launcer script" workspaceAction)
-  , ("M-o M-v", toggleScratch "pamixer")
-  , ("M-o M-h", toggleScratch "htop")
+  , ("M-o v", toggleScratch "pamixer")
+  , ("M-o h", toggleScratch "htop")
   ] ++
   subtitle "Other window actions": mkNamedKeymap conf
   [ ("M-<Return>", addName "Swap the focused window and the master window" $ dwmpromote >> movePointer)
@@ -298,11 +298,12 @@ myLayoutHook =
   lessBorders OnlyFloat
   standard
   where
-    standard = wide ||| tabs ||| gridWide ||| spiral
+    standard = wide ||| tall ||| tabs ||| gridWide ||| spiral
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
     full = rename "full" $ noBorders (fullscreenFull Full)
     wide = rename "wide" $ minimize $ Mirror $ Tall 2 (3/100) (4/5)
+    tall = rename "tall" $ minimize $ Tall 2 (3/100) (3/5)
     dash = rename "dash" $ Mirror $ Tall 1 0 0.6
     spiral = rename "spiral" $ Spiral.spiral (6/7)
     tabs = rename "tabs" $ Mirror $ Tall 1 0 0.93
