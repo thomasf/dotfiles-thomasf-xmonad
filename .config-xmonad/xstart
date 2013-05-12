@@ -63,6 +63,7 @@ dbuslaunch="`which dbus-launch 2>/dev/null`"
     && devmon &
 
 # Start gnupg or ssh agent
+rm -f ~/.ssh/control:*
 agent_file="$HOME/.gnupg/gpg-agent-info-$(hostname)"
 unset GPG_AGENT_INFO; unset SSH_AUTH_SOCK; unset SSH_AGENT_PID
 rm -f "${agent_file}"
