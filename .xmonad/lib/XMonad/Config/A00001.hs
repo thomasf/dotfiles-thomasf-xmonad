@@ -285,6 +285,8 @@ myLayoutHook =
   onWorkspace "video" (renameStar full) $
   onWorkspace "vbox" (renameStar full) $
   gaps [(U,18), (D,18)] $
+  -- NOTE avoidStuts causes flickering borders and slow down when switching workspaces, gaps are infinitly faster.
+  -- avoidStruts $
   mkToggle (single NBFULL) $
   boringWindows $
   onWorkspace "chat" (renameStar gridWide) $
