@@ -7,6 +7,8 @@ Config { font = "xft:Consolas-11"
        , lowerOnStart = True
        , hideOnStart = False
        , persistent = True
+       , overrideRedirect = True
+       , allDesktops = True
        , commands = [ Run DynNetwork ["-t", "<dev> t<tx>k r<rx>k", "-L","0","-H","1000","--normal","#93a1a1","--high","#859900"] 30
                     , Run MultiCpu ["-t", "<bar>", "-L","3","-H","80","--normal","#93a1a1","--high","#dc322f"] 10
                     , Run Memory ["-t","<fc=#93a1a1><rest></fc>M"] 30

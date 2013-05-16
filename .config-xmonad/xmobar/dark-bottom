@@ -7,6 +7,8 @@ Config { font = "xft:Pt Sans-11"
        , lowerOnStart = True
        , hideOnStart = False
        , persistent = True
+       , overrideRedirect = True
+       , allDesktops = True
        , commands = [Run Weather "ESSB" ["-t",
                        "<tempC>C <skyCondition>",
                        "-L","4","-H","23","--normal","#839496","--high","#839496","--low","#839496"] 36000
