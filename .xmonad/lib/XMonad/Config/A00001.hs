@@ -124,6 +124,16 @@ myKeys conf =
   , ("M-S-d", addName "Move window to next screen"         $ shiftNextScreen >> nextScreen >> movePointer >> showWorkspaceNameFast)
   , ("M-S-f", addName "Move window to previous screen"     $ shiftPrevScreen >> prevScreen >> movePointer >> showWorkspaceNameFast)
   ] ++
+  subtitle "2D Navigation": mkNamedKeymap conf
+  [ ("M-<Up>",      addName "Focus window above" $ Nav2d.windowGo U False)
+  , ("M-<Down>",    addName "Focus window below" $ Nav2d.windowGo D False)
+  , ("M-<Left>",    addName "Focus window left"  $ Nav2d.windowGo L False)
+  , ("M-<Right>",   addName "Focus window right" $ Nav2d.windowGo R False)
+  , ("M-C-<Up>",    addName "Swap window above"  $ Nav2d.windowSwap U False)
+  , ("M-C-<Down>",  addName "Swap window below"  $ Nav2d.windowSwap D False)
+  , ("M-C-<Left>",  addName "Swap window left"   $ Nav2d.windowSwap L False)
+  , ("M-C-<Right>", addName "Swap window right"  $ Nav2d.windowSwap R False)
+  ] ++
   subtitle "Workspace actions (E/R) [mod=select from prefix] [mod+control=select from all]": mkNamedKeymap conf
   [ ("M-e",         addName "Next workspace (prefix)"     $ rmEmptyWs $ nextWsPrefix >> movePointer >> showWorkspaceName)
   , ("M-r",         addName "Previous workspace (prefix)" $ rmEmptyWs $ prevWsPrefix >> movePointer >> showWorkspaceName)
