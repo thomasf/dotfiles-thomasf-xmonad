@@ -303,14 +303,14 @@ myLayoutHook =
     standard = wide ||| tall ||| tabs ||| gridWide ||| spiral
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
-    full = rename "full" $ noBorders (fullscreenFull Full)
+    full = rename "full" $ minimize $ noBorders (fullscreenFull Full)
     wide = rename "wide" $ minimize $ Mirror $ Tall 2 (3/100) (4/5)
     tall = rename "tall" $ minimize $ Tall 2 (3/100) (3/5)
     dash = rename "dash" $ Mirror $ Tall 1 0 0.6
-    spiral = rename "spiral" $ Spiral.spiral (6/7)
+    spiral = rename "spiral" $ minimize $ Spiral.spiral (6/7)
     tabs = rename "tabs" $ Mirror $ Tall 1 0 0.93
-    gridWide = rename "grid" $ GridRatio (16/9)
-    grid = rename "grid" $ GridRatio (4/3)
+    gridWide = rename "grid" $ minimize $ GridRatio (16/9)
+    grid = rename "grid" $ minimize $ GridRatio (4/3)
     im =  withIM (1%9) pidginRoster $ reflectHoriz $ withIM (1%8) skypeRoster
          (gridWide ||| grid ||| spiral)
       where
