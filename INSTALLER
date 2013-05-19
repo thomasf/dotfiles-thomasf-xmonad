@@ -9,5 +9,5 @@
 [ -e "${HOME}/.config/gtk-3.0" ] \
     || ln -fs "$(pwd)/.config-xmonad/gtk/gtk-3.0" "${HOME}/.config/"
 
-[ -e "${HOME}/.config/.themes" ] \
+[ -e "${HOME}/.themes" ] \
     || ln -fs "$(pwd)/.config-xmonad/gtk/themes" "${HOME}/.themes"
