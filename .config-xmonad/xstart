@@ -62,6 +62,10 @@ dbuslaunch="`which dbus-launch 2>/dev/null`"
 [ $(which devmon) ] \
     && devmon &
 
+# unset gnome keyring daemon variables
+unset GNOME_KEYRING_CONTROL
+unset GNOME_KEYRING_PID
+
 # Start gnupg or ssh agent
 rm -f ~/.ssh/control:*
 agent_file="$HOME/.gnupg/gpg-agent-info-$(hostname)"
