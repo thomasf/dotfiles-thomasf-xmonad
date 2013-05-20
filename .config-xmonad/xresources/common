@@ -89,13 +89,10 @@ URxvt*dynamicColors:                  on
 !---- URxvt - Scratcpad terminals {
 scratchpad_smallTerminal*scrollBar:        false
 scratchpad_smallTerminal*perl-ext:         tabbedex,-resize-font
-scratchpad_smallTerminal*internalBorder:   0
 
 scratchpad_largeTerminal*scrollBar:        false
 scratchpad_largeTerminal*perl-ext:         tabbedex,-resize-font
-scratchpad_largeTerminal*internalBorder:   0
 
-htop*internalBorder:                       0
 htop*saveLines:                            0
 htop*scrollBar:                            false
 
@@ -103,18 +100,15 @@ dstat*internalBorder:                      8
 dstat*saveLines:                           1000
 dstat*scrollBar:                           8
 
-pamixer*internalBorder:                    0
 pamixer*saveLines:                         0
 pamixer*scrollBar:                         false
 
 ssh_tmux*scrollBar:                        false
 ssh_tmux*saveLines:                        0
-ssh_tmux*internalBorder:                   0
 ssh_tmux*font:                             xft:Anonymous Pro:pixelsize=16
 
 ncmpcpp*scrollBar:                         false
 ncmpcpp*saveLines:                         0
-ncmpcpp*internalBorder:                    0
 ncmpcpp*font:                              xft:Anonymous Pro:pixelsize=16
 
 
