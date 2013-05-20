@@ -121,7 +121,7 @@ if [ $(which mpd) ]; then
     (
         sleep 4
         mkdir -p ~/.mpd/playlists
-        mpd
+        nohup mpd 2>/dev/null
         sleep 2
         # Avoid some madness
         if [ `which mpc` ]; then
@@ -130,7 +130,7 @@ if [ $(which mpd) ]; then
             mpc -q consume off
         fi
         sleep 4
-        # TODO: this file is removed at start up because scmpc can hang and resubmit the cache forever under some circumstances.
+        # FIXME this file is removed at start up because scmpc can hang and resubmit the cache forever under some circumstances.
         [ -f $HOME/.scmpc/scmpc.cache ] \
             && rm $HOME/.scmpc/scmpc.cache
         [ $(which scmpc) ] \
