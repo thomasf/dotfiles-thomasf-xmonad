@@ -24,7 +24,7 @@ URxvt*cursorColor:            #586e75
 URxvt*pointerColorBackground: #93a1a1
 URxvt*pointerColorForeground: #586e75
 URxvt*scrollColor:            #93a1a1
-URxvt*borderColor:            #eee8d5
+URxvt*borderColor:            #fdf6e3
 URxvt*color0:                 #073642
 URxvt*color8:                 #657b83
 URxvt*color10:                #93a1a1
