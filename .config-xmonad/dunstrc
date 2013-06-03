@@ -3,7 +3,7 @@
 [global]
 # font = Monospace 8
 # font =  -*-terminus-bold-r-normal--18-*-*-*-*-*-*-*
-font =  Monospace 12
+font =  Monospace 11
 allow_markup = yes
 format = "[%a] %s %b"
 sort = yes
@@ -51,6 +51,13 @@ timeout = 20
 [urgency_critical]
 background = "#dc322f"
 foreground = "#002b36"
+timeout = 0
+
+[orgmode]
+appname = "orgmode"
+format = "%s %b"
+foreground = "#002b36"
+background = "#b58900"
 timeout = 0
 
 # other templates
