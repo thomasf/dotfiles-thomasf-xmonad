@@ -473,7 +473,7 @@ a00001Config = do
   return $ myUrgencyHook $ addDescrKeys' ((confModMask, xK_F1), showKeybindings) myKeys $ defaultConfig {
     terminal           = myTerminal
   , focusFollowsMouse  = False
-  , borderWidth        = 3
+  , borderWidth        = 4
   , modMask            = confModMask
   , workspaces         = myWorkspaces
   , normalBorderColor  = myNormalBorderColor darkmode
