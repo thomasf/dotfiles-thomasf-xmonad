@@ -90,6 +90,8 @@ myKeys conf =
   subtitle "Cyclic window actions (J/K) [+=focus] [+control=cycle+keep focus] [+shift=move]": mkNamedKeymap conf
   [ ("M-j",             addName "Focus next window on workspace"          $ windows W.focusDown >> movePointer)
   , ("M-k",             addName "Focus previous window on workspace"      $ windows W.focusUp >> movePointer)
+  , ("M-n",             addName "Focus next window on workspace"          $ windows W.focusDown >> movePointer)
+  , ("M-p",             addName "Focus previous window on workspace"      $ windows W.focusUp >> movePointer)
   , ("M-C-j",           addName "Swap focused with next on workspace"     $ windows W.swapDown >> movePointer)
   , ("M-C-k",           addName "Swap focused with previous on workspace" $ windows W.swapUp >> movePointer)
   , ("M-S-j",           addName "Swap focused with next on workspace"     $ windows W.swapDown >> movePointer)
