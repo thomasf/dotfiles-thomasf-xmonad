@@ -35,9 +35,6 @@ use List::Util qw(first);
 #  Debugging:   urxvt --perl-lib ${HOME}/.urxvt -pe font
 
 
-use constant X_RESOURCES => "~/.config/xresources/fonts";
-
-
 sub _resize_xft_string
 {
   my ($self, $key, $delta)      = @_;
@@ -128,11 +125,6 @@ sub change_size
 
 sub on_user_command
 {
-  # This function is called whenever some urxvt.keysym.*: perl:x:y
-  # mapped in X_RESOURCES is called; where x is this "module" (file,
-  # translation unit...), y is some function in this file (and this
-  # function, if defined), and $cmd is the argument z.
-  #
   my ($self, $cmd) = @_;
 
   if ($cmd =~ /font:(..crement)/)   # {in, de, ex}

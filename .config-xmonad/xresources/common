@@ -78,9 +78,9 @@ URxvt*searchable-scrollback:          M-s
 URxvt*keysym.M-s:                     perl:keyboard-select:search
 URxvt*keysym.M-Escape:                perl:keyboard-select:activate
 URxvt*keysym.M-u:                     perl:url-select:select_next
-! URxvt*keysym.M-plus:                     perl:aAtt:complete
-URxvt*keysym.M-plus:                     perl:aAtt:skeleton-complete
-! URxvt*keysym.M-plus:                     perl:aAtt:skeleton-word-complete
+URxvt*keysym.M-C-slash:               perl:aAtt:complete
+URxvt*keysym.M-question:              perl:aAtt:skeleton-complete
+URxvt*keysym.M-quotedbl:              perl:aAtt:undo
 URxvt*url-select.launcher:            google-chrome
 URxvt*url-select.underline:           true
 URxvt*clipboard.autocopy:             true
