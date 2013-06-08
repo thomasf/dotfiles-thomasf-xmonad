@@ -416,6 +416,7 @@ myLogHook = do
   dynamicLogString myXmobarPP >>= xmonadPropLog
   workspaceHistoryHook
   ewmhDesktopsLogHook
+  setWMName "LG3D"
 
 ------------------------------------------------------------------------
 -- Startup hook
