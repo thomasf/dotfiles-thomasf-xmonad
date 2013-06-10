@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Start a new google chrome session for development
 #
@@ -8,38 +8,51 @@
 
 set -e
 
-profiles_dir=~/.config/chrome-dev
+init () {
+    profiles_dir=~/.config/chrome-dev
+    mkdir -p $profiles_dir
+    cd $profiles_dir
+}
 
-mkdir -p $profiles_dir
+launch_browser() {
+    remote_debugging=""
+    lsof -iTCP:9222 -sTCP:LISTEN -t || remote_debugging="--remote-debugging-port=9222"
+    [ -z "${1}" ] && args="http://localhost:7345/files/index.html"
 
-cd $profiles_dir
+    exec google-chrome \
+        --allow-file-access \
+        --enable-memory-info \
+        --enable-extension-timeline-api \
+        --disable-background-mode  \
+        --disable-restore-session-state \
+        --disable-sync \
+        --disable-translate \
+        --enable-benchmarking \
+        --purge-memory-button \
+        --ignore-certificate-errors \
+        --user-data-dir=$profiles_dir/$profile \
+        --no-default-browser-check \
+        --no-first-run \
+        $remote_debugging \
+        --class=www-dev \
+        --app=www-dev \
+        $args \
+        "$@"
+}
 
-profile=`find . -mindepth 1 -maxdepth 1 -type d | cut -d / -f 2 | sort | dmenu -p profile`
-[ -z $profile ] && profile=_default
 
+init
 
-remote_debugging=""
+profiles=$(find . -mindepth 1 -maxdepth 1 -type d | cut -d / -f 2 | sort)
+profile=$(echo -e "$profiles\n[DELETE...]" | dmenu -p "chrome dev:")
 
-lsof -iTCP:9222 -sTCP:LISTEN -t || remote_debugging="--remote-debugging-port=9222"
+if [[ $profile == "[DELETE...]" ]]; then
+    profile=$(echo -e "$profiles" | dmenu -p "DELETE:")
+    [[ -z $profile ]] && exit 1
+    rm -rf "$profile"
+    exec $0
+fi
 
-[ -z "${1}" ] && args="http://localhost:7345/files/index.html"
+[ -z $profile ] && exit 1
 
-exec google-chrome \
-    --allow-file-access \
-    --enable-memory-info \
-    --enable-extension-timeline-api \
-    --disable-background-mode  \
-    --disable-restore-session-state \
-    --disable-sync \
-    --disable-translate \
-    --enable-benchmarking \
-    --purge-memory-button \
-    --ignore-certificate-errors \
-    --user-data-dir=$profiles_dir/$profile \
-    --no-default-browser-check \
-    --no-first-run \
-    $remote_debugging \
-    --class=www-dev \
-    --app=www-dev \
-    $args \
-    "$@"
+launch_browser "$@"
