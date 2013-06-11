@@ -208,7 +208,7 @@ myKeys conf =
     movePointer = updatePointer (Relative 0.99 0.99)
 
     -- | Remove current workpace if empty
-    rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP" ]
+    rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "scratch", "scratch.0" ]
 
     -- | View a workspace by name and maybe run workspace action
     myViewWS wsid = do
