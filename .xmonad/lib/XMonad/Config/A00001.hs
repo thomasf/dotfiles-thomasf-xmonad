@@ -98,8 +98,9 @@ myKeys conf =
   , ("M-S-k",           addName "Swap focused with previous on workspace" $ windows W.swapUp >> movePointer)
   ] ++
   subtitle "Application launching": mkNamedKeymap conf
-  [ ("M-o s", spawnh "sshmenu")
-  , ("M-o o", spawnh "appmenu")
+  [ ("M-o o", spawnh "appmenu")
+  , ("M-o <Space>",addName "Goto workspace by window search prompt"        $ gotoMenuArgs ["-l", "48"] >> movePointer >> showWorkspaceName)
+  , ("M-o s", spawnh "sshmenu")
   , ("M-o p", spawnh "xfce4-appfinder")
   , ("M-o w", spawnh "www")
   , ("M-o d", spawnh "www-dev")
@@ -116,7 +117,6 @@ myKeys conf =
   , ("M-t",        addName "Push the window into tiling mode"              $ withFocused (windows . W.sink) >> movePointer)
   , ("M-C-c",      addName "kill"                                            kill)
   , ("M-u",        addName "Focus urgent winow"                            $ focusUrgent >> restoreFocused >> movePointer >> showWorkspaceName)
-  , ("M-y",        addName "Goto workspace by window search prompt"        $ gotoMenuArgs ["-l", "48"] >> movePointer >> showWorkspaceName)
   , ("M-C-u",      addName "Clear all urgent window statuses"                clearUrgents)
   ] ++
   subtitle "Cyclic display actions (D/F) [+=select] [+control=swap] [+shift=move window to]": mkNamedKeymap conf
