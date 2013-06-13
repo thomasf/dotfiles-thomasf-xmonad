@@ -23,18 +23,18 @@ separator_height = 0;
 padding = 4
 horizontal_padding = 4
 separator_color = frame
-dmenu = ~/.bin-xmonad/dmenu -p dunst:
-browser = ~/.bin-xmonad/www
+dmenu = dmenu -p dunst:
+browser = www
 ignore_newline = no
 
 [frame]
 width = 0
 
 [shortcuts]
-close = ctrl+space
-close_all = ctrl+shift+space
-history = ctrl+grave
-context = ctrl+shift+period
+close = mod4+0
+close_all = mod4+9
+history = mod4+1
+context = mod4+2
 
 # urgency based templates
 
