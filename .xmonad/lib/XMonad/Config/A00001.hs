@@ -77,7 +77,9 @@ import           XMonad.Util.NamedScratchpad
 import           XMonad.Util.Run
 import           XMonad.Util.WorkspaceCompare
 import           XMonad.Util.Paste
-------------------------------------------------------------------------
+
+
+
 -- Keyboard configuration:
 
 -- simply for convenience and readability
@@ -262,6 +264,8 @@ myKeys conf =
     restoreFocused = withFocused $ \w -> sendMessage (RestoreMinimizedWin w)
 
 
+
+
 -- | Mouse bindings
 myMouseBindings =
     [ ((0, button10), mouseGesture gestures) ]
@@ -280,6 +284,8 @@ myMouseBindings =
                  ]
 
 
+
+
 -- | Colors
 myNormalColor  = Sol.green
 myFocusedColor = Sol.magenta
@@ -292,6 +298,8 @@ myNormalBorderColor darkmode = if darkmode then Sol.base03 else Sol.base3
 sizedFont px = "-xos4-terminus-*-r-*-*-" ++ px  ++ "-*-*-*-*-*-iso8859-*"
 largeFont = sizedFont "32"
 
+
+
 -- | Workspaces
 myWorkspaces = [ "scratch", "scratch.0"]
 myTerminal = "urxvt"
@@ -343,7 +351,8 @@ myLayoutHook =
                        `And` (Not (Role "CallWindow"))
 
 
------------------------------------------------------------------------
+
+
 -- Window rules:
 --
 -- To find the property name associated with a program, use
@@ -384,7 +393,8 @@ myManageHook =
     startsWith' :: Eq a => Query [a] -> [a] -> Query Bool
     startsWith' q prefix = fmap (isPrefixOf prefix) q
 
-------------------------------------------------------------------------
+
+
 -- Event handling
 
 -- Defines a <custom handler function for X Events. The function should
@@ -394,7 +404,8 @@ myManageHook =
 myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> minimizeEventHook
 
 
-------------------------------------------------------------------------
+
+
 -- Status bars and logging
 
 -- Perform an arbitrary action on each internal state change or X event.
@@ -418,7 +429,8 @@ myLogHook = do
   ewmhDesktopsLogHook
   setWMName "LG3D"
 
-------------------------------------------------------------------------
+
+
 -- Startup hook
 
 myStartupHook = do
@@ -426,7 +438,8 @@ myStartupHook = do
   setWMName "LG3D"
   return ()
 
-------------------------------------------------------------------------
+
+
 -- Urgency hook
 
 myUrgencyHook =
@@ -436,7 +449,7 @@ myUrgencyHook =
       { suppressWhen = XMonad.Hooks.UrgencyHook.Focused }
 
 
-------------------------------------------------------------------------
+
 -- XMonad Prompt configuration
 
 myXPConfig = defaultXPConfig
@@ -450,7 +463,7 @@ myXPConfig = defaultXPConfig
  , promptKeymap = emacsLikeXPKeymap }
 
 
-------------------------------------------------------------------------
+
 -- Scratch pads:
 
 myScratchPads = [ NS "largeTerminal" (term "largeTerminal") (res =? scratch "largeTerminal") $ myCenterFloat 0.8 0.8
@@ -472,7 +485,8 @@ myCenterFloat w h = customFloating $ W.RationalRect left top width height
     left = (1 - width) / 2
     top = (1 - height) / 2
 
-------------------------------------------------------------------------
+
+
 --  a00001Config
 
 a00001Config = do
@@ -504,6 +518,10 @@ a00001Config = do
       System.IO.UTF8.hPutStr h (unlines $ showKm x)
       hClose h
       return ()
+
+
+
+-- Utilities:
 
 -- | Show active workspace name slow
 showWorkspaceName = showWorkspaceName' 2.5 Sol.yellow
