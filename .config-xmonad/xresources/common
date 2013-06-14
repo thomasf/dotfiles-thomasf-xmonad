@@ -72,8 +72,8 @@ URxvt*tabbed.title-bg:                0
 URxvt*tabbed.repoen-on-close:         yes
 URxvt*matcher.button:                 1
 URxvt.print-pipe:                     cat > $(echo urxvt.scrollback.$(date +'%Y-%m-%d.%H_%m_%S'))
-urxvt.keysym.C-plus:                  perl:font:increment
-urxvt.keysym.C-minus:                 perl:font:decrement
+URxvt.keysym.C-plus:                  perl:font:increment
+URxvt.keysym.C-minus:                 perl:font:decrement
 URxvt*searchable-scrollback:          M-s
 URxvt*keysym.M-s:                     perl:keyboard-select:search
 URxvt*keysym.M-Escape:                perl:keyboard-select:activate
@@ -89,10 +89,10 @@ URxvt*dynamicColors:                  on
 
 !---- URxvt - Scratcpad terminals {
 scratchpad_smallTerminal*scrollBar:        false
-scratchpad_smallTerminal*perl-ext:         tabbedex,-resize-font
+scratchpad_smallTerminal*perl-ext:         tabbedex,-font
 
 scratchpad_largeTerminal*scrollBar:        false
-scratchpad_largeTerminal*perl-ext:         tabbedex,-resize-font
+scratchpad_largeTerminal*perl-ext:         tabbedex,-font
 
 htop*saveLines:                            0
 htop*scrollBar:                            false
