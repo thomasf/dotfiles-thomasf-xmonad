@@ -25,6 +25,7 @@ urxvt -e sh -c \
      "while :
      do
       termcolors
+      dynamic-colors switch ssh-cursor || true
       echo -n \`tput setaf 3\`
       echo Connecting: ${cs};
       echo -n \`tput sgr0\`
