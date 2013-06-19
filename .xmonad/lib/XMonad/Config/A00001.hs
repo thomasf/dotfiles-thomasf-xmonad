@@ -25,6 +25,9 @@ module XMonad.Config.A00001
       a00001Config
     ) where
 
+
+import XMonad.Layout.LayoutScreens
+import XMonad.Layout.TwoPane
 import           Control.Monad
 import           Data.List
 import qualified Data.Map as M
@@ -149,6 +152,8 @@ myKeys conf =
   , ("M-g",          addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
   , ("M-M1-<Space>", addName "Toggle fullscreen"                                    $ sendMessage (Toggle NBFULL) >> movePointer)
   , ("M-s",          addName "Toggle fullscreen"                                    $ sendMessage (Toggle NBFULL) >> movePointer)
+  , ("M-y",          addName "split screen"                                     $ layoutSplitScreen 2 (TwoPane 0 0.85) >> movePointer)
+  , ("M-C-y",        addName "reset screens"                                     $ rescreen >> movePointer)
   , ("M-M1-s",       addName "Toggle visibiltiy of panels"                          $ sendMessage ToggleGaps >> movePointer)
   , ("M-M1-r",       addName "Toggle reflect layout direction"                      $ sendMessage (Toggle REFLECTX) >> movePointer)
   , ("M-M1-m",       addName "Minimize"                                             $ withFocused minimizeWindow >> movePointer)
