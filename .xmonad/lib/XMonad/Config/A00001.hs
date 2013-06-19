@@ -423,8 +423,8 @@ myXmobarPP = defaultPP
   , ppHidden  = const ""
   , ppUrgent  = xmobarColor myUrgentColor2fg myUrgentColor2bg . wrap "   !" "!   "
   , ppTitle   = xmobarColor Sol.magenta ""
-  , ppLayout  = const ""
-  , ppSep     = xmobarColor Sol.cyan "" "  "
+  , ppLayout  = trim . wrap "(" ")"
+  , ppSep     = "  "
   , ppSort    = getSortByXineramaRule
   }
 
