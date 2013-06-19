@@ -146,7 +146,9 @@ myKeys conf =
   ] ++
   subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]": mkNamedKeymap conf
   [ ("M-C-<Space>",  addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
+  , ("M-g",          addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
   , ("M-M1-<Space>", addName "Toggle fullscreen"                                    $ sendMessage (Toggle NBFULL) >> movePointer)
+  , ("M-s",          addName "Toggle fullscreen"                                    $ sendMessage (Toggle NBFULL) >> movePointer)
   , ("M-M1-s",       addName "Toggle visibiltiy of panels"                          $ sendMessage ToggleGaps >> movePointer)
   , ("M-M1-r",       addName "Toggle reflect layout direction"                      $ sendMessage (Toggle REFLECTX) >> movePointer)
   , ("M-M1-m",       addName "Minimize"                                             $ withFocused minimizeWindow >> movePointer)
@@ -188,7 +190,7 @@ myKeys conf =
   , ("M-i v",               myViewWS' "video")
   , ("M-i w",               myViewWS' "www")
   , ("M-i M-i",             addName "cycle ws"                              $ rmEmptyWs $ myCycleRecentWs xK_i xK_o)
-  , ("M-i i", addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer >> showWorkspaceName)
+  , ("M-i i", addName "Create or change workspace prompt"                   $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer >> showWorkspaceName)
   , ("M-i <Space> <Space>", addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer >> showWorkspaceName)
   , ("M-i <Space> m",       addName "Move window to other workspace prompt" $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer >> showWorkspaceName)
   , ("M-i <Space> r",       addName "Rename current workspace"              $ DW.renameWorkspace myXPConfig >> movePointer >> showWorkspaceName)
