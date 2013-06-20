@@ -15,14 +15,16 @@ activeOutputs=$(echo "$xStatus" | grep -e " connected [^(]" | sed -e "s/\([A-Z0-
 connected=$(echo $connectedOutputs | wc -w)
 active=$(echo $activeOutputs | wc -w)
 
+cd ~/.config-xmonad/xmobar/
+
 pids="$(pidof xmobar)"
-xmobar ~/.config-xmonad/xmobar/${mode}-top-x0 -x 0 &
-xmobar ~/.config-xmonad/xmobar/${mode}-bottom -x 0 &
+xmobar ${mode}-top-x0 -x 0 &
+xmobar ${mode}-bottom -x 0 &
 
 if [ $active -gt 1 ]; then
     for i in $(seq 1 $(expr $active - 1)); do
-        xmobar ~/.config-xmonad/xmobar/${mode}-top -x ${i} &
-        xmobar ~/.config-xmonad/xmobar/${mode}-bottom -x ${i} &
+        xmobar ${mode}-top -x ${i} &
+        xmobar ${mode}-bottom -x ${i} &
     done
 fi
 
