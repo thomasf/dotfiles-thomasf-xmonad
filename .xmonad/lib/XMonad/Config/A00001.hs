@@ -300,10 +300,7 @@ myMouseBindings =
 -- | Colors
 myNormalColor  = Sol.green
 myFocusedColor = Sol.magenta
-myUrgentColor = Sol.blue
-myUrgentColor2bg = Sol.blueL
-myUrgentColor2fg = Sol.blueD
-
+myUrgentColor = Sol.red
 myNormalBorderColor darkmode = if darkmode then Sol.base03 else Sol.base3
 
 -- | Fonts
@@ -428,7 +425,7 @@ myXmobarTopPP = defaultPP
   { ppCurrent = xmobarColor myFocusedColor "" . wrap " " " "
   , ppVisible = wrap " " " "
   , ppHidden  = const ""
-  , ppUrgent  = xmobarColor myUrgentColor2fg myUrgentColor2bg . wrap " ! "  " ! "
+  , ppUrgent  = xmobarColor myUrgentColor "" . wrap " !!"  "!! "
   , ppTitle   = const ""
   , ppLayout  = trim . wrap "(" ")"
   , ppSep     = " "
