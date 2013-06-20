@@ -8,17 +8,17 @@
 
 golight() {
     rm -f ~/.config/darkmode
-    xrdb ~/.config-xmonad/xresources/light
     xsetroot -solid '#eee8d5'
     panels
+    xrdb ~/.config-xmonad/xresources/light
     xmonad --restart
 }
 
 godark() {
     [ ! $(id -u) -eq 0 ] && touch ~/.config/darkmode
-    xrdb ~/.config-xmonad/xresources/dark
     xsetroot -solid '#073642'
     panels
+    xrdb ~/.config-xmonad/xresources/dark
     xmonad --restart
 }
 

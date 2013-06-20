@@ -29,7 +29,7 @@ if [ $active -gt 1 ]; then
 fi
 
 old_trayer=$(pidof trayer)
-[ ! -z "${old_xmobars}" ] && sleep 0.2 && kill $old_xmobars
+[ ! -z "${old_xmobars}" ] && sleep 1.5 && kill $old_xmobars
 [ ! -z "${old_trayer}" ] && kill $old_trayer
 [ $(pidof trayer) ] && sleep 0.4
 trayer --edge top --align right --widthtype percent --width 8 --height 32 --tint ${bg} --alpha 0 --transparent true --monitor primary &
