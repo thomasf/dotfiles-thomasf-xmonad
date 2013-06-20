@@ -158,8 +158,10 @@ myKeys conf =
   , ("M-s",          addName "Toggle fullscreen"                                    $ sendMessage (Toggle NBFULL) >> movePointer)
   , ("M-y r",        addName "split screen: right sidebar"                          $ layoutSplitScreen 2 (TwoPane 0 0.85) >> movePointer)
   , ("M-y l",        addName "split screen: left sidebar"                           $ layoutSplitScreen 2 (TwoPane 0 0.15) >> movePointer)
+  , ("M-y h",        addName "split screen h"                                       $ layoutSplitScreen 2 (Mirror $ TwoPane 0 (4/7)) >> movePointer)
+  , ("M-y v",        addName "split screen v"                                       $ layoutSplitScreen 2 (TwoPane 0 (4/7)) >> movePointer)
   , ("M-y <Space>",  addName "reset screens"                                        $ rescreen >> movePointer)
-  , ("M-M1-s",       addName "Toggle visibiltiy of panels"                          $ sendMessage ToggleGaps >> movePointer)
+  , ("M-M1-s",       addName "Toggle visibiltiy of panels"                          $ sendMessage ToggleStruts >> movePointer)
   , ("M-M1-r",       addName "Toggle reflect layout direction"                      $ sendMessage (Toggle REFLECTX) >> movePointer)
   , ("M-M1-m",       addName "Minimize"                                             $ withFocused minimizeWindow >> movePointer)
   , ("M-M1-u",       addName "UnMinimize"                                           $ sendMessage RestoreNextMinimizedWin)
@@ -318,9 +320,9 @@ myLayoutHook =
   onWorkspace "friends" (rename "*friends*" tabs) $
   onWorkspace "video" (renameStar full) $
   onWorkspace "vbox" (renameStar full) $
-  gaps [(U,32), (D,24)] $
+  -- gaps [(U,32), (D,24)] $
   -- NOTE avoidStuts causes flickering borders and slow down when switching workspaces, gaps are infinitly faster.
-  -- avoidStruts $
+  avoidStruts $
   mkToggle (single NBFULL) $
   boringWindows $
   onWorkspace "chat" (renameStar gridWide) $
