@@ -11,18 +11,18 @@ Config { font = "xft:Consolas-16"
        , overrideRedirect = True
        , allDesktops = True
        , commands = [ Run DynNetwork ["-t", "<dev> t<tx>k r<rx>k", "-L","0","-H","1000","--normal","#93a1a1","--high","#859900"] 30
-                    , Run MultiCpu ["-t", "<bar>", "-L","3","-H","80","--normal","#93a1a1","--high","#dc322f"] 10
+                    , Run MultiCpu ["-t", "<total>%", "-L","3","-H","80","--normal","#93a1a1","--high","#dc322f", "-c", "0", "-p", "2"] 10
                     , Run Memory ["-t","<fc=#93a1a1><rest></fc>M"] 30
                     -- , Run DiskIO [("/", "/ w<fc=#93a1a1><write></fc> r<fc=#93a1a1><read></fc>")] [] 20
-                    , Run Battery ["-t", "<leftbar>", "-L", "10", "-H", "80", "-p", "3"
+                    , Run Battery ["-t", "<left>%", "-L", "10", "-H", "80", "-p", "2"
                                   , "--"
                                   , "-L", "-15", "-H", "-5", "-l", "#93a1a1", "-m", "#93a1a1", "-h", "#93a1a1"] 600
-                    , Run DateZone " %a %b %_d %H:%M " "en_US.utf8" "Europe/Stockholm" "sthmlDate" 10
+                    , Run DateZone "%a %b %_d %H:%M" "en_US.utf8" "Europe/Stockholm" "sthmlDate" 10
                     , Run NamedXPropertyLog "_XMONAD_LOG_TOP" "xm"
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%xm% }{ <fc=#2aa198>+</fc> %dynnetwork% <fc=#2aa198>+</fc> memf%memory% <fc=#2aa198>+</fc> cpu%multicpu% <fc=#2aa198>+</fc> bat%battery% <fc=#002b36,#859900>%sthmlDate%</fc>"
+       , template = "%xm% }{ <fc=#2aa198>+</fc> %dynnetwork% <fc=#2aa198>+</fc> memf%memory% <fc=#2aa198>+</fc> cpu%multicpu% <fc=#2aa198>+</fc> bat%battery%  <fc=#859900>%sthmlDate%</fc>"
 
 -- Local Variables:
 -- eval: (rainbow-mode 1)
