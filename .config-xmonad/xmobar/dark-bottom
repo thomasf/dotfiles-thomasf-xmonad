@@ -1,9 +1,9 @@
-Config { font = "xft:Pt Sans-11"
+Config { font = "xft:Pt Sans-14"
        , borderColor = "#002b36"
        , border = NoBorder
        , bgColor = "#002b36"
        , fgColor = "#657b83"
-       , position = BottomSize L 100 18
+       , position = Bottom
        , lowerOnStart = True
        , hideOnStart = False
        , persistent = True

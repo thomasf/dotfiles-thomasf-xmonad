@@ -321,7 +321,7 @@ myLayoutHook =
   onWorkspace "friends" (rename "*friends*" tabs) $
   onWorkspace "video" (renameStar full) $
   onWorkspace "vbox" (renameStar full) $
-  gaps [(U,24), (D,18)] $
+  gaps [(U,24), (D,20)] $
   -- NOTE avoidStuts causes flickering borders and slow down when switching workspaces, gaps are infinitly faster.
   -- avoidStruts $
   mkToggle (single NBFULL) $
