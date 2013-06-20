@@ -17,7 +17,7 @@ active=$(echo $activeOutputs | wc -w)
 
 cd ~/.config-xmonad/xmobar/
 
-pids="$(pidof xmobar)"
+old_xmobars="$(pidof xmobar)"
 xmobar ${mode}-top-x0 -x 0 &
 xmobar ${mode}-bottom -x 0 &
 
@@ -28,7 +28,10 @@ if [ $active -gt 1 ]; then
     done
 fi
 
-[ ! -z "${pids}" ] && sleep 1 && kill $pids
 
-pkill trayer && sleep 2
-trayer --edge top --align right --widthtype percent --width 8 --height 32 --tint ${bg} --alpha 0 --transparent true &
+old_trayer=$(pidof trayer)
+[ ! -z "${old_xmobars}" ] && kill $old_xmobars
+[ ! -z "$oo{old_trayer}" ] && kill $old_trayer
+sleep 0.3
+trayer --edge top --align right --widthtype percent --width 8 --height 32 --tint ${bg} --alpha 0 --transparent true --monitor primary &
+sleep 0.3
