@@ -1,9 +1,9 @@
-Config { font = "xft:Pt Sans-14"
+Config { font = "xft:Pt Sans:pixelsize=20"
        , borderColor = "#002b36"
        , border = NoBorder
        , bgColor = "#002b36"
        , fgColor = "#657b83"
-       , position = Bottom
+       , position = BottomSize C 100 24
        , lowerOnStart = True
        , hideOnStart = False
        , persistent = True
@@ -21,7 +21,7 @@ Config { font = "xft:Pt Sans-14"
 
        , sepChar = "%"
        , alignSep = "}{"
-       , template = " %xm% }{ <fc=#2aa198>+</fc> %ESSB% <fc=#2aa198>+</fc> <fc=#b58900>%mpd%</fc>"
+       , template = " %xm% }{ %ESSB%  <fc=#b58900>%mpd%</fc>"
 
 -- Local Variables:
 -- eval: (rainbow-mode 1)
