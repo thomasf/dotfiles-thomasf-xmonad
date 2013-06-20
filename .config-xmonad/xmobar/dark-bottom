@@ -15,12 +15,13 @@ Config { font = "xft:Pt Sans-11"
                     , Run MPD ["-t",
                        " <statei> <artist> - <title> ",
                        "--", "-P", ">>", "-Z", "||", "-S", "><"] 10
-                    , Run Com "fortune" ["~/.config-base/fortunes"] "quote" 9000
+                    -- , Run Com "fortune" ["~/.config-base/fortunes"] "quote" 9000
+                    , Run NamedXPropertyLog "_XMONAD_LOG_BOTTOM" "xm"
                     ]
 
        , sepChar = "%"
        , alignSep = "}{"
-       , template = " %quote% }{ <fc=#2aa198>+</fc> %ESSB% <fc=#2aa198>+</fc> <fc=#b58900>%mpd%</fc>"
+       , template = " %xm% }{ <fc=#2aa198>+</fc> %ESSB% <fc=#2aa198>+</fc> <fc=#b58900>%mpd%</fc>"
 
 -- Local Variables:
 -- eval: (rainbow-mode 1)

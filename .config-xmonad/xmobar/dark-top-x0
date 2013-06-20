@@ -1,5 +1,5 @@
 -- THIS IS A DERIVED THEME - DO NOT EDIT MANUALLY !!!
-Config { font = "xft:Consolas-11"
+Config { font = "xft:Consolas-16"
        , borderColor = "#002b36"
        , border = NoBorder
        , bgColor = "#002b36"
@@ -18,7 +18,7 @@ Config { font = "xft:Consolas-11"
                                   , "--"
                                   , "-L", "-15", "-H", "-5", "-l", "#93a1a1", "-m", "#93a1a1", "-h", "#93a1a1"] 600
                     , Run DateZone " %a %b %_d %H:%M " "en_US.utf8" "Europe/Stockholm" "sthmlDate" 10
-                    , Run NamedXPropertyLog "_XMONAD_LOG" "xm"
+                    , Run NamedXPropertyLog "_XMONAD_LOG_TOP" "xm"
                     ]
        , sepChar = "%"
        , alignSep = "}{"

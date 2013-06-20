@@ -28,4 +28,4 @@ fi
 
 [ ! -z "${pids}" ] && sleep 1 && kill $pids
 pkill trayer
-trayer --edge top --align right --widthtype percent --width 6 --height 18 --tint ${bg} --alpha 0 --transparent true &
+trayer --edge top --align right --widthtype percent --width 6 --height 24 --tint ${bg} --alpha 0 --transparent true &
