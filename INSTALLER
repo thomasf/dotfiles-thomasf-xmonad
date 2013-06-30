@@ -3,8 +3,8 @@
 # This file might be sourced during installation with hsadmin
 #
 
-[ -e "${HOME}/.config/dunstrc" ] \
-    || ln -fs "$(pwd)/.config-xmonad/dunstrc" "${HOME}/.config/"
+[ -e "${HOME}/.config/dunst/dunstrc" ] \
+    || mkdir -p "${HOME}/.config/dunst/" && ln -fs "$(pwd)/.config-xmonad/dunstrc" "${HOME}/.config/dunst/"
 
 [ -e "${HOME}/.config/gtk-3.0" ] \
     || ln -fs "$(pwd)/.config-xmonad/gtk/gtk-3.0" "${HOME}/.config/"
