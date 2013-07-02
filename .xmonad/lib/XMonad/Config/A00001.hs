@@ -129,12 +129,12 @@ myKeys conf =
   , ("M-C-u",      addName "Clear all urgent window statuses"                clearUrgents)
   ] ++
   subtitle "Cyclic display actions (D/F) [+=select] [+control=swap] [+shift=move window to]": mkNamedKeymap conf
-  [ ("M-d",   addName "Next screen"                        $ nextScreen >> movePointer )
-  , ("M-f",   addName "Previous screen"                    $ prevScreen >> movePointer )
-  , ("M-C-d", addName "Swap current display witn next"     $ swapNextScreen  >> nextScreen >> movePointer )
-  , ("M-C-f", addName "Swap current display witn previous" $ swapPrevScreen  >> prevScreen >> movePointer )
-  , ("M-S-d", addName "Move window to next screen"         $ shiftNextScreen >> nextScreen >> movePointer )
-  , ("M-S-f", addName "Move window to previous screen"     $ shiftPrevScreen >> prevScreen >> movePointer )
+  [ ("M-f",   addName "Next screen"                        $ nextScreen >> movePointer )
+  , ("M-d",   addName "Previous screen"                    $ prevScreen >> movePointer )
+  , ("M-C-f", addName "Swap current display witn next"     $ swapNextScreen >> movePointer )
+  , ("M-C-d", addName "Swap current display witn previous" $ swapPrevScreen >> movePointer )
+  , ("M-S-f", addName "Move window to next screen"         $ shiftNextScreen >> nextScreen >> movePointer )
+  , ("M-S-d", addName "Move window to previous screen"     $ shiftPrevScreen >> prevScreen >> movePointer )
   ] ++
   subtitle "2D Navigation": mkNamedKeymap conf
   [ ("M-<Up>",      addName "Focus window above" $ Nav2d.windowGo U False)
