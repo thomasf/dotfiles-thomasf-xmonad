@@ -49,7 +49,7 @@ sub enter {
    );
 
    $self->{manpage_overlay} = $self->overlay (0, -2, $self->ncol, 1, urxvt::OVERLAY_RSTYLE, 0);
-   $self->{manpage_overlay}->set (0, 0, "scrollback search, see the ${urxvt::RXVTNAME}perl manpage for details");
+   $self->{manpage_overlay}->set (0, 0, "scrollback search");
 
    $self->idle;
 }
@@ -69,7 +69,7 @@ sub leave {
 sub idle {
    my ($self) = @_;
 
-   $self->msg ("(escape cancels) /$self->{search}█");
+   $self->msg ("(C-g cancels) /$self->{search}█");
 }
 
 sub search {
@@ -132,19 +132,19 @@ sub key_press {
          $self->selection_make ($event->{time});
       }
       $self->leave;
-   } elsif ($keysym == 0xff1b) { # escape
+   } elsif ($keysym == 0xff1b || $keysym == 0x67 && $event->{state} & urxvt::ControlMask) { # C-g or ESC
       $self->view_start ($self->{view_start});
       $self->leave;
    } elsif ($keysym == 0xff57) { # end
       $self->{row} = $self->nrow - 1;
       $self->view_start (0);
-   } elsif ($keysym == 0xff52) { # up
+   } elsif ($keysym == 0xff52 || $keysym == 0x70 && $event->{state} & urxvt::ControlMask) { # C-p or up
       $self->{row}-- if $self->{row} > $self->top_row;
       $self->search (-1);
-   } elsif ($keysym == 0xff54) { # down
+   } elsif ($keysym == 0xff54 || $keysym == 0x6e && $event->{state} & urxvt::ControlMask) { # C-n or down
       $self->{row}++ if $self->{row} < $self->nrow;
       $self->search (+1);
-   } elsif ($keysym == 0xff08) { # backspace
+   } elsif ($keysym == 0xff08 || $keysym == 0x64 && $event->{state} & urxvt::ControlMask) { # C-d or backspace
       substr $self->{search}, -1, 1, "";
       $self->search;
       $self->idle;
