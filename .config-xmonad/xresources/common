@@ -83,7 +83,7 @@ URxvt*keysym.M-u:                     perl:url-select:select_next
 URxvt*keysym.M-C-slash:               perl:aAtt:complete
 URxvt*keysym.M-question:              perl:aAtt:skeleton-complete
 URxvt*keysym.M-quotedbl:              perl:aAtt:undo
-URxvt*url-select.launcher:            google-chrome
+URxvt*url-select.launcher:            www
 URxvt*url-select.underline:           true
 URxvt*clipboard.autocopy:             true
 URxvt.keysym.H-v:                     perl:clipboard:paste
