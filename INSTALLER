@@ -11,3 +11,9 @@
 
 [ -e "${HOME}/.themes" ] \
     || ln -fs "$(pwd)/.config-xmonad/gtk/themes" "${HOME}/.themes"
+
+[ -e "${HOME}/.config/fontconfig/conf.d" ] \
+    || mkdir -p "${HOME}/.config/fontconfig/" && ln -fs "$(pwd)/.config-xmonad/fontconfig.d" "${HOME}/.config/fontconfig/conf.d"
+
+[ -e "${HOME}/.fonts.conf.d" ] \
+    || mkdir -p "${HOME}/.config/fontconfig/" && ln -fs "$(pwd)/.config-xmonad/fontconfig.d" "${HOME}/.fonts.conf.d"
