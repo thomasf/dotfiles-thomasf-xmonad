@@ -1,6 +1,6 @@
 -- THIS IS A DERIVED THEME - DO NOT EDIT MANUALLY !!!
 -- THIS IS A DERIVED THEME - DO NOT EDIT MANUALLY !!!
-Config { font = "xft:PragmaPro:pixelsize=24"
+Config { font = "xft:PragmataPro:pixelsize=24"
        , borderColor = "#fdf6e3"
        , border = NoBorder
        , bgColor = "#fdf6e3"
