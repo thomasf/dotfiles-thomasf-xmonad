@@ -1,4 +1,4 @@
-Config { font = "xft:Pt Sans:pixelsize=20"
+Config { font = "xft:PT Sans Narrow:pixelsize=20"
        , borderColor = "#002b36"
        , border = NoBorder
        , bgColor = "#002b36"
