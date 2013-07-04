@@ -1,5 +1,5 @@
 -- THIS IS A DERIVED THEME - DO NOT EDIT MANUALLY !!!
-Config { font = "xft:Consolas:pixelsize=24"
+Config { font = "xft:PragmaPro:pixelsize=24"
        , borderColor = "#002b36"
        , border = NoBorder
        , bgColor = "#002b36"

@@ -14,7 +14,7 @@
 ! ref: https://wiki.archlinux.org/index.php/Font_Configuration
 ! ref: http://www.keithp.com/~keithp/render/Xft.tutorial
 Xft.antialias:                        1
-Xft.autohint:                         false
+Xft.autohint:                         true
 Xft.hinting:                          1
 !Xft.hintstyle:                       hintfull
 Xft.hintstyle:                        hintslight
@@ -33,7 +33,7 @@ Emacs*.menuBar:                       off
 Emacs*.toolBar:                       -1
 Emacs*.verticalScrollBars:            off
 Emacs*.borderWidth:                   0
-Emacs*.internalBorder:                0
+Emacs*.internalBorder:                3
 Emacs*menubar.margin:                 0
 Emacs*shadowThickness:                1
 
