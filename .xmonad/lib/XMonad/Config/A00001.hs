@@ -26,11 +26,11 @@ module XMonad.Config.A00001
     ) where
 
 
-import Data.Maybe ( isJust, catMaybes )
-import Codec.Binary.UTF8.String (encodeString)
+-- import Data.Maybe ( isJust, catMaybes )
+-- import Codec.Binary.UTF8.String (encodeString)
 import XMonad.Layout.LayoutScreens
 import XMonad.Layout.TwoPane
-import XMonad.Layout.DragPane
+-- import XMonad.Layout.DragPane
 import           Control.Monad
 import           Data.List
 import qualified Data.Map as M
@@ -61,7 +61,7 @@ import           XMonad.Hooks.UrgencyHook
 import           XMonad.Hooks.WorkspaceHistory (workspaceHistoryHook)
 import           XMonad.Layout.BoringWindows hiding (Replace)
 import           XMonad.Layout.Fullscreen
-import           XMonad.Layout.Gaps
+-- import           XMonad.Layout.Gaps
 import           XMonad.Layout.Grid
 import           XMonad.Layout.IM
 import           XMonad.Layout.LayoutCombinators
@@ -76,10 +76,10 @@ import qualified XMonad.Layout.Spiral as Spiral
 import           XMonad.Prompt hiding (height)
 import           XMonad.Prompt.Workspace
 import qualified XMonad.StackSet                 as W
-import qualified XMonad.Util.Dzen as DZ
+-- import qualified XMonad.Util.Dzen as DZ
 import           XMonad.Util.EZConfig
 import           XMonad.Util.NamedActions
-import           XMonad.Util.NamedWindows
+-- import           XMonad.Util.NamedWindows
 import           XMonad.Util.NamedScratchpad
 import           XMonad.Util.Run
 import           XMonad.Util.WorkspaceCompare
@@ -300,14 +300,14 @@ myMouseBindings =
 
 
 -- | Colors
-myNormalColor  = Sol.green
+-- myNormalColor  = Sol.green
 myFocusedColor = Sol.magenta
 myUrgentColor = Sol.blue
 myNormalBorderColor darkmode = if darkmode then Sol.base03 else Sol.base3
 
--- | Fonts
-sizedFont px = "-xos4-terminus-*-r-*-*-" ++ px  ++ "-*-*-*-*-*-iso8859-*"
-largeFont = sizedFont "32"
+-- -- | Fonts
+-- sizedFont px = "-xos4-terminus-*-r-*-*-" ++ px  ++ "-*-*-*-*-*-iso8859-*"
+-- largeFont = sizedFont "32"
 
 
 
@@ -557,6 +557,6 @@ maybeWorkspaceAction = do
   when (null wins) workspaceAction
 
 -- Local Variables:
--- fill-column: 180
+-- fill-column: 165
 -- End:
 
