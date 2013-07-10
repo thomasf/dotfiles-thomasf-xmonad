@@ -13,10 +13,10 @@ export _JAVA_AWT_WM_NONREPARENTING=1
 
 # Set the backbround color
 [ $(which xsetroot ) ] \
-    && xsetroot -solid '#073642' &
+  && xsetroot -solid '#073642' &
 
 [[ -e ~/.config-xmonad/xstart-local ]] && \
-    source ~/.config-xmonad/xstart-local
+  source ~/.config-xmonad/xstart-local
 
 # A a hack for one specific console
 # hostname=`hostname`
@@ -41,26 +41,26 @@ sleep 0.4
 # Launch a new dbus-session if not already running
 dbuslaunch="`which dbus-launch 2>/dev/null`"
 [ -n "$dbuslaunch" ] \
-    && [ -x "$dbuslaunch" ] \
-    && [ -z "$DBUS_SESSION_BUS_ADDRESS" ] \
-    && eval `$dbuslaunch --sh-syntax --exit-with-session`
+  && [ -x "$dbuslaunch" ] \
+  && [ -z "$DBUS_SESSION_BUS_ADDRESS" ] \
+  && eval `$dbuslaunch --sh-syntax --exit-with-session`
 
 # Source default bash environment
 [ -f "${HOME}/.bashrc" ] \
-    && source "${HOME}/.bashrc"
+  && source "${HOME}/.bashrc"
 
 # Ensure sane file permissions etc.
 [ -f "${HOME}/.bin/home-fix" ] \
-    && "${HOME}/.bin/home-fix"
+  && "${HOME}/.bin/home-fix"
 
 # Load gtk2 style settings
 [ -f  "${HOME}/.config-xmonad/gtk/gtk-2.0/default" ] \
-    && export GTK2_RC_FILES="${HOME}/.config-xmonad/gtk/gtk-2.0/default"
+  && export GTK2_RC_FILES="${HOME}/.config-xmonad/gtk/gtk-2.0/default"
 
 
 # Devmon udev mounter (part of udevil)
 [ $(which devmon) ] \
-    && devmon &
+  && devmon &
 
 # unset gnome keyring daemon variables
 unset GNOME_KEYRING_CONTROL
@@ -72,9 +72,9 @@ agent_file="$HOME/.gnupg/gpg-agent-info-$(hostname)"
 unset GPG_AGENT_INFO; unset SSH_AUTH_SOCK; unset SSH_AGENT_PID
 rm -f "${agent_file}"
 if [ $(which gpg-agent) ]; then
-    eval $(gpg-agent --daemon --sh --enable-ssh-support --write-env-file=${agent_file})
+  eval $(gpg-agent --daemon --sh --enable-ssh-support --write-env-file=${agent_file})
 elif [ $(which ssh-agent) ]; then
-    eval $(ssh-agent -s)
+  eval $(ssh-agent -s)
 fi
 export GPG_AGENT_INFO
 export SSH_AUTH_SOCK
@@ -82,137 +82,137 @@ export SSH_AGENT_PID
 
 # Initialize gnome settings daemon
 if [ $(which gnome-settings-daemon) ]; then
-    gnome-settings-daemon 2>/dev/null &
-    sleep 0.5
-    (
-        if [ $(which gconftool-2) ]; then
-	        gconftool-2 -t bool -s /apps/nautilus/preferences/show_desktop false
-	        gconftool-2 -t bool -s /desktop/gnome/volume_manager/automount_drives false
-	        gconftool-2 -t bool -s /apps/gnome_settings_daemon/screensaver/start_screensaver false
-	        gconftool-2 -t bool -s /apps/gnome-keyring/daemon-components/ssh false
-	        gconftool-2 -t bool -s /desktop/gnome/background/draw_background false
-	        gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/background/active false
-	        gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/ubuntuone/active false
-	        gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/xrandr/active false
-        fi
-        if [ $(which dconf) ]; then
-	        dconf write /org/gnome/settings-daemon/plugins/media-keys/active false
-            dconf write /org/gnome/desktop/background/draw-background false
-            dconf write /org/gnome/desktop/background/show-desktop-icons false
-            dconf write /org/gnome/desktop/media-handling/automount false
-            dconf write /org/gnome/desktop/media-handling/automount-open false
-            dconf write /org/gnome/desktop/media-handling/automount-never true
-            dconf write /org/gnome/desktop/screensaver/idle-activation-enabled false
-            dconf write /org/gnome/desktop/sound/event-sounds false
-            dconf write /org/gnome/settings-daemon/plugins/background/active false
-            dconf write /org/gnome/settings-daemon/plugins/xsettings/active false
-            dconf write /org/gnome/settings-daemon/plugins/keyboard/active false
-            dconf write /org/gnome/settings-daemon/plugins/keybindings/active false
-        fi
-    ) &
+  gnome-settings-daemon 2>/dev/null &
+  sleep 0.5
+  (
+    if [ $(which gconftool-2) ]; then
+      gconftool-2 -t bool -s /apps/nautilus/preferences/show_desktop false
+      gconftool-2 -t bool -s /desktop/gnome/volume_manager/automount_drives false
+      gconftool-2 -t bool -s /apps/gnome_settings_daemon/screensaver/start_screensaver false
+      gconftool-2 -t bool -s /apps/gnome-keyring/daemon-components/ssh false
+      gconftool-2 -t bool -s /desktop/gnome/background/draw_background false
+      gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/background/active false
+      gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/ubuntuone/active false
+      gconftool-2 -t bool -s /apps/gnome_settings_daemon/plugins/xrandr/active false
+    fi
+    if [ $(which dconf) ]; then
+      dconf write /org/gnome/settings-daemon/plugins/media-keys/active false
+      dconf write /org/gnome/desktop/background/draw-background false
+      dconf write /org/gnome/desktop/background/show-desktop-icons false
+      dconf write /org/gnome/desktop/media-handling/automount false
+      dconf write /org/gnome/desktop/media-handling/automount-open false
+      dconf write /org/gnome/desktop/media-handling/automount-never true
+      dconf write /org/gnome/desktop/screensaver/idle-activation-enabled false
+      dconf write /org/gnome/desktop/sound/event-sounds false
+      dconf write /org/gnome/settings-daemon/plugins/background/active false
+      dconf write /org/gnome/settings-daemon/plugins/xsettings/active false
+      dconf write /org/gnome/settings-daemon/plugins/keyboard/active false
+      dconf write /org/gnome/settings-daemon/plugins/keybindings/active false
+    fi
+  ) &
 fi
 
 # load Xresources
 [ -f "${HOME}/.Xresources" ] \
-    && xrdb -nocpp "${HOME}/.Xresources"
+  && xrdb -nocpp "${HOME}/.Xresources"
 
 # Start music player daemon if it's available
 if [ $(which mpd) ]; then
-    (
-        sleep 4
-        mkdir -p ~/.mpd/playlists
-        nohup mpd 2>/dev/null
-        sleep 2
-        # Avoid some madness
-        if [ `which mpc` ]; then
-            mpc -q repeat off
-            mpc -q single off
-            mpc -q consume off
-        fi
-        sleep 4
-        # FIXME this file is removed at start up because scmpc can hang and
-        # resubmit the cache forever under some circumstances.
-        [ -f $HOME/.scmpc/scmpc.cache ] \
-            && rm $HOME/.scmpc/scmpc.cache
-        [ $(which scmpc) ] \
-            && [ -f $HOME/.scmpc/scmpc.conf ] \
-            && scmpc
-    ) &
+  (
+    sleep 4
+    mkdir -p ~/.mpd/playlists
+    nohup mpd 2>/dev/null
+    sleep 2
+    # Avoid some madness
+    if [ `which mpc` ]; then
+      mpc -q repeat off
+      mpc -q single off
+      mpc -q consume off
+    fi
+    sleep 4
+    # FIXME this file is removed at start up because scmpc can hang and
+    # resubmit the cache forever under some circumstances.
+    [ -f $HOME/.scmpc/scmpc.cache ] \
+      && rm $HOME/.scmpc/scmpc.cache
+    [ $(which scmpc) ] \
+      && [ -f $HOME/.scmpc/scmpc.conf ] \
+      && scmpc
+  ) &
 fi
 
 # Configure keyboard mode buttons
 if [ -f $HOME/.bin-xmonad/kbd ]; then
-    ${HOME}/.bin-xmonad/kbd
+  ${HOME}/.bin-xmonad/kbd
 fi
 
 # Launch google chrome
 [ $(which google-chrome) ] \
-    && google-chrome --no-startup-window 2>/dev/null &
+  && google-chrome --no-startup-window 2>/dev/null &
 
 # Launch drop box
 [ -x ~/.dropbox-dist/dropboxd ] \
-    && ~/.dropbox-dist/dropboxd &
+  && ~/.dropbox-dist/dropboxd &
 
 # Launch the network manager applet
 [ $(which nm-applet) ] \
-    && nm-applet --sm-disable &
+  && nm-applet --sm-disable &
 
 # Launch the bluetooth manager applet
 [ $(which blueman-applet) ] \
-    && blueman-applet &
+  && blueman-applet &
 
 # Launch gpome (binds apple hw control keys)
 [ $(which gpomme) ] \
-    && gpomme &
+  && gpomme &
 
 # Set a default web browser
 [ $(which www) ] \
-    && BROWSER=$(which www) \
-    && export BROWSER
+  && BROWSER=$(which www) \
+  && export BROWSER
 
 # Launch miniserv
 [ -f ~/.config-base/miniserv/miniserv.py ] && \
-    python ~/.config-base/miniserv/miniserv.py -d &
+  python ~/.config-base/miniserv/miniserv.py -d &
 
 (
-    darkmodearg=d
-    if [ $(which zenity ) ]; then
-        sleep 1
-        if ! zenity  --question --text="darkmode?"; then
-            darkmodearg=l
-        fi
+  darkmodearg=d
+  if [ $(which zenity ) ]; then
+    sleep 1
+    if ! zenity  --question --text="darkmode?"; then
+      darkmodearg=l
     fi
-    darkmode $darkmodearg
-    # org-mode
-    [ $(which orgmode) ] && [ $(which notify-send) ] \
-        && notify-send -a orgmode "$(orgmode)" &
+  fi
+  darkmode $darkmodearg
+  # org-mode
+  [ $(which orgmode) ] && [ $(which notify-send) ] \
+    && notify-send -a orgmode "$(orgmode)" &
 ) &
 # Function that displays a list of window managers to choose from.
 wm_selection() {
-    avail_vms=""
-    for candidate in xmonad wmii pekwm awesome xfce4-session gnome-session openbox blackbox startfluxbox; do
-        which $candidate && avail_vms="$avail_vms $candidate"
-    done
+  avail_vms=""
+  for candidate in xmonad wmii pekwm awesome xfce4-session gnome-session openbox blackbox startfluxbox; do
+    which $candidate && avail_vms="$avail_vms $candidate"
+  done
 
-    if [ $(which zenity) ]; then
-        WM=$( zenity --list --title "ACTION?!?" --text "re-launch vm?" --column "Available window managers" $avail_vms )
-    else
-        xmessage "warning: zenity not found, no window manager selection possible"
-    fi
+  if [ $(which zenity) ]; then
+    WM=$( zenity --list --title "ACTION?!?" --text "re-launch vm?" --column "Available window managers" $avail_vms )
+  else
+    xmessage "warning: zenity not found, no window manager selection possible"
+  fi
 }
 
 # Set default window manger (xmonad) or try user selection
 WM=""
 if [ $(which xmonad) ]; then
-    WM="xmonad"
+  WM="xmonad"
 else
-    wm_selection
+  wm_selection
 fi
 [ "z" = "z$WM" ] \
-    && xmessage "!!! No window manager found/selected !!!"
+  && xmessage "!!! No window manager found/selected !!!"
 
 # Start the window manager
 while [ ! "" = "$WM" ]; do
-    ( ${WM} )
-    wm_selection
+  ( ${WM} )
+  wm_selection
 done
