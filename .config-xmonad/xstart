@@ -130,7 +130,8 @@ if [ $(which mpd) ]; then
             mpc -q consume off
         fi
         sleep 4
-        # FIXME this file is removed at start up because scmpc can hang and resubmit the cache forever under some circumstances.
+        # FIXME this file is removed at start up because scmpc can hang and
+        # resubmit the cache forever under some circumstances.
         [ -f $HOME/.scmpc/scmpc.cache ] \
             && rm $HOME/.scmpc/scmpc.cache
         [ $(which scmpc) ] \

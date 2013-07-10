@@ -84,6 +84,13 @@ background = "#268bd2"
 foreground = "#002b36"
 timeout = 2
 
+[clock]
+appname = "clock"
+format = "%s %b"
+background = "#859900"
+foreground = "#002b36"
+timeout = 30
+
 # Local Variables:
 # eval: (rainbow-mode 1)
 # End:
