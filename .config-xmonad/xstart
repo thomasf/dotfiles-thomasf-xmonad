@@ -165,6 +165,10 @@ fi
 [ $(which gpomme) ] \
   && gpomme &
 
+# launch time reminder notification
+[ $(which x.remind-time) ] \
+  && x.remind-time &
+
 # Set a default web browser
 [ $(which www) ] \
   && BROWSER=$(which www) \
