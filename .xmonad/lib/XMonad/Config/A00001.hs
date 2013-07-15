@@ -126,7 +126,7 @@ myKeys conf =
   , ("M-t",        addName "Push the window into tiling mode"              $ withFocused (windows . W.sink) >> movePointer)
   , ("M-C-c",      addName "kill"                                            kill)
   , ("M-u",        addName "Focus urgent winow"                            $ focusUrgent >> restoreFocused >> movePointer )
-  , ("M-C-u",      addName "Clear all urgent window statuses"                clearUrgents)
+  , ("M-C-u",      addName "Clear all urgent window statuses"              $ clearUrgents >> focusUrgent)
   ] ++
   subtitle "Cyclic display actions (D/F) [+=select] [+control=swap] [+shift=move window to]": mkNamedKeymap conf
   [ ("M-f",   addName "Next screen"                        $ nextScreen >> movePointer )
