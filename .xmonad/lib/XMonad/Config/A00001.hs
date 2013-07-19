@@ -423,7 +423,7 @@ myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> minimizeEv
 -- See the 'XMonad.Hooks.DynamicLog' extension for examples.
 --
 
-myXmobarTopPP = defaultPP
+myXmobarTopPP = def
   { ppCurrent = xmobarColor myFocusedColor "" . wrap " " " " . trim
   , ppVisible = wrap " " " " . trim
   , ppHidden  = const ""
@@ -434,7 +434,7 @@ myXmobarTopPP = defaultPP
   , ppSort    = getSortByXineramaRule
   }
 
-myXmobarBottomPP = defaultPP
+myXmobarBottomPP = def
   { ppCurrent = const ""
   , ppVisible = const ""
   , ppHidden  = const ""
@@ -475,7 +475,7 @@ myUrgencyHook =
 
 -- XMonad Prompt configuration
 
-myXPConfig = defaultXPConfig
+myXPConfig = def
  { position = Top
  , bgColor = Sol.base03
  , fgColor = Sol.yellow
@@ -515,7 +515,7 @@ myCenterFloat w h = customFloating $ W.RationalRect left top width height
 a00001Config = do
   home <- io $ getEnv "HOME"
   darkmode <- doesFileExist $ home ++ "/.config/darkmode"
-  return $ myUrgencyHook $ addDescrKeys' ((confModMask, xK_F1), showKeybindings) myKeys $ defaultConfig {
+  return $ myUrgencyHook $ addDescrKeys' ((confModMask, xK_F1), showKeybindings) myKeys $ def {
     terminal           = myTerminal
   , focusFollowsMouse  = False
   , borderWidth        = 4
