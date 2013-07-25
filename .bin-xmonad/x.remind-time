@@ -1,5 +1,5 @@
 #!/bin/bash
-# Makes a libnotify popup on the hour to remind you to take a break.
+# Makes a libnotify popup to remind you to take a break.
 
 PERIOD=1800
 
@@ -7,11 +7,9 @@ function notify {
   notify-send -u normal -a clock "time" "<span font='50'>$(date +%H:%M)</span>"
 }
 
-# Initial snap
 sleep $(( $PERIOD - ($(/bin/date +%s) % $PERIOD) ))
 notify &
 
-# And every hour after that.
 while true; do
   sleep $PERIOD
   notify &
