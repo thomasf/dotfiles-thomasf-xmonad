@@ -330,7 +330,7 @@ myLayoutHook =
   onWorkspace "chat" (renameStar gridWide) $
   onWorkspace "music" tabs $
   onWorkspace "files" (grid ||| tabs) $
-  onWorkspace "home" (tabs ||| grid) $
+  onWorkspace "home" (wide ||| grid) $
   onWorkspace "nodes" (renameStar tabs) $
   onWorkspace "read" (renameStar tabs) $
   onWorkspace "dash" (dash ||| grid) $
