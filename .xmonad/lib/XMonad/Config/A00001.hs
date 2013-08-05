@@ -223,7 +223,7 @@ myKeys conf =
   where
     spawnh cmd'  = addName cmd' $ spawnHere cmd'
     -- | Move mouse pointer to bottom right of the current window
-    movePointer = updatePointer (Relative 0.99 0.99)
+    movePointer = updatePointer (0.99, 0.99) (0, 0)
 
     -- | Remove current workpace if empty
     rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "scratch", "scratch.0" ]
