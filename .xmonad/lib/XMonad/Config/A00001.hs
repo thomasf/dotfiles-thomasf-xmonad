@@ -111,6 +111,8 @@ myKeys conf =
   , ("M-o <Space>",addName "Goto workspace by window search prompt"        $ gotoMenuArgs ["-l", "48"] >> movePointer)
   , ("M-o s", spawnh "sshmenu")
   , ("M-o p", spawnh "xfce4-appfinder")
+  , ("M-o c", spawnh "google-chrome")
+  , ("M-o f", spawnh "firefox")
   , ("M-o w", spawnh "www")
   , ("M-o d", spawnh "www-dev")
   , ("M-o t", spawnh "urxvt")
