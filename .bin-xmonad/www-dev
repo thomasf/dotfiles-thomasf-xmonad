@@ -25,7 +25,6 @@ launch_browser() {
         --enable-extension-timeline-api \
         --disable-background-mode  \
         --disable-restore-session-state \
-        --disable-sync \
         --disable-translate \
         --enable-benchmarking \
         --purge-memory-button \
