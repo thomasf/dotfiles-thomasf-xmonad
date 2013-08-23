@@ -48,7 +48,7 @@ sub _resize_xft_string
     $monaco ||= $piece =~ /^Monaco/i;
 
     # matching string
-    if ($piece =~ /pixelsize=(\d*)/)
+    if ($piece =~ /size=(\d*)/)
     {
       my ($old_size)    =  $1;
       my ($new_size)    =  $old_size;
@@ -90,7 +90,7 @@ sub _resize_xft_string
       {
         $new_size += $delta;
       }
-      $piece =~ s/pixelsize=$old_size/pixelsize=$new_size/;
+      $piece =~ s/size=$old_size/size=$new_size/;
     }
     push @resized, $piece;
   }
