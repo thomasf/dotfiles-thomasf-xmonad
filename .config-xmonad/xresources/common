@@ -48,7 +48,7 @@ Xmessage*geometry:                    +20+20
 !---- URxvt - General settings {
 URxvt*fading:                         0
 URxvt*:borderLess:                    true
-URxvt*internalBorder:                 3
+URxvt*internalBorder:                 7
 
 URxvt*cursorBlink:                    false
 ! URxvt*font:                           xft:Anonymous Pro:pixelsize=13
