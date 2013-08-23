@@ -112,7 +112,7 @@ ssh_tmux*scrollBar:                        false
 ssh_tmux*saveLines:                        0
 ! ssh_tmux.letterSpace:	                   0
 ! ssh_tmux*font:                             xft:Anonymous Pro:size=11.8
-ssh_tmux*font:                             xft:PragmataPro:size=14
+ssh_tmux*font:                             xft:PragmataPro:size=12
 
 ncmpcpp*scrollBar:                         false
 ncmpcpp*saveLines:                         0
