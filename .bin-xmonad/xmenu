@@ -1,0 +1,28 @@
+#!/bin/bash
+#
+# Start a new google chrome session for development
+#
+# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
+#
+# Command line switches reference: http://src.chromium.org/svn/trunk/src/chrome/common/chrome_switches.cc
+
+set -e
+
+actions="[cancel]\nleave\nsuspend\nhibernate\nreboot\nshutdown"
+action=$(echo -e "$actions" | dmenu -l 20 -p "xmenu")
+
+[ -z $action ] && exit 1
+
+case $action in
+  leave|suspend|hibernate|reboot|shutdown)
+    exec a.$action
+    ;;
+  *)
+    exit 1
+    ;;
+esac
+
+
+
+
+

@@ -216,11 +216,7 @@ myKeys conf =
   [ ("M-q r",             addName "restart xmonad"                       $ restart "xmonad" True)
   , ("M-q x x x",         addName "restart xmonad without keeping state" $ restart "xmonad" False)
   , ("M-q k k k",         addName "KILL xmonad"                          $ io exitSuccess)
-  , ("M-q <Space> h h h", addName "hibernate computer"                   $ spawn "a.hibernate")
-  , ("M-q <Space> s s s", addName "suspend computer"                     $ spawn "a.suspend")
-  , ("M-q <Space> p p p", addName "power off computer"                   $ spawn "a.shutdown")
-  , ("M-q <Space> l l l", addName "leave computer"                       $ spawn "a.leave")
-  , ("M-q <Space> r r r", addName "reboot computer"                      $ spawn "a.reboot")
+  , ("M-q <Space>",       addName "xmenu"                                $ spawn "xmenu")
  ]
   where
     spawnh cmd'  = addName cmd' $ spawnHere cmd'

@@ -150,8 +150,8 @@ fi
   && google-chrome --no-startup-window 2>/dev/null &
 
 # Launch drop box
-[ -x ~/.dropbox-dist/dropboxd ] \
-  && ~/.dropbox-dist/dropboxd &
+# [ -x ~/.dropbox-dist/dropboxd ] \
+#   && ~/.dropbox-dist/dropboxd &
 
 # Launch the network manager applet
 [ $(which nm-applet) ] \

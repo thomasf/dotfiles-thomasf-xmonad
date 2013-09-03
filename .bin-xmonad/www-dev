@@ -43,7 +43,7 @@ launch_browser() {
 init
 
 profiles=$(find . -mindepth 1 -maxdepth 1 -type d | cut -d / -f 2 | sort)
-profile=$(echo -e "$profiles\n[DELETE...]" | dmenu -p "chrome dev:")
+profile=$(echo -e "$profiles\n[DELETE...]" | dmenu -l 20 -p "chrome dev:")
 
 if [[ $profile == "[DELETE...]" ]]; then
     profile=$(echo -e "$profiles" | dmenu -p "DELETE:")
