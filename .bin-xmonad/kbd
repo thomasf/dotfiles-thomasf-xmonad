@@ -1,11 +1,23 @@
 #!/bin/bash
 
-# My steel series keyboard
+# steel series keyboard
 steels_id=`xinput -list | grep -i 'DATACOMP SteelS' | grep -o id=[0-9]. | grep -o [0-9]. | head -1`
 
 #setxkbmap -option ctrl:nocaps
 if [ "${steels_id}" ]; then
-    setxkbmap -device "${steels_id}" -layout se -variant nodeadkeys
+  setxkbmap -device "${steels_id}" -layout se -variant nodeadkeys
+
+
 fi
 
-xmodmap ~/.config-xmonad/xmodmap
+# TECK
+teck_id=`xinput -list | grep -i 'TrulyErgonomic.com' | grep -o id=[0-9]. | grep -o [0-9]. | head -1`
+
+#setxkbmap -option ctrl:nocaps
+if [ "${teck_id}" ]; then
+  setxkbmap -device "${teck_id}" -layout us -variant altgr-intl -option nodeadkeys
+else
+  xmodmap ~/.config-xmonad/xmodmap
+fi
+
+
