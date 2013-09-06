@@ -1,23 +1,12 @@
 #!/bin/bash
+setl() {
+  layout=$2
+  id=$(xinput -list | grep -i "${1}" | grep -o id=[0-9]. | grep -o [0-9]. | head -1)
+  if [ "${id}" ]; then
+    xkbcomp -I$HOME/.config-xmonad/xkb $layout -i $id $DISPLAY 2>/dev/null
+  fi
+}
 
-# steel series keyboard
-steels_id=`xinput -list | grep -i 'DATACOMP SteelS' | grep -o id=[0-9]. | grep -o [0-9]. | head -1`
-
-#setxkbmap -option ctrl:nocaps
-if [ "${steels_id}" ]; then
-  setxkbmap -device "${steels_id}" -layout se -variant nodeadkeys
-
-
-fi
-
-# TECK
-teck_id=`xinput -list | grep -i 'TrulyErgonomic.com' | grep -o id=[0-9]. | grep -o [0-9]. | head -1`
-
-#setxkbmap -option ctrl:nocaps
-if [ "${teck_id}" ]; then
-  setxkbmap -device "${teck_id}" -layout us -variant altgr-intl -option nodeadkeys
-else
-  xmodmap ~/.config-xmonad/xmodmap
-fi
-
-
+setl "DATACOMP SteelS" my-se-caps-ctrl-super
+# setl "TrulyErgonomic.com" my-us-default
+setl "TrulyErgonomic.com" my-us-swap-shift-ctrl

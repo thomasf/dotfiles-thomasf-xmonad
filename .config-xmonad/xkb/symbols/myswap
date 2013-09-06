@@ -1,0 +1,12 @@
+partial modifier_keys
+xkb_symbols "swap_shift_ctrl" {
+    replace key <LCTL>  { [ Shift_L ] };
+    replace key <LFSH> { [ Control_L ] };
+    replace key <RCTL>  { [ Shift_R ] };
+    replace key <RTSH> { [ Control_R ] };
+};
+
+xkb_symbols "swap_other" {
+    replace key <CAPS>  { [ Control_L ] };
+    replace key <LCTL> { [ Super_L  ] };
+};
