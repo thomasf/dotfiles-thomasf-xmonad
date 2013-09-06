@@ -1,9 +1,10 @@
 #!/bin/bash
+set -x
 setl() {
   layout=$2
   id=$(xinput -list | grep -i "${1}" | grep -o id=[0-9]. | grep -o [0-9]. | head -1)
   if [ "${id}" ]; then
-    xkbcomp -I$HOME/.config-xmonad/xkb $layout -i $id $DISPLAY 2>/dev/null
+    xkbcomp -I$HOME/.config-xmonad/xkb $HOME/.config-xmonad/xkb/$layout -i $id $DISPLAY 2>/dev/null
   fi
 }
 
