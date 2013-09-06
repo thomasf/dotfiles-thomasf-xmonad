@@ -10,3 +10,4 @@ xkb_symbols "swap_other" {
     replace key <CAPS>  { [ Control_L ] };
     replace key <LCTL> { [ Super_L  ] };
 };
+

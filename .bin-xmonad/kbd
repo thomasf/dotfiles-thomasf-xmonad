@@ -11,3 +11,4 @@ setl() {
 setl "DATACOMP SteelS" my-se-caps-ctrl-super
 # setl "TrulyErgonomic.com" my-us-default
 setl "TrulyErgonomic.com" my-us-swap-shift-ctrl
+setl "Apple Internal Keyboard" my-mac-se-ctrl-caps-super
