@@ -106,6 +106,14 @@ myKeys conf =
   , ("M-S-j",           addName "Swap focused with next on workspace"     $ windows W.swapDown >> movePointer)
   , ("M-S-k",           addName "Swap focused with previous on workspace" $ windows W.swapUp >> movePointer)
   ] ++
+  subtitle "teck Cyclic window actions": mkNamedKeymap conf
+  [ ("M-6",             addName "Focus next window on workspace"          $ windows W.focusDown >> movePointer)
+  , ("M-7",             addName "Focus previous window on workspace"      $ windows W.focusUp >> movePointer)
+  , ("M-C-6",           addName "Swap focused with next on workspace"     $ windows W.swapDown >> movePointer)
+  , ("M-C-7",           addName "Swap focused with previous on workspace" $ windows W.swapUp >> movePointer)
+  , ("M-S-6",           addName "Swap focused with next on workspace"     $ windows W.swapDown >> movePointer)
+  , ("M-S-7",           addName "Swap focused with previous on workspace" $ windows W.swapUp >> movePointer)
+  ] ++
   subtitle "Application launching": mkNamedKeymap conf
   [ ("M-o o", spawnh "appmenu")
   , ("M-o <Space>",addName "Goto workspace by window search prompt"        $ gotoMenuArgs ["-l", "48"] >> movePointer)
@@ -130,13 +138,21 @@ myKeys conf =
   , ("M-u",        addName "Focus urgent winow"                            $ focusUrgent >> restoreFocused >> movePointer )
   , ("M-C-u",      addName "Clear all urgent window statuses"              $ clearUrgents >> focusUrgent)
   ] ++
-  subtitle "Cyclic display actions (D/F) [+=select] [+control=swap] [+shift=move window to]": mkNamedKeymap conf
+  subtitle "Cyclic display actions": mkNamedKeymap conf
   [ ("M-f",   addName "Next screen"                        $ nextScreen >> movePointer )
   , ("M-d",   addName "Previous screen"                    $ prevScreen >> movePointer )
   , ("M-C-f", addName "Swap current display witn next"     $ swapNextScreen >> movePointer )
   , ("M-C-d", addName "Swap current display witn previous" $ swapPrevScreen >> movePointer )
   , ("M-S-f", addName "Move window to next screen"         $ shiftNextScreen >> nextScreen >> movePointer )
   , ("M-S-d", addName "Move window to previous screen"     $ shiftPrevScreen >> prevScreen >> movePointer )
+  ] ++
+  subtitle "teck Cyclic display actions": mkNamedKeymap conf
+  [ ("M-4",   addName "Next screen"                        $ nextScreen >> movePointer )
+  , ("M-5",   addName "Previous screen"                    $ prevScreen >> movePointer )
+  , ("M-C-4", addName "Swap current display witn next"     $ swapNextScreen >> movePointer )
+  , ("M-C-5", addName "Swap current display witn previous" $ swapPrevScreen >> movePointer )
+  , ("M-S-4", addName "Move window to next screen"         $ shiftNextScreen >> nextScreen >> movePointer )
+  , ("M-S-5", addName "Move window to previous screen"     $ shiftPrevScreen >> prevScreen >> movePointer )
   ] ++
   subtitle "2D Navigation": mkNamedKeymap conf
   [ ("M-<Up>",      addName "Focus window above" $ Nav2d.windowGo U False)
