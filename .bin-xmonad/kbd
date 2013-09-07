@@ -1,6 +1,8 @@
 #!/bin/bash
-set -x
+
 setl() {
+  local layout
+  local id
   layout=$2
   id=$(xinput -list | grep -i "${1}" | grep -o id=[0-9]. | grep -o [0-9]. | head -1)
   if [ "${id}" ]; then
@@ -8,7 +10,10 @@ setl() {
   fi
 }
 
+
+# setl "TrulyErgonomic.com" my-us-swap-shift-ctrl
+setl "TrulyErgonomic.com" my-us-default
 setl "DATACOMP SteelS" my-se-caps-ctrl-super
-# setl "TrulyErgonomic.com" my-us-default
-setl "TrulyErgonomic.com" my-us-swap-shift-ctrl
 setl "Apple Internal Keyboard" my-mac-se-ctrl-caps-super
+
+
