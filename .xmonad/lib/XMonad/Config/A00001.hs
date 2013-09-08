@@ -108,6 +108,8 @@ myKeys conf =
   ] ++
   subtitle "teck Cyclic window actions": mkNamedKeymap conf
   [ ("M-6",             addName "Focus next window on workspace"          $ windows W.focusDown >> movePointer)
+  , ("M1-<Tab>",        addName "Focus next window on workspace"          $ windows W.focusDown >> movePointer)
+  , ("M1-S-<Tab>",      addName "Focus previous window on workspace"      $ windows W.focusUp >> movePointer)
   , ("M-7",             addName "Focus previous window on workspace"      $ windows W.focusUp >> movePointer)
   , ("M-C-6",           addName "Swap focused with next on workspace"     $ windows W.swapDown >> movePointer)
   , ("M-C-7",           addName "Swap focused with previous on workspace" $ windows W.swapUp >> movePointer)
