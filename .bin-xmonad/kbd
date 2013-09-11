@@ -1,19 +1,18 @@
 #!/bin/bash
-
 setl() {
   local layout
   local id
   layout=$2
-  id=$(xinput -list | grep -i "${1}" | grep -o id=[0-9]. | grep -o [0-9]. | head -1)
-  if [ "${id}" ]; then
-    xkbcomp -I$HOME/.config-xmonad/xkb $HOME/.config-xmonad/xkb/$layout -i $id $DISPLAY 2>/dev/null
+  ids=$(xinput -list | grep -i "${1}" | grep -o id=[0-9]. | grep -o [0-9].)
+  if [ "${ids}" ]; then
+    for id in $ids; do
+      xkbcomp -I$HOME/.config-xmonad/xkb -i $id $HOME/.config-xmonad/xkb/$layout $DISPLAY 2>/dev/null
+    done
   fi
 }
 
 
 # setl "TrulyErgonomic.com" my-us-swap-shift-ctrl
-setl "TrulyErgonomic.com" my-us-default
+setl "TrulyErgonomic.com" my-us-intl
 setl "DATACOMP SteelS" my-se-caps-ctrl-super
 setl "Apple Internal Keyboard" my-mac-se-ctrl-caps-super
-
-
