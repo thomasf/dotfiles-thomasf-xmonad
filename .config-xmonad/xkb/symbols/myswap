@@ -6,7 +6,7 @@ xkb_symbols "swap_shift_ctrl" {
     replace key <RTSH> { [ Control_R ] };
 };
 
-xkb_symbols "swap_other" {
+xkb_symbols "swap_ctrl_caps" {
     replace key <CAPS>  { [ Control_L ] };
     replace key <LCTL> { [ Super_L  ] };
 };
