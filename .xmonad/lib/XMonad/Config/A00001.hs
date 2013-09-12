@@ -415,7 +415,7 @@ myManageHook =
   , [title     =? "Onboard"  -?>                               doFloat]
   ]) <+> manageDocks
   where
-    doCenterFloatLarge = myCenterFloat 0.6 0.8
+    doCenterFloatLarge = myCenterFloat 0.7 0.85
     doSink = ask >>= doF . W.sink
     role = stringProperty "WM_WINDOW_ROLE"
     startsWith' :: Eq a => Query [a] -> [a] -> Query Bool
