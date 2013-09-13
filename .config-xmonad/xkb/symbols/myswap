@@ -11,3 +11,23 @@ xkb_symbols "swap_ctrl_caps" {
     replace key <LCTL> { [ Super_L  ] };
 };
 
+
+partial alphanumeric_keys
+xkb_symbols "us-number-shift" {
+    name[Group1] = "English (invert shifted numbers)";
+    //             Unmodified       Shift           AltGr            Shift+AltGr
+    // key <TLDE> { [dead_grave           , dead_tilde,         grave,       asciitilde ] };
+    key <AE01> { [	   exclam          , 1,    exclamdown,      onesuperior ] };
+    key <AE02> { [	   at              , 2,   twosuperior, dead_doubleacute ] };
+    key <AE03> { [	   numbersign      , 3,  threesuperior,      dead_macron ] };
+    key <AE04> { [	   dollar          , 4,      currency,         sterling ] };
+    key <AE05> { [	   percent         , 5,      EuroSign,     dead_cedilla ] };
+    key <AE06> { [     dead_circumflex , 6,    onequarter,      asciicircum ] };
+    key <AE07> { [	   ampersand       , 7,       onehalf,	dead_horn ] };
+    key <AE08> { [	   asterisk        , 8, threequarters,      dead_ogonek ] };
+    key <AE09> { [	   parenleft       , 9, leftsinglequotemark, dead_breve ] };
+    key <AE10> { [	   parenright      , 0, rightsinglequotemark, dead_abovering ] };
+    //key <AE11> { [     minus, underscore,           yen,    dead_belowdot ] };
+    //key <AE12> { [     equal,       plus,      multiply,         division ] };
+ 
+};
