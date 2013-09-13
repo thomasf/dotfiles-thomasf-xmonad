@@ -9,10 +9,10 @@ Config { font = "xft:PT Sans Narrow:pixelsize=20"
        , persistent = True
        , overrideRedirect = True
        , allDesktops = True
-       , commands = [Run Weather "ESSB" ["-t",
-                       "<tempC>C <skyCondition>",
-                       "-L","4","-H","23","--normal","#839496","--high","#839496","--low","#839496"] 36000
-                    , Run MPD ["-t",
+       , commands = [  -- Run Weather "ESSB" ["-t",
+                       -- "<tempC>C <skyCondition>",
+                       -- "-L","4","-H","23","--normal","#839496","--high","#839496","--low","#839496"] 36000
+                    Run MPD ["-t",
                        " <statei> <artist> - <title> ",
                        "--", "-P", ">>", "-Z", "||", "-S", "><"] 10
                     -- , Run Com "fortune" ["~/.config-base/fortunes"] "quote" 9000
@@ -21,7 +21,7 @@ Config { font = "xft:PT Sans Narrow:pixelsize=20"
 
        , sepChar = "%"
        , alignSep = "}{"
-       , template = " %xm% }{ %ESSB%  <fc=#b58900>%mpd%</fc>"
+       , template = " %xm% }{ <fc=#b58900>%mpd%</fc>"
 
 -- Local Variables:
 -- eval: (rainbow-mode 1)
