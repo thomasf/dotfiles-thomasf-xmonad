@@ -8,7 +8,9 @@
 
 golight() {
     rm -f ~/.config/darkmode
-    xsetroot -solid '#eee8d5'
+    # xsetroot -solid '#eee8d5'
+    # xsetroot -bitmap ~/.config-xmonad/bgbitmap -bg '#eee8d5' -fg '#fdf6e3'
+    xsetroot -bitmap ~/.config-xmonad/bgbitmap -bg '#fdf6e3' -fg '#93a1a1'
     panels
     xrdb ~/.config-xmonad/xresources/light
     xmonad --restart
@@ -16,7 +18,9 @@ golight() {
 
 godark() {
     [ ! $(id -u) -eq 0 ] && touch ~/.config/darkmode
-    xsetroot -solid '#073642'
+    # xsetroot -solid '#073642'
+    # xsetroot -bitmap ~/.config-xmonad/bgbitmap -bg '#073642' -fg '#002b36'
+    xsetroot -bitmap ~/.config-xmonad/bgbitmap -bg '#002b36' -fg '#586e75'
     panels
     xrdb ~/.config-xmonad/xresources/dark
     xmonad --restart

@@ -61,6 +61,7 @@ import           XMonad.Hooks.UrgencyHook
 import           XMonad.Hooks.WorkspaceHistory (workspaceHistoryHook)
 import           XMonad.Layout.BoringWindows hiding (Replace)
 import           XMonad.Layout.Fullscreen
+import           XMonad.Layout.Spacing
 -- import           XMonad.Layout.Gaps
 import           XMonad.Layout.Grid
 import           XMonad.Layout.IM
@@ -321,7 +322,8 @@ myMouseBindings =
 -- myNormalColor  = Sol.green
 myFocusedColor = Sol.magenta
 myUrgentColor = Sol.blue
-myNormalBorderColor darkmode = if darkmode then Sol.base03 else Sol.base3
+-- myNormalBorderColor darkmode = if darkmode then Sol.base03 else Sol.base3
+myNormalBorderColor darkmode = if darkmode then Sol.base02 else Sol.base2
 
 -- -- | Fonts
 -- sizedFont px = "-xos4-terminus-*-r-*-*-" ++ px  ++ "-*-*-*-*-*-iso8859-*"
@@ -350,6 +352,7 @@ myLayoutHook =
   onWorkspace "read" (renameStar tabs) $
   onWorkspace "dash" (dash ||| grid) $
   onWorkspace "im" im $
+  smartSpacing 4 $
   lessBorders OnlyFloat
   standard
   where
@@ -535,7 +538,7 @@ a00001Config = do
   return $ myUrgencyHook $ addDescrKeys' ((confModMask, xK_F1), showKeybindings) myKeys $ def {
     terminal           = myTerminal
   , focusFollowsMouse  = False
-  , borderWidth        = 4
+  , borderWidth        = 3
   , modMask            = confModMask
   , workspaces         = myWorkspaces
   , normalBorderColor  = myNormalBorderColor darkmode
