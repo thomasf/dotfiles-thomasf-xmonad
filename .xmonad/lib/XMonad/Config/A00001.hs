@@ -352,23 +352,23 @@ myLayoutHook =
   onWorkspace "read" (renameStar tabs) $
   onWorkspace "dash" (dash ||| grid) $
   onWorkspace "im" im $
-  smartSpacing 4 $
   lessBorders OnlyFloat
   standard
   where
     standard = wide ||| tall ||| tabs ||| gridWide ||| spiral
     refmin = mkToggle (single REFLECTX) . minimize
+    ss = smartSpacing 4
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
     full = rename "full" $ noBorders (fullscreenFull Full)
-    wide = rename "wide" $ Mirror $ refmin $ Tall 2 (3/100) (4/5)
-    tall = rename "tall" $ refmin $ Tall 2 (3/100) (3/5)
-    dash = rename "dash" $ Mirror $ Tall 1 0 0.6
-    spiral = rename "spiral" $ refmin $ Spiral.spiral (6/7)
-    tabs = rename "tabs" $ Mirror $ Tall 1 0 0.93
-    gridWide = rename "grid" $ refmin $ GridRatio (16/9)
-    grid = rename "grid" $ refmin $ GridRatio (4/3)
-    im =  withIM (1%9) pidginRoster $ reflectHoriz $ withIM (1%8) skypeRoster
+    wide = rename "wide" $ ss $ Mirror $ refmin $ Tall 2 (3/100) (4/5)
+    tall = rename "tall" $ ss $ refmin $ Tall 2 (3/100) (3/5)
+    dash = rename "dash" $ ss $ Mirror $ Tall 1 0 0.6
+    spiral = rename "spiral" $ ss $ refmin $ Spiral.spiral (6/7)
+    tabs = rename "tabs" $ ss $ Mirror $ Tall 1 0 0.93
+    gridWide = rename "grid" $ ss $ refmin $ GridRatio (16/9)
+    grid = rename "grid" $ ss $ refmin $ GridRatio (4/3)
+    im =  withIM (1%9) pidginRoster $ ss $ reflectHoriz $ withIM (1%8) skypeRoster
          (gridWide ||| grid ||| spiral)
       where
         pidginRoster = ClassName "Pidgin" `And` Role "buddy_list"
