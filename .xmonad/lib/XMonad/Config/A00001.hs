@@ -107,16 +107,16 @@ myKeys conf =
   , ("M-S-j",           addName "Swap focused with next on workspace"     $ windows W.swapDown >> movePointer)
   , ("M-S-k",           addName "Swap focused with previous on workspace" $ windows W.swapUp >> movePointer)
   ] ++
-  subtitle "teck Cyclic window actions": mkNamedKeymap conf
-  [ ("M-6",             addName "Focus next window on workspace"          $ windows W.focusDown >> movePointer)
-  , ("M1-<Tab>",        addName "Focus next window on workspace"          $ windows W.focusDown >> movePointer)
-  , ("M1-S-<Tab>",      addName "Focus previous window on workspace"      $ windows W.focusUp >> movePointer)
-  , ("M-7",             addName "Focus previous window on workspace"      $ windows W.focusUp >> movePointer)
-  , ("M-C-6",           addName "Swap focused with next on workspace"     $ windows W.swapDown >> movePointer)
-  , ("M-C-7",           addName "Swap focused with previous on workspace" $ windows W.swapUp >> movePointer)
-  , ("M-S-6",           addName "Swap focused with next on workspace"     $ windows W.swapDown >> movePointer)
-  , ("M-S-7",           addName "Swap focused with previous on workspace" $ windows W.swapUp >> movePointer)
-  ] ++
+  -- subtitle "teck Cyclic window actions": mkNamedKeymap conf
+  -- [ ("M-6",             addName "Focus next window on workspace"          $ windows W.focusDown >> movePointer)
+  -- , ("M1-<Tab>",        addName "Focus next window on workspace"          $ windows W.focusDown >> movePointer)
+  -- , ("M1-S-<Tab>",      addName "Focus previous window on workspace"      $ windows W.focusUp >> movePointer)
+  -- , ("M-7",             addName "Focus previous window on workspace"      $ windows W.focusUp >> movePointer)
+  -- , ("M-C-6",           addName "Swap focused with next on workspace"     $ windows W.swapDown >> movePointer)
+  -- , ("M-C-7",           addName "Swap focused with previous on workspace" $ windows W.swapUp >> movePointer)
+  -- , ("M-S-6",           addName "Swap focused with next on workspace"     $ windows W.swapDown >> movePointer)
+  -- , ("M-S-7",           addName "Swap focused with previous on workspace" $ windows W.swapUp >> movePointer)
+  -- ] ++
   subtitle "Application launching": mkNamedKeymap conf
   [ ("M-o o", spawnh "appmenu")
   , ("M-o <Space>",addName "Goto workspace by window search prompt"        $ gotoMenuArgs ["-l", "48"] >> movePointer)
