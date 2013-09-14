@@ -1,10 +1,10 @@
 -- THIS IS A DERIVED THEME - DO NOT EDIT MANUALLY !!!
-Config { font = "xft:PragmataPro:pixelsize=24"
+Config { font = "xft:PragmataPro:pixelsize=20"
        , borderColor = "#002b36"
        , border = NoBorder
        , bgColor = "#002b36"
        , fgColor = "#657b83"
-       , position = TopSize L 92 32
+       , position = TopSize L 92 24
        , lowerOnStart = True
        , hideOnStart = False
        , persistent = True

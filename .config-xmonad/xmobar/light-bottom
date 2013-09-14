@@ -1,10 +1,10 @@
 -- THIS IS A DERIVED THEME - DO NOT EDIT MANUALLY !!!
-Config { font = "xft:PT Sans Narrow:pixelsize=20"
-       , borderColor = "#fdf6e3"
-       , border = NoBorder
+Config { font = "xft:PT Sans Narrow-14:style=bold"
+       , borderColor = "#eee8d5"
+       , border = TopB
        , bgColor = "#fdf6e3"
        , fgColor = "#839496"
-       , position = BottomSize C 100 24
+       , position = BottomSize C 100 16
        , lowerOnStart = True
        , hideOnStart = False
        , persistent = True
@@ -18,11 +18,12 @@ Config { font = "xft:PT Sans Narrow:pixelsize=20"
                        "--", "-P", ">>", "-Z", "||", "-S", "><"] 10
                     -- , Run Com "fortune" ["~/.config-base/fortunes"] "quote" 9000
                     , Run NamedXPropertyLog "_XMONAD_LOG_BOTTOM" "xm"
+                    , Run Kbd [("us(dvorak)", "DV"), ("us", "US")]
                     ]
 
        , sepChar = "%"
        , alignSep = "}{"
-       , template = " %xm% }{ <fc=#b58900>%mpd%</fc>"
+       , template = "   <fc=#859900>%kbd%</fc>   <fc=#b58900>%xm%</fc> }{ <fc=#859900>%mpd%</fc>"
 
 -- Local Variables:
 -- eval: (rainbow-mode 1)

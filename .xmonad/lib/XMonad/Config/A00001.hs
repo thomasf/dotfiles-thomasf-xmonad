@@ -49,6 +49,7 @@ import qualified XMonad.Actions.DynamicWorkspaces as DW
 import           XMonad.Actions.MouseGestures
 import qualified XMonad.Actions.Navigation2D as Nav2d
 import           XMonad.Actions.SpawnOn
+import XMonad.Layout.ThreeColumns
 import           XMonad.Actions.UpdatePointer
 import           XMonad.Actions.WindowBringer    (gotoMenuArgs)
 import           XMonad.Hooks.DynamicLog
@@ -107,16 +108,6 @@ myKeys conf =
   , ("M-S-j",           addName "Swap focused with next on workspace"     $ windows W.swapDown >> movePointer)
   , ("M-S-k",           addName "Swap focused with previous on workspace" $ windows W.swapUp >> movePointer)
   ] ++
-  -- subtitle "teck Cyclic window actions": mkNamedKeymap conf
-  -- [ ("M-6",             addName "Focus next window on workspace"          $ windows W.focusDown >> movePointer)
-  -- , ("M1-<Tab>",        addName "Focus next window on workspace"          $ windows W.focusDown >> movePointer)
-  -- , ("M1-S-<Tab>",      addName "Focus previous window on workspace"      $ windows W.focusUp >> movePointer)
-  -- , ("M-7",             addName "Focus previous window on workspace"      $ windows W.focusUp >> movePointer)
-  -- , ("M-C-6",           addName "Swap focused with next on workspace"     $ windows W.swapDown >> movePointer)
-  -- , ("M-C-7",           addName "Swap focused with previous on workspace" $ windows W.swapUp >> movePointer)
-  -- , ("M-S-6",           addName "Swap focused with next on workspace"     $ windows W.swapDown >> movePointer)
-  -- , ("M-S-7",           addName "Swap focused with previous on workspace" $ windows W.swapUp >> movePointer)
-  -- ] ++
   subtitle "Application launching": mkNamedKeymap conf
   [ ("M-o o", spawnh "appmenu")
   , ("M-o <Space>",addName "Goto workspace by window search prompt"        $ gotoMenuArgs ["-l", "48"] >> movePointer)
@@ -148,14 +139,6 @@ myKeys conf =
   , ("M-C-d", addName "Swap current display witn previous" $ swapPrevScreen >> movePointer )
   , ("M-S-f", addName "Move window to next screen"         $ shiftNextScreen >> nextScreen >> movePointer )
   , ("M-S-d", addName "Move window to previous screen"     $ shiftPrevScreen >> prevScreen >> movePointer )
-  ] ++
-  subtitle "teck Cyclic display actions": mkNamedKeymap conf
-  [ ("M-4",   addName "Next screen"                        $ nextScreen >> movePointer )
-  , ("M-5",   addName "Previous screen"                    $ prevScreen >> movePointer )
-  , ("M-C-4", addName "Swap current display witn next"     $ swapNextScreen >> movePointer )
-  , ("M-C-5", addName "Swap current display witn previous" $ swapPrevScreen >> movePointer )
-  , ("M-S-4", addName "Move window to next screen"         $ shiftNextScreen >> nextScreen >> movePointer )
-  , ("M-S-5", addName "Move window to previous screen"     $ shiftPrevScreen >> prevScreen >> movePointer )
   ] ++
   subtitle "2D Navigation": mkNamedKeymap conf
   [ ("M-<Up>",      addName "Focus window above" $ Nav2d.windowGo U False)
@@ -355,7 +338,7 @@ myLayoutHook =
   lessBorders OnlyFloat
   standard
   where
-    standard = wide ||| tall ||| tabs ||| gridWide ||| spiral
+    standard = wide ||| tall ||| tcol ||| tabs ||| gridWide ||| spiral
     refmin = mkToggle (single REFLECTX) . minimize
     ss = smartSpacing 4
     rename name' = renamed [Replace name']
@@ -363,6 +346,7 @@ myLayoutHook =
     full = rename "full" $ noBorders (fullscreenFull Full)
     wide = rename "wide" $ ss $ Mirror $ refmin $ Tall 2 (3/100) (4/5)
     tall = rename "tall" $ ss $ refmin $ Tall 2 (3/100) (3/5)
+    tcol = rename "3col" $ ss $ Mirror $ ThreeColMid 1 (3/100) (1/2)
     dash = rename "dash" $ ss $ Mirror $ Tall 1 0 0.6
     spiral = rename "spiral" $ ss $ refmin $ Spiral.spiral (6/7)
     tabs = rename "tabs" $ ss $ Mirror $ Tall 1 0 0.93

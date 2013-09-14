@@ -27,7 +27,7 @@ case $cmd in
     saidar)
         exec urxvt -e saidar -c
 	    ;;
-    alsamixer|htop|irssi|weechat-curses|ncmpcpp|pamixer|dstat)
+    alsamixer|htop|irssi|weechat-curses|ncmpcpp|pamixer|dstat|ping)
         exec urxvt -e $cmd $*
         ;;
     wireshark|synaptic|zenmap|firestarter|reboot|nm-connection-editor)

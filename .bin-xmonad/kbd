@@ -1,17 +1,30 @@
 #!/bin/bash
+
 setl() {
   local layout
   local id
+  local all=$3
+  local verbose=1
+  local cmd
   layout=$2
   ids=$(xinput -list | grep -i "${1}" | grep -o id=[0-9]. | grep -o [0-9].)
   if [ "${ids}" ]; then
     for id in $ids; do
-      xkbcomp -I$HOME/.config-xmonad/xkb -i $id $HOME/.config-xmonad/xkb/$layout $DISPLAY 2>/dev/null
+      cmd="xkbcomp"
+      cmd="${cmd} -I$HOME/.config-xmonad/xkb"
+      [ -z ${all} ] && cmd="${cmd} -i $id"
+      cmd="${cmd} $HOME/.config-xmonad/xkb/$layout $DISPLAY"
+      if [ -z ${verbose} ]; then
+        ${cmd} 2>/dev/null
+      else
+        ${cmd}
+      fi
     done
   fi
 }
 
 
-setl "TrulyErgonomic.com" my-us-intl
-setl "DATACOMP SteelS" my-se-caps-ctrl-super
-setl "Apple Internal Keyboard" my-mac-se-ctrl-caps-super
+setl "Apple Internal Keyboard" my-mac-us-ctrl-caps-super 1
+setl "DATACOMP SteelS" my-se-caps-ctrl-super 1
+setl "TrulyErgonomic.com" my-us-intl 1
+setl "Apple Internal Keyboard" my-mac-us-ctrl-caps-super

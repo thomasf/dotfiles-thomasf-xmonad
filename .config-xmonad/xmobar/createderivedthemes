@@ -4,7 +4,7 @@ set -e
 
 echo "-- THIS IS A DERIVED THEME - DO NOT EDIT MANUALLY !!!" > dark-top-x0
 cat dark-top >> dark-top-x0
-sed -i 's/TopSize C 100 32/TopSize L 92 32/g' dark-top-x0
+sed -i 's/TopSize C 100/TopSize L 92/g' dark-top-x0
 
 for file in dark-*; do
     lightname=light${file##dark}
@@ -15,3 +15,7 @@ for file in dark-*; do
     sed -i 's/586e75/93a1a1/g' $lightname
     sed -i 's/657b83/839496/g' $lightname
 done
+
+# Local Variables:
+# hardhat-protect: nil
+# End:

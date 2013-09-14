@@ -1,9 +1,9 @@
-Config { font = "xft:PragmataPro:pixelsize=24"
+Config { font = "xft:PragmataPro:pixelsize=20"
        , borderColor = "#002b36"
        , border = NoBorder
        , bgColor = "#002b36"
        , fgColor = "#657b83"
-       , position = TopSize C 100 32
+       , position = TopSize C 100 24
        , lowerOnStart = True
        , hideOnStart = False
        , persistent = True
