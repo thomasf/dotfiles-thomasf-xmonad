@@ -1,0 +1,14 @@
+default
+partial alphanumeric_keys modifier_keys 
+xkb_symbols "basic" {
+    name[Group1]= "Swedish (SE)";
+    include "se(default)"
+};
+
+partial alphanumeric_keys modifier_keys 
+xkb_symbols "mac" {
+    name[Group1]= "Swedish (SE)";
+    include "se(mac)"
+    include "myswap(swap_ctrl_caps)"
+};
+
