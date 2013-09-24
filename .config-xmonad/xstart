@@ -187,9 +187,6 @@ fi
     fi
   fi
   darkmode $darkmodearg
-  # org-mode
-  [ $(which orgmode) ] && [ $(which notify-send) ] \
-    && notify-send -a orgmode "$(orgmode)" &
 ) &
 # Function that displays a list of window managers to choose from.
 wm_selection() {
