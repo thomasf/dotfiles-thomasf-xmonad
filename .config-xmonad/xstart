@@ -202,6 +202,8 @@ wm_selection() {
   fi
 }
 
+export HOST="$HOSTNAME"
+
 # Set default window manger (xmonad) or try user selection
 WM=""
 if [ $(which xmonad) ]; then

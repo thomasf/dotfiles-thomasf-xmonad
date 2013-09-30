@@ -28,8 +28,8 @@ module XMonad.Config.A00001
 
 -- import Data.Maybe ( isJust, catMaybes )
 -- import Codec.Binary.UTF8.String (encodeString)
-import XMonad.Layout.LayoutScreens
-import XMonad.Layout.TwoPane
+import           XMonad.Layout.LayoutScreens
+import           XMonad.Layout.TwoPane
 -- import XMonad.Layout.DragPane
 import           Control.Monad
 import           Data.List
@@ -49,7 +49,6 @@ import qualified XMonad.Actions.DynamicWorkspaces as DW
 import           XMonad.Actions.MouseGestures
 import qualified XMonad.Actions.Navigation2D as Nav2d
 import           XMonad.Actions.SpawnOn
-import XMonad.Layout.ThreeColumns
 import           XMonad.Actions.UpdatePointer
 import           XMonad.Actions.WindowBringer    (gotoMenuArgs)
 import           XMonad.Hooks.DynamicLog
@@ -61,8 +60,10 @@ import           XMonad.Hooks.SetWMName
 import           XMonad.Hooks.UrgencyHook
 import           XMonad.Hooks.WorkspaceHistory (workspaceHistoryHook)
 import           XMonad.Layout.BoringWindows hiding (Replace)
+import           XMonad.Layout.FixedColumn
 import           XMonad.Layout.Fullscreen
 import           XMonad.Layout.Spacing
+import           XMonad.Layout.ThreeColumns
 -- import           XMonad.Layout.Gaps
 import           XMonad.Layout.Grid
 import           XMonad.Layout.IM
@@ -70,6 +71,7 @@ import           XMonad.Layout.LayoutCombinators
 import           XMonad.Layout.Minimize
 import           XMonad.Layout.MultiToggle
 import           XMonad.Layout.MultiToggle.Instances
+import           XMonad.Layout.OnHost
 import           XMonad.Layout.NoBorders
 import           XMonad.Layout.PerWorkspace      (onWorkspace)
 import           XMonad.Layout.Reflect
@@ -338,16 +340,20 @@ myLayoutHook =
   lessBorders OnlyFloat
   standard
   where
-    standard = wide ||| tall ||| tcol ||| tabs ||| gridWide ||| spiral
+    standard = l1 ||| l2 ||| fixcol ||| tabs ||| gridWide ||| spiral
     refmin = mkToggle (single REFLECTX) . minimize
     ss = smartSpacing 4
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
+    onTall = onHosts ["transwhale"]
+    l1 = onTall tcol tall
+    l2 = onTall tcol wide
+    fixcol = rename "fcol" $ ss $ FixedColumn 1 20 88 10
     full = rename "full" $ noBorders (fullscreenFull Full)
     wide = rename "wide" $ ss $ Mirror $ refmin $ Tall 2 (3/100) (4/5)
     tall = rename "tall" $ ss $ refmin $ Tall 2 (3/100) (3/5)
-    tcol = rename "3col" $ ss $ Mirror $ ThreeColMid 1 (3/100) (1/2)
-    dash = rename "dash" $ ss $ Mirror $ Tall 1 0 0.6
+    tcol = rename "3col" $ ss $ Mirror $ ThreeColMid 1 (3/100) (4/6)
+    dash = rename "dash" $ ss $ l1
     spiral = rename "spiral" $ ss $ refmin $ Spiral.spiral (6/7)
     tabs = rename "tabs" $ ss $ Mirror $ Tall 1 0 0.93
     gridWide = rename "grid" $ ss $ refmin $ GridRatio (16/9)
