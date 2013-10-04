@@ -408,7 +408,7 @@ myManageHook =
   , [title     =? "Onboard"  -?>                               doFloat]
   ]) <+> manageDocks
   where
-    doCenterFloatLarge = myCenterFloat 0.9 0.85
+    doCenterFloatLarge = myCenterFloat 0.95 0.85
     doSink = ask >>= doF . W.sink
     role = stringProperty "WM_WINDOW_ROLE"
     startsWith' :: Eq a => Query [a] -> [a] -> Query Bool
@@ -499,9 +499,9 @@ myXPConfig = def
 
 -- Scratch pads:
 
-myScratchPads = [ NS "largeTerminal" (term "largeTerminal") (res =? scratch "largeTerminal") $ myCenterFloat 0.8 0.8
+myScratchPads = [ NS "largeTerminal" (term "largeTerminal") (res =? scratch "largeTerminal") $ myCenterFloat 0.95 0.8
                 , termScratch "pamixer" $ myCenterFloat 0.7 0.2
-                , termScratch "htop" $ myCenterFloat 0.9 0.9
+                , termScratch "htop" $ myCenterFloat 0.95 0.9
                 ]
   where
     scratch sname = "scratchpad_" ++ sname
