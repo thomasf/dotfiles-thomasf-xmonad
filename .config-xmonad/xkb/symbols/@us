@@ -9,6 +9,6 @@ partial alphanumeric_keys modifier_keys
 xkb_symbols "mac" {
     name[Group1]= "English (US)";
     include "us(intl-unicode)"
-    include "myswap(swap_ctrl_caps)"
+    include "@misc(swap_ctrl_caps)"
 };
 
