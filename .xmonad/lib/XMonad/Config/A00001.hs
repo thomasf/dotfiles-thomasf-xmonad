@@ -209,6 +209,7 @@ myKeys conf =
   , ("M-i s",               myViewWS' "scratch")
   , ("M-i v",               myViewWS' "video")
   , ("M-i w",               myViewWS' "www")
+  , ("M-i g",               myViewWS' "gitlab")
   , ("M-i M-i",             addName "cycle ws"                              $ rmEmptyWs $ myCycleRecentWs xK_i xK_o)
   , ("M-i i", addName "Create or change workspace prompt"                   $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
   , ("M-i <Space> <Space>", addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
