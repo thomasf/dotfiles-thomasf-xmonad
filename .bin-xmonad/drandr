@@ -1,6 +1,6 @@
 #!/usr/bin/ruby -w
 
-$DMENU_ARGS = ARGV.join(' ') + '-i -b'
+$DMENU_ARGS = ARGV.join(' ') + '-i '
 
 class String
   def starts_with? prefix
