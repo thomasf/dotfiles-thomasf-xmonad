@@ -120,6 +120,7 @@ myKeys conf =
   , ("M-o w", spawnh "www")
   , ("M-o d", spawnh "www-dev")
   , ("M-o t", spawnh "urxvt")
+  , ("M-o M-t", spawnh $ myTerminal ++ " -name tabbed")
   , ("M-o e", spawnh "emacs")
   , ("M-o n", spawnh "nautilus")
   , ("M-o z", spawnh  "zeal")
