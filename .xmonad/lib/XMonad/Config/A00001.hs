@@ -26,6 +26,8 @@ module XMonad.Config.A00001
     ) where
 
 
+import XMonad.Hooks.ServerMode
+import XMonad.Actions.Commands
 -- import Data.Maybe ( isJust, catMaybes )
 -- import Codec.Binary.UTF8.String (encodeString)
 import           XMonad.Layout.LayoutScreens
@@ -425,7 +427,7 @@ myManageHook =
 -- return (All True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
 --
-myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> minimizeEventHook
+myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> minimizeEventHook <+> serverModeEventHook
 
 
 
