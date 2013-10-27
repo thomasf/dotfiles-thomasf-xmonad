@@ -18,7 +18,4 @@ if [ ! -e "${HOME}/.config/fontconfig/conf.d" ]; then
         && ln -fs "$(pwd)/.config-xmonad/fontconfig.d" "${HOME}/.config/fontconfig/conf.d"
 fi
 
-# [ -e "${HOME}/.fonts.conf.d" ] \
-#     || ln -fs "$(pwd)/.config-xmonad/fontconfig.d" "${HOME}/.fonts.conf.d"
-
 set +x

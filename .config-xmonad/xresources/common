@@ -98,6 +98,8 @@ scratchpad_smallTerminal*perl-ext:         tabbedex,-font
 scratchpad_largeTerminal*scrollBar:        false
 scratchpad_largeTerminal*perl-ext:         tabbedex,-font
 
+tabbed*perl-ext:         tabbedex,-font
+
 htop*saveLines:                            0
 htop*scrollBar:                            false
 
