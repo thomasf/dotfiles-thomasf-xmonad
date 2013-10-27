@@ -13,7 +13,11 @@ case $1 in
         echo -n $(echo $name | cut -d '.' -f -1)
         ;;
     -s)
-        echo -n $(echo $name | cut -d '.' -f 2-)
+        if [[ "$name" == *\.* ]]; then
+          echo -n $(echo $name | cut -d '.' -f 2-)
+        else
+          exit 1
+        fi
         ;;
     *)
         echo -n $name

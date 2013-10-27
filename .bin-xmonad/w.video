@@ -4,5 +4,4 @@
 #
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 #
-
-exec nautilus ~/Videos
+wsname -s || exec nautilus ~/Videos

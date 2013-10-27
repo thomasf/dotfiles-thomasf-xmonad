@@ -5,6 +5,8 @@
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 #
 
+wsname -s && exit 1
+
 if [ $(which emacs-home) ]; then
     notify-send -a short "lauching emacs-home..."
     exec emacs-home

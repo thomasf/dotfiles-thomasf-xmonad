@@ -5,6 +5,8 @@
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 #
 
+wsname -s && exit 1
+
 nautilus ~/Downloads &
 transmission-gtk &
 nicotine.py &
