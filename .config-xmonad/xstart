@@ -162,8 +162,10 @@ fi
   && blueman-applet &
 
 # Launch gpome (binds apple hw control keys)
-[ $(which gpomme) ] \
-  && gpomme &
+# TODO pomme does not seem to work with ubuntu 13.10
+#      Maybe its not needed anymore?
+# [ $(which gpomme) ] \
+#   && gpomme &
 
 # launch time reminder notification
 [ $(which x.remind-time) ] \
