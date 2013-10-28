@@ -7,9 +7,17 @@
 #
 if [ -e ~/.config/darkmode ]; then
     bg="#002b36"
+    fg="#839496"
 else
     bg="#fdf6e3"
+    fg="#657b83"
 fi
+color="#b58900"
 
 
-exec /usr/bin/dmenu -fn '-*-terminus-*-r-*-*-14-*-*-*-*-*-*' -nb "${bg}" -nf '#268bd2' -sb '#268bd2' -sf "${bg}" -i "$@"
+
+exec /usr/bin/dmenu -fn '-*-terminus-*-r-*-*-14-*-*-*-*-*-*' -nb "${bg}" -nf "${fg}" -sf "${bg}" -sb "${color}" -b -i "$@"
+
+# Local Variables:
+# eval: (rainbow-mode 1)
+# End:

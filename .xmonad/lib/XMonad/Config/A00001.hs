@@ -215,9 +215,10 @@ myKeys conf =
   , ("M-i j",               myViewWS' "23c")
   , ("M-i 2",               myViewWS' "23c")
   , ("M-i M-i",             addName "cycle ws"                              $ rmEmptyWs $ myCycleRecentWs xK_i xK_o)
-  , ("M-i i", addName "Create or change workspace prompt"                   $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
   , ("M-i <Space> <Space>", addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
   , ("M-i <Space> m",       addName "Move window to other workspace prompt" $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
+  , ("M-S-i",       addName "Move window to other workspace prompt" $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
+
   , ("M-i <Space> r",       addName "Rename current workspace"              $ DW.renameWorkspace myXPConfig >> movePointer)
   , ("M-i <Space> 0",       addName "Remove current workspace"              $ DW.removeWorkspace >> movePointer)
  ] ++
@@ -491,12 +492,13 @@ myUrgencyHook =
 -- XMonad Prompt configuration
 
 myXPConfig = def
- { position = Top
+ { position = Bottom
  , bgColor = Sol.base03
  , fgColor = Sol.yellow
- , bgHLight = Sol.yellow
- , fgHLight = Sol.base03
- , promptBorderWidth = 0
+ , bgHLight = Sol.base03
+ , fgHLight = Sol.yellow
+ , borderColor = Sol.base03
+ , promptBorderWidth = 8
  , font = "-xos4-terminus-*-r-*-*-16-*-*-*-*-*-iso8859-*"
  , promptKeymap = emacsLikeXPKeymap }
 
