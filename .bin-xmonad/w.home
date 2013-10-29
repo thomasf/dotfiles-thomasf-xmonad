@@ -9,5 +9,6 @@ wsname -s && exit 1
 
 if [ $(which emacs-home) ]; then
     notify-send -a short "lauching emacs-home..."
+    cd ~/notes
     exec emacs-home
 fi
