@@ -407,7 +407,7 @@ myManageHook =
   , [className =? "Skype" <&&> startsWith' title "Add a Skype Contact" -?> doCenterFloatLarge]
   , [resource  =? r -?>                                        doFloat            | r <- ["floating"]]
   , [className =? c -?>                                        doFloat            | c <- ["Unity-2d-launcher", "Orage", "feh"]]
-  , [role      =? "pop-up" <&&> appName =? "google-chrome" -?> doCenterFloat]
+  , [role      =? "pop-up" <&&> appName =? "google-chrome" -?> doCenterFloatLarge]
   , [className =? "Zenity" <&&> title =? "Question" -?>        doCenterFloat]
   , [className =? "Zenity" -?>                                 doCenterFloatLarge]
   , [className =? c -?>                                        doCenterFloat      | c <- ["Xfce4-settings-manager", "Pinentry", "connected-app"]]
