@@ -66,7 +66,6 @@ import           XMonad.Layout.FixedColumn
 import           XMonad.Layout.Fullscreen
 import           XMonad.Layout.Spacing
 import           XMonad.Layout.ThreeColumns
--- import           XMonad.Layout.Gaps
 import           XMonad.Layout.Grid
 import           XMonad.Layout.IM
 import           XMonad.Layout.LayoutCombinators
@@ -332,8 +331,6 @@ myLayoutHook =
   onWorkspace "friends" (rename "*friends*" tabs) $
   onWorkspace "video" (renameStar full) $
   onWorkspace "vbox" (renameStar full) $
-  -- gaps [(U,32), (D,24)] $
-  -- NOTE avoidStuts causes flickering borders and slow down when switching workspaces, gaps are infinitly faster.
   avoidStruts $
   mkToggle (single NBFULL) $
   boringWindows $
@@ -531,13 +528,17 @@ myCenterFloat w h = customFloating $ W.RationalRect left top width height
     top = (1 - height) / 2
 
 
+myNavigation2DConfig = Nav2d.defaultNavigation2DConfig {
+  Nav2d.defaultTiledNavigation =  Nav2d.centerNavigation }
+
 
 --  a00001Config
+
 
 a00001Config = do
   home <- io $ getEnv "HOME"
   darkmode <- doesFileExist $ home ++ "/.config/darkmode"
-  return $ myUrgencyHook $ addDescrKeys' ((confModMask, xK_F1), showKeybindings) myKeys $ def {
+  return $ Nav2d.withNavigation2DConfig myNavigation2DConfig $ myUrgencyHook $ addDescrKeys' ((confModMask, xK_F1), showKeybindings) myKeys $ def {
     terminal           = myTerminal
   , focusFollowsMouse  = False
   , borderWidth        = 3
