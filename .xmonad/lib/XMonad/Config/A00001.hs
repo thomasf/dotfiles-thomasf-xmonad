@@ -347,20 +347,24 @@ myLayoutHook =
   lessBorders OnlyFloat
   standard
   where
-    standard = l1 ||| l2 ||| fixcol ||| tabs ||| gridWide ||| spiral
+    -- control
+    first = onTall tcol wide
+    standard = onTall
+               (first ||| grid ||| fixcol)
+               (first ||| tall ||| fixcol ||| tabs ||| gridWide ||| spiral)
+    onTall = onHosts ["transwhale"]
+    -- helpers
     refmin = mkToggle (single REFLECTX) . minimize
     ss = smartSpacing 4
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
-    onTall = onHosts ["transwhale"]
-    l1 = onTall tcol wide
-    l2 = onTall tcol tall
-    fixcol = rename "fcol" $ ss $ FixedColumn 1 20 88 10
+    -- layouts
+    fixcol = rename "fcol" $ ss $ FixedColumn 1 20 80 10
     full = rename "full" $ noBorders (fullscreenFull Full)
     wide = rename "wide" $ ss $ Mirror $ refmin $ Tall 2 (3/100) (4/5)
     tall = rename "tall" $ ss $ refmin $ Tall 2 (3/100) (3/5)
     tcol = rename "3col" $ ss $ Mirror $ ThreeColMid 1 (3/100) (4/6)
-    dash = rename "dash" $ l1
+    dash = rename "dash" $ first
     spiral = rename "spiral" $ ss $ refmin $ Spiral.spiral (6/7)
     tabs = rename "tabs" $ ss $ Mirror $ Tall 1 0 0.93
     gridWide = rename "grid" $ ss $ refmin $ GridRatio (16/9)
