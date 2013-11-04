@@ -334,7 +334,7 @@ myLayoutHook =
   avoidStruts $
   mkToggle (single NBFULL) $
   boringWindows $
-  onWorkspace "chat" (renameStar gridWide) $
+  onWorkspace "chat" (fixcol ||| gridWide) $
   onWorkspace "music" tabs $
   onWorkspace "files" (grid ||| tabs) $
   onWorkspace "nodes" (renameStar tabs) $
@@ -356,7 +356,7 @@ myLayoutHook =
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
     -- layouts
-    fixcol = rename "fcol" $ ss $ FixedColumn 1 20 80 10
+    fixcol = rename "fcol" $ ss $ refmin $ FixedColumn 1 20 80 10
     full = rename "full" $ noBorders (fullscreenFull Full)
     wide = rename "wide" $ ss $ Mirror $ refmin $ Tall 2 (3/100) (4/5)
     tall = rename "tall" $ ss $ refmin $ Tall 2 (3/100) (3/5)
