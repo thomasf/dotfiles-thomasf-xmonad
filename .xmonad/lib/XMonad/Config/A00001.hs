@@ -334,7 +334,7 @@ myLayoutHook =
   avoidStruts $
   mkToggle (single NBFULL) $
   boringWindows $
-  onWorkspace "chat" (fixcol ||| gridWide) $
+  onWorkspace "chat" (chat ||| gridWide) $
   onWorkspace "music" tabs $
   onWorkspace "files" (grid ||| tabs) $
   onWorkspace "nodes" (renameStar tabs) $
@@ -357,6 +357,7 @@ myLayoutHook =
     renameStar = renamed [Replace "*"]
     -- layouts
     fixcol = rename "fcol" $ ss $ refmin $ FixedColumn 1 20 80 10
+    chat = rename "chat" $ ss $ refmin $ FixedColumn 1 0 100 0
     full = rename "full" $ noBorders (fullscreenFull Full)
     wide = rename "wide" $ ss $ Mirror $ refmin $ Tall 2 (3/100) (4/5)
     tall = rename "tall" $ ss $ refmin $ Tall 2 (3/100) (3/5)
@@ -396,7 +397,7 @@ myManageHook :: ManageHook
 myManageHook =
   manageSpawn <+> fullscreenManageHook <+> namedScratchpadManageHook myScratchPads <+> (composeOne . concat $
   [ [resource  =? r -?>                                        doIgnore           | r <- ["Do", "desktop_window", "kdesktop", "Panel"]]
-  , [className =? c -?>                                        doIgnore           | c <- ["Unity-2d-panel", "Xfce4-notifyd", "Xfdesktop"]]
+  , [className =? c -?>                                        doIgnore           | c <- ["Ediff", "Unity-2d-panel", "Xfce4-notifyd", "Xfdesktop"]]
   , [className =? c -?>                                        doSink             | c <- ["emulator64-mips", "emulator-arm", "emulator-x86"
                                                                                          ,"emulator64-arm", "emulator64-x86", "emulator-mips"]]
   , [className =? "Skype" <&&> title =? "Options" -?> doCenterFloatLarge]
