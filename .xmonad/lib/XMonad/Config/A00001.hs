@@ -73,6 +73,7 @@ import           XMonad.Layout.Minimize
 import           XMonad.Layout.MultiToggle
 import           XMonad.Layout.MultiToggle.Instances
 import           XMonad.Layout.OnHost
+import           XMonad.Layout.OneBig
 import           XMonad.Layout.NoBorders
 import           XMonad.Layout.PerWorkspace      (onWorkspace)
 import           XMonad.Layout.Reflect
@@ -348,7 +349,7 @@ myLayoutHook =
     first = onTall tcol wide
     standard = onTall
                (first ||| grid ||| fixcol)
-               (first ||| tall ||| fixcol ||| tabs ||| gridWide ||| spiral)
+               (first ||| tall ||| fixcol ||| tabs ||| gridWide ||| spiral ||| oneBig)
     onTall = onHosts ["transwhale"]
     -- helpers
     refmin = mkToggle (single REFLECTX) . minimize
@@ -357,6 +358,7 @@ myLayoutHook =
     renameStar = renamed [Replace "*"]
     -- layouts
     fixcol = rename "fcol" $ ss $ refmin $ FixedColumn 1 20 80 10
+    oneBig = rename "1big" $ ss $ refmin $ OneBig (3/4) (3/4)
     chat = rename "chat" $ ss $ refmin $ FixedColumn 1 0 100 0
     full = rename "full" $ noBorders (fullscreenFull Full)
     wide = rename "wide" $ ss $ Mirror $ refmin $ Tall 2 (3/100) (4/5)
