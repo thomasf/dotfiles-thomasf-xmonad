@@ -154,6 +154,10 @@ myKeys conf =
   , ("M-C-<Down>",  addName "Swap window below"  $ Nav2d.windowSwap D False)
   , ("M-C-<Left>",  addName "Swap window left"   $ Nav2d.windowSwap L False)
   , ("M-C-<Right>", addName "Swap window right"  $ Nav2d.windowSwap R False)
+  , ("M-S-<Up>",    addName "Swap window above"  $ Nav2d.windowSwap U False)
+  , ("M-S-<Down>",  addName "Swap window below"  $ Nav2d.windowSwap D False)
+  , ("M-S-<Left>",  addName "Swap window left"   $ Nav2d.windowSwap L False)
+  , ("M-S-<Right>", addName "Swap window right"  $ Nav2d.windowSwap R False)
   ] ++
   subtitle "Workspace actions (E/R) [mod=select from prefix] [mod+control=select from all]": mkNamedKeymap conf
   [ ("M-e",         addName "Next workspace (prefix)"     $ rmEmptyWs $ nextWsPrefix >> movePointer )
