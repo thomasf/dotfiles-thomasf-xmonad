@@ -315,10 +315,9 @@ myMouseBindings =
 
 
 -- | Colors
--- myNormalColor  = Sol.green
-myFocusedColor = Sol.magenta
+myFocusedColor = Sol.green
+myFocusedColor2 darkmode = if darkmode then Sol.magenta else Sol.magentaL
 myUrgentColor = Sol.blue
--- myNormalBorderColor darkmode = if darkmode then Sol.base03 else Sol.base3
 myNormalBorderColor darkmode = if darkmode then Sol.base02 else Sol.base2
 
 -- -- | Fonts
@@ -548,11 +547,11 @@ a00001Config = do
   return $ Nav2d.withNavigation2DConfig myNavigation2DConfig $ myUrgencyHook $ addDescrKeys' ((confModMask, xK_F1), showKeybindings) myKeys $ def {
     terminal           = myTerminal
   , focusFollowsMouse  = False
-  , borderWidth        = 3
+  , borderWidth        = 4
   , modMask            = confModMask
   , workspaces         = myWorkspaces
   , normalBorderColor  = myNormalBorderColor darkmode
-  , focusedBorderColor = myFocusedColor
+  , focusedBorderColor = myFocusedColor2 darkmode
   , keys               = emptyKeys
   , layoutHook         = myLayoutHook
   , manageHook         = myManageHook
@@ -588,5 +587,6 @@ maybeWorkspaceAction = do
 
 -- Local Variables:
 -- fill-column: 165
+-- shell-command-after-save-cmd: "xmonad --recompile && xmonad --restart"
 -- End:
 
