@@ -315,14 +315,10 @@ myMouseBindings =
 
 
 -- | Colors
-myFocusedColor = Sol.green
+myFocusedColor = Sol.magenta
 myFocusedColor2 darkmode = if darkmode then Sol.magenta else Sol.magentaL
 myUrgentColor = Sol.blue
 myNormalBorderColor darkmode = if darkmode then Sol.base02 else Sol.base2
-
--- -- | Fonts
--- sizedFont px = "-xos4-terminus-*-r-*-*-" ++ px  ++ "-*-*-*-*-*-iso8859-*"
--- largeFont = sizedFont "32"
 
 
 
