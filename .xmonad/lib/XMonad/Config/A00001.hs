@@ -30,7 +30,6 @@ import XMonad.Hooks.ServerMode
 import XMonad.Actions.Commands
 -- import Data.Maybe ( isJust, catMaybes )
 -- import Codec.Binary.UTF8.String (encodeString)
-import           XMonad.Layout.LayoutScreens
 import           XMonad.Layout.TwoPane
 -- import XMonad.Layout.DragPane
 import           Control.Monad
@@ -169,13 +168,6 @@ myKeys conf =
   , ("M-g",          addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer)
   , ("M-M1-<Space>", addName "Toggle fullscreen"                                    $ sendMessage (Toggle NBFULL) >> movePointer)
   , ("M-s",          addName "Toggle fullscreen"                                    $ sendMessage (Toggle NBFULL) >> movePointer)
-  , ("M-y t",        addName "split screen: top sidebar"                            $ layoutSplitScreen 2 (Mirror $ TwoPane 0 0.2) >> movePointer)
-  , ("M-y b",        addName "split screen: bottom sidebar"                         $ layoutSplitScreen 2 (Mirror $ TwoPane 0 0.8) >> movePointer)
-  , ("M-y r",        addName "split screen: right sidebar"                          $ layoutSplitScreen 2 (TwoPane 0 0.85) >> movePointer)
-  , ("M-y l",        addName "split screen: left sidebar"                           $ layoutSplitScreen 2 (TwoPane 0 0.15) >> movePointer)
-  , ("M-y h",        addName "split screen h"                                       $ layoutSplitScreen 2 (Mirror $ TwoPane 0 (4 / 7)) >> movePointer)
-  , ("M-y v",        addName "split screen v"                                       $ layoutSplitScreen 2 (TwoPane 0 (5 / 7)) >> movePointer)
-  , ("M-y <Space>",  addName "reset screens"                                        $ rescreen >> movePointer)
   , ("M-M1-s",       addName "Toggle visibiltiy of panels"                          $ sendMessage ToggleStruts >> movePointer)
   , ("M-M1-r",       addName "Toggle reflect layout direction"                      $ sendMessage (Toggle REFLECTX) >> movePointer)
   , ("M-M1-m",       addName "Minimize"                                             $ withFocused minimizeWindow >> movePointer)
