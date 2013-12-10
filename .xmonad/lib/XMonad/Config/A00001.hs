@@ -204,10 +204,7 @@ myKeys conf =
   , ("M-i h",               myViewWS' "home")
   , ("M-i m",               myViewWS' "mail")
   , ("M-i n",               myViewWS' "nodes")
-  , ("M-i r",               myViewWS' "read")
   , ("M-i s",               myViewWS' "scratch")
-  , ("M-i v",               myViewWS' "video")
-  , ("M-i w",               myViewWS' "www")
   , ("M-i j",               myViewWS' "23c")
   , ("M-i 2",               myViewWS' "23c")
   , ("M-i M-i",             addName "cycle ws"                              $ rmEmptyWs $ myCycleRecentWs xK_i xK_o)
@@ -330,7 +327,6 @@ myLayoutHook =
   onWorkspace "music" tabs $
   onWorkspace "files" (grid ||| tabs) $
   onWorkspace "nodes" (renameStar tabs) $
-  onWorkspace "read" (renameStar tabs) $
   onWorkspace "dash" (dash ||| grid) $
   onWorkspace "im" im $
   lessBorders OnlyFloat
