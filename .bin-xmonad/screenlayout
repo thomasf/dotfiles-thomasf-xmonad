@@ -1,0 +1,20 @@
+#!/bin/bash
+#
+
+set -e
+
+action=$(find -L  ~/.screenlayout/ \
+    -mindepth 1 \
+    -maxdepth 1 \
+    -type f \
+ | dmenu -l 20 -p "xmenu")
+
+[ -z $action ] && exit 1
+
+$action
+
+panels
+
+xmonad --restart
+
+
