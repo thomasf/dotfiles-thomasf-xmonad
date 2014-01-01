@@ -6,5 +6,5 @@
 #
 
 wsname -s && exit 1
-
-exec emacs ~/.emacs.d/lisp/*.el ~/.emacs.d/updateVendor
+cd ~/.emacs.d/
+exec emacs init.el
