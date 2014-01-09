@@ -231,6 +231,7 @@ myKeys conf =
     myViewWS wsid = do
       DW.addHiddenWorkspace wsid
       windows (W.greedyView wsid)
+      showWorkspaceNameFast
       maybeWorkspaceAction
 
     -- | View a workspace by name, remove left over empty workspace and move pointer
@@ -591,15 +592,15 @@ maybeWorkspaceAction = do
   when (null wins) workspaceAction
 
 -- | durations
-showBoxSingle = 0.8
-showBoxDual = 1.7
+showStatusSingleMessageDuration = 0.7
+showStatusMultipleMessagesDuration = 0.7
 
 -- | Show active workspace name slow
-showWorkspaceName = showWorkspaceName' showBoxDual Sol.yellow
+showWorkspaceName = showWorkspaceName' showStatusMultipleMessagesDuration Sol.yellow
 -- | Show inactve workspace name slow
-showWorkspaceNameOld = showWorkspaceName' showBoxDual Sol.base1
+showWorkspaceNameOld = showWorkspaceName' showStatusMultipleMessagesDuration Sol.base1
 -- | Show active workspace name fast
-showWorkspaceNameFast = showWorkspaceName' showBoxSingle Sol.magenta
+showWorkspaceNameFast = showWorkspaceName' showStatusSingleMessageDuration Sol.magenta
 
 -- | Show workspace name
 showWorkspaceName' timeout bg = do
@@ -617,7 +618,7 @@ showLayoutName = do
   winset <- gets windowset
   let ld = description . W.layout . W.workspace . W.current $ winset
   DZ.dzenConfig
-    (DZ.timeout showBoxSingle
+    (DZ.timeout showStatusSingleMessageDuration
      >=> DZ.onCurr (DZ.center 400 48)
      >=> DZ.font largeFont
      >=> DZ.addArgs ["-fg", Sol.base03]
