@@ -459,7 +459,8 @@ myXmobarTopPP = def
   , ppHidden  = const ""
   , ppUrgent  = xmobarColor myUrgentColor "" . wrap " ◀"  "▶"
   , ppTitle   = const ""
-  , ppLayout  = wrap " l:" "" . trim
+  -- , ppLayout  = wrap " l:" "" . trim
+  , ppLayout  = const ""
   , ppSep     = " "
   , ppSort    = getSortByXineramaRule
   }
