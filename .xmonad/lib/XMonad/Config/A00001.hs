@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveDataTypeable, FlexibleContexts,
+{-# LANGUAGE FlexibleContexts,
   FlexibleInstances, MultiParamTypeClasses,
   NoMonomorphismRestriction, ScopedTypeVariables,
   TypeSynonymInstances, UndecidableInstances,
@@ -27,10 +27,10 @@ module XMonad.Config.A00001
 
 
 import XMonad.Hooks.ServerMode
-import XMonad.Actions.Commands
+-- import XMonad.Actions.Commands
 -- import Data.Maybe ( isJust, catMaybes )
 -- import Codec.Binary.UTF8.String (encodeString)
-import           XMonad.Layout.TwoPane
+-- import           XMonad.Layout.TwoPane
 -- import XMonad.Layout.DragPane
 import           Control.Monad
 import           Data.List
@@ -267,12 +267,11 @@ myKeys conf =
            filterNSP = fmap (.namedScratchpadFilterOutWorkspace)
 
     -- | Cycle recent ws
-    myCycleRecentWs keyForward keyBackward = cycleRecentWS'
-                                             [ xK_Alt_L, xK_Alt_R
-                                             , xK_Super_L, xK_Super_R
-                                             , xK_Hyper_L, xK_Hyper_R
-                                             , xK_Control_L, xK_Control_R]
-                                               keyForward keyBackward
+    myCycleRecentWs = cycleRecentWS'
+                      [ xK_Alt_L, xK_Alt_R
+                      , xK_Super_L, xK_Super_R
+                      , xK_Hyper_L, xK_Hyper_R
+                      , xK_Control_L, xK_Control_R]
 
     -- | Sort workspaces by tag name, exclude hidden scrachpad workspace.
     getSortByTagNoSP = fmap (.namedScratchpadFilterOutWorkspace) getSortByTag
@@ -290,7 +289,7 @@ myMouseBindings =
       button10 :: Button
       button10 =  10
       gestures = M.fromList
-                 [ ([    ], \w -> focus w)
+                 [ ([    ], focus)
                  , ([R, D], \_ -> sendMessage NextLayout)
                  , ([L, U], \w -> sendMessage RestoreNextMinimizedWin >> focus w)
                  , ([L, D], \w -> focus w >> withFocused minimizeWindow)
@@ -351,7 +350,7 @@ myLayoutHook =
     wide = rename "wide" $ ss $ Mirror $ refmin $ Tall 2 (3/100) (4/5)
     tall = rename "tall" $ ss $ refmin $ Tall 2 (3/100) (3/5)
     tcol = rename "3col" $ ss $ Mirror $ ThreeColMid 1 (3/100) (4/6)
-    dash = rename "dash" $ first
+    dash = rename "dash" first
     spiral = rename "spiral" $ ss $ refmin $ Spiral.spiral (6/7)
     tabs = rename "tabs" $ ss $ Mirror $ Tall 1 0 0.93
     gridWide = rename "grid" $ ss $ refmin $ GridRatio (16/9)
@@ -360,14 +359,14 @@ myLayoutHook =
          (gridWide ||| grid ||| spiral)
       where
         pidginRoster = ClassName "Pidgin" `And` Role "buddy_list"
-        skypeRoster  = (ClassName "Skype")
-                       `And` (Not (Title "Options"))
-                       `And` (Not (Title "Add a Skype Contact"))
-                       `And` (Not (Title "Start a conference call"))
-                       `And` (Not (Title "Terms of Use"))
-                       `And` (Not (Role "ConversationsWindow"))
-                       `And` (Not (Role "CallWindowForm"))
-                       `And` (Not (Role "CallWindow"))
+        skypeRoster  = ClassName "Skype"
+                       `And` Not (Title "Options")
+                       `And` Not (Title "Add a Skype Contact")
+                       `And` Not (Title "Start a conference call")
+                       `And` Not (Title "Terms of Use")
+                       `And` Not (Role "ConversationsWindow")
+                       `And` Not (Role "CallWindowForm")
+                       `And` Not (Role "CallWindow")
 
 
 
@@ -518,7 +517,7 @@ myCenterFloat w h = customFloating $ W.RationalRect left top width height
     top = (1 - height) / 2
 
 
-myNavigation2DConfig = Nav2d.defaultNavigation2DConfig {
+myNavigation2DConfig = def {
   Nav2d.defaultTiledNavigation =  Nav2d.centerNavigation }
 
 
@@ -573,4 +572,3 @@ maybeWorkspaceAction = do
 -- fill-column: 165
 -- shell-command-after-save-cmd: "xmonad --recompile && xmonad --restart"
 -- End:
-
