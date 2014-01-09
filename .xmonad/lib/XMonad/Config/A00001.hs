@@ -27,11 +27,6 @@ module XMonad.Config.A00001
 
 
 import XMonad.Hooks.ServerMode
--- import XMonad.Actions.Commands
--- import Data.Maybe ( isJust, catMaybes )
--- import Codec.Binary.UTF8.String (encodeString)
--- import           XMonad.Layout.TwoPane
--- import XMonad.Layout.DragPane
 import           Control.Monad
 import           Data.List
 import qualified Data.Map as M
@@ -43,7 +38,7 @@ import           System.Exit ( exitSuccess )
 import           System.IO
 import qualified System.IO.UTF8
 import           XMonad hiding ( (|||) )
-import           XMonad.Actions.CycleRecentWS
+import           XMonad.Actions.CycleRecentWSAddons
 import           XMonad.Actions.CycleWS hiding (toggleWS)
 import           XMonad.Actions.DwmPromote
 import qualified XMonad.Actions.DynamicWorkspaces as DW
@@ -81,15 +76,13 @@ import qualified XMonad.Layout.Spiral as Spiral
 import           XMonad.Prompt hiding (height)
 import           XMonad.Prompt.Workspace
 import qualified XMonad.StackSet                 as W
--- import qualified XMonad.Util.Dzen as DZ
 import           XMonad.Util.EZConfig
 import           XMonad.Util.NamedActions
--- import           XMonad.Util.NamedWindows
 import           XMonad.Util.NamedScratchpad
 import           XMonad.Util.Run
 import           XMonad.Util.WorkspaceCompare
 import           XMonad.Util.Paste
-
+import qualified XMonad.Util.Dzen as DZ
 
 
 -- Keyboard configuration:
@@ -137,10 +130,10 @@ myKeys conf =
   , ("M-C-u",      addName "Clear all urgent window statuses"              $ clearUrgents >> focusUrgent)
   ] ++
   subtitle "Cyclic display actions": mkNamedKeymap conf
-  [ ("M-f",   addName "Next screen"                        $ nextScreen >> movePointer )
-  , ("M-d",   addName "Previous screen"                    $ prevScreen >> movePointer )
-  , ("M-C-f", addName "Swap current display witn next"     $ swapNextScreen >> movePointer )
-  , ("M-C-d", addName "Swap current display witn previous" $ swapPrevScreen >> movePointer )
+  [ ("M-f",   addName "Next screen"                        $ nextScreen >> movePointer >> showWorkspaceNameFast)
+  , ("M-d",   addName "Previous screen"                    $ prevScreen >> movePointer >> showWorkspaceNameFast)
+  , ("M-C-f", addName "Swap current display witn next"     $ swapNextScreen >> nextScreen >> showWorkspaceNameOld >> prevScreen >> showWorkspaceName >> movePointer )
+  , ("M-C-d", addName "Swap current display witn previous" $ swapPrevScreen >> prevScreen >> showWorkspaceNameOld >> nextScreen >> showWorkspaceName >> movePointer )
   , ("M-S-f", addName "Move window to next screen"         $ shiftNextScreen >> nextScreen >> movePointer )
   , ("M-S-d", addName "Move window to previous screen"     $ shiftPrevScreen >> prevScreen >> movePointer )
   ] ++
@@ -164,10 +157,10 @@ myKeys conf =
   , ("M-S-<Space>", addName "reset layout"                $ setLayout (XMonad.layoutHook conf) >> movePointer)
   ] ++
   subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]": mkNamedKeymap conf
-  [ ("M-C-<Space>",  addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer)
-  , ("M-g",          addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer)
-  , ("M-M1-<Space>", addName "Toggle fullscreen"                                    $ sendMessage (Toggle NBFULL) >> movePointer)
-  , ("M-s",          addName "Toggle fullscreen"                                    $ sendMessage (Toggle NBFULL) >> movePointer)
+  [ ("M-C-<Space>",  addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
+  , ("M-g",          addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
+  , ("M-M1-<Space>", addName "Toggle fullscreen"                                    $ sendMessage (Toggle NBFULL) >> movePointer >> showLayoutName)
+  , ("M-s",          addName "Toggle fullscreen"                                    $ sendMessage (Toggle NBFULL) >> movePointer >> showLayoutName)
   , ("M-M1-s",       addName "Toggle visibiltiy of panels"                          $ sendMessage ToggleStruts >> movePointer)
   , ("M-M1-r",       addName "Toggle reflect layout direction"                      $ sendMessage (Toggle REFLECTX) >> movePointer)
   , ("M-M1-m",       addName "Minimize"                                             $ withFocused minimizeWindow >> movePointer)
@@ -212,9 +205,13 @@ myKeys conf =
   , ("M-i <Space> <Space>", addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
   , ("M-i <Space> m",       addName "Move window to other workspace prompt" $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
   , ("M-S-i",               addName "Move window to other workspace prompt" $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
-
   , ("M-i <Space> r",       addName "Rename current workspace"              $ DW.renameWorkspace myXPConfig >> movePointer)
   , ("M-i <Space> 0",       addName "Remove current workspace"              $ DW.removeWorkspace >> movePointer)
+  , ("M-i <Space> w",       addName "www" $ gotoPrefixWS "www")
+  , ("M-i <Space> d",       addName "doc" $ gotoPrefixWS "doc")
+  , ("M-i <Space> c",       addName "code" $ gotoPrefixWS "code")
+  , ("M-i <Space> p",       addName "plan" $ gotoPrefixWS "plan")
+  , ("M-i <Return> ",       addName "asd" gotoBaseWS)
  ] ++
   subtitle "exit/quit/leave/reboot...": mkNamedKeymap conf
   [ ("M-q r",             addName "restart xmonad"                       $ restart "xmonad" True)
@@ -251,6 +248,25 @@ myKeys conf =
     -- | Toggle scratch pad
     toggleScratch cmd' = addName("Toggle " ++ cmd' ++ " scratchpad ") $ namedScratchpadAction myScratchPads cmd'
 
+    gotoBaseWS :: X ()
+    gotoBaseWS = withWindowSet $ \w -> do
+      thisWS <- gets (W.currentTag . windowset)
+      let wss = W.workspaces w
+          currentTagPrefix = takeWhile (/='.') thisWS
+          new = currentTagPrefix
+      unless (new `elem` map W.tag wss) $ myViewWS new
+      windows $ W.view new
+
+    gotoPrefixWS :: String -> X ()
+    gotoPrefixWS suffix = withWindowSet $ \w -> do
+      thisWS <- gets (W.currentTag . windowset)
+      let wss = W.workspaces w
+          currentTagPrefix = takeWhile (/='.') thisWS
+          new = currentTagPrefix ++ "." ++ suffix
+      unless (new `elem` map W.tag wss) $ myViewWS new
+      windows $ W.view new
+
+
     -- |  Select next workspace with same prefix
     nextWsPrefix = windows . W.greedyView
                    =<< findWorkspace getSortByTagNoSP Next (HiddenWSTagGroup '.') 1
@@ -261,17 +277,18 @@ myKeys conf =
 
 
     -- | CycleRecentWs that does not include visible but non-focused workspaces or NSP
-    cycleRecentWS' = cycleWindowSets options
+    cycleRecentWS' = cycleWindowSets' options
      where options w = map (W.view `flip` w) (recentTags w)
            recentTags w = filterNSP map W.tag $ W.hidden w ++ [W.workspace (W.current w)]
            filterNSP = fmap (.namedScratchpadFilterOutWorkspace)
 
     -- | Cycle recent ws
-    myCycleRecentWs = cycleRecentWS'
+    myCycleRecentWs keyForward keyBackward = cycleRecentWS'
                       [ xK_Alt_L, xK_Alt_R
                       , xK_Super_L, xK_Super_R
                       , xK_Hyper_L, xK_Hyper_R
                       , xK_Control_L, xK_Control_R]
+                      keyForward keyBackward showWorkspaceNameFast
 
     -- | Sort workspaces by tag name, exclude hidden scrachpad workspace.
     getSortByTagNoSP = fmap (.namedScratchpadFilterOutWorkspace) getSortByTag
@@ -307,6 +324,10 @@ myFocusedColor = Sol.magenta
 myFocusedColor2 darkmode = if darkmode then Sol.magenta else Sol.magentaL
 myUrgentColor = Sol.blue
 myNormalBorderColor darkmode = if darkmode then Sol.base02 else Sol.base2
+
+-- | Fonts
+sizedFont px = "-xos4-terminus-*-r-*-*-" ++ px  ++ "-*-*-*-*-*-iso8859-*"
+largeFont = sizedFont "32"
 
 
 
@@ -568,6 +589,40 @@ workspaceAction = do
 maybeWorkspaceAction = do
   wins <- gets (W.integrate' . W.stack . W.workspace . W.current . windowset)
   when (null wins) workspaceAction
+
+-- | durations
+showBoxSingle = 0.8
+showBoxDual = 1.7
+
+-- | Show active workspace name slow
+showWorkspaceName = showWorkspaceName' showBoxDual Sol.yellow
+-- | Show inactve workspace name slow
+showWorkspaceNameOld = showWorkspaceName' showBoxDual Sol.base1
+-- | Show active workspace name fast
+showWorkspaceNameFast = showWorkspaceName' showBoxSingle Sol.magenta
+
+-- | Show workspace name
+showWorkspaceName' timeout bg = do
+  ws <- gets (W.currentTag . windowset)
+  DZ.dzenConfig
+    (DZ.timeout timeout
+     >=> DZ.onCurr (DZ.center 400 48)
+     >=> DZ.font largeFont
+     >=> DZ.addArgs ["-fg", Sol.base03]
+     >=> DZ.addArgs ["-bg", bg]
+    ) ws
+
+-- | Show current layout name
+showLayoutName = do
+  winset <- gets windowset
+  let ld = description . W.layout . W.workspace . W.current $ winset
+  DZ.dzenConfig
+    (DZ.timeout showBoxSingle
+     >=> DZ.onCurr (DZ.center 400 48)
+     >=> DZ.font largeFont
+     >=> DZ.addArgs ["-fg", Sol.base03]
+     >=> DZ.addArgs ["-bg", Sol.green]
+    ) ld
 
 -- Local Variables:
 -- fill-column: 165
