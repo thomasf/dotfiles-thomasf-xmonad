@@ -355,7 +355,8 @@ myLayoutHook =
     tabs = rename "tabs" $ ss $ Mirror $ Tall 1 0 0.93
     gridWide = rename "grid" $ ss $ refmin $ GridRatio (16/9)
     grid = rename "grid" $ ss $ refmin $ GridRatio (4/3)
-    im =  withIM (1%9) pidginRoster $ ss $ reflectHoriz $ withIM (1%8) skypeRoster
+    im = onTall (im' 2) (im' 1)
+    im' r =  withIM (r%9) pidginRoster $ reflectHoriz $ withIM (r%8) skypeRoster
          (gridWide ||| grid ||| spiral)
       where
         pidginRoster = ClassName "Pidgin" `And` Role "buddy_list"
