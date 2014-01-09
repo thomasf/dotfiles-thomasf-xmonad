@@ -26,7 +26,6 @@ module XMonad.Config.A00001
     ) where
 
 
-import XMonad.Hooks.ServerMode
 import           Control.Monad
 import           Data.List
 import qualified Data.Map as M
@@ -52,37 +51,38 @@ import           XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
 import           XMonad.Hooks.ManageDocks
 import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.Minimize
+import           XMonad.Hooks.ServerMode
 import           XMonad.Hooks.SetWMName
 import           XMonad.Hooks.UrgencyHook
 import           XMonad.Hooks.WorkspaceHistory (workspaceHistoryHook)
 import           XMonad.Layout.BoringWindows hiding (Replace)
 import           XMonad.Layout.FixedColumn
 import           XMonad.Layout.Fullscreen
-import           XMonad.Layout.Spacing
-import           XMonad.Layout.ThreeColumns
 import           XMonad.Layout.Grid
 import           XMonad.Layout.IM
 import           XMonad.Layout.LayoutCombinators
 import           XMonad.Layout.Minimize
 import           XMonad.Layout.MultiToggle
 import           XMonad.Layout.MultiToggle.Instances
+import           XMonad.Layout.NoBorders
 import           XMonad.Layout.OnHost
 import           XMonad.Layout.OneBig
-import           XMonad.Layout.NoBorders
 import           XMonad.Layout.PerWorkspace      (onWorkspace)
 import           XMonad.Layout.Reflect
 import           XMonad.Layout.Renamed
+import           XMonad.Layout.Spacing
 import qualified XMonad.Layout.Spiral as Spiral
+import           XMonad.Layout.ThreeColumns
 import           XMonad.Prompt hiding (height)
 import           XMonad.Prompt.Workspace
 import qualified XMonad.StackSet                 as W
+import qualified XMonad.Util.Dzen as DZ
 import           XMonad.Util.EZConfig
 import           XMonad.Util.NamedActions
 import           XMonad.Util.NamedScratchpad
+import           XMonad.Util.Paste
 import           XMonad.Util.Run
 import           XMonad.Util.WorkspaceCompare
-import           XMonad.Util.Paste
-import qualified XMonad.Util.Dzen as DZ
 
 
 -- Keyboard configuration:
