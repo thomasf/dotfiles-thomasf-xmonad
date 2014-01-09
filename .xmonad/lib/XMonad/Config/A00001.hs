@@ -454,10 +454,10 @@ myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> minimizeEv
 --
 
 myXmobarTopPP = def
-  { ppCurrent = xmobarColor myFocusedColor "" . wrap " " " " . trim
-  , ppVisible = wrap " " " " . trim
+  { ppCurrent = xmobarColor myFocusedColor "" . wrap " " "" . trim
+  , ppVisible = wrap " " "" . trim
   , ppHidden  = const ""
-  , ppUrgent  = xmobarColor myUrgentColor "" . wrap "!"  "!"
+  , ppUrgent  = xmobarColor myUrgentColor "" . wrap " ◀"  "▶"
   , ppTitle   = const ""
   , ppLayout  = wrap " l:" "" . trim
   , ppSep     = " "
