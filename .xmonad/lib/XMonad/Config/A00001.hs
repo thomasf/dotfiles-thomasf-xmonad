@@ -365,7 +365,9 @@ myLayoutHook =
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
     -- layouts
-    fixcol = rename "fcol" $ ss $ refmin $ onTall (FixedColumn 2 0 80 80) (FixedColumn 1 0 80 80)
+    fixcol = rename "fcol" $ ss $ refmin $ onTall
+             (FixedColumn 2 0 80 10)
+             (FixedColumn 1 0 80 10)
     oneBig = rename "1big" $ ss $ refmin $ OneBig (3/4) (3/4)
     chat = rename "chat" $ ss $ refmin $ FixedColumn 1 0 100 0
     full = rename "full" $ noBorders (fullscreenFull Full)
