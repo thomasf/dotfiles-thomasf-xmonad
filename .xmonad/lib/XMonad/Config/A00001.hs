@@ -152,8 +152,8 @@ myKeys conf =
   , ("M-S-<Right>", addName "Swap window right"  $ Nav2d.windowSwap R False)
   ] ++
   subtitle "Workspace actions (E/R) [mod=select from prefix] [mod+control=select from all]": mkNamedKeymap conf
-  [ ("M-e",         addName "Next workspace (prefix)"     $ rmEmptyWs $ nextWsPrefix >> movePointer )
-  , ("M-r",         addName "Previous workspace (prefix)" $ rmEmptyWs $ prevWsPrefix >> movePointer )
+  [ ("M-e",         addName "Next workspace (prefix)"     $ rmEmptyWs $ nextWsPrefix >> movePointer >> showWorkspaceNameFast)
+  , ("M-r",         addName "Previous workspace (prefix)" $ rmEmptyWs $ prevWsPrefix >> movePointer >> showWorkspaceNameFast)
   , ("M-S-<Space>", addName "reset layout"                $ setLayout (XMonad.layoutHook conf) >> movePointer)
   ] ++
   subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]": mkNamedKeymap conf
