@@ -425,9 +425,9 @@ myManageHook =
   , [className =? c -?>                                        doCenterFloatLarge | c <-  ["Xfce4-appfinder"]]
   , [resource  =? c -?>                                        doCenterFloatLarge | c <-  ["floating-center-large"]]
   , [resource  =? c -?>                                        doCenterFloat      | c <-  ["floating-center"]]
+  , [className  =? "Onboard"  -?>                              doIgnore]
   , [transience]
   , [resource  =? "xmessage" -?>                               doCenterFloatLarge]
-  , [title     =? "Onboard"  -?>                               doFloat]
   ]) <+> manageDocks
   where
     doCenterFloatLarge = myCenterFloat 0.95 0.85
@@ -445,7 +445,6 @@ myManageHook =
 -- combine event hooks use mappend or mconcat from Data.Monoid.
 --
 myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> minimizeEventHook <+> serverModeEventHook
-
 
 
 
