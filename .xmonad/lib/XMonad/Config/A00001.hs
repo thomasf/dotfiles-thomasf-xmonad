@@ -323,6 +323,7 @@ myMouseBindings =
 -- | Colors
 myFocusedColor = Sol.magenta
 myFocusedColor2 darkmode = if darkmode then Sol.magenta else Sol.magentaL
+myInactiveWorkspaceColor = Sol.green
 myUrgentColor = Sol.blue
 myNormalBorderColor darkmode = if darkmode then Sol.base02 else Sol.base2
 
@@ -456,11 +457,10 @@ myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> minimizeEv
 
 myXmobarTopPP = def
   { ppCurrent = xmobarColor myFocusedColor "" . wrap " " "" . trim
-  , ppVisible = wrap " " "" . trim
+  , ppVisible = xmobarColor myInactiveWorkspaceColor "" . wrap " " "" . trim
   , ppHidden  = const ""
-  , ppUrgent  = xmobarColor myUrgentColor "" . wrap " ◀"  "▶"
+  , ppUrgent  = wrap " ◀"  "▶"
   , ppTitle   = const ""
-  -- , ppLayout  = wrap " l:" "" . trim
   , ppLayout  = const ""
   , ppSep     = " "
   , ppSort    = getSortByXineramaRule
