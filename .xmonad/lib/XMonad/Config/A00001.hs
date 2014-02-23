@@ -279,11 +279,15 @@ myKeys conf =
                    =<< findWorkspace getSortByTagNoSP Prev (HiddenWSTagGroup '.') 1
 
 
+    -- | filter some workspaces
+    filterSomeWorkspaces = fmap (.namedScratchpadFilterOutWorkspace .myFilterOutWorkspace "chat")
+    myFilterOutWorkspace :: String -> [WindowSpace] -> [WindowSpace]
+    myFilterOutWorkspace wsname = filter (\(W.Workspace tag _ _) -> tag /= wsname)
+
     -- | CycleRecentWs that does not include visible but non-focused workspaces or NSP
     cycleRecentWS' = cycleWindowSets' options
      where options w = map (W.view `flip` w) (recentTags w)
-           recentTags w = filterNSP map W.tag $ W.hidden w ++ [W.workspace (W.current w)]
-           filterNSP = fmap (.namedScratchpadFilterOutWorkspace)
+           recentTags w = filterSomeWorkspaces map W.tag $ W.hidden w ++ [W.workspace (W.current w)]
 
     -- | Cycle recent ws
     myCycleRecentWs keyForward keyBackward = cycleRecentWS'
@@ -294,7 +298,7 @@ myKeys conf =
                       keyForward keyBackward showWorkspaceNameFast
 
     -- | Sort workspaces by tag name, exclude hidden scrachpad workspace.
-    getSortByTagNoSP = fmap (.namedScratchpadFilterOutWorkspace) getSortByTag
+    getSortByTagNoSP = filterSomeWorkspaces getSortByTag
 
     -- | Restore focused window from minimized state
     restoreFocused = withFocused $ \w -> sendMessage (RestoreMinimizedWin w)
