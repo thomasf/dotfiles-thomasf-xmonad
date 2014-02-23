@@ -178,6 +178,8 @@ myKeys conf =
   , ("<XF86AudioPrev>",   spawnh "mpc seek -00:00:10")
   , ("<XF86AudioNext>",   spawnh "mpc seek +00:00:10")
   , ("<XF86AudioStop>",   spawnh "mpc stop")
+  , ("<XF86MonBrightnessDown>",   spawnh "custom-backlight-macbookpro_gmux -m")
+  , ("<XF86MonBrightnessUp>",   spawnh "custom-backlight-macbookpro_gmux -p")
  ] ++
   subtitle "misc": mkNamedKeymap conf
   [ ("M-<Print>",    spawnh "xfce4-screenshooter")

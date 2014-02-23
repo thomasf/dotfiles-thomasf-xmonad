@@ -1,0 +1,87 @@
+#!/bin/bash
+
+# Adapted from http://www.linuxquestions.org/questions/linux-laptop-and-netbook-25/script-to-set-up-brightness-of-backlight-in-xfce-903704/
+# Script for changing backlight brightness in /sys/class/backlight/acpi_video0/brightness
+# can take values 0-15, in real (my notebook) works only values 2-15
+
+# NOTE: you must have writing rights to /sys/.../brightness (I must solute it with visudo or something like that...)
+# NOTE: Access (for everyone) can be done by adding to /etc/rc.local:
+#       chmod o+w /sys/class/backlight/gmux_backlight/brightness
+# NOTE: for proper work after reboot must exist directory .bright in your home directory and file last_bright in .bright directory
+
+#reads content of brightness and save it into variable
+
+BRIGHTNESS_FILE="/sys/class/backlight/gmux_backlight/brightness"
+BRIGHT_CONF_DIR="$HOME/.brightgmux"
+LAST_BRIGHT_FILE="${BRIGHT_CONF_DIR}/last_bright"
+BRIGHT=$(cat ${BRIGHTNESS_FILE})
+
+while getopts "pmlhc" optname
+ do
+  case "$optname" in
+   "p")
+    #Add more brightness
+    #BRIGHT++
+    BRIGHT=$(($BRIGHT+7360))
+    #protect mechanism (BRIGHT must be lower or equal to 15)
+     if (($BRIGHT>110400))
+     then
+        BRIGHT=$((110400))
+     fi
+    ;;
+   "m")
+    #decrease brightness
+    #BRIGHT--
+    BRIGHT=$(($BRIGHT-7360))
+    #protect mechanism (BRIGHT must be bigger or equal to 2)
+     if (($BRIGHT<14720))
+     then
+        BRIGHT=$((14720))
+     fi
+    ;;
+   "l")
+    echo "Loading last value of brightness."
+    #Load last value, saved in file last_bright
+    BRIGHT=$(cat ${LAST_BRIGHT_FILE})
+    echo "Last value of brightness was: $BRIGHT"
+    ;;
+   "h")
+     echo "Help: "
+     echo "-p    Increase brightness"
+     echo "-m    Decrease brightness"
+     echo "-l    Load last brightness value"
+     echo "-c N Set to custom value"
+     echo "-h    This help"
+     echo "Programmed by: ElectricZero"
+     echo "Improved by: adrian15"
+     exit 0;
+     ;;
+    "c")
+     BRIGHT=$2
+     if (($BRIGHT>110400))
+     then
+        BRIGHT=$((110400))
+     fi
+
+     if (($BRIGHT<14720))
+     then
+        BRIGHT=$((14720))
+     fi
+     ;;
+    "?")
+     echo "Unknown argument, try bright -h for help"
+     exit 1;
+     ;;
+    *)
+    # Should not occur
+    echo "Unknown error while processing options"
+    exit 2;
+    ;;
+  esac
+done
+echo "Brightness set on $BRIGHT"
+#Save variable BRIGHT into file brightness
+echo $BRIGHT > ${BRIGHTNESS_FILE}
+#Save variable BRIGHT into file last_bright
+if [ ! -d ${BRIGHT_CONF_DIR} ] ; then mkdir ${BRIGHT_CONF_DIR} ; fi
+echo $BRIGHT > ${LAST_BRIGHT_FILE}
