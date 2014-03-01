@@ -13,9 +13,9 @@ fi
 [ -e "${HOME}/.themes" ] \
     || ln -fs "$(pwd)/.config-xmonad/gtk/themes" "${HOME}/.themes"
 
-if [ ! -e "${HOME}/.config/fontconfig/conf.d" ]; then
-    mkdir -p "${HOME}/.config/fontconfig/" \
-        && ln -fs "$(pwd)/.config-xmonad/fontconfig.d" "${HOME}/.config/fontconfig/conf.d"
-fi
+# ln -fs "$(pwd)/.config-xmonad/fontconfig/fonts.conf" "${HOME}/.fonts.conf"
+
+[ -e "${HOME}/.fonts.conf.d" ] \
+  || ln -fs "$(pwd)/.config-xmonad/fontconfig/conf.d" "${HOME}/.fonts.conf.d"
 
 set +x

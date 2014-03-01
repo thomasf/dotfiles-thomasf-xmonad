@@ -125,7 +125,7 @@ myKeys conf =
   subtitle "Other window actions": mkNamedKeymap conf
   [ ("M-<Return>", addName "Swap the focused window and the master window" $ dwmpromote >> movePointer)
   , ("M-t",        addName "Push the window into tiling mode"              $ withFocused (windows . W.sink) >> movePointer)
-  , ("M-C-c",      addName "kill"                                            kill)
+  , ("M-C-c",      addName "kill"                                          $ withFocused kill')
   , ("M-u",        addName "Focus urgent winow"                            $ focusUrgent >> restoreFocused >> movePointer )
   , ("M-C-u",      addName "Clear all urgent window statuses"              $ clearUrgents >> focusUrgent)
   ] ++
@@ -280,7 +280,10 @@ myKeys conf =
 
 
     -- | filter some workspaces
-    filterSomeWorkspaces = fmap (.namedScratchpadFilterOutWorkspace .myFilterOutWorkspace "chat")
+    filterSomeWorkspaces = fmap (.namedScratchpadFilterOutWorkspace
+                                 .myFilterOutWorkspace "chat"
+                                 .myFilterOutWorkspace "nodes"
+                                )
     myFilterOutWorkspace :: String -> [WindowSpace] -> [WindowSpace]
     myFilterOutWorkspace wsname = filter (\(W.Workspace tag _ _) -> tag /= wsname)
 
@@ -329,7 +332,6 @@ myMouseBindings =
 -- | Colors
 myFocusedColor = Sol.magenta
 myFocusedColor2 darkmode = if darkmode then Sol.magenta else Sol.magentaL
-myInactiveWorkspaceColor = Sol.green
 myUrgentColor = Sol.blue
 myNormalBorderColor darkmode = if darkmode then Sol.base02 else Sol.base2
 
@@ -425,6 +427,8 @@ myManageHook =
   , [className =? "Skype" <&&> startsWith' title "Add a Skype Contact" -?> doCenterFloatLarge]
   , [resource  =? r -?>                                        doFloat            | r <- ["floating"]]
   , [className =? c -?>                                        doFloat            | c <- ["Unity-2d-launcher", "Orage", "feh"]]
+  -- NOTE chrome does note set title early enough for this
+  -- , [role      =? "pop-up" <&&> appName =? "google-chrome" <&&> startsWith' title "Developer Tools - "  -?> doSink]
   , [role      =? "pop-up" <&&> appName =? "google-chrome" -?> doCenterFloatLarge]
   , [className =? "Zenity" <&&> title =? "Question" -?>        doCenterFloat]
   , [className =? "Zenity" -?>                                 doCenterFloatLarge]
@@ -463,7 +467,7 @@ myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> minimizeEv
 
 myXmobarTopPP = def
   { ppCurrent = xmobarColor myFocusedColor "" . wrap " " "" . trim
-  , ppVisible = xmobarColor myInactiveWorkspaceColor "" . wrap " " "" . trim
+  , ppVisible = wrap " " "" . trim
   , ppHidden  = const ""
   , ppUrgent  = wrap " ◀"  "▶"
   , ppTitle   = const ""
@@ -588,6 +592,18 @@ a00001Config = do
 
 
 -- Utilities:
+
+kill' w = do
+  c <- runQuery appName w
+  t <- runQuery title w
+  let popupTerminal = c `elem` ["scratchpad_largeTerminal"]
+      chat = c `elem` ["ssh_tmux"]
+      xmonadd = t == "XMonad"
+  unless (xmonadd || chat) $
+    if popupTerminal then
+      namedScratchpadAction myScratchPads "largeTerminal"
+    else
+      killWindow w
 
 -- | Run script with same name as "w.workspacename"
 workspaceAction = do

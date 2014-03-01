@@ -1,24 +1,5 @@
-#!/bin/bash
-#
-# Dmenu launch wrapper
-#
-# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
-# Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
-#
-
-set -e
-
-tr=urxvt
-
-if [ `which yeganesh` ]; then
-  input=`yeganesh -p appmenu -x -- -p launch -l 25`
-else
-  input=`dmenu_path | dmenu -p launch -i -l 25`
-fi
-
-set -- nil $input
-shift
-
+# [2014/02/26]
+# (archive-region-pos "  notify-send $choice")
 cmd=$1
 shift || true
 
@@ -51,3 +32,4 @@ case $cmd in
     exec $cmd $*
     ;;
 esac
+
