@@ -83,6 +83,7 @@ import           XMonad.Util.NamedScratchpad
 import           XMonad.Util.Paste
 import           XMonad.Util.Run
 import           XMonad.Util.WorkspaceCompare
+import           XMonad.Actions.RotSlaves
 
 
 -- Keyboard configuration:
@@ -99,8 +100,8 @@ myKeys conf =
   , ("M-k",             addName "Focus previous window on workspace"      $ windows W.focusUp >> movePointer)
   , ("M-n",             addName "Focus next window on workspace"          $ windows W.focusDown >> movePointer)
   , ("M-p",             addName "Focus previous window on workspace"      $ windows W.focusUp >> movePointer)
-  , ("M-C-j",           addName "Swap focused with next on workspace"     $ windows W.swapDown >> movePointer)
-  , ("M-C-k",           addName "Swap focused with previous on workspace" $ windows W.swapUp >> movePointer)
+  , ("M-C-j",           addName "Swap focused with next on workspace"     $ rotAllDown >> movePointer)
+  , ("M-C-k",           addName "Swap focused with previous on workspace" $ rotAllUp >> movePointer)
   , ("M-S-j",           addName "Swap focused with next on workspace"     $ windows W.swapDown >> movePointer)
   , ("M-S-k",           addName "Swap focused with previous on workspace" $ windows W.swapUp >> movePointer)
   ] ++
