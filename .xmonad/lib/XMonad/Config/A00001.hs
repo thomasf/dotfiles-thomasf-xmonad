@@ -75,7 +75,7 @@ import qualified XMonad.Layout.Spiral as Spiral
 import           XMonad.Layout.ThreeColumns
 import           XMonad.Prompt hiding (height)
 import           XMonad.Prompt.Workspace
-import qualified XMonad.StackSet                 as W
+import qualified XMonad.StackSet                 as W hiding (swapUp, swapDown)
 import qualified XMonad.Util.Dzen as DZ
 import           XMonad.Util.EZConfig
 import           XMonad.Util.NamedActions
@@ -83,7 +83,6 @@ import           XMonad.Util.NamedScratchpad
 import           XMonad.Util.Paste
 import           XMonad.Util.Run
 import           XMonad.Util.WorkspaceCompare
-import           XMonad.Actions.RotSlaves
 
 
 -- Keyboard configuration:
@@ -100,10 +99,10 @@ myKeys conf =
   , ("M-k",             addName "Focus previous window on workspace"      $ windows W.focusUp >> movePointer)
   , ("M-n",             addName "Focus next window on workspace"          $ windows W.focusDown >> movePointer)
   , ("M-p",             addName "Focus previous window on workspace"      $ windows W.focusUp >> movePointer)
-  , ("M-C-j",           addName "Swap focused with next on workspace"     $ rotAllDown >> movePointer)
-  , ("M-C-k",           addName "Swap focused with previous on workspace" $ rotAllUp >> movePointer)
-  , ("M-S-j",           addName "Swap focused with next on workspace"     $ windows W.swapDown >> movePointer)
-  , ("M-S-k",           addName "Swap focused with previous on workspace" $ windows W.swapUp >> movePointer)
+  , ("M-C-j",           addName "Swap focused with next on workspace"     $ windows swapDown >> windows W.focusUp >> movePointer)
+  , ("M-C-k",           addName "Swap focused with previous on workspace" $ windows swapUp >> windows W.focusDown >> movePointer)
+  , ("M-S-j",           addName "Swap focused with next on workspace"     $ windows swapDown >> movePointer)
+  , ("M-S-k",           addName "Swap focused with previous on workspace" $ windows swapUp >> movePointer)
   ] ++
   subtitle "Application launching": mkNamedKeymap conf
   [ ("M-o o", spawnh "appmenu")
@@ -593,6 +592,18 @@ a00001Config = do
 
 
 -- Utilities:
+
+swapUp'  (W.Stack t (l:ls) rs) = W.Stack t ls (l:rs)
+swapUp'  (W.Stack t []     rs) = W.Stack t (rot $ reverse rs) []
+    where rot (x:xs) = xs ++ [x]
+          rot _ = []
+
+swapUp = W.modify' swapUp'
+
+reverseStack (W.Stack t ls rs) = W.Stack t rs ls
+
+swapDown = W.modify' (reverseStack . swapUp' . reverseStack)
+
 
 kill' w = do
   c <- runQuery appName w
