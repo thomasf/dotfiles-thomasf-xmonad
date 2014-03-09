@@ -363,9 +363,9 @@ myLayoutHook =
   standard
   where
     -- control
-    first = onTall tcol wide
+    first = wide
     standard = onTall
-               (first ||| grid ||| fixcol)
+               (first ||| tcol ||| grid ||| fixcol)
                (first ||| tall ||| fixcol ||| tabs ||| gridWide ||| spiral ||| oneBig)
     onTall = onHosts ["transwhale"]
     -- helpers
@@ -380,10 +380,11 @@ myLayoutHook =
     oneBig = rename "1big" $ ss $ refmin $ OneBig (3/4) (3/4)
     chat = rename "chat" $ ss $ refmin $ FixedColumn 1 0 100 0
     full = rename "full" $ noBorders (fullscreenFull Full)
-    wide = rename "wide" $ ss $ Mirror $ refmin $ Tall 2 (3/100) (4/5)
+    wide' nm ir = rename "wide" $ ss $ Mirror $ refmin $ Tall nm (3/100) ir
+    wide = onTall (wide' 1 (7/8)) (wide' 2 (4/5))
     tall = rename "tall" $ ss $ refmin $ Tall 2 (3/100) (3/5)
     tcol = rename "3col" $ ss $ Mirror $ ThreeColMid 1 (3/100) (4/6)
-    dash = rename "dash" first
+    dash = rename "dash" $ onTall tcol wide
     spiral = rename "spiral" $ ss $ refmin $ Spiral.spiral (6/7)
     tabs = rename "tabs" $ ss $ Mirror $ Tall 1 0 0.93
     gridWide = rename "grid" $ ss $ refmin $ GridRatio (16/9)
