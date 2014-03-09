@@ -25,7 +25,7 @@ module XMonad.Config.A00001
       a00001Config
     ) where
 
-
+import XMonad.Actions.GridSelect
 import           Control.Monad
 import           Data.List
 import qualified Data.Map as M
@@ -316,7 +316,7 @@ myMouseBindings =
       button10 :: Button
       button10 =  10
       gestures = M.fromList
-                 [ ([    ], focus)
+                 [ ([    ], \_ -> gridselectWorkspace myGsconfig W.greedyView)
                  , ([R, D], \_ -> sendMessage NextLayout)
                  , ([L, U], \w -> sendMessage RestoreNextMinimizedWin >> focus w)
                  , ([L, D], \w -> focus w >> withFocused minimizeWindow)
@@ -334,8 +334,15 @@ myFocusedColor = Sol.magenta
 myFocusedColor2 darkmode = if darkmode then Sol.magenta else Sol.magentaL
 myUrgentColor = Sol.blue
 myNormalBorderColor darkmode = if darkmode then Sol.base02 else Sol.base2
+myGsconfig = def
+    { gs_cellheight = 70
+    , gs_cellwidth = 150
+    , gs_cellpadding = 6
+    , gs_font = sizedXftFont "13"
+    }
 
 -- | Fonts
+sizedXftFont px = "xft:PragmataPro:pixelsize=" ++ px
 sizedFont px = "-xos4-terminus-*-r-*-*-" ++ px  ++ "-*-*-*-*-*-iso8859-*"
 largeFont = sizedFont "32"
 
