@@ -341,6 +341,8 @@ myGsconfig = def
     , gs_font = sizedXftFont "13"
     }
 
+myDefaultSpacerWidth = 4
+
 -- | Fonts
 sizedXftFont px = "xft:PragmataPro:pixelsize=" ++ px
 sizedFont px = "-xos4-terminus-*-r-*-*-" ++ px  ++ "-*-*-*-*-*-iso8859-*"
@@ -365,6 +367,8 @@ myLayoutHook =
   onWorkspace "files" (grid ||| tabs) $
   onWorkspace "nodes" (renameStar tabs) $
   onWorkspace "dash" (dash ||| grid) $
+  onWorkspace "23c" alternative $
+  onWorkspace "upgrade" alternative $
   onWorkspace "im" im $
   lessBorders OnlyFloat
   standard
@@ -374,10 +378,13 @@ myLayoutHook =
     standard = onTall
                (first ||| tcol ||| grid ||| fixcol)
                (first ||| tall ||| fixcol ||| tabs ||| gridWide ||| spiral ||| oneBig)
+    alternative = onTall
+               (tcol ||| first ||| grid ||| fixcol)
+               (first ||| tall ||| fixcol ||| tabs ||| gridWide ||| spiral ||| oneBig)
     onTall = onHosts ["transwhale"]
     -- helpers
     refmin = mkToggle (single REFLECTX) . minimize
-    ss = smartSpacing 4
+    ss = smartSpacing myDefaultSpacerWidth
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
     -- layouts
@@ -573,7 +580,7 @@ a00001Config = do
   return $ Nav2d.withNavigation2DConfig myNavigation2DConfig $ myUrgencyHook $ addDescrKeys' ((confModMask, xK_F1), showKeybindings) myKeys $ def {
     terminal           = myTerminal
   , focusFollowsMouse  = False
-  , borderWidth        = 4
+  , borderWidth        = myDefaultSpacerWidth
   , modMask            = confModMask
   , workspaces         = myWorkspaces
   , normalBorderColor  = myNormalBorderColor darkmode
