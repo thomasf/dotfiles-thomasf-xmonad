@@ -628,6 +628,7 @@ bindOn' x  = bindOn [ ("23c", showWorkspaceNameFast)
                     , ("chat", showWorkspaceNameFast)
                     , ("mail", showWorkspaceNameFast)
                     , ("home", showWorkspaceNameFast)
+                    , ("NSP", showWorkspaceNameFast)
                     , ("nodes", showWorkspaceNameFast)
                     , ("", x)]
 
