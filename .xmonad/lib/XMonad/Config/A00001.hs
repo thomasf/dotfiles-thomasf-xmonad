@@ -47,6 +47,7 @@ import           XMonad.Actions.PerWorkspaceKeys
 import           XMonad.Actions.SpawnOn
 import           XMonad.Actions.UpdatePointer
 import           XMonad.Actions.WindowBringer    (gotoMenuArgs)
+import           XMonad.Actions.WithAll
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
 import           XMonad.Hooks.ManageDocks
@@ -126,7 +127,8 @@ myKeys conf =
   subtitle "Other window actions": mkNamedKeymap conf
   [ ("M-<Return>", addName "Swap the focused window and the master window" $ dwmpromote >> movePointer)
   , ("M-t",        addName "Push the window into tiling mode"              $ withFocused (windows . W.sink) >> movePointer)
-  , ("M-C-c",      addName "kill"                                          $ withFocused kill')
+  , ("M-C-c",      addName "kill"                                          kill')
+  , ("M-S-C-c",    addName "run xkill or kill all windows on special workspaces" killPrompt)
   , ("M-u",        addName "Focus urgent winow"                            $ focusUrgent >> restoreFocused >> movePointer )
   , ("M-C-u",      addName "Clear all urgent window statuses"              $ clearUrgents >> focusUrgent)
   ] ++
@@ -186,7 +188,6 @@ myKeys conf =
   [ ("M-<Print>",    spawnh "xfce4-screenshooter")
   , ("M-C-<Print>",  addName "scrot focused window" $ safeSpawn "scrot" ["-u", "screenshot-%Y-%m-%d_%H-%M-%S_$wx$h.png", "-e", "mv $f ~/Pictures/scrot/"])
   , ("M-M1-<Print>", addName "scrot full"           $ safeSpawn "scrot" ["screenshot-%Y-%m-%d_%H-%M-%S_$wx$h.png", "-e", "mv $f ~/Pictures/scrot/"])
-  , ("M-S-C-c",      spawnh "xkill")
   , ("<XF86Eject>",  addName "print " $ spawn "xdotool click -clearmodifiers 2")
   , ("M-<XF86Eject>",  addName "print screen" $ sendKey controlMask xK_Print)
 
@@ -623,17 +624,20 @@ reverseStack (W.Stack t ls rs) = W.Stack t rs ls
 swapDown = W.modify' (reverseStack . swapUp' . reverseStack)
 
 -- | bind keys but not for some protected workspaces
-bindOn' x  = bindOn [ ("23c", showWorkspaceNameFast)
-                    , ("dash", showWorkspaceNameFast)
-                    , ("chat", showWorkspaceNameFast)
-                    , ("mail", showWorkspaceNameFast)
-                    , ("home", showWorkspaceNameFast)
-                    , ("NSP", showWorkspaceNameFast)
-                    , ("nodes", showWorkspaceNameFast)
-                    , ("", x)]
+bindOn'' cmd' altCmd  = bindOn [ ("23c", altCmd)
+                              , ("dash", altCmd)
+                              , ("chat", altCmd)
+                              , ("mail", altCmd)
+                              , ("home", altCmd)
+                              , ("NSP", altCmd)
+                              , ("nodes", altCmd)
+                              , ("", cmd')]
+
+bindOn' x  = bindOn'' x showWorkspaceNameFast
 
 -- | kill window with some exceptions
-kill' w = do
+kill' :: X ()
+kill' = withFocused $ \w -> do
   a <- runQuery appName w
   t <- runQuery title w
   let popupTerminal = a `elem` ["scratchpad_largeTerminal"]
@@ -644,6 +648,15 @@ kill' w = do
       namedScratchpadAction myScratchPads "largeTerminal"
     else
       bindOn' $ killWindow w
+
+killPrompt :: X ()
+killPrompt = withFocused $ \w ->
+  runSelectedAction myGsconfig
+        [ ("Cancel", return ())
+        , ("Kill active window", killWindow w)
+        , ("Run xkill", spawn "xkill")
+        , ("Kill ALL workspace windows", killAll)
+        ]
 
 -- | Run script with same name as "w.workspacename"
 workspaceAction = do
