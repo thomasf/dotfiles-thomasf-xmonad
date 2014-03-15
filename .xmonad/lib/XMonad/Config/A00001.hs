@@ -43,6 +43,7 @@ import           XMonad.Actions.DwmPromote
 import qualified XMonad.Actions.DynamicWorkspaces as DW
 import           XMonad.Actions.MouseGestures
 import qualified XMonad.Actions.Navigation2D as Nav2d
+import           XMonad.Actions.PerWorkspaceKeys
 import           XMonad.Actions.SpawnOn
 import           XMonad.Actions.UpdatePointer
 import           XMonad.Actions.WindowBringer    (gotoMenuArgs)
@@ -118,7 +119,7 @@ myKeys conf =
   , ("M-o e", spawnh "emacs")
   , ("M-o n", spawnh "nautilus")
   , ("M-o z", spawnh  "zeal")
-  , ("M-o a", addName "Run default workspace launcer script" workspaceAction)
+  , ("M-o a", addName "Run default workspace launcer script" $ bindOn' workspaceAction)
   , ("M-o v", toggleScratch "pamixer")
   , ("M-o h", toggleScratch "htop")
   ] ++
@@ -222,7 +223,8 @@ myKeys conf =
   , ("M-q <Space>",       addName "xmenu"                                $ spawn "xmenu")
  ]
   where
-    spawnh cmd'  = addName cmd' $ spawnHere cmd'
+    spawnh cmd'  = addName cmd' $ bindOn' $ spawnHere cmd'
+
     -- | Move mouse pointer to bottom right of the current window
     movePointer = updatePointer (0.99, 0.99) (0, 0)
 
@@ -608,6 +610,7 @@ a00001Config = do
 
 -- Utilities:
 
+-- | Working versions of swapup/swapdown
 swapUp'  (W.Stack t (l:ls) rs) = W.Stack t ls (l:rs)
 swapUp'  (W.Stack t []     rs) = W.Stack t (rot $ reverse rs) []
     where rot (x:xs) = xs ++ [x]
@@ -619,18 +622,27 @@ reverseStack (W.Stack t ls rs) = W.Stack t rs ls
 
 swapDown = W.modify' (reverseStack . swapUp' . reverseStack)
 
+-- | bind keys but not for some protected workspaces
+bindOn' x  = bindOn [ ("23c", showWorkspaceNameFast)
+                    , ("dash", showWorkspaceNameFast)
+                    , ("chat", showWorkspaceNameFast)
+                    , ("mail", showWorkspaceNameFast)
+                    , ("home", showWorkspaceNameFast)
+                    , ("nodes", showWorkspaceNameFast)
+                    , ("", x)]
 
+-- | kill window with some exceptions
 kill' w = do
-  c <- runQuery appName w
+  a <- runQuery appName w
   t <- runQuery title w
-  let popupTerminal = c `elem` ["scratchpad_largeTerminal"]
-      chat = c `elem` ["ssh_tmux"]
+  let popupTerminal = a `elem` ["scratchpad_largeTerminal"]
+      chat = a `elem` ["ssh_tmux"]
       xmonadd = t == "XMonad"
   unless (xmonadd || chat) $
     if popupTerminal then
       namedScratchpadAction myScratchPads "largeTerminal"
     else
-      killWindow w
+      bindOn' $ killWindow w
 
 -- | Run script with same name as "w.workspacename"
 workspaceAction = do
