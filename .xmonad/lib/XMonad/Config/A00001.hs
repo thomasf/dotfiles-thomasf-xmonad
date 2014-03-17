@@ -48,6 +48,7 @@ import           XMonad.Actions.SpawnOn
 import           XMonad.Actions.UpdatePointer
 import           XMonad.Actions.WindowBringer    (gotoMenuArgs)
 import           XMonad.Actions.WithAll
+import           XMonad.Actions.RotSlaves
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
 import           XMonad.Hooks.ManageDocks
@@ -97,14 +98,20 @@ myKeys conf =
   [ ("M-<F2>",   myViewWS' "friends")
   ] ++
   subtitle "Cyclic window actions (J/K) [+=focus] [+control=cycle+keep focus] [+shift=move]": mkNamedKeymap conf
-  [ ("M-j",             addName "Focus next window on workspace"          $ windows W.focusDown >> movePointer)
-  , ("M-k",             addName "Focus previous window on workspace"      $ windows W.focusUp >> movePointer)
-  , ("M-n",             addName "Focus next window on workspace"          $ windows W.focusDown >> movePointer)
-  , ("M-p",             addName "Focus previous window on workspace"      $ windows W.focusUp >> movePointer)
-  , ("M-C-j",           addName "Swap focused with next on workspace"     $ windows swapDown >> windows W.focusUp >> movePointer)
-  , ("M-C-k",           addName "Swap focused with previous on workspace" $ windows swapUp >> windows W.focusDown >> movePointer)
-  , ("M-S-j",           addName "Swap focused with next on workspace"     $ windows swapDown >> movePointer)
-  , ("M-S-k",           addName "Swap focused with previous on workspace" $ windows swapUp >> movePointer)
+  [ ("M-j",             addName "Focus next window on workspace"          $ bindOn
+                        [ ("23c", _windowRotateAllDown)
+                        , ("dash", _windowSwapDownKeepFocus)
+                        , ("", _windowFocusDown)
+                        ])
+  , ("M-k",             addName "Focus previous window on workspace"      $ bindOn
+                        [ ("23c", _windowRotateAllUp)
+                        , ("dash", _windowSwapUpKeepFocus)
+                        , ("", _windowFocusUp)
+                        ])
+  , ("M-C-j",           addName "Swap focused with next on workspace"     _windowSwapDownKeepFocus)
+  , ("M-C-k",           addName "Swap focused with previous on workspace" _windowSwapUpKeepFocus)
+  , ("M-S-j",           addName "Swap focused with next on workspace"     _windowSwapDown)
+  , ("M-S-k",           addName "Swap focused with previous on workspace" _windowSwapUp)
   ] ++
   subtitle "Application launching": mkNamedKeymap conf
   [ ("M-o o", spawnh "appmenu")
@@ -120,7 +127,7 @@ myKeys conf =
   , ("M-o e", spawnh "emacs")
   , ("M-o n", spawnh "nautilus")
   , ("M-o z", spawnh  "zeal")
-  , ("M-o a", addName "Run default workspace launcer script" $ bindOn' workspaceAction)
+  , ("M-o a", addName "Run default workspace launcer script" $ bindOnProtectedWorkspace workspaceAction maybeWorkspaceAction)
   , ("M-o v", toggleScratch "pamixer")
   , ("M-o h", toggleScratch "htop")
   ] ++
@@ -224,6 +231,16 @@ myKeys conf =
   , ("M-q <Space>",       addName "xmenu"                                $ spawn "xmenu")
  ]
   where
+    _windowFocusDown = windows W.focusDown >> movePointer
+    _windowFocusUp = windows W.focusUp >> movePointer
+    _windowSwapDownKeepFocus = windows swapDown >> windows W.focusUp >> movePointer
+    _windowSwapUpKeepFocus = windows swapUp >> windows W.focusDown >> movePointer
+    _windowSwapDown = windows swapDown >> movePointer
+    _windowSwapUp = windows swapUp >> movePointer
+    _windowRotateAllDown = rotAllDown >> movePointer
+    _windowRotateAllUp = rotAllDown >> movePointer
+
+
     spawnh cmd'  = addName cmd' $ bindOn' $ spawnHere cmd'
 
     -- | Move mouse pointer to bottom right of the current window
@@ -370,7 +387,7 @@ myLayoutHook =
   onWorkspace "files" (grid ||| tabs) $
   onWorkspace "nodes" (renameStar tabs) $
   onWorkspace "dash" (dash ||| grid) $
-  onWorkspace "23c" alternative $
+  onWorkspace "23c" tabs $
   onWorkspace "upgrade" alternative $
   onWorkspace "im" im $
   lessBorders OnlyFloat
@@ -624,16 +641,18 @@ reverseStack (W.Stack t ls rs) = W.Stack t rs ls
 swapDown = W.modify' (reverseStack . swapUp' . reverseStack)
 
 -- | bind keys but not for some protected workspaces
-bindOnOr cmd' altCmd  = bindOn [ ("23c", altCmd)
-                              , ("dash", altCmd)
-                              , ("chat", altCmd)
-                              , ("mail", altCmd)
-                              , ("home", altCmd)
-                              , ("NSP", altCmd)
-                              , ("nodes", altCmd)
-                              , ("", cmd')]
+bindOnProtectedWorkspace cmd' altCmd  = bindOn
+    [ ("23c", altCmd)
+    , ("dash", altCmd)
+    , ("chat", altCmd)
+    , ("mail", altCmd)
+    , ("home", altCmd)
+    , ("NSP", altCmd)
+    , ("nodes", altCmd)
+    , ("", cmd')]
 
-bindOn' x  = bindOnOr x showWorkspaceNameFast
+
+bindOn' x  = bindOnProtectedWorkspace x showWorkspaceNameFast
 
 -- | kill window with some exceptions
 kill' :: X ()
