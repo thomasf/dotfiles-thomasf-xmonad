@@ -128,7 +128,7 @@ myKeys conf =
   [ ("M-<Return>", addName "Swap the focused window and the master window" $ dwmpromote >> movePointer)
   , ("M-t",        addName "Push the window into tiling mode"              $ withFocused (windows . W.sink) >> movePointer)
   , ("M-C-c",      addName "kill"                                          kill')
-  , ("M-S-C-c",    addName "run xkill or kill all windows on special workspaces" killPrompt)
+  , ("M-S-C-c",    addName "run xkill or kill all windows on special workspaces" killPrompt')
   , ("M-u",        addName "Focus urgent winow"                            $ focusUrgent >> restoreFocused >> movePointer )
   , ("M-C-u",      addName "Clear all urgent window statuses"              $ clearUrgents >> focusUrgent)
   ] ++
@@ -624,7 +624,7 @@ reverseStack (W.Stack t ls rs) = W.Stack t rs ls
 swapDown = W.modify' (reverseStack . swapUp' . reverseStack)
 
 -- | bind keys but not for some protected workspaces
-bindOn'' cmd' altCmd  = bindOn [ ("23c", altCmd)
+bindOnOr cmd' altCmd  = bindOn [ ("23c", altCmd)
                               , ("dash", altCmd)
                               , ("chat", altCmd)
                               , ("mail", altCmd)
@@ -633,24 +633,33 @@ bindOn'' cmd' altCmd  = bindOn [ ("23c", altCmd)
                               , ("nodes", altCmd)
                               , ("", cmd')]
 
-bindOn' x  = bindOn'' x showWorkspaceNameFast
+bindOn' x  = bindOnOr x showWorkspaceNameFast
 
 -- | kill window with some exceptions
 kill' :: X ()
 kill' = withFocused $ \w -> do
   a <- runQuery appName w
   t <- runQuery title w
-  let popupTerminal = a `elem` ["scratchpad_largeTerminal"]
-      chat = a `elem` ["ssh_tmux"]
-      xmonadd = t == "XMonad"
-  unless (xmonadd || chat) $
-    if popupTerminal then
-      namedScratchpadAction myScratchPads "largeTerminal"
-    else
-      bindOn' $ killWindow w
+  killOrElse w a t
+    where
+  unkillable a t = a `elem` ["ssh_tmux"] || t == "XMonad"
+  scratchTerm a = a == "scratchpad_largeTerminal"
+  -- askToKill a =  a `elem` ["urxvt"]
+  killOrElse w a t
+    | unkillable a t = return ()
+    | scratchTerm a  = namedScratchpadAction myScratchPads "largeTerminal"
+    -- | askToKill a    = bindOn' killPrompt
+    | otherwise      = bindOn' $ killWindow w
 
-killPrompt :: X ()
-killPrompt = withFocused $ \w ->
+-- killPrompt :: X ()
+-- killPrompt = withFocused $ \w ->
+--   runSelectedAction myGsconfig
+--         [ ("Kill active window", killWindow w)
+--         , ("Cancel", return ())
+--         ]
+
+killPrompt' :: X ()
+killPrompt' = withFocused $ \w ->
   runSelectedAction myGsconfig
         [ ("Cancel", return ())
         , ("Kill active window", killWindow w)
