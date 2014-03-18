@@ -99,12 +99,12 @@ myKeys conf =
   ] ++
   subtitle "Cyclic window actions (J/K) [+=focus] [+control=cycle+keep focus] [+shift=move]": mkNamedKeymap conf
   [ ("M-j",             addName "Focus next window on workspace"          $ bindOn
-                        [ ("23c", _windowRotateAllDown)
+                        [ ("work", _windowRotateAllDown)
                         , ("dash", _windowSwapDownKeepFocus)
                         , ("", _windowFocusDown)
                         ])
   , ("M-k",             addName "Focus previous window on workspace"      $ bindOn
-                        [ ("23c", _windowRotateAllUp)
+                        [ ("work", _windowRotateAllUp)
                         , ("dash", _windowSwapUpKeepFocus)
                         , ("", _windowFocusUp)
                         ])
@@ -209,8 +209,8 @@ myKeys conf =
   , ("M-i m",               myViewWS' "mail")
   , ("M-i n",               myViewWS' "nodes")
   , ("M-i s",               myViewWS' "scratch")
-  , ("M-i j",               myViewWS' "23c")
-  , ("M-i 2",               myViewWS' "23c")
+  , ("M-i j",               myViewWS' "work")
+  , ("M-i 2",               myViewWS' "work")
   , ("M-i M-i",             addName "cycle ws"                              $ rmEmptyWs $ myCycleRecentWs xK_i xK_o)
   , ("M-i i",               addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
   , ("M-i <Space> <Space>", addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
@@ -387,7 +387,7 @@ myLayoutHook =
   onWorkspace "files" (grid ||| tabs) $
   onWorkspace "nodes" (renameStar tabs) $
   onWorkspace "dash" (dash ||| grid) $
-  onWorkspace "23c" tabs $
+  onWorkspace "work" tabs $
   onWorkspace "upgrade" alternative $
   onWorkspace "im" im $
   lessBorders OnlyFloat
@@ -642,7 +642,7 @@ swapDown = W.modify' (reverseStack . swapUp' . reverseStack)
 
 -- | bind keys but not for some protected workspaces
 bindOnProtectedWorkspace cmd' altCmd  = bindOn
-    [ ("23c", altCmd)
+    [ ("work", altCmd)
     , ("dash", altCmd)
     , ("chat", altCmd)
     , ("mail", altCmd)
