@@ -173,18 +173,18 @@ myKeys conf =
   , ("M-.",          addName "Deincrement the number of windows in the master area" $ sendMessage (IncMasterN (-1)) >> movePointer)
   ] ++
   subtitle "Multi media keys": mkNamedKeymap conf
-  [ ("<XF86AudioPlay>",   spawnh "mpc toggle")
-  , ("<XF86AudioStop",    spawnh "mpc stop")
-  , ("S-<XF86AudioPrev>", spawnh "mpc prev")
-  , ("S-<XF86AudioNext>", spawnh "mpc next")
-  , ("<XF86AudioPrev>",   spawnh "mpc seek -00:00:10")
-  , ("<XF86AudioNext>",   spawnh "mpc seek +00:00:10")
-  , ("<XF86AudioStop>",   spawnh "mpc stop")
-  , ("<XF86MonBrightnessDown>",   spawnh "custom-backlight-macbookpro_gmux -m")
-  , ("<XF86MonBrightnessUp>",   spawnh "custom-backlight-macbookpro_gmux -p")
+  [ ("<XF86AudioPlay>",   spawnh' "mpc toggle")
+  , ("<XF86AudioStop",    spawnh' "mpc stop")
+  , ("S-<XF86AudioPrev>", spawnh' "mpc prev")
+  , ("S-<XF86AudioNext>", spawnh' "mpc next")
+  , ("<XF86AudioPrev>",   spawnh' "mpc seek -00:00:10")
+  , ("<XF86AudioNext>",   spawnh' "mpc seek +00:00:10")
+  , ("<XF86AudioStop>",   spawnh' "mpc stop")
+  , ("<XF86MonBrightnessDown>",   spawnh' "custom-backlight-macbookpro_gmux -m")
+  , ("<XF86MonBrightnessUp>",   spawnh' "custom-backlight-macbookpro_gmux -p")
  ] ++
   subtitle "misc": mkNamedKeymap conf
-  [ ("M-<Print>",    spawnh "xfce4-screenshooter")
+  [ ("M-<Print>",    spawnh' "xfce4-screenshooter")
   , ("M-C-<Print>",  addName "scrot focused window" $ safeSpawn "scrot" ["-u", "screenshot-%Y-%m-%d_%H-%M-%S_$wx$h.png", "-e", "mv $f ~/Pictures/scrot/"])
   , ("M-M1-<Print>", addName "scrot full"           $ safeSpawn "scrot" ["screenshot-%Y-%m-%d_%H-%M-%S_$wx$h.png", "-e", "mv $f ~/Pictures/scrot/"])
   , ("<XF86Eject>",  addName "print " $ spawn "xdotool click -clearmodifiers 2")
@@ -233,6 +233,7 @@ myKeys conf =
     _windowRotateAllUp = rotAllDown >> movePointer
 
 
+    spawnh' cmd'  = addName cmd' $ spawnHere cmd'
     spawnh cmd'  = addName cmd' $ bindOn' $ spawnHere cmd'
 
     -- | Move mouse pointer to bottom right of the current window
