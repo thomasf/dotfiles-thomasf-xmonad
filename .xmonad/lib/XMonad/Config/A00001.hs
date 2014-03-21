@@ -98,16 +98,8 @@ myKeys conf =
   [ ("M-<F2>",   myViewWS' "friends")
   ] ++
   subtitle "Cyclic window actions (J/K) [+=focus] [+control=cycle+keep focus] [+shift=move]": mkNamedKeymap conf
-  [ ("M-j",             addName "Focus next window on workspace"          $ bindOn
-                        [ ("work", _windowRotateAllDown)
-                        , ("dash", _windowSwapDownKeepFocus)
-                        , ("", _windowFocusDown)
-                        ])
-  , ("M-k",             addName "Focus previous window on workspace"      $ bindOn
-                        [ ("work", _windowRotateAllUp)
-                        , ("dash", _windowSwapUpKeepFocus)
-                        , ("", _windowFocusUp)
-                        ])
+  [ ("M-j",             addName "Focus next window on workspace"          _windowFocusDown)
+  , ("M-k",             addName "Focus previous window on workspace"      _windowFocusUp)
   , ("M-C-j",           addName "Swap focused with next on workspace"     _windowSwapDownKeepFocus)
   , ("M-C-k",           addName "Swap focused with previous on workspace" _windowSwapUpKeepFocus)
   , ("M-S-j",           addName "Swap focused with next on workspace"     _windowSwapDown)
@@ -659,13 +651,14 @@ kill' :: X ()
 kill' = withFocused $ \w -> do
   a <- runQuery appName w
   t <- runQuery title w
-  killOrElse w a t
+  r <- runQuery resource w
+  killOrElse w a t r
     where
-  unkillable a t = a `elem` ["ssh_tmux"] || t == "XMonad"
+  unkillable a t r = a `elem` ["ssh_tmux"] || t == "XMonad" || r == "floating-center-large"
   scratchTerm a = a == "scratchpad_largeTerminal"
   -- askToKill a =  a `elem` ["urxvt"]
-  killOrElse w a t
-    | unkillable a t = return ()
+  killOrElse w a t r
+    | unkillable a t r = return ()
     | scratchTerm a  = namedScratchpadAction myScratchPads "largeTerminal"
     -- | askToKill a    = bindOn' killPrompt
     | otherwise      = bindOn' $ killWindow w
