@@ -294,9 +294,7 @@ myKeys conf =
 
     -- | filter some workspaces
     filterSomeWorkspaces = fmap (.namedScratchpadFilterOutWorkspace
-                                 .myFilterOutWorkspace "chat"
-                                 .myFilterOutWorkspace "nodes"
-                                )
+                                 .myFilterOutWorkspace "chat")
     myFilterOutWorkspace :: String -> [WindowSpace] -> [WindowSpace]
     myFilterOutWorkspace wsname = filter (\(W.Workspace tag _ _) -> tag /= wsname)
 
