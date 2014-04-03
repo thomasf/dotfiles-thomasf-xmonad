@@ -5,18 +5,23 @@
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 # Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
 #
+
 if [ -e ~/.config/darkmode ]; then
-    bg="#002b36"
-    fg="#839496"
+  bg="#002b36"
+  fg="#839496"
 else
-    bg="#fdf6e3"
-    fg="#657b83"
+  bg="#fdf6e3"
+  fg="#657b83"
 fi
 color="#b58900"
 
+dm=/usr/bin/dmenu
 
+if [ -x /usr/local/bin/dmenu ]; then
+  dm=/usr/local/bin/dmenu
+fi
 
-exec /usr/bin/dmenu -fn '-*-terminus-*-r-*-*-14-*-*-*-*-*-*' -nb "${bg}" -nf "${fg}" -sf "${bg}" -sb "${color}" -b -i "$@"
+exec $dm -fn '-*-terminus-*-r-*-*-14-*-*-*-*-*-*' -nb "${bg}" -nf "${fg}" -sf "${bg}" -sb "${color}" -b -i "$@"
 
 # Local Variables:
 # eval: (rainbow-mode 1)

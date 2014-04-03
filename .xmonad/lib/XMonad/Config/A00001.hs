@@ -25,7 +25,6 @@ module XMonad.Config.A00001
       a00001Config
     ) where
 
-import XMonad.Actions.GridSelect
 import           Control.Monad
 import           Data.List
 import qualified Data.Map as M
@@ -40,15 +39,17 @@ import           XMonad hiding ( (|||) )
 import           XMonad.Actions.CycleRecentWSAddons
 import           XMonad.Actions.CycleWS hiding (toggleWS)
 import           XMonad.Actions.DwmPromote
+import           XMonad.Actions.DynamicWorkspaceGroups
 import qualified XMonad.Actions.DynamicWorkspaces as DW
+import           XMonad.Actions.GridSelect
 import           XMonad.Actions.MouseGestures
 import qualified XMonad.Actions.Navigation2D as Nav2d
 import           XMonad.Actions.PerWorkspaceKeys
+import           XMonad.Actions.RotSlaves
 import           XMonad.Actions.SpawnOn
 import           XMonad.Actions.UpdatePointer
 import           XMonad.Actions.WindowBringer    (gotoMenuArgs)
 import           XMonad.Actions.WithAll
-import           XMonad.Actions.RotSlaves
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
 import           XMonad.Hooks.ManageDocks
