@@ -210,11 +210,11 @@ myKeys conf =
   , ("M-S-i",               addName "Move window to other workspace prompt" $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
   , ("M-i <Space> r",       addName "Rename current workspace"              $ DW.renameWorkspace myXPConfig >> movePointer)
   , ("M-i <Backspace>",       addName "Remove current workspace"              $ DW.removeWorkspace >> movePointer)
-  , ("M-p w",               addName "www" $ gotoPrefixWS "www")
-  , ("M-p d",               addName "doc" $ gotoPrefixWS "doc")
-  , ("M-p c",               addName "code" $ gotoPrefixWS "code")
-  , ("M-p r",               addName "remote" $ gotoPrefixWS "remote")
-  , ("M-p s",               addName "scratch" $ gotoPrefixWS "remote")
+  , ("M-p w",               addName "www" $ gotoPrefixWS "www" >> onEmptyWorkspace (spawn "www") >> movePointer)
+  , ("M-p d",               addName "doc" $ gotoPrefixWS "doc" >> onEmptyWorkspace (spawn "www") >> movePointer)
+  , ("M-p c",               addName "code" $ gotoPrefixWS "code" >> movePointer)
+  , ("M-p r",               addName "remote/ssh" $ gotoPrefixWS "remote/ssh" >> onEmptyWorkspace (spawn "sshmenu") >> movePointer)
+  , ("M-p s",               addName "scratch" $ gotoPrefixWS "scratch" >> movePointer)
   , ("M-p j",               addName "j" $ gotoPrefixWS "j")
   , ("M-p k",               addName "k" $ gotoPrefixWS "k")
   , ("M-p p",       addName "asd" gotoBaseWS)
@@ -687,9 +687,12 @@ workspaceAction = do
   safeSpawn ("w." ++ takeWhile (/='.') ws) [ ]
 
 -- | Run script with same name as "w.workspacename" if the workspace is empty
-maybeWorkspaceAction = do
+maybeWorkspaceAction = onEmptyWorkspace workspaceAction
+
+-- | run something on an empty workspace
+onEmptyWorkspace action = do
   wins <- gets (W.integrate' . W.stack . W.workspace . W.current . windowset)
-  when (null wins) workspaceAction
+  when (null wins) action
 
 -- | durations
 showStatusSingleMessageDuration = 0.7
