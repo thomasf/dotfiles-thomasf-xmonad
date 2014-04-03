@@ -657,10 +657,12 @@ kill' = withFocused $ \w -> do
   r <- runQuery resource w
   killOrElse w a t r
     where
+  alwayskillable t = "Developer Tools -" `isPrefixOf` t
   unkillable a t r = a `elem` ["ssh_tmux"] || t == "XMonad" || r == "floating-center-large"
   scratchTerm a = a == "scratchpad_largeTerminal"
   -- askToKill a =  a `elem` ["urxvt"]
   killOrElse w a t r
+    | alwayskillable t = killWindow w
     | unkillable a t r = return ()
     | scratchTerm a  = namedScratchpadAction myScratchPads "largeTerminal"
     -- | askToKill a    = bindOn' killPrompt
