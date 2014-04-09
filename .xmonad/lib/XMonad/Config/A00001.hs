@@ -651,29 +651,30 @@ bindOn' x  = bindOnProtectedWorkspace x showWorkspaceNameFast
 
 -- | kill window with some exceptions
 kill' :: X ()
-kill' = withFocused $ \w -> do
-  a <- runQuery appName w
-  t <- runQuery title w
-  r <- runQuery resource w
-  killOrElse w a t r
+kill' = withFocused $ \win -> do
+  appn <- runQuery appName win
+  titl <- runQuery title win
+  res <- runQuery resource win
+  role <- runQuery (stringProperty "WM_WINDOW_ROLE") win
+  killOrElse win appn titl res role
     where
-  alwayskillable t = "Developer Tools -" `isPrefixOf` t
-  unkillable a t r = a `elem` ["ssh_tmux"] || t == "XMonad" || r == "floating-center-large"
-  scratchTerm a = a == "scratchpad_largeTerminal"
-  -- askToKill a =  a `elem` ["urxvt"]
-  killOrElse w a t r
-    | alwayskillable t = killWindow w
-    | unkillable a t r = return ()
-    | scratchTerm a  = namedScratchpadAction myScratchPads "largeTerminal"
-    -- | askToKill a    = bindOn' killPrompt
-    | otherwise      = bindOn' $ killWindow w
+  alwayskillable titl = "Developer Tools -" `isPrefixOf` titl
+  unkillable appn titl res = appn `elem` ["ssh_tmux"] || titl == "XMonad" || res == "floating-center-large"
+  scratchTerm appn = appn == "scratchpad_largeTerminal"
+  askToKill appn role = (appn == "google-chrome" && role == "browser") || (appn=="urxvt")
+  killOrElse win appn titl res role
+    | alwayskillable titl = killWindow win
+    | unkillable appn titl res = return ()
+    | scratchTerm appn = namedScratchpadAction myScratchPads "largeTerminal"
+    | askToKill appn role  = bindOn' killPrompt
+    | otherwise = bindOn' $ killWindow win
 
--- killPrompt :: X ()
--- killPrompt = withFocused $ \w ->
---   runSelectedAction myGsconfig
---         [ ("Kill active window", killWindow w)
---         , ("Cancel", return ())
---         ]
+killPrompt :: X ()
+killPrompt = withFocused $ \win ->
+  runSelectedAction myGsconfig
+        [ ("Kill active window", killWindow win)
+        , ("Cancel", return ())
+        ]
 
 killPrompt' :: X ()
 killPrompt' = withFocused $ \w ->
