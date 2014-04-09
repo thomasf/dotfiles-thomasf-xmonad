@@ -190,6 +190,8 @@ myKeys conf =
   , ("M-M1-<Print>", addName "scrot full"           $ safeSpawn "scrot" ["screenshot-%Y-%m-%d_%H-%M-%S_$wx$h.png", "-e", "mv $f ~/Pictures/scrot/"])
   , ("<XF86Eject>",  addName "print " $ spawn "xdotool click -clearmodifiers 2")
   , ("M-<XF86Eject>",  addName "print screen" $ sendKey controlMask xK_Print)
+  , ("M-C-<Tab>",  addName "store ws" $ addCurrentWSGroup "bookmark")
+  , ("M-<Tab>",  addName "restore ws" $ viewWSGroup "bookmark")
 
   ] ++
   subtitle "Toggle scratchpads and workspaces": mkNamedKeymap conf
