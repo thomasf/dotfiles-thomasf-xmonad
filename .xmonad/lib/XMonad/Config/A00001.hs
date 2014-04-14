@@ -204,6 +204,7 @@ myKeys conf =
   , ("M-i m",               myViewWS' "mail")
   , ("M-i n",               myViewWS' "nodes")
   , ("M-i s",               myViewWS' "scratch")
+  , ("M-i w",               myViewWS' "www")
   , ("M-i j",               myViewWS' "work")
   , ("M-i 2",               myViewWS' "work")
   , ("M-i M-i",             addName "cycle ws"                              $ rmEmptyWs $ myCycleRecentWs xK_i xK_o)
