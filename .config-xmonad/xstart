@@ -36,6 +36,7 @@ killall -q blueman-applet
 killall -q nm-applet
 killall -q dropboxd
 killall -q pulseaudio
+killall -q compton
 sleep 0.4
 
 # Launch a new dbus-session if not already running
@@ -143,6 +144,11 @@ fi
 # Configure keyboard mode buttons
 if [ -f $HOME/.bin-xmonad/kbd ]; then
   ${HOME}/.bin-xmonad/kbd
+fi
+
+# Configure keyboard mode buttons
+if [ -x $HOME/.opt/compton/compton ]; then
+  ${HOME}/.opt/compton/compton --config ~/.config-xmonad/compton.conf
 fi
 
 # Launch google chrome
