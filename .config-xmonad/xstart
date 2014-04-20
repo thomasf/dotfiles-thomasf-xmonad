@@ -146,11 +146,6 @@ if [ -f $HOME/.bin-xmonad/kbd ]; then
   ${HOME}/.bin-xmonad/kbd
 fi
 
-# Configure keyboard mode buttons
-if [ -x $HOME/.opt/compton/compton ]; then
-  ${HOME}/.opt/compton/compton --config ~/.config-xmonad/compton.conf
-fi
-
 # Launch google chrome
 [ $(which google-chrome) ] \
   && google-chrome --no-startup-window 2>/dev/null &
@@ -199,6 +194,15 @@ fi
     fi
   fi
   darkmode $darkmodearg
+  (
+    sleep 3
+    # Launch compton
+    if [ -x $HOME/.opt/compton/compton ]; then
+      ${HOME}/.opt/compton/compton --config ~/.config-xmonad/compton.conf
+    fi
+
+
+  ) &
 ) &
 # Function that displays a list of window managers to choose from.
 wm_selection() {
