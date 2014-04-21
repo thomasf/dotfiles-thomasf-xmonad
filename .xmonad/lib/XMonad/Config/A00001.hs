@@ -52,6 +52,7 @@ import           XMonad.Actions.WindowBringer    (gotoMenuArgs)
 import           XMonad.Actions.WithAll
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
+import           XMonad.Hooks.FadeInactive
 import           XMonad.Hooks.ManageDocks
 import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.Minimize
@@ -525,6 +526,7 @@ myLogHook = do
   dynamicLogString myXmobarBottomPP >>= xmonadPropLog' "_XMONAD_LOG_BOTTOM"
   workspaceHistoryHook
   ewmhDesktopsLogHook
+  fadeInactiveLogHook 0.9
   setWMName "LG3D"
 
 
