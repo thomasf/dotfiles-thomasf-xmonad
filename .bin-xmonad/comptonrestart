@@ -1,0 +1,6 @@
+#!/bin/sh
+killall -q compton
+set -e
+
+cd ~/.config-xmonad/
+~/.opt/compton/compton --config compton.conf &
