@@ -7,10 +7,5 @@
 
 wsname -s && exit 1
 
+urxvt -cd ~/.config/dotfiles &
 upgradeall &
-(
-    sleep 0.5;
-    urxvt -cd ~/.opt &
-    sleep 0.5;
-    urxvt -cd ~/.emacs.d &
-) &
