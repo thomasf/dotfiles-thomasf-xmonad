@@ -4,8 +4,6 @@
 #
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 #
-
 wsname -s && exit 1
 
-urxvt -cd ~/.config/dotfiles &
-upgradeall &
+exec upgradeall
