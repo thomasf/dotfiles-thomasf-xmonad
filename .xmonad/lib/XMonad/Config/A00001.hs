@@ -231,21 +231,11 @@ myKeys conf =
   , ("M-q <Space>",       addName "xmenu"                                $ spawn "xmenu")
  ]
   where
-    _windowFocusDown = windows W.focusDown >> movePointer
-    _windowFocusUp = windows W.focusUp >> movePointer
-    _windowSwapDownKeepFocus = windows swapDown >> windows W.focusUp >> movePointer
-    _windowSwapUpKeepFocus = windows swapUp >> windows W.focusDown >> movePointer
-    _windowSwapDown = windows swapDown >> movePointer
-    _windowSwapUp = windows swapUp >> movePointer
-    _windowRotateAllDown = rotAllDown >> movePointer
-    _windowRotateAllUp = rotAllDown >> movePointer
 
 
     spawnh' cmd'  = addName cmd' $ spawnHere cmd'
     spawnh cmd'  = addName cmd' $ bindOn' $ spawnHere cmd'
 
-    -- | Move mouse pointer to bottom right of the current window
-    movePointer = updatePointer (0.99, 0.99) (0, 0)
 
     -- | Remove current workpace if empty
     rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "scratch", "scratch.0" ]
@@ -326,14 +316,20 @@ myKeys conf =
     restoreFocused = withFocused $ \w -> sendMessage (RestoreMinimizedWin w)
 
 
-
-
+
 -- | Mouse bindings
 myMouseBindings =
-    [ ((0, button10), mouseGesture gestures) ]
+    [ ((0, button10), mouseGesture gestures)
+    , ((confModMask, button4), \_ -> windows W.focusUp)
+    , ((confModMask, button5), \_ -> windows W.focusDown)
+      -- -- figure out what shold be bound here
+      -- , ((0, button8), \_ -> _windowRotategAllDown)
+      -- , ((0, button9), \_ -> _windowRotateAllUp)
+    ]
     where
-      button10 :: Button
-      button10 =  10
+      button8 =  8 :: Button
+      button9 =  9 :: Button
+      button10 =  10 :: Button
       gestures = M.fromList
                  [ ([    ], \_ -> gridselectWorkspace myGsconfig W.greedyView)
                  , ([R, D], \_ -> sendMessage NextLayout)
@@ -625,9 +621,9 @@ a00001Config = do
       return ()
 
 
-
--- Utilities:
 
+
+
 -- | Working versions of swapup/swapdown
 swapUp'  (W.Stack t (l:ls) rs) = W.Stack t ls (l:rs)
 swapUp'  (W.Stack t []     rs) = W.Stack t (rot $ reverse rs) []
@@ -640,6 +636,21 @@ reverseStack (W.Stack t ls rs) = W.Stack t rs ls
 
 swapDown = W.modify' (reverseStack . swapUp' . reverseStack)
 
+-- | main window management functions
+_windowFocusDown = windows W.focusDown >> movePointer
+_windowFocusUp = windows W.focusUp >> movePointer
+_windowSwapDownKeepFocus = windows swapDown >> windows W.focusUp >> movePointer
+_windowSwapUpKeepFocus = windows swapUp >> windows W.focusDown >> movePointer
+_windowSwapDown = windows swapDown >> movePointer
+_windowSwapUp = windows swapUp >> movePointer
+_windowRotateAllDown = rotAllDown >> movePointer
+_windowRotateAllUp = rotAllUp >> movePointer
+
+-- | Move mouse pointer to bottom right of the current window
+movePointer = updatePointer (0.99, 0.99) (0, 0)
+
+
+
 -- | bind keys but not for some protected workspaces
 bindOnProtectedWorkspace cmd' altCmd  = bindOn
     [ ("work", altCmd)
@@ -654,6 +665,7 @@ bindOnProtectedWorkspace cmd' altCmd  = bindOn
 
 bindOn' x  = bindOnProtectedWorkspace x showWorkspaceNameFast
 
+
 -- | kill window with some exceptions
 kill' :: X ()
 kill' = withFocused $ \win -> do
@@ -690,6 +702,7 @@ killPrompt' = withFocused $ \w ->
         , ("Kill ALL workspace windows", killAll)
         ]
 
+
 -- | Run script with same name as "w.workspacename"
 workspaceAction = do
   ws <- gets (W.currentTag . windowset)
