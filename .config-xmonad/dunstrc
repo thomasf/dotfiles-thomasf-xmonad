@@ -91,6 +91,11 @@ background = "#859900"
 foreground = "#002b36"
 timeout = 30
 
+[ignore-dropbox]
+appname = Dropbox
+summary = "*"
+format = ""
+
 # Local Variables:
 # eval: (rainbow-mode 1)
 # End:
