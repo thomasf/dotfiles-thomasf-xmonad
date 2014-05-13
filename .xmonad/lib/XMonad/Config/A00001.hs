@@ -118,7 +118,7 @@ myKeys conf =
   , ("M-o d", spawnh "www-dev")
   , ("M-o t", spawnh "urxvt")
   , ("M-o M-t", spawnh $ myTerminal ++ " -name tabbed")
-  , ("M-o e", spawnh "emacs")
+  , ("M-o e", spawnh "e")
   , ("M-o n", spawnh "nautilus")
   , ("M-o z", spawnh  "zeal")
   , ("M-o a", addName "Run default workspace launcer script" $ bindOnProtectedWorkspace workspaceAction maybeWorkspaceAction)
