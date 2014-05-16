@@ -328,8 +328,8 @@ myMouseBindings =
       -- , ((0, button9), \_ -> _windowRotateAllUp)
     ]
     where
-      button8 =  8 :: Button
-      button9 =  9 :: Button
+      -- button8 =  8 :: Button
+      -- button9 =  9 :: Button
       button10 =  10 :: Button
       gestures = M.fromList
                  [ ([    ], \_ -> gridselectWorkspace myGsconfig W.greedyView)
@@ -523,7 +523,7 @@ myLogHook = do
   dynamicLogString myXmobarBottomPP >>= xmonadPropLog' "_XMONAD_LOG_BOTTOM"
   workspaceHistoryHook
   ewmhDesktopsLogHook
-  fadeInactiveLogHook 0.9
+  fadeInactiveLogHook 0.86
   setWMName "LG3D"
 
 
