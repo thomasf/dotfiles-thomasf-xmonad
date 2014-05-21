@@ -191,8 +191,13 @@ myKeys conf =
   , ("M-M1-<Print>", addName "scrot full"           $ safeSpawn "scrot" ["screenshot-%Y-%m-%d_%H-%M-%S_$wx$h.png", "-e", "mv $f ~/Pictures/scrot/"])
   , ("<XF86Eject>",  addName "print " $ spawn "xdotool click -clearmodifiers 2")
   , ("M-<XF86Eject>",  addName "print screen" $ sendKey controlMask xK_Print)
-  , ("M-C-<Tab>",  addName "store ws" $ addCurrentWSGroup "bookmark")
-  , ("M-<Tab>",  addName "restore ws" $ viewWSGroup "bookmark")
+    
+  , ("M-C-6",  addName "store workspace group 1" $ addCurrentWSGroup "wsg")
+  , ("M-6",  addName "restore workspace group 1" $ holdScreenFocus $ viewWSGroup "wsg")
+  , ("M-C-7",  addName "store workspace group 2" $ addCurrentWSGroup "wsg2")
+  , ("M-7",  addName "restore workspace group 2" $ holdScreenFocus $ viewWSGroup "wsg2")
+  , ("M-C-8",  addName "store workspace group 3" $ addCurrentWSGroup "wsg3")
+  , ("M-8",  addName "restore workspace group 3" $ holdScreenFocus $ viewWSGroup "wsg3")
 
   ] ++
   subtitle "Toggle scratchpads and workspaces": mkNamedKeymap conf
@@ -666,6 +671,13 @@ bindOnProtectedWorkspace cmd' altCmd  = bindOn
 
 bindOn' x  = bindOnProtectedWorkspace x showWorkspaceNameFast
 
+
+holdScreenFocus a = do
+   s <- gets (W.screen . W.current . windowset)
+   r <- a
+   screenWorkspace s >>= maybe (return ()) (windows . W.view)
+   return r
+   
 
 -- | kill window with some exceptions
 kill' :: X ()
