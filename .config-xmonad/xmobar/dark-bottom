@@ -26,5 +26,6 @@ Config { font = "xft:PT Sans Narrow-14:style=bold"
 
 -- Local Variables:
 -- eval: (rainbow-mode 1)
+-- shell-command-after-save-cmd: "./createderivedthemes"
 -- End:
 -- station, stationState, year, month, day, hour, wind, visibility, skyCondition, tempC, tempF, dewPoint, rh, pressure

@@ -26,4 +26,5 @@ Config { font = "xft:PragmataPro:pixelsize=20"
 
 -- Local Variables:
 -- eval: (rainbow-mode 1)
+-- shell-command-after-save-cmd: "./createderivedthemes"
 -- End:
