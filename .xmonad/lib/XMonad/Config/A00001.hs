@@ -372,19 +372,19 @@ myTerminal = "urxvt"
 
 -- | Layout hook
 myLayoutHook =
-  onWorkspace "friends" (rename "*friends*" tabs) $
-  onWorkspace "video" (renameStar full) $
-  onWorkspace "vbox" (renameStar full) $
-  avoidStruts $
-  mkToggle (single NBFULL) $
-  boringWindows $
-  onWorkspace "chat" (chat ||| gridWide) $
-  onWorkspace "music" tabs $
-  onWorkspace "files" (grid ||| tabs) $
-  onWorkspace "nodes" (renameStar tabs) $
-  onWorkspace "dash" (dash ||| grid) $
-  onWorkspace "work" tabs $
-  onWorkspace "upgrade" alternative $
+  onWorkspace "friends" (rename "*friends*" tabs) .
+  onWorkspace "video" (renameStar full) .
+  onWorkspace "vbox" (renameStar full) .
+  avoidStruts .
+  mkToggle (single NBFULL) .
+  boringWindows .
+  onWorkspace "chat" (chat ||| gridWide) .
+  onWorkspace "music" tabs .
+  onWorkspace "files" (grid ||| tabs) .
+  onWorkspace "nodes" (renameStar tabs) .
+  onWorkspace "dash" (dash ||| grid) .
+  onWorkspace "work" tabs .
+  onWorkspace "upgrade" alternative .
   onWorkspace "im" im $
   lessBorders OnlyFloat
   standard
@@ -404,23 +404,23 @@ myLayoutHook =
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
     -- layouts
-    fixcol = rename "fcol" $ ss $ refmin $ onTall
+    fixcol = rename "fcol" . ss . refmin $ onTall
              (FixedColumn 2 0 80 10)
              (FixedColumn 1 0 80 10)
-    oneBig = rename "1big" $ ss $ refmin $ OneBig (3/4) (3/4)
-    chat = rename "chat" $ ss $ refmin $ FixedColumn 1 0 100 0
+    oneBig = rename "1big" . ss . refmin $ OneBig (3/4) (3/4)
+    chat = rename "chat" . ss . refmin $ FixedColumn 1 0 100 0
     full = rename "full" $ noBorders (fullscreenFull Full)
-    wide' nm ir = rename "wide" $ ss $ Mirror $ refmin $ Tall nm (3/100) ir
+    wide' nm ir = rename "wide" . ss . Mirror . refmin $ Tall nm (3/100) ir
     wide = onTall (wide' 1 (7/8)) (wide' 2 (4/5))
-    tall = rename "tall" $ ss $ refmin $ Tall 2 (3/100) (3/5)
-    tcol = rename "3col" $ ss $ Mirror $ ThreeColMid 1 (3/100) (4/6)
+    tall = rename "tall" . ss . refmin $ Tall 2 (3/100) (3/5)
+    tcol = rename "3col" . ss . Mirror $ ThreeColMid 1 (3/100) (4/6)
     dash = rename "dash" $ onTall tcol wide
-    spiral = rename "spiral" $ ss $ refmin $ Spiral.spiral (6/7)
-    tabs = rename "tabs" $ ss $ Mirror $ Tall 1 0 0.93
-    gridWide = rename "grid" $ ss $ refmin $ GridRatio (16/9)
-    grid = rename "grid" $ ss $ refmin $ GridRatio (4/3)
+    spiral = rename "spiral" . ss . refmin $ Spiral.spiral (6/7)
+    tabs = rename "tabs" . ss . Mirror $ Tall 1 0 0.93
+    gridWide = rename "grid" . ss . refmin $ GridRatio (16/9)
+    grid = rename "grid" . ss . refmin $ GridRatio (4/3)
     im = onTall (im' 2) (im' 1)
-    im' r =  withIM (r%9) pidginRoster $ reflectHoriz $ withIM (r%8) skypeRoster
+    im' r =  withIM (r%9) pidginRoster . reflectHoriz $ withIM (r%8) skypeRoster
          (gridWide ||| grid ||| spiral)
       where
         pidginRoster = ClassName "Pidgin" `And` Role "buddy_list"
@@ -594,7 +594,7 @@ myNavigation2DConfig = def {
 a00001Config = do
   home <- io $ getEnv "HOME"
   darkmode <- doesFileExist $ home ++ "/.config/darkmode"
-  return $ Nav2d.withNavigation2DConfig myNavigation2DConfig $ myUrgencyHook $ addDescrKeys' ((confModMask, xK_F1), showKeybindings) myKeys $ def {
+  return . Nav2d.withNavigation2DConfig myNavigation2DConfig . myUrgencyHook . addDescrKeys' ((confModMask, xK_F1), showKeybindings) myKeys $ def {
     terminal           = myTerminal
   , focusFollowsMouse  = False
   , borderWidth        = myDefaultSpacerWidth
