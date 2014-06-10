@@ -198,7 +198,11 @@ fi
     sleep 3
     # Launch compton
     if [ -x $HOME/.opt/compton/compton ]; then
-      ${HOME}/.opt/compton/compton --config ~/.config-xmonad/compton.conf
+      if   [[ $hostname == transwhale ]]; then
+        ${HOME}/.opt/compton/compton --config ~/.config-xmonad/compton-xrender.conf
+      else
+        ${HOME}/.opt/compton/compton --config ~/.config-xmonad/compton-glx.conf
+      fi
     fi
 
 
