@@ -121,6 +121,7 @@ myKeys conf =
   , ("M-o e", spawnh "e")
   , ("M-o n", spawnh "nautilus")
   , ("M-o z", spawnh  "zeal")
+  , ("M-o m", spawnh  "darkmode")
   , ("M-o a", addName "Run default workspace launcer script" $ bindOnProtectedWorkspace workspaceAction maybeWorkspaceAction)
   , ("M-o v", toggleScratch "pamixer")
   , ("M-o h", toggleScratch "htop")
