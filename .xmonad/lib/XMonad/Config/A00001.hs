@@ -114,6 +114,7 @@ myKeys conf =
   , ("M-o p", spawnh "xfce4-appfinder")
   , ("M-o c", spawnh "google-chrome")
   , ("M-o f", spawnh "firefox")
+  , ("M-o u", spawnh "x.uptime")
   , ("M-o w", spawnh "www")
   , ("M-o d", spawnh "www-dev")
   , ("M-o t", spawnh "urxvt")
