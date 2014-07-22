@@ -186,11 +186,11 @@ fi
 python ~/.config-base/miniserv/miniserv.py -d &
 
 (
-  darkmodearg=d
-  if [ $(which zenity ) ]; then
+  darkmodearg=l
+  if [ $(which zenity) ]; then
     sleep 1
-    if ! zenity  --question --text="darkmode?"; then
-      darkmodearg=l
+    if ! zenity --question --text="Bright?"; then
+      darkmodearg=d
     fi
   fi
   darkmode $darkmodearg
