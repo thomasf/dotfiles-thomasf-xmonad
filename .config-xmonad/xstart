@@ -16,7 +16,7 @@ export _JAVA_AWT_WM_NONREPARENTING=1
   && xsetroot -solid '#073642' &
 
 [[ -e ~/.config-xmonad/xstart-local ]] && \
-source ~/.config-xmonad/xstart-local
+  source ~/.config-xmonad/xstart-local
 
 # A a hack for one specific console
 # hostname=`hostname`
@@ -183,7 +183,7 @@ fi
 
 # Launch miniserv
 [ -f ~/.config-base/miniserv/miniserv.py ] && \
-python ~/.config-base/miniserv/miniserv.py -d &
+  python ~/.config-base/miniserv/miniserv.py -d &
 
 (
   darkmodearg=l
@@ -200,6 +200,7 @@ python ~/.config-base/miniserv/miniserv.py -d &
       && comptonrestart
   ) &
 ) &
+
 # Function that displays a list of window managers to choose from.
 wm_selection() {
   avail_vms=""
