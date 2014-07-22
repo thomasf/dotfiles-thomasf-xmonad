@@ -1,6 +1,12 @@
-#!/bin/sh
+#!/bin/bash
 killall -q compton
 set -e
 
-cd ~/.config-xmonad/
-~/.opt/compton/compton --config compton.conf &
+if [ -x $HOME/.opt/compton/compton ]; then
+  compton="${HOME}/.opt/compton/compton"
+  if [[ $HOSTNAME == transwhale ]]; then
+    $compton --config ~/.config-xmonad/compton-xrender.conf &
+  else
+    $compton --config ~/.config-xmonad/compton-glx.conf &
+  fi
+fi
