@@ -1,0 +1,8 @@
+#!/bin/bash
+killall -q synergys
+set -e
+
+config="${HOME}/.config-private/synergy/$HOSTNAME"
+if [ $(which synergys) ] && [ -f "$config" ]; then
+  synergys -c "$config" "$@"
+fi
