@@ -222,11 +222,12 @@ myKeys conf =
   , ("M-S-i",               addName "Move window to other workspace prompt" $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
   , ("M-i <Space> r",       addName "Rename current workspace"              $ DW.renameWorkspace myXPConfig >> movePointer)
   , ("M-i <Backspace>",       addName "Remove current workspace"              $ DW.removeWorkspace >> movePointer)
-  , ("M-p w",               addName "www" $ gotoPrefixWS "www" >> onEmptyWorkspace (spawn "www") >> movePointer)
-  , ("M-p d",               addName "doc" $ gotoPrefixWS "doc" >> onEmptyWorkspace (spawn "www") >> movePointer)
+  , ("M-p w",               addName "www" $ gotoPrefixWS "www" >> movePointer)
+  , ("M-p d",               addName "doc" $ gotoPrefixWS "doc" >> movePointer)
   , ("M-p c",               addName "code" $ gotoPrefixWS "code" >> movePointer)
-  , ("M-p r",               addName "remote/ssh" $ gotoPrefixWS "remote/ssh" >> onEmptyWorkspace (spawn "sshmenu") >> movePointer)
+  , ("M-p r",               addName "remote/ssh" $ gotoPrefixWS "remote" >> movePointer)
   , ("M-p s",               addName "scratch" $ gotoPrefixWS "scratch" >> movePointer)
+  , ("M-p t",               addName "term" $ gotoPrefixWS "term" >> movePointer)
   , ("M-p j",               addName "j" $ gotoPrefixWS "j")
   , ("M-p k",               addName "k" $ gotoPrefixWS "k")
   , ("M-p p",       addName "asd" gotoBaseWS)
@@ -238,11 +239,8 @@ myKeys conf =
   , ("M-q <Space>",       addName "xmenu"                                $ spawn "xmenu")
  ]
   where
-
-
     spawnh' cmd'  = addName cmd' $ spawnHere cmd'
     spawnh cmd'  = addName cmd' $ bindOn' $ spawnHere cmd'
-
 
     -- | Remove current workpace if empty
     rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "scratch", "scratch.0" ]
@@ -721,7 +719,7 @@ killPrompt' = withFocused $ \w ->
 -- | Run script with same name as "w.workspacename"
 workspaceAction = do
   ws <- gets (W.currentTag . windowset)
-  safeSpawn ("w." ++ takeWhile (/='.') ws) [ ]
+  safeSpawn "workspace-action" [ws]
 
 -- | Run script with same name as "w.workspacename" if the workspace is empty
 maybeWorkspaceAction = onEmptyWorkspace workspaceAction

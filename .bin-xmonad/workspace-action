@@ -1,0 +1,32 @@
+#!/bin/bash
+#
+# Workspace launcher
+#
+# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
+#
+set -e
+
+name="$@"
+prefix=$(echo $name | cut -d '.' -f -1)
+
+if [[ "$name" == *\.* ]]; then
+  suffix=$(echo $name | cut -d '.' -f 2-)
+else
+  suffix=""
+fi
+
+if [ $(which w.$prefix) ]; then
+  w.$prefix && exit 0
+fi
+
+case $suffix in
+  www|doc)
+    exec www-window
+    ;;
+  remote|ssh)
+    exec sshmenu
+    ;;
+  term|terminal)
+    exec urxvt
+    ;;
+esac

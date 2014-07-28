@@ -6,4 +6,4 @@
 #
 wsname -s && exit 1
 
-exec upgradeall
+upgradeall &
