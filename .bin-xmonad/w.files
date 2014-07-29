@@ -4,5 +4,6 @@
 #
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 #
+wsname -s && exit 1
 
-exec nautilus ~/ ~/Downloads
+exec nautilus --new-window --no-default-window --no-desktop ~/ ~/Downloads

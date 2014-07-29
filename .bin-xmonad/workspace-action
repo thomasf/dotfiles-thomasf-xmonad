@@ -32,4 +32,7 @@ case $suffix in
   emacs)
     exec e
     ;;
+  files)
+    exec nautilus --new-window --no-default-window --no-desktop ~/
+    ;;
 esac

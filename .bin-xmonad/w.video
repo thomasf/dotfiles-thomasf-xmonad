@@ -4,4 +4,7 @@
 #
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 #
-wsname -s || exec nautilus ~/Videos
+
+wsname -s && exit 1
+
+wsname -s || exec nautilus --new-window --no-default-window --no-desktop ~/Videos
