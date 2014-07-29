@@ -228,9 +228,11 @@ myKeys conf =
   , ("M-p r",               addName "remote/ssh" $ gotoPrefixWS "remote" >> movePointer)
   , ("M-p s",               addName "scratch" $ gotoPrefixWS "scratch" >> movePointer)
   , ("M-p t",               addName "term" $ gotoPrefixWS "term" >> movePointer)
+  , ("M-p e",               addName "emacs" $ gotoPrefixWS "e" >> movePointer)
   , ("M-p j",               addName "j" $ gotoPrefixWS "j")
+  , ("M-p f",               addName "files" $ gotoPrefixWS "files")
   , ("M-p k",               addName "k" $ gotoPrefixWS "k")
-  , ("M-p p",       addName "asd" gotoBaseWS)
+  , ("M-p p",               addName "base" gotoBaseWS)
  ] ++
   subtitle "exit/quit/leave/reboot...": mkNamedKeymap conf
   [ ("M-q r",             addName "restart xmonad"                       $ restart "xmonad" True)
