@@ -29,4 +29,7 @@ case $suffix in
   term|terminal)
     exec urxvt
     ;;
+  emacs)
+    exec e
+    ;;
 esac
