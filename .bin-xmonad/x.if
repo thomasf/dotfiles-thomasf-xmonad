@@ -1,0 +1,8 @@
+#!/bin/bash
+# Makes a libnotify popup with system uptime
+
+notify-send -u normal -a sticky "lanaddr" "
+<span font='13'>$(lanaddr)</span>"
+
+notify-send -u normal -a sticky "wanaddr" "
+<span font='13'>$(wanaddr)</span >"

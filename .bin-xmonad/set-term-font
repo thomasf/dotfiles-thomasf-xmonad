@@ -6,21 +6,24 @@
 # Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
 #
 
-fSize=${1:-10}
-fSel=${2:-a}
+fSize=${1:-11.8}
+fSel=${2:-p}
 
 unset font
 
 case "${fSel}" in
-    a|anonymous)
-	font="xft:Anonymous Pro-$fSize"
-	;;
-    c|consolas)
-	font="xft:Consolas-$fSize"
-	;;
-    t|terminus)
-	font="-*-terminus-*-r-normal-*-$fSize-*-*-*-*-*-*-1"
-	;;
+  a|anonymous)
+    font="xft:Anonymous Pro-$fSize"
+    ;;
+  c|consolas)
+    font="xft:Consolas-$fSize"
+    ;;
+  p|pragmata)
+    font="xft:PragmataPro:size=$fSize"
+    ;;
+  t|terminus)
+    font="-*-terminus-*-r-normal-*-$fSize-*-*-*-*-*-*-1"
+    ;;
 esac
 
 [[ -n ${font} ]] && echo -en "\033]50;$font\007"

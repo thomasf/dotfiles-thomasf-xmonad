@@ -1,4 +1,7 @@
-#!/bin/bash
+#!/bin/sh
 # Makes a libnotify popup with system uptime
 
-notify-send -u normal -a clock "UPTIME" "<span font='16'>$(uptime)</span>"
+notify-send -u normal -a short "Up" "since <span font='13'>$(uptime -s)</span>
+Time is now <span font='13'>$(date +'%Y-%m-%d %H:%M:%S')</span>
+Uptime is <span font='13'>$(uptime -p)</span>
+"

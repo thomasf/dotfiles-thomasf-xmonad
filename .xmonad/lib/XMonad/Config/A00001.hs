@@ -115,6 +115,7 @@ myKeys conf =
   , ("M-o c", spawnh "google-chrome")
   , ("M-o f", spawnh "firefox")
   , ("M-o u", spawnh "x.uptime")
+  , ("M-o i", spawnh "x.info")
   , ("M-o w", spawnh "www")
   , ("M-o d", spawnh "www-dev")
   , ("M-o t", spawnh "urxvt")
@@ -164,17 +165,17 @@ myKeys conf =
   ] ++
   subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]": mkNamedKeymap conf
   [ ("M-C-<Space>",  addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
-  , ("M-g",          addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
-  , ("M-M1-<Space>", addName "Toggle fullscreen"                                    $ sendMessage (Toggle NBFULL) >> movePointer >> showLayoutName)
-  , ("M-s",          addName "Toggle fullscreen"                                    $ sendMessage (Toggle NBFULL) >> movePointer >> showLayoutName)
+  , ("M-m", addName "Toggle fullscreen"                                    $ sendMessage (Toggle NBFULL) >> movePointer >> showLayoutName)
+  , ("M-n",       addName "Toggle visibiltiy of panels"                          $ sendMessage ToggleStruts >> movePointer)
   , ("M-M1-s",       addName "Toggle visibiltiy of panels"                          $ sendMessage ToggleStruts >> movePointer)
   , ("M-M1-r",       addName "Toggle reflect layout direction"                      $ sendMessage (Toggle REFLECTX) >> movePointer)
+  , ("C-M-r",       addName "Toggle reflect layout direction"                      $ sendMessage (Toggle REFLECTX) >> movePointer)
   , ("M-M1-m",       addName "Minimize"                                             $ withFocused minimizeWindow >> movePointer)
   , ("M-M1-u",       addName "UnMinimize"                                           $ sendMessage RestoreNextMinimizedWin)
-  , ("M-h",          addName "Shrink the master area"                               $ sendMessage Shrink >> movePointer)
-  , ("M-l",          addName "Expand the master area"                               $ sendMessage Expand >> movePointer)
   , ("M-,",          addName "Increment the number of windows in the master area"   $ sendMessage (IncMasterN 1) >> movePointer)
   , ("M-.",          addName "Deincrement the number of windows in the master area" $ sendMessage (IncMasterN (-1)) >> movePointer)
+  , ("M-h",          addName "Expand the master area"                               $ sendMessage Expand >> movePointer)
+  , ("M-l",          addName "Shrink the master area"                               $ sendMessage Shrink >> movePointer)
   ] ++
   subtitle "Multi media keys": mkNamedKeymap conf
   [ ("<XF86AudioPlay>",   spawnh' "mpc toggle")

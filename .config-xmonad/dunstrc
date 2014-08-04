@@ -3,14 +3,14 @@
 [global]
 # font = Monospace 8
 # font =  -*-terminus-bold-r-normal--18-*-*-*-*-*-*-*
-font =  Monospace 11
+font =  PragmataPro 10
 allow_markup = yes
 format = "[%a] %s %b"
 sort = yes
 indicate_hidden = yes
 alignment = left
 bounce_freq = 0
-show_age_threshold = 60
+show_age_threshold = 120
 word_wrap = yes
 geometry = "0x10-0+32"
 shrink = no
@@ -19,10 +19,10 @@ idle_threshold = 120
 monitor = 0
 follow = keyboard
 sticky_history = yes
-line_height = 0
+line_height = 4
 separator_height = 0;
-padding = 4
-horizontal_padding = 4
+padding = 9
+horizontal_padding = 18
 separator_color = frame
 dmenu = dmenu -p dunst:
 browser = www
@@ -75,7 +75,7 @@ appname = "short"
 format = "%s %b"
 background = "#d33682"
 foreground = "#002b36"
-timeout = 4
+timeout = 5
 
 [shorter]
 appname = "shorter"
@@ -90,6 +90,13 @@ format = "%s %b"
 background = "#859900"
 foreground = "#002b36"
 timeout = 30
+
+[sticky]
+appname = "sticky"
+format = "%s %b"
+background = "#b58900"
+foreground = "#002b36"
+timeout = 0
 
 [ignore-dropbox]
 appname = Dropbox

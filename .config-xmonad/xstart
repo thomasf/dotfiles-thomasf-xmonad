@@ -15,8 +15,13 @@ export _JAVA_AWT_WM_NONREPARENTING=1
 [ $(which xsetroot ) ] \
   && xsetroot -solid '#073642' &
 
+if [ -f "${HOME}/.config-private/xstart/$HOSTNAME" ]; then
+  source "${HOME}/.config-private/xstart/$HOSTNAME"
+fi
+
 [[ -e ~/.config-xmonad/xstart-local ]] && \
   source ~/.config-xmonad/xstart-local
+
 
 # A a hack for one specific console
 # hostname=`hostname`

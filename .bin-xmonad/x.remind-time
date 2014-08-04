@@ -4,7 +4,7 @@
 PERIOD=1800
 
 function notify {
-  notify-send -u normal -a clock "time" "<span font='50'>$(date +%H:%M)</span>"
+  notify-send -u normal -a clock "time" "<span font='15'>$(date +%H:%M)</span>"
 }
 
 sleep $(( $PERIOD - ($(/bin/date +%s) % $PERIOD) ))
