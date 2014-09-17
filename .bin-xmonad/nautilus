@@ -13,14 +13,17 @@ if [ $# -eq 0 ]; then
     if [ $(which wsname) ]; then
         name="$(wsname -p)"
         case $name in
-            home|temp|chat|nodes|mail|dash|NSP)
+            home|temp|chat|nodes|dash|NSP)
                 cd ${HOME}
                 ;;
             emacs)
                 cd ~/.emacs.d
                 ;;
-            www|share)
+            www|share|mail)
                 cd ~/Downloads
+                ;;
+            books)
+                cd ~/books
                 ;;
             *)
                 _z "${HOME}" "${name/-/ }"
