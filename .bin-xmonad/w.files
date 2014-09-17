@@ -6,4 +6,4 @@
 #
 wsname -s && exit 1
 
-exec nautilus --new-window --no-default-window --no-desktop ~/ ~/Downloads
+exec nautilus ~/ ~/Downloads

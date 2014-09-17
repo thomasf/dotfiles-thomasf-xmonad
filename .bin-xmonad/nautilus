@@ -3,6 +3,7 @@
 # Nautilus wrapper
 #
 
+nargs="--new-window --no-default-window --no-desktop"
 
 if [ $# -eq 0 ]; then
 
@@ -26,8 +27,8 @@ if [ $# -eq 0 ]; then
                 ;;
         esac
     fi
-    exec /usr/bin/nautilus .
+    exec /usr/bin/nautilus $nargs .
 else
-    exec /usr/bin/nautilus "$@"
+    exec /usr/bin/nautilus $nargs "$@"
 
 fi
