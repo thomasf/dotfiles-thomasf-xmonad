@@ -61,6 +61,13 @@ foreground = "#002b36"
 background = "#b58900"
 timeout = 0
 
+[todo]
+appname = "todo"
+format = "TODO %b"
+foreground = "#002b36"
+background = "#859900"
+timeout = 0
+
 # other templates
 
 [network-manager]

@@ -1,0 +1,5 @@
+#!/bin/bash
+# Makes a libnotify popup with todotxt status
+
+notify-send -u normal -a todo "todo" " <span font='12'>
+$(todo.sh list | perl -pe 's/\e\[?.*?[\@-~]//g')</span>"
