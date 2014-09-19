@@ -159,9 +159,9 @@ fi
 [ $(which mountavfs) ] \
   && mountavfs 2>/dev/null &
 
-# Launch drop box
-# [ -x ~/.dropbox-dist/dropboxd ] \
-#   && ~/.dropbox-dist/dropboxd &
+Launch drop box
+[ -x ~/.dropbox-dist/dropboxd ] \
+  && ~/.dropbox-dist/dropboxd &
 
 # Launch the network manager applet
 [ $(which nm-applet) ] \
