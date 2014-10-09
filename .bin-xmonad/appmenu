@@ -12,7 +12,7 @@ ppath() {
  [ -d "${1}" ] && PATH="${1}:${PATH}" || true
 }
 
-ppath ~/.opt/idea/bin
+# ppath ~/.opt/idea/bin
 
 tr=urxvt
 
