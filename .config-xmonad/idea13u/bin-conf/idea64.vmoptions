@@ -12,7 +12,7 @@
 -XX:ReservedCodeCacheSize=96m
 -XX:+UseCodeCacheFlushing
 -XX:+UseCompressedOops
--XX:ParallelGCThreads=8
+-XX:ParallelGCThreads=4
 -XX:+UseParNewGC
 -XX:+UseConcMarkSweepGC
 -XX:+DisableExplicitGC
