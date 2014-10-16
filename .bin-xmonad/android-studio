@@ -1,0 +1,12 @@
+#!/bin/bash
+#
+# idea wrapper
+#
+
+set -e
+
+if [[ -d ${HOME}/.config-xmonad/android-studio/bin-conf ]] && [[ -d ${HOME}/.opt/android-studio/bin ]]; then
+  cp ${HOME}/.config-xmonad/android-studio/bin-conf/* ${HOME}/.opt/android-studio/bin/
+fi
+
+exec ~/.opt/android-studio/bin/studio.sh
