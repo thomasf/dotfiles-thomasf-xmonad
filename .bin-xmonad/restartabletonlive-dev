@@ -1,0 +1,19 @@
+#!/bin/bash
+
+/usr/bin/osascript << EOF
+tell application "Live"
+quit
+end tell
+EOF
+
+scripts="/Applications/Ableton Live 9 Suite.app/Contents/App-Resources/MIDI Remote Scripts"
+
+rm -f "$scripts/launchpad95/*.pyc"
+rm -f "$scripts/fs2/*.pyc"
+rm -f "$scripts/beatstep/*.pyc"
+rm -f "$scripts/twister/*.pyc"
+rm -f "$scripts/twister2/*.pyc"
+rm -f "$scripts/nanocontrol/*.pyc"
+rm -f "$scripts/Livid_DS1/*.pyc"
+
+/Applications/Ableton\ Live\ 9\ Suite.app/Contents/MacOS/Live "/Users/${USER}/Documents/Ableton Live/projects/dev Project/dev.als" &
