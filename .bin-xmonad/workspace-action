@@ -7,10 +7,10 @@
 set -e
 
 name="$@"
-prefix=$(echo $name | cut -d '.' -f -1)
+prefix=$(echo -n $name | cut -d '.' -f -1)
 
 if [[ "$name" == *\.* ]]; then
-  suffix=$(echo $name | cut -d '.' -f 2-)
+  suffix=$(echo -n $name | cut -d '.' -f 2-)
 else
   suffix=""
 fi
