@@ -179,11 +179,12 @@ myKeys conf =
   ] ++
   subtitle "Multi media keys": mkNamedKeymap conf
   [ ("<XF86AudioPlay>",         spawnh' "mpc toggle")
-  , ("<XF86AudioStop",          spawnh' "mpc stop")
-  , ("S-<XF86AudioPrev>",       spawnh' "mpc prev")
-  , ("S-<XF86AudioNext>",       spawnh' "mpc next")
+  , ("s-<XF86AudioPrev>",       spawnh' "mpc prev")
+  , ("s-<XF86AudioNext>",       spawnh' "mpc next")
   , ("<XF86AudioPrev>",         spawnh' "mpc seek -00:00:10")
   , ("<XF86AudioNext>",         spawnh' "mpc seek +00:00:10")
+  , ("C-<XF86AudioPrev>",       spawnh' "mpc seek -3%")
+  , ("C-<XF86AudioNext>",       spawnh' "mpc seek +3%")
   , ("<XF86AudioStop>",         spawnh' "mpc stop")
   , ("<XF86MonBrightnessDown>", spawnh' "custom-backlight-macbookpro_gmux -m")
   , ("<XF86MonBrightnessUp>",   spawnh' "custom-backlight-macbookpro_gmux -p")
