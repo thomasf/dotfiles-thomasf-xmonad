@@ -75,7 +75,7 @@ URxvt*tabbed.title-fg:                4
 URxvt*tabbed.title-bg:                0
 URxvt*tabbed.repoen-on-close:         yes
 URxvt*matcher.button:                 1
-URxvt.print-pipe:                     cat > $(echo urxvt.scrollback.$(date +'%Y-%m-%d.%H_%m_%S'))
+URxvt.print-pipe:                     emacspipe
 URxvt.keysym.C-plus:                  perl:font:increment
 URxvt.keysym.C-minus:                 perl:font:decrement
 URxvt*searchable-scrollback:          M-s
