@@ -5,6 +5,7 @@
 # font =  -*-terminus-bold-r-normal--18-*-*-*-*-*-*-*
 font =  PragmataPro 10
 allow_markup = yes
+plain_text = no
 format = "[%a] %s %b"
 sort = yes
 indicate_hidden = yes
