@@ -366,7 +366,8 @@ myGsconfig = def
     , gs_font = sizedXftFont "13"
     }
 
-myDefaultSpacerWidth = 4
+myDefaultSpacerWidth = 3
+myDefaultBorderWidth = 4
 
 -- | Fonts
 sizedXftFont px = "xft:PragmataPro:pixelsize=" ++ px
@@ -409,7 +410,7 @@ myLayoutHook =
     onTall = onHosts ["transwhale"]
     -- helpers
     refmin = mkToggle (single REFLECTX) . minimize
-    ss = smartSpacing myDefaultSpacerWidth
+    ss = smartSpacingWithEdge myDefaultSpacerWidth
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
     -- layouts
@@ -606,7 +607,7 @@ a00001Config = do
   return . Nav2d.withNavigation2DConfig myNavigation2DConfig . myUrgencyHook . addDescrKeys' ((confModMask, xK_F1), showKeybindings) myKeys $ def {
     terminal           = myTerminal
   , focusFollowsMouse  = False
-  , borderWidth        = myDefaultSpacerWidth
+  , borderWidth        = myDefaultBorderWidth
   , modMask            = confModMask
   , workspaces         = myWorkspaces
   , normalBorderColor  = myNormalBorderColor darkmode
