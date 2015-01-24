@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Prompt for ssh hosts and connect
 #
@@ -13,23 +13,34 @@
 
 set -e
 
+cmd=$(basename ${0})
+
+case ${cmd} in
+  moshmenu)
+    run=mosh
+    ;;
+  sshmenu)
+    run=ssh
+    ;;
+esac
+
 if  [ `which yeganesh` ]; then
-    args="yeganesh -p sshmenu -- -p SSH -l 30"
+  args="yeganesh -p sshmenu -- -p ${run} -l 30"
 else
-    args="dmenu -p SSH -l 30"
+  args="dmenu -p ${run} -l 30"
 fi
 
 cs=`cat ~/.ssh/config | grep ^Host | awk '{ print $2 }' | $args`
 
 urxvt -e sh -c \
-     "while :
+      "while :
      do
       termcolors
       dynamic-colors switch ssh-cursor || true
       echo -n \`tput setaf 3\`
       echo Connecting: ${cs};
       echo -n \`tput sgr0\`
-      ssh ${cs};
+      ${run} ${cs};
       echo ;
       echo \`tput setaf 1\`
       echo \"Connection to ${cs} lost: \`date\` \";
