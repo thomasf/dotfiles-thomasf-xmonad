@@ -1,19 +1,58 @@
 #!/bin/bash
 
-/usr/bin/osascript << EOF
-tell application "Live"
-quit
-end tell
-EOF
 
+lver="9.1.7"
+log="/Users/${USER}/Library/Preferences/Ableton/Live ${lver}/log.txt"
+devals="/Users/${USER}/Music/Ableton/projects/dev Project/dev.als"
 scripts="/Applications/Ableton Live 9 Suite.app/Contents/App-Resources/MIDI Remote Scripts"
 
-rm -f "$scripts/launchpad95/*.pyc"
-rm -f "$scripts/fs2/*.pyc"
-rm -f "$scripts/beatstep/*.pyc"
-rm -f "$scripts/twister/*.pyc"
-rm -f "$scripts/twister2/*.pyc"
-rm -f "$scripts/nanocontrol/*.pyc"
-rm -f "$scripts/Livid_DS1/*.pyc"
 
-/Applications/Ableton\ Live\ 9\ Suite.app/Contents/MacOS/Live "/Users/${USER}/Documents/Ableton Live/projects/dev Project/dev.als" &
+killapp() {
+  /usr/bin/osascript << EOF
+
+on is_running(appName)
+  tell application "System Events" to (name of processes) contains appName
+end is_running
+
+if is_running("Live") then
+  ignoring application responses
+    tell application "Live" to quit
+  end ignoring
+  delay 1
+  if is_running("Live") then
+    tell application "Live" to activate
+    delay 1
+    tell application "System Events" to keystroke "o"
+  end if
+end if
+EOF
+}
+
+cleanpy() {
+  rm -f "$scripts/launchpad95/*.pyc"
+  rm -f "$scripts/fs2/*.pyc"
+  rm -f "$scripts/beatstep/*.pyc"
+  rm -f "$scripts/twister/*.pyc"
+  rm -f "$scripts/twister2/*.pyc"
+  rm -f "$scripts/nanocontrol/*.pyc"
+  rm -f "$scripts/Livid_DS1/*.pyc"
+}
+
+
+sigint() {
+  kill $tailpid
+  cleanpy
+  exit $?
+}
+
+trap sigint SIGINT
+
+while true; do
+  killapp
+  cleanpy
+  /Applications/Ableton\ Live\ 9\ Suite.app/Contents/MacOS/Live "${devals}" &
+  livepid=$!
+  tail -f "${log}" &
+  tailpid=$!
+  read
+done
