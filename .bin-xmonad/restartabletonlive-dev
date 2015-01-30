@@ -6,6 +6,12 @@ log="/Users/${USER}/Library/Preferences/Ableton/Live ${lver}/log.txt"
 devals="/Users/${USER}/Music/Ableton/projects/dev Project/dev.als"
 scripts="/Applications/Ableton Live 9 Suite.app/Contents/App-Resources/MIDI Remote Scripts"
 
+waitForLive() {
+  echo "waiting for live to quit."
+  while $(killall -d Live >/dev/null); do
+    sleep 0.1
+  done
+}
 
 killapp() {
   /usr/bin/osascript << EOF
@@ -15,6 +21,7 @@ on is_running(appName)
 end is_running
 
 if is_running("Live") then
+  tell application "Live" to activate
   ignoring application responses
     tell application "Live" to quit
   end ignoring
@@ -30,6 +37,7 @@ EOF
 
 cleanpy() {
   rm -f "$scripts/launchpad95/*.pyc"
+  rm -f "$scripts/launchpad95hk/*.pyc"
   rm -f "$scripts/fs2/*.pyc"
   rm -f "$scripts/beatstep/*.pyc"
   rm -f "$scripts/twister/*.pyc"
@@ -38,21 +46,34 @@ cleanpy() {
   rm -f "$scripts/Livid_DS1/*.pyc"
 }
 
-
 sigint() {
-  kill $tailpid
+  echo "Exiting live restart script..."
+  kill $(jobs -p)
   cleanpy
   exit $?
 }
 
+taillog() {
+
+  tailpid=$!
+}
+
 trap sigint SIGINT
 
+cleanpy
+killapp
+waitForLive
+
 while true; do
-  killapp
-  cleanpy
+  echo ""
+  echo ""
+  echo "----------------"
+  echo ""
+  echo ""
   /Applications/Ableton\ Live\ 9\ Suite.app/Contents/MacOS/Live "${devals}" &
-  livepid=$!
-  tail -f "${log}" &
-  tailpid=$!
+  tail -f "${log}" | grep RemoteScript &
   read
+  killapp
+  waitForLive
+  kill $(jobs -p)
 done
