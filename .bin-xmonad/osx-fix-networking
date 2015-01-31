@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# This trick seems to work most ot the times....
+
+echo -n .
+networksetup -setairportpower en0 off
+echo -n .
+networksetup -setairportpower en0 on
+echo -n .
+sudo launchctl unload -w \
+     /System/Library/LaunchDaemons/com.apple.discoveryd.plist
+echo -n .
+sudo launchctl load -w \
+     /System/Library/LaunchDaemons/com.apple.discoveryd.plist
+echo .
