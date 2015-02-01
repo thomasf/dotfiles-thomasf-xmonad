@@ -1,21 +1,23 @@
 #!/bin/bash
 
+# Script to support remote script development.
 
+projectsroot="/Users/${USER}/Music/Ableton/projects/"
+project="${projectsroot}/dev Project/dev.als"
 lver="9.1.7"
 log="/Users/${USER}/Library/Preferences/Ableton/Live ${lver}/log.txt"
-devals="/Users/${USER}/Music/Ableton/projects/dev Project/dev.als"
-scripts="/Applications/Ableton Live 9 Suite.app/Contents/App-Resources/MIDI Remote Scripts"
+scriptsPath="/Applications/Ableton Live 9 Suite.app/Contents/App-Resources/MIDI Remote Scripts"
+cleanScripts="launchpad95 launchpad95hk fs2 beatstep twister twister2 nanocontrol Livid_DS1 Livid_DS1hk"
 
-waitForLive() {
-  echo "waiting for live to quit."
-  while $(killall -d Live >/dev/null); do
+waitForLiveToExit() {
+  while $(pgrep Live >/dev/null); do
     sleep 0.1
   done
 }
 
-killapp() {
-  /usr/bin/osascript << EOF
 
+quitLive() {
+  /usr/bin/osascript << EOF
 on is_running(appName)
   tell application "System Events" to (name of processes) contains appName
 end is_running
@@ -25,55 +27,60 @@ if is_running("Live") then
   ignoring application responses
     tell application "Live" to quit
   end ignoring
-  delay 1
+
+  delay 1.5
   if is_running("Live") then
     tell application "Live" to activate
-    delay 1
-    tell application "System Events" to keystroke "o"
+    tell application "System Events" to keystroke "o" -- Ok
+    tell application "System Events" to keystroke "d" -- Don't save
   end if
 end if
 EOF
+  waitForLiveToExit
+  echo ""
+  echo "---------------- LIVE IS SHUT DOWN ----------- "
+  echo ""
 }
 
-cleanpy() {
-  rm -f "$scripts/launchpad95/*.pyc"
-  rm -f "$scripts/launchpad95hk/*.pyc"
-  rm -f "$scripts/fs2/*.pyc"
-  rm -f "$scripts/beatstep/*.pyc"
-  rm -f "$scripts/twister/*.pyc"
-  rm -f "$scripts/twister2/*.pyc"
-  rm -f "$scripts/nanocontrol/*.pyc"
-  rm -f "$scripts/Livid_DS1/*.pyc"
+hideLive() {
+  /usr/bin/osascript << EOF
+tell application "Finder"
+  set visible of process "Live" to false
+end tell
+EOF
+}
+export -f hideLive
+
+
+startLive() {
+  for S in $cleanScripts; do
+    rm -f "$scriptsPath/$S/*.pyc"
+  done
+  echo ""
+  echo "---------------- LIVE IS STARTING ----------- "
+  echo ""
+  /Applications/Ableton\ Live\ 9\ Suite.app/Contents/MacOS/Live "${project}" &
 }
 
-sigint() {
+
+sigintHandler() {
   echo "Exiting live restart script..."
+  quitLive
   kill $(jobs -p)
-  cleanpy
   exit $?
 }
+trap sigintHandler SIGINT
 
-taillog() {
 
-  tailpid=$!
-}
-
-trap sigint SIGINT
-
-cleanpy
-killapp
-waitForLive
-
+quitLive
 while true; do
-  echo ""
-  echo ""
-  echo "----------------"
-  echo ""
-  echo ""
-  /Applications/Ableton\ Live\ 9\ Suite.app/Contents/MacOS/Live "${devals}" &
   tail -f "${log}" | grep RemoteScript &
+  startLive
+  (
+    sleep 1
+    hideLive
+  ) &
   read
-  killapp
-  waitForLive
+  quitLive
   kill $(jobs -p)
 done
