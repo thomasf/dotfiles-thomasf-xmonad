@@ -4,12 +4,18 @@
 
 echo -n .
 networksetup -setairportpower en0 off
+sleep 1
+
 echo -n .
 networksetup -setairportpower en0 on
+sleep 1
+
 echo -n .
 sudo launchctl unload -w \
      /System/Library/LaunchDaemons/com.apple.discoveryd.plist
-echo -n .
+sleep 1
+
+echo .
 sudo launchctl load -w \
      /System/Library/LaunchDaemons/com.apple.discoveryd.plist
-echo .
+sleep 1
