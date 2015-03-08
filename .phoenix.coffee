@@ -1,5 +1,5 @@
-mash = ["cmd", "alt", "ctrl"]
-mashShift = ["cmd", "alt", "shift"]
+mash = ["cmd", "alt", "shift"]
+mash2 = ["cmd", "alt", "ctrl"]
 
 spacing = {
   x: 5
@@ -67,16 +67,16 @@ api.bind '=', mash, ->
 api.bind '-', mash, ->
   changeGridWidth -1
 
-api.bind 'H', mashShift, ->
+api.bind 'H', mash2, ->
   Window.focusedWindow().focusWindowLeft()
 
-api.bind 'L', mashShift, ->
+api.bind 'L', mash2, ->
   Window.focusedWindow().focusWindowRight()
 
-api.bind 'K', mashShift, ->
+api.bind 'K', mash2, ->
   Window.focusedWindow().focusWindowUp()
 
-api.bind 'J', mashShift, ->
+api.bind 'J', mash2, ->
   Window.focusedWindow().focusWindowDown()
 
 api.bind 'M', mash, ->
