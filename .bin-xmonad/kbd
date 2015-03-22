@@ -27,4 +27,5 @@ setl() {
 setl "Apple Internal Keyboard" my-mac-us-ctrl-caps-super 1
 setl "DATACOMP SteelS" my-se-caps-ctrl-super 1
 setl "TrulyErgonomic.com" my-us-intl 1
+setl "USBPS2" my-us-intl 1
 setl "Apple Internal Keyboard" my-mac-us-ctrl-caps-super
