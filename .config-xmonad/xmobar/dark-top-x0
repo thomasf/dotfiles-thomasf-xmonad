@@ -1,28 +1,30 @@
 -- THIS IS A DERIVED THEME - DO NOT EDIT MANUALLY !!!
 Config { font = "xft:PragmataPro:pixelsize=20"
+       , additionalFonts = ["xft:PragmataPro:pixelsize=15", "xft:PragmataPro:pixelsize=14:weight=bold"]
        , borderColor = "#002b36"
        , border = NoBorder
        , bgColor = "#002b36"
        , fgColor = "#657b83"
-       , position = TopSize L 92 24
+       , position = TopSize L 88 24
        , lowerOnStart = True
        , hideOnStart = False
        , persistent = True
        , overrideRedirect = True
        , allDesktops = True
-       , commands = [ Run DynNetwork ["-t", "<dev>:t<tx>:r<rx>k", "-L","0","-H","1000","--normal","#93a1a1","--high","#859900"] 30
+       , commands = [ Run DynNetwork ["-t", "<dev>:t<tx>:r<rx>k", "-L","0","-H","1000","--normal","#657b83","--high","#93a1a1"] 30
                     , Run MultiCpu ["-t", "<total>%", "-L","3","-H","80","--normal","#93a1a1","--high","#dc322f", "-c", "0", "-p", "2"] 10
-                    , Run Memory ["-t","<fc=#93a1a1><rest></fc>M"] 30
+                    , Run Memory ["-t","<fc=#93a1a1><available></fc>M"] 30
                     -- , Run DiskIO [("/", "/ w<fc=#93a1a1><write></fc> r<fc=#93a1a1><read></fc>")] [] 20
                     , Run Battery ["-t", "<left>%", "-L", "10", "-H", "80"
                                   , "--"
                                   , "-L", "-15", "-H", "-5", "-l", "#93a1a1", "-m", "#93a1a1", "-h", "#93a1a1"] 600
                     , Run DateZone "%a %b %-d %H:%M" "en_US.utf8" "Europe/Stockholm" "sthmlDate" 10
+                    , Run Weather "ESSB" ["-t", "<tempC>C"] 356000
                     , Run NamedXPropertyLog "_XMONAD_LOG_TOP" "xm"
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%xm% }{ %dynnetwork%  mf%memory%  cu%multicpu%  b%battery%  <fc=#859900>%sthmlDate%</fc> "
+       , template = "%xm% }{ <fn=1>%dynnetwork%  ma%memory%  cu%multicpu%  b%battery%</fn>  <fn=2><fc=#859900>%sthmlDate% %ESSB%</fc></fn>"
 
 -- Local Variables:
 -- eval: (rainbow-mode 1)

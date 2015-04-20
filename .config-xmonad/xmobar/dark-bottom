@@ -1,4 +1,5 @@
 Config { font = "xft:PT Sans Narrow-14:style=bold"
+       , additionalFonts = ["xft:PT Sans Narrow-14", "xft:PragmataPro:pixelsize=18:weight:bold"]
        , borderColor = "#073642"
        , border = TopB
        , bgColor = "#002b36"
@@ -9,10 +10,7 @@ Config { font = "xft:PT Sans Narrow-14:style=bold"
        , persistent = True
        , overrideRedirect = True
        , allDesktops = True
-       , commands = [  -- Run Weather "ESSB" ["-t",
-                       -- "<tempC>C <skyCondition>",
-                       -- "-L","4","-H","23","--normal","#839496","--high","#839496","--low","#839496"] 36000
-                    Run MPD ["-t",
+       , commands = [ Run MPD ["-t",
                        " <statei> <artist> - <title> ",
                        "--", "-P", ">>", "-Z", "||", "-S", "><"] 10
                     -- , Run Com "fortune" ["~/.config-base/fortunes"] "quote" 9000
@@ -22,7 +20,7 @@ Config { font = "xft:PT Sans Narrow-14:style=bold"
 
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "   <fc=#859900>%kbd%</fc>   <fc=#b58900>%xm%</fc> }{ <fc=#859900>%mpd%</fc>"
+       , template = "  <fn=1><fc=#93a1a1>%kbd%</fc></fn>   <fc=#b58900>%xm%</fc> }{<fn=1><fc=#859900>%mpd%</fc></fn>"
 
 -- Local Variables:
 -- eval: (rainbow-mode 1)

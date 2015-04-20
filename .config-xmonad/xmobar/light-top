@@ -1,5 +1,6 @@
 -- THIS IS A DERIVED THEME - DO NOT EDIT MANUALLY !!!
 Config { font = "xft:PragmataPro:pixelsize=20"
+       , additionalFonts = ["xft:PragmataPro:pixelsize=15", "xft:PragmataPro:pixelsize=14:weight=bold"]
        , borderColor = "#fdf6e3"
        , border = NoBorder
        , bgColor = "#fdf6e3"
@@ -10,19 +11,20 @@ Config { font = "xft:PragmataPro:pixelsize=20"
        , persistent = True
        , overrideRedirect = True
        , allDesktops = True
-       , commands = [ Run DynNetwork ["-t", "<dev>:t<tx>:r<rx>k", "-L","0","-H","1000","--normal","#93a1a1","--high","#859900"] 30
-                    , Run MultiCpu ["-t", "<total>%", "-L","3","-H","80","--normal","#93a1a1","--high","#dc322f", "-c", "0", "-p", "2"] 10
-                    , Run Memory ["-t","<fc=#93a1a1><rest></fc>M"] 30
-                    -- , Run DiskIO [("/", "/ w<fc=#93a1a1><write></fc> r<fc=#93a1a1><read></fc>")] [] 20
+       , commands = [ Run DynNetwork ["-t", "<dev>:t<tx>:r<rx>k", "-L","0","-H","1000","--normal","#839496","--high","#586e75"] 30
+                    , Run MultiCpu ["-t", "<total>%", "-L","3","-H","80","--normal","#586e75","--high","#dc322f", "-c", "0", "-p", "2"] 10
+                    , Run Memory ["-t","<fc=#586e75><available></fc>M"] 30
+                    -- , Run DiskIO [("/", "/ w<fc=#586e75><write></fc> r<fc=#586e75><read></fc>")] [] 20
                     , Run Battery ["-t", "<left>%", "-L", "10", "-H", "80"
                                   , "--"
-                                  , "-L", "-15", "-H", "-5", "-l", "#93a1a1", "-m", "#93a1a1", "-h", "#93a1a1"] 600
+                                  , "-L", "-15", "-H", "-5", "-l", "#586e75", "-m", "#586e75", "-h", "#586e75"] 600
                     , Run DateZone "%a %b %-d %H:%M" "en_US.utf8" "Europe/Stockholm" "sthmlDate" 10
+                    , Run Weather "ESSB" ["-t", "<tempC>C"] 356000
                     , Run NamedXPropertyLog "_XMONAD_LOG_TOP" "xm"
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%xm% }{ %dynnetwork%  mf%memory%  cu%multicpu%  b%battery%  <fc=#859900>%sthmlDate%</fc> "
+       , template = "%xm% }{ <fn=1>%dynnetwork%  ma%memory%  cu%multicpu%  b%battery%</fn>  <fn=2><fc=#859900>%sthmlDate% %ESSB%</fc></fn>"
 
 -- Local Variables:
 -- eval: (rainbow-mode 1)
