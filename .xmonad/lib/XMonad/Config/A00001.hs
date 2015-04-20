@@ -477,7 +477,8 @@ myManageHook =
   , [className =? c -?>                                        doCenterFloatLarge | c <-  ["Xfce4-appfinder"]]
   , [resource  =? c -?>                                        doCenterFloatLarge | c <-  ["floating-center-large"]]
   , [resource  =? c -?>                                        doCenterFloat      | c <-  ["floating-center"]]
-  , [className  =? "Onboard"  -?>                              doIgnore]
+  , [className =? "Onboard"  -?>                               doIgnore]
+  , [title     =? "screenkey"  -?>                             doIgnore]
   , [transience]
   , [resource  =? "xmessage" -?>                               doCenterFloatLarge]
   ]) <+> manageDocks
