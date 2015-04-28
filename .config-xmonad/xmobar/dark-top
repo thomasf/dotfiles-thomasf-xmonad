@@ -23,7 +23,7 @@ Config { font = "xft:PragmataPro:pixelsize=20"
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%xm% }{ <fn=1>%dynnetwork%  ma%memory%  cu%multicpu%  b%battery%</fn>  <fn=2><fc=#859900>%sthmlDate% %ESSB%</fc></fn>"
+       , template = "%xm% }{ <fn=1>%dynnetwork%  ma%memory%  cu%multicpu%  b%battery%</fn>  <fn=2><fc=#859900>%sthmlDate% %ESSB%</fc>  </fn>"
 
 -- Local Variables:
 -- eval: (rainbow-mode 1)
