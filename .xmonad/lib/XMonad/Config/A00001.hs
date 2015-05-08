@@ -116,15 +116,13 @@ myKeys conf =
   , ("M-o f", spawnh "firefox")
   , ("M-o u", spawnh' "x.uptime")
   , ("M-o i", spawnh' "x.info")
+  , ("M-o j", spawnh' "x.todo")
   , ("M-o w", spawnh "www")
   , ("M-o d", spawnh "www-dev")
   , ("M-o t", spawnh "urxvt")
-  , ("M-o M-t", spawnh $ myTerminal ++ " -name tabbed")
   , ("M-o e", spawnh "e")
   , ("M-o n", spawnh "nautilus")
   , ("M-o a", addName "Run default workspace launcer script" $ bindOnProtectedWorkspace workspaceAction maybeWorkspaceAction)
-  , ("M-o v", toggleScratch "pamixer")
-  , ("M-o h", toggleScratch "htop")
   ] ++
   subtitle "Other window actions": mkNamedKeymap conf
   [ ("M-<Return>", addName "Swap the focused window and the master window" $ dwmpromote >> movePointer)
