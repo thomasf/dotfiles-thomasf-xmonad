@@ -24,7 +24,7 @@ Config { font = "xft:PragmataPro:pixelsize=20"
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%xm% }{ <fn=1>%dynnetwork%  ma%memory%  cu%multicpu%  b%battery%</fn>  <fn=2><fc=#859900>%sthmlDate% %ESSB%</fc>  </fn>"
+       , template = "%xm% }{ <fn=1>%dynnetwork%  <action=`x.info` button=1>ma%memory%  cu%multicpu%  b%battery%</action></fn>  <fn=2><fc=#859900><action=`x.todo` button=1>%sthmlDate% %ESSB%</action></fc>  </fn>"
 
 -- Local Variables:
 -- eval: (rainbow-mode 1)
