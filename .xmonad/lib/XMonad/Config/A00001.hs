@@ -114,16 +114,14 @@ myKeys conf =
   , ("M-o p", spawnh "xfce4-appfinder")
   , ("M-o c", spawnh "google-chrome")
   , ("M-o f", spawnh "firefox")
-  , ("M-o u", spawnh "x.uptime")
-  , ("M-o i", spawnh "x.info")
+  , ("M-o u", spawnh' "x.uptime")
+  , ("M-o i", spawnh' "x.info")
   , ("M-o w", spawnh "www")
   , ("M-o d", spawnh "www-dev")
   , ("M-o t", spawnh "urxvt")
   , ("M-o M-t", spawnh $ myTerminal ++ " -name tabbed")
   , ("M-o e", spawnh "e")
   , ("M-o n", spawnh "nautilus")
-  , ("M-o z", spawnh  "zeal")
-  , ("M-o m", spawnh  "darkmode")
   , ("M-o a", addName "Run default workspace launcer script" $ bindOnProtectedWorkspace workspaceAction maybeWorkspaceAction)
   , ("M-o v", toggleScratch "pamixer")
   , ("M-o h", toggleScratch "htop")
@@ -190,7 +188,7 @@ myKeys conf =
   , ("<XF86MonBrightnessUp>",   spawnh' "custom-backlight-macbookpro_gmux -p")
  ] ++
   subtitle "misc": mkNamedKeymap conf
-  [ ("M-<Print>",    spawnh' "xfce4-screenshooter")
+  [ ("M-<Print>",     spawnh' "xfce4-screenshooter")
   , ("M-C-<Print>",   addName "scrot focused window"      $ safeSpawn "scrot" ["-u", "screenshot-%Y-%m-%d_%H-%M-%S_$wx$h.png", "-e", "mv $f ~/Pictures/scrot/"])
   , ("M-M1-<Print>",  addName "scrot full"                $ safeSpawn "scrot" ["screenshot-%Y-%m-%d_%H-%M-%S_$wx$h.png", "-e", "mv $f ~/Pictures/scrot/"])
   , ("<XF86Eject>",   addName "print "                    $ spawn "xdotool click -clearmodifiers 2")
@@ -243,8 +241,8 @@ myKeys conf =
   , ("M-q <Space>",       addName "xmenu"                                $ spawn "xmenu")
  ]
   where
-    spawnh' cmd'  = addName cmd' $ spawnHere cmd'
-    spawnh cmd'  = addName cmd' $ bindOn' $ spawnHere cmd'
+    spawnh' cmd'  = addName cmd' $ spawn cmd'
+    spawnh cmd'  = addName cmd' $ bindOn' $ spawn cmd'
 
     -- | Remove current workpace if empty
     rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "scratch", "scratch.0" ]
