@@ -96,9 +96,6 @@ import           XMonad.Util.WorkspaceCompare
 confModMask = mod4Mask
 
 myKeys conf =
-  subtitle "....": mkNamedKeymap conf
-  [ ("M-<F2>",   myViewWS' "friends")
-  ] ++
   subtitle "Cyclic window actions (J/K) [+=focus] [+control=cycle+keep focus] [+shift=move]": mkNamedKeymap conf
   [ ("M-j",             addName "Focus next window on workspace"          _windowFocusDown)
   , ("M-k",             addName "Focus previous window on workspace"      _windowFocusUp)
@@ -111,7 +108,7 @@ myKeys conf =
   [ ("M-o o", spawnh "appmenu")
   , ("M-o <Space>",addName "Goto workspace by window search prompt"        $ gotoMenuArgs ["-l", "48"] >> movePointer)
   , ("M-o s", spawnh "sshmenu")
-  , ("M-o p", spawnh "xfce4-appfinder")
+  , ("M-o m", spawnh "moshmenu")
   , ("M-o c", spawnh "google-chrome")
   , ("M-o f", spawnh "firefox")
   , ("M-o u", spawnh' "x.uptime")
@@ -216,10 +213,9 @@ myKeys conf =
   , ("M-C-i M-C-i",         addName "cycle ws on next screen"               $ holdScreenFocus $ nextScreen >> myCycleRecentWs xK_i xK_o)
   , ("M-i i",               addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
   , ("M-i <Space> <Space>", addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
-  , ("M-i <Space> m",       addName "Move window to other workspace prompt" $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
   , ("M-S-i",               addName "Move window to other workspace prompt" $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
   , ("M-i <Space> r",       addName "Rename current workspace"              $ DW.renameWorkspace myXPConfig >> movePointer)
-  , ("M-i <Backspace>",     addName "Remove current workspace"              $ DW.removeWorkspace >> movePointer)
+  , ("M-i <Backspace>",     addName "Delete current workspace"              $ DW.removeWorkspace >> movePointer)
   , ("M-p w",               addName "www"                                   $ gotoPrefixWS "www" >> movePointer)
   , ("M-p d",               addName "doc"                                   $ gotoPrefixWS "doc" >> movePointer)
   , ("M-p c",               addName "code"                                  $ gotoPrefixWS "code" >> movePointer)
@@ -378,7 +374,6 @@ myTerminal = "urxvt"
 
 -- | Layout hook
 myLayoutHook =
-  onWorkspace "friends" (rename "*friends*" tabs) .
   onWorkspace "video" (renameStar full) .
   onWorkspace "vbox" (renameStar full) .
   avoidStruts .
@@ -454,8 +449,8 @@ myLayoutHook =
 myManageHook :: ManageHook
 
 myManageHook =
-  manageSpawn <+> fullscreenManageHook <+> namedScratchpadManageHook myScratchPads <+> (composeOne . concat $
-  [ [resource  =? r -?>                                        doIgnore           | r <- ["Do", "desktop_window", "kdesktop", "Panel"]]
+  fullscreenManageHook <+> namedScratchpadManageHook myScratchPads <+> (composeOne . concat $
+  [ [resource  =? r -?>                                        doIgnore           | r <- ["desktop_window", "kdesktop", "Panel"]]
   , [className =? c -?>                                        doIgnore           | c <- ["Ediff", "Unity-2d-panel", "Xfce4-notifyd", "Xfdesktop"]]
   , [className =? c -?>                                        doSink             | c <- ["emulator64-mips", "emulator-arm", "emulator-x86"
                                                                                          ,"emulator64-arm", "emulator64-x86", "emulator-mips"]]
