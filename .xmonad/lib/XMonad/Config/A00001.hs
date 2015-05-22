@@ -34,7 +34,6 @@ import           System.Directory (doesFileExist)
 import           System.Environment (getEnv)
 import           System.Exit ( exitSuccess )
 import           System.IO
-import qualified System.IO.UTF8
 import           XMonad hiding ( (|||) )
 import           XMonad.Actions.CycleRecentWSAddons
 import           XMonad.Actions.CycleWS hiding (toggleWS)
@@ -619,7 +618,7 @@ a00001Config = do
     showKeybindings :: [((KeyMask, KeySym), NamedAction)] -> NamedAction
     showKeybindings x = addName "Show Keybindings" $ io $ do
       h <- spawnPipe "zenity --text-info --font=terminus"
-      System.IO.UTF8.hPutStr h (unlines $ showKm x)
+      hPutStr h (unlines $ showKm x)
       hClose h
       return ()
 
