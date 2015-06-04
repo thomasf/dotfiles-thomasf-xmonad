@@ -182,9 +182,9 @@ Launch drop box
 # [ $(which gpomme) ] \
 #   && gpomme &
 
-# launch time reminder notification
-[ $(which x.remind-time) ] \
-  && x.remind-time &
+
+# [ $(which x.remind-time) ] \
+#  && x.remind-time &
 
 # Set a default web browser
 [ $(which www) ] \
@@ -211,34 +211,19 @@ Launch drop box
   ) &
 ) &
 
-# Function that displays a list of window managers to choose from.
-wm_selection() {
-  avail_vms=""
-  for candidate in xmonad wmii pekwm awesome xfce4-session gnome-session openbox blackbox startfluxbox; do
-    which $candidate && avail_vms="$avail_vms $candidate"
-  done
-
-  if [ $(which zenity) ]; then
-    WM=$( zenity --list --title "ACTION?!?" --text "re-launch vm?" --column "Available window managers" $avail_vms )
-  else
-    xmessage "warning: zenity not found, no window manager selection possible"
-  fi
-}
-
 export HOST="$HOSTNAME"
 
 # Set default window manger (xmonad) or try user selection
 WM=""
 if [ $(which xmonad) ]; then
   WM="xmonad"
-else
-  wm_selection
 fi
+
 [ "z" = "z$WM" ] \
   && xmessage "!!! No window manager found/selected !!!"
 
 # Start the window manager
 while [ ! "" = "$WM" ]; do
-  ( ${WM} )
-  wm_selection
+  ${WM}
+  sleep 2
 done
