@@ -36,10 +36,10 @@ case $cmd in
   alsamixer|htop|irssi|weechat-curses|ncmpcpp|pamixer|dstat|ping)
     exec urxvt -e $cmd $*
     ;;
-  iptraf-ng|aptitude)
+  iptraf-ng|aptitude|iotop)
     exec urxvt -e sudo $cmd $*
     ;;
-  wireshark|synaptic|zenmap|firestarter|reboot|nm-connection-editor)
+  wireshark|synaptic|zenmap|firestarter|nm-connection-editor|gnome-disks|baobab|usb-creator-gtk)
     exec gksudo $cmd $*
     ;;
   dropbox)
