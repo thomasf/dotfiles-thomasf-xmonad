@@ -1,4 +1,9 @@
 #!/bin/bash
 
+
 x.uptime
 x.if
+x.todo
+
+mpcinfo=$(mpc current -f "artist: %artist% \ntitle: %title% \nalbum: %album% \npos: %position%% time: %time%")
+notify-send -u normal -a short " " "<span font='13'>$mpcinfo</span>"
