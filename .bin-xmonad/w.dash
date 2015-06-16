@@ -5,8 +5,6 @@
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 #
 
-wsname -s && exit 1
-
 # args: name, cmdstr
 launchTerminal(){
     name="${1}"
@@ -19,6 +17,17 @@ launchTerminal(){
         urxvt -title "${name}" -name "${name}" -e bash -c "${cmdstr}" &
     fi
 }
+
+case $(wsname -s) in
+  io)
+    launchTerminal "iotop" "sudo" "iotop"
+    launchTerminal "dstat" "dstat" "-avf"
+    exit 0
+  ;;
+esac
+
+wsname -s && exit 1
+
 
 launchTerminal "pamixer" "pamixer" "-a 2"
 launchTerminal "htop" "htop"
