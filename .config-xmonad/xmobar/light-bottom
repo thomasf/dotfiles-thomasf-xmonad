@@ -1,6 +1,6 @@
 -- THIS IS A DERIVED THEME - DO NOT EDIT MANUALLY !!!
 Config { font = "xft:PT Sans Narrow-14:style=bold"
-       , additionalFonts = ["xft:PT Sans Narrow-14", "xft:PragmataPro:pixelsize=18:weight:bold"]
+       , additionalFonts = ["xft:PT Sans Narrow-14", "xft:Pragmata Pro:pixelsize=18:weight:bold"]
        , borderColor = "#eee8d5"
        , border = TopB
        , bgColor = "#fdf6e3"

@@ -1,12 +1,12 @@
 -- THIS IS A DERIVED THEME - DO NOT EDIT MANUALLY !!!
 -- THIS IS A DERIVED THEME - DO NOT EDIT MANUALLY !!!
-Config { font = "xft:PragmataPro:pixelsize=20"
-       , additionalFonts = ["xft:PragmataPro:pixelsize=15", "xft:PragmataPro:pixelsize=14:weight=bold"]
+Config { font = "xft:Pragmata Pro:pixelsize=20"
+       , additionalFonts = ["xft:Pragmata Pro:pixelsize=15", "xft:Pragmata Pro:pixelsize=14:weight=bold"]
        , borderColor = "#fdf6e3"
        , border = NoBorder
        , bgColor = "#fdf6e3"
        , fgColor = "#839496"
-       , position = TopSize L 88 24
+       , position = TopSize L 88 28
        , lowerOnStart = True
        , hideOnStart = False
        , persistent = True
