@@ -22,18 +22,23 @@
 module XMonad.Config.A00001
     ( -- * Usage
       -- $usage
-      a00001Config
-    ) where
+      a00001Config,
+      resumeArgsFromFile,
+      restartFile,
 
+    ) where
+import           Control.Exception
 import           Control.Monad
 import           Data.List
 import qualified Data.Map as M
+import           Data.Maybe
 import           Data.Ratio ((%))
 import qualified Solarized as Sol
-import           System.Directory (doesFileExist)
-import           System.Environment (getEnv)
+import           System.Directory
+import           System.Environment (getEnv, getArgs)
 import           System.Exit ( exitSuccess )
 import           System.IO
+import           System.Posix.Process (executeFile)
 import           XMonad hiding ( (|||) )
 import           XMonad.Actions.CycleRecentWSAddons
 import           XMonad.Actions.CycleWS hiding (toggleWS)
@@ -45,9 +50,8 @@ import           XMonad.Actions.MouseGestures
 import qualified XMonad.Actions.Navigation2D as Nav2d
 import           XMonad.Actions.PerWorkspaceKeys
 import           XMonad.Actions.RotSlaves
-import           XMonad.Actions.SpawnOn
 import           XMonad.Actions.UpdatePointer
-import           XMonad.Actions.WindowBringer    (gotoMenuArgs)
+import           XMonad.Actions.WindowBringer (gotoMenuArgs)
 import           XMonad.Actions.WithAll
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
@@ -57,7 +61,7 @@ import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.Minimize
 import           XMonad.Hooks.ServerMode
 import           XMonad.Hooks.SetWMName
-import           XMonad.Hooks.UrgencyHook
+import           XMonad.Hooks.UrgencyHook hiding (args)
 import           XMonad.Hooks.WorkspaceHistory (workspaceHistoryHook)
 import           XMonad.Layout.BoringWindows hiding (Replace)
 import           XMonad.Layout.FixedColumn
@@ -71,7 +75,7 @@ import           XMonad.Layout.MultiToggle.Instances
 import           XMonad.Layout.NoBorders
 import           XMonad.Layout.OnHost
 import           XMonad.Layout.OneBig
-import           XMonad.Layout.PerWorkspace      (onWorkspace)
+import           XMonad.Layout.PerWorkspace (onWorkspace)
 import           XMonad.Layout.Reflect
 import           XMonad.Layout.Renamed
 import           XMonad.Layout.Spacing
@@ -79,7 +83,7 @@ import qualified XMonad.Layout.Spiral as Spiral
 import           XMonad.Layout.ThreeColumns
 import           XMonad.Prompt hiding (height)
 import           XMonad.Prompt.Workspace
-import qualified XMonad.StackSet                 as W hiding (swapUp, swapDown)
+import qualified XMonad.StackSet as W hiding (swapUp, swapDown)
 import qualified XMonad.Util.Dzen as DZ
 import           XMonad.Util.EZConfig
 import           XMonad.Util.NamedActions
@@ -228,8 +232,8 @@ myKeys conf =
   , ("M-p p",               addName "base" gotoBaseWS)
  ] ++
   subtitle "exit/quit/leave/reboot...": mkNamedKeymap conf
-  [ ("M-q r",             addName "restart xmonad"                       $ restart "xmonad" True)
-  , ("M-q x x x",         addName "restart xmonad without keeping state" $ restart "xmonad" False)
+  [ ("M-q r",             addName "restart xmonad"                       $ restartFile "xmonad" True)
+  , ("M-q x x x",         addName "restart xmonad without keeping state" $ restartFile "xmonad" False)
   , ("M-q k k k",         addName "KILL xmonad"                          $ io exitSuccess)
   , ("M-q <Space>",       addName "xmenu"                                $ spawn "xmenu")
  ]
@@ -758,6 +762,44 @@ showLayoutName = do
      >=> DZ.addArgs ["-fg", Sol.base03]
      >=> DZ.addArgs ["-bg", Sol.green]
     ) ld
+
+
+-- WIP restart state via file modification
+-- TODO: handle file system errors properly
+-- TODO: convert into xmonad patch
+-- TODO: add --resumefile argument into xmonad and tempfile as state transfer holder(?)
+
+stateFile = "xmonadargs.txt"
+
+restartFile :: String -> Bool -> X ()
+restartFile prog resume = do
+    broadcastMessage ReleaseResources
+    io . flush =<< asks display
+    let wsData = show . W.mapLayout show . windowset
+        maybeShow (t, Right (PersistentExtension ext)) = Just (t, show ext)
+        maybeShow (t, Left str) = Just (t, str)
+        maybeShow _ = Nothing
+        extState = return . show . mapMaybe maybeShow . M.toList . extensibleState
+    args <- if resume then return ["--resume"] else return []
+    when resume $ do
+      argsstr <- gets (\s ->  intercalate "\n" ("--resume":wsData s:extState s))
+      catchIO $ writeFile stateFile argsstr
+      return ()
+    catchIO (executeFile prog True args Nothing)
+
+catchAny :: IO a -> (SomeException -> IO a) -> IO a
+catchAny = Control.Exception.catch
+
+resumeArgsFromFile :: IO [String]
+resumeArgsFromFile = do
+  let readLines = liftM lines . readFile $ stateFile
+  args <- getArgs
+  if ["--resume"] == args then
+    catchAny readLines $ \e -> do
+      putStrLn $ "got error" ++ show e
+      return args
+  else return args
+
 
 -- Local Variables:
 -- fill-column: 165
