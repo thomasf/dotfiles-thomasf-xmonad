@@ -45,11 +45,11 @@ killall -q compton
 sleep 0.4
 
 # Launch a new dbus-session if not already running
-dbuslaunch="`which dbus-launch 2>/dev/null`"
-[ -n "$dbuslaunch" ] \
-  && [ -x "$dbuslaunch" ] \
-  && [ -z "$DBUS_SESSION_BUS_ADDRESS" ] \
-  && eval `$dbuslaunch --sh-syntax --exit-with-session`
+# dbuslaunch="`which dbus-launch 2>/dev/null`"
+# [ -n "$dbuslaunch" ] \
+#   && [ -x "$dbuslaunch" ] \
+#   && [ -z "$DBUS_SESSION_BUS_ADDRESS" ] \
+#   && eval `$dbuslaunch --sh-syntax --exit-with-session`
 
 # Source default bash environment
 [ -f "${HOME}/.bashrc" ] \
