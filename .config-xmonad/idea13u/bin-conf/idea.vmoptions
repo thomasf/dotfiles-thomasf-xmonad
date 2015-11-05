@@ -1,7 +1,6 @@
 -server
 -Xms128m
 -Xmx512m
--XX:MaxPermSize=250m
 -XX:ReservedCodeCacheSize=64m
 -ea
 -Dsun.io.useCanonCaches=false
