@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -W -fno-warn-missing-signatures -fwarn-unused-imports -fcontext-stack=99 #-}
+
 module Main (main) where
 import XMonad
 import XMonad.Config.A00001
