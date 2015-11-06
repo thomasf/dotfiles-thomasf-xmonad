@@ -5,8 +5,4 @@
 
 set -e
 
-if [[ -d ${HOME}/.config-xmonad/idea13u/bin-conf ]] && [[ -d ${HOME}/.opt/idea/bin ]]; then
-  cp ${HOME}/.config-xmonad/idea13u/bin-conf/* ${HOME}/.opt/idea/bin/
-fi
-
 exec ~/.opt/idea/bin/idea.sh
