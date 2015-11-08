@@ -10,47 +10,34 @@
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 # Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
 #
-
 set -e
 
-[ ! $(which darcs) ] && echo no darcs installed && exit
+[ ! $(which git) ] && echo no git installed && exit
 [ ! $(which cabal) ] && echo no cabal installed && exit
-
-PATCHES_DIR="${HOME}/.xmonad/patches"
 
 mkdir -p ~/.opt
 cd ~/.opt
 
 set +e
 (
-    if [ ! -d xmonad ]; then
-        darcs get http://code.haskell.org/xmonad
-    fi
+  if [ ! -d xmonad ]; then
+    git clone git@github.com:thomasf/xmonad.git
+  fi
 )
 (
-    cd xmonad
-    darcs pull
-    [ -d $PATCHES_DIR/xmonad ] \
-        && for F in $PATCHES_DIR/xmonad/*; do darcs apply $F; done
+  if [ ! -d xmonad-contrib ]; then
+    git clone git@github.com:thomasf/xmonad-contrib.git
+  fi
 )
 (
-    if [ ! -d XMonadContrib ]; then
-        darcs get http://code.haskell.org/XMonadContrib
-    fi
+  cd xmonad
+  git pull
+  cabal install
 )
 (
-    cd XMonadContrib
-    darcs pull
-    [ -d $PATCHES_DIR/XMonadContrib ] \
-        && for F in $PATCHES_DIR/XMonadContrib/*; do darcs apply $F; done
-)
-(
-    cd xmonad
-    cabal install
-)
-(
-    cd XMonadContrib
-    cabal install
+  cd xmonad-contrib
+  git pull
+  cabal install
 )
 
 ~/.cabal/bin/xmonad --recompile
