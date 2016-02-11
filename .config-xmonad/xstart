@@ -186,6 +186,10 @@ Launch drop box
 # [ $(which x.remind-time) ] \
 #  && x.remind-time &
 
+# This seems to fix xdg-open opening urls in chrome for me
+DE='xfce'
+export DE
+
 # Set a default web browser
 [ $(which www) ] \
   && BROWSER=$(which www) \
