@@ -3,7 +3,7 @@
 # Nautilus wrapper
 #
 
-nargs="--new-window --no-default-window --no-desktop"
+nargs="--new-window --no-desktop"
 
 if [ $# -eq 0 ]; then
 
