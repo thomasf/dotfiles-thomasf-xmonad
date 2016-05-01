@@ -74,11 +74,12 @@ unset GNOME_KEYRING_PID
 
 # Start gnupg or ssh agent
 rm -f ~/.ssh/control:*
-agent_file="$HOME/.gnupg/gpg-agent-info-$(hostname)"
+rm -f "${HOME}/.gnupg/S.*"
 unset GPG_AGENT_INFO; unset SSH_AUTH_SOCK; unset SSH_AGENT_PID
-rm -f "${agent_file}"
 if [ $(which gpg-agent) ]; then
-  eval $(gpg-agent --daemon --sh --enable-ssh-support --write-env-file=${agent_file})
+  GPG_AGENT_INFO="${HOME}/.gnupg/S.gpg-agent:0:1"
+  export GPG_AGENT_INFO
+  eval $(gpg-agent --daemon --sh --enable-ssh-support)
 elif [ $(which ssh-agent) ]; then
   eval $(ssh-agent -s)
 fi
