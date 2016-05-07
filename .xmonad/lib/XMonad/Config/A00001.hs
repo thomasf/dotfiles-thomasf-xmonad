@@ -56,7 +56,7 @@ import           XMonad.Actions.WithAll
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
 import           XMonad.Hooks.FadeInactive
-import           XMonad.Hooks.ManageDocks
+import           XMonad.Hooks.ManageDocks (avoidStruts, manageDocks, docksEventHook, ToggleStruts(..), docksStartupHook)
 import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.Minimize
 import           XMonad.Hooks.ServerMode
@@ -216,7 +216,7 @@ myKeys conf =
   , ("M-C-i M-C-i",         addName "cycle ws on next screen"               $ holdScreenFocus $ nextScreen >> myCycleRecentWs xK_i xK_o)
   , ("M-i i",               addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
   , ("M-i <Space> <Space>", addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
-  , ("M-S-i",               addName "Move window to other workspace prompt" $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer)
+  , ("M-S-i",               addName "Move window to other workspace prompt" $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer >> updateStruts)
   , ("M-i <Space> r",       addName "Rename current workspace"              $ DW.renameWorkspace myXPConfig >> movePointer)
   , ("M-i <Backspace>",     addName "Delete current workspace"              $ DW.removeWorkspace >> movePointer)
   , ("M-p w",               addName "www"                                   $ gotoPrefixWS "www" >> movePointer)
@@ -250,6 +250,7 @@ myKeys conf =
       windows (W.greedyView wsid)
       showWorkspaceNameFast
       maybeWorkspaceAction
+      updateStruts
 
     -- | View a workspace by name, remove left over empty workspace and move pointer
     myViewWS' wsid = addName("Show " ++ wsid ++ " workspace ") $ do
@@ -261,7 +262,7 @@ myKeys conf =
                             do s <- gets windowset
                                if W.tagMember w s
                                  then windows $ W.view w
-                                 else DW.addWorkspace w
+                                 else DW.addWorkspace w >> updateStruts
 
     -- | Toggle scratch pad
     toggleScratch cmd' = addName("Toggle " ++ cmd' ++ " scratchpad ") $ namedScratchpadAction myScratchPads cmd'
@@ -492,7 +493,7 @@ myManageHook =
 -- return (All True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
 --
-myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> minimizeEventHook <+> serverModeEventHook
+myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> minimizeEventHook <+> serverModeEventHook <+> docksEventHook
 
 
 
@@ -538,6 +539,7 @@ myLogHook = do
 
 myStartupHook = do
   ewmhDesktopsStartup
+  docksStartupHook
   setWMName "LG3D"
   return ()
 
@@ -764,6 +766,8 @@ showLayoutName = do
      >=> DZ.addArgs ["-bg", Sol.green]
     ) ld
 
+-- | Enforce recaluclation of docks gaps. After updating a ~5month old xmonad master today docks were not being avoided by avoudStruts on new desktop.
+updateStruts = docksStartupHook
 
 -- WIP restart state via file modification
 -- TODO: handle file system errors properly
