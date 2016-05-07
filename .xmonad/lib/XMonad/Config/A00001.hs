@@ -558,13 +558,13 @@ myUrgencyHook =
 -- XMonad Prompt configuration
 
 myXPConfig = def
- { position = Bottom
+ { position = CenteredAt 0.4 0.5
  , bgColor = Sol.base03
  , fgColor = Sol.yellow
  , bgHLight = Sol.base03
  , fgHLight = Sol.yellow
  , borderColor = Sol.base03
- , promptBorderWidth = 8
+ , promptBorderWidth = 1
  , font = "-xos4-terminus-*-r-*-*-16-*-*-*-*-*-iso8859-*"
  , promptKeymap = emacsLikeXPKeymap }
 
