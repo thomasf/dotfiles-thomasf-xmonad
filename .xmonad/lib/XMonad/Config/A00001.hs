@@ -559,11 +559,11 @@ myUrgencyHook =
 
 myXPConfig = def
  { position = CenteredAt 0.4 0.5
- , bgColor = Sol.base03
- , fgColor = Sol.yellow
- , bgHLight = Sol.base03
- , fgHLight = Sol.yellow
- , borderColor = Sol.base03
+ , bgColor = Sol.base2
+ , fgColor = Sol.base01
+ , bgHLight = Sol.base2
+ , fgHLight = Sol.magenta
+ , borderColor = Sol.base2
  , promptBorderWidth = 1
  , font = "-xos4-terminus-*-r-*-*-16-*-*-*-*-*-iso8859-*"
  , promptKeymap = emacsLikeXPKeymap }
