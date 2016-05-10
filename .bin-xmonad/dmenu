@@ -1,27 +1,54 @@
 #!/bin/sh
 #
-# Dmenu wrapper, changed colors
+# Dmenu/rofi wrapper, changed colors
 #
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
-# Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
-#
+
 
 if [ -e ~/.config/darkmode ]; then
   bg="#002b36"
   fg="#839496"
+  border="#284b54"
 else
   bg="#fdf6e3"
   fg="#657b83"
+  border="#cccec4"
 fi
 color="#b58900"
 
-dm=/usr/bin/dmenu
 
-if [ -x /usr/local/bin/dmenu ]; then
-  dm=/usr/local/bin/dmenu
+if [ -x /usr/bin/rofi ]; then
+  cmd=rofi
+  type=rofi
+elif [ -x /usr/bin/dmenu ]; then
+  cmd=/usr/bin/dmenu
+  type=dmenu
+elif [ -x /usr/local/bin/dmenu ]; then
+  type=dmenu
+  cmd=/usr/local/bin/dmenu
 fi
 
-exec $dm -fn '-*-terminus-*-r-*-*-14-*-*-*-*-*-*' -nb "${bg}" -nf "${fg}" -sf "${bg}" -sb "${color}" -b -i "$@"
+case "${type}" in
+  rofi)
+    exec $cmd \
+         -bg "${bg}" -fg "${fg}" -hlfg "${bg}" -hlbg "${color}" \
+         -bc "${border}" \
+         -bw 4 \
+         -hide-scrollbar \
+         -lines 25 -width 80 \
+         -dmenu -i "$@"
+    ;;
+  dmenu)
+    exec $cmd \
+         -nb "${bg}" -nf "${fg}" -sf "${bg}" -sb "${color}" \
+         -i "$@"
+    ;;
+  *)
+    xmessage "dmenu/rofi not found"
+    exit 1
+    ;;
+esac
+
 
 # Local Variables:
 # eval: (rainbow-mode 1)
