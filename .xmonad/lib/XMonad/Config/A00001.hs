@@ -285,15 +285,26 @@ myKeys conf =
       unless (new `elem` map W.tag wss) $ myViewWS new
       windows $ W.view new
 
+    wsi = WSIs wsPred
+     where
+       wsPredHidden = do hs <- gets (map W.tag . W.hidden . windowset)
+                         return (\w -> W.tag w `elem` hs)
+
+       wsPredGroup = do cur <- (groupName . W.workspace . W.current) `fmap` gets windowset
+                        return $ (cur ==).groupName
+                        where groupName = takeWhile (/='.') . W.tag
+
+       wsPred = do tg <- wsPredGroup
+                   hi <- wsPredHidden
+                   return (\w -> tg w && hi w)
 
     -- |  Select next workspace with same prefix
     nextWsPrefix = windows . W.greedyView
-                   =<< findWorkspace getSortByTagNoSP Next (HiddenWSTagGroup '.') 1
+                   =<< findWorkspace getSortByTagNoSP Next wsi 1
 
     -- | Select previous workspac with same prefix
     prevWsPrefix = windows . W.greedyView
-                   =<< findWorkspace getSortByTagNoSP Prev (HiddenWSTagGroup '.') 1
-
+                   =<< findWorkspace getSortByTagNoSP Prev wsi 1
 
     -- | filter some workspaces
     filterSomeWorkspaces = fmap (.namedScratchpadFilterOutWorkspace
