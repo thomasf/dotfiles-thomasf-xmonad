@@ -267,11 +267,13 @@ myKeys conf =
     -- | Toggle scratch pad
     toggleScratch cmd' = addName("Toggle " ++ cmd' ++ " scratchpad ") $ namedScratchpadAction myScratchPads cmd'
 
+    wsSeparator = '.'
+
     gotoBaseWS :: X ()
     gotoBaseWS = withWindowSet $ \w -> do
       thisWS <- gets (W.currentTag . windowset)
       let wss = W.workspaces w
-          currentTagPrefix = takeWhile (/='.') thisWS
+          currentTagPrefix = takeWhile (/= wsSeparator) thisWS
           new = currentTagPrefix
       unless (new `elem` map W.tag wss) $ myViewWS new
       windows $ W.view new
@@ -280,7 +282,7 @@ myKeys conf =
     gotoPrefixWS suffix = withWindowSet $ \w -> do
       thisWS <- gets (W.currentTag . windowset)
       let wss = W.workspaces w
-          currentTagPrefix = takeWhile (/='.') thisWS
+          currentTagPrefix = takeWhile (/= wsSeparator) thisWS
           new = currentTagPrefix ++ "." ++ suffix
       unless (new `elem` map W.tag wss) $ myViewWS new
       windows $ W.view new
@@ -292,7 +294,7 @@ myKeys conf =
 
        wsPredGroup = do cur <- (groupName . W.workspace . W.current) `fmap` gets windowset
                         return $ (cur ==).groupName
-                        where groupName = takeWhile (/='.') . W.tag
+                        where groupName = takeWhile (/= wsSeparator) . W.tag
 
        wsPred = do tg <- wsPredGroup
                    hi <- wsPredHidden
