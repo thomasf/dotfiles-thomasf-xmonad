@@ -1,15 +1,20 @@
 Config { font = "xft:PT Sans Narrow-14:style=bold"
        , additionalFonts = ["xft:PT Sans Narrow-14", "xft:Pragmata Pro:pixelsize=18:weight:bold"]
        , borderColor = "#073642"
-       , border = TopB
        , bgColor = "#002b36"
        , fgColor = "#657b83"
-       , position = BottomSize C 100 16
-       , lowerOnStart = True
-       , hideOnStart = False
-       , persistent = True
-       , overrideRedirect = True
        , allDesktops = True
+       , alpha = 255
+       , border = TopB
+       , hideOnStart = False
+       , iconOffset = -1
+       , iconRoot = "."
+       , lowerOnStart = True
+       , overrideRedirect = True
+       , persistent = True
+       , pickBroadest = False
+       , position = BottomSize C 100 16
+       , textOffset = -1
        , commands = [ Run MPD ["-t",
                        " <statei> <artist> - <title> ",
                        "--", "-P", ">>", "-Z", "||", "-S", "><"] 10

@@ -2,15 +2,20 @@
 Config { font = "xft:Pragmata Pro:pixelsize=20"
        , additionalFonts = ["xft:Pragmata Pro:pixelsize=15", "xft:Pragmata Pro:pixelsize=14:weight=bold"]
        , borderColor = "#002b36"
-       , border = NoBorder
        , bgColor = "#002b36"
        , fgColor = "#657b83"
-       , position = TopSize L 88 28
-       , lowerOnStart = True
-       , hideOnStart = False
-       , persistent = True
-       , overrideRedirect = True
        , allDesktops = True
+       , alpha = 255
+       , border = NoBorder
+       , hideOnStart = False
+       , iconOffset = -1
+       , iconRoot = "."
+       , lowerOnStart = True
+       , overrideRedirect = True
+       , persistent = True
+       , pickBroadest = False
+       , position = TopSize L 88 28
+       , textOffset = -1
        , commands = [ Run DynNetwork ["-t", "<dev>:t<tx>:r<rx>k", "-L","0","-H","1000","--normal","#657b83","--high","#93a1a1"] 30
                     , Run MultiCpu ["-t", "<total>%", "-L","3","-H","80","--normal","#93a1a1","--high","#dc322f", "-c", "0", "-p", "2"] 10
                     , Run Memory ["-t","<fc=#93a1a1><available></fc>M"] 30
