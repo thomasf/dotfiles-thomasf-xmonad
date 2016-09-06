@@ -24,7 +24,7 @@ Config { font = "xft:Pragmata Pro:pixelsize=20"
                                   , "--"
                                   , "-L", "-15", "-H", "-5", "-l", "#93a1a1", "-m", "#93a1a1", "-h", "#93a1a1"] 600
                     , Run DateZone "%a %b %-d %H:%M" "en_US.utf8" "Europe/Stockholm" "sthmlDate" 10
-                    , Run DateZone "%H:" "en_US.utf8" "Asia/Jakarta" "time2" 10
+                    , Run DateZone "%H:" "en_US.utf8" "Asia/Singapore" "time2" 10
                     , Run NamedXPropertyLog "_XMONAD_LOG_TOP" "xm"
                     ]
        , sepChar = "%"
