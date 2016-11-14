@@ -56,7 +56,7 @@ import           XMonad.Actions.WithAll
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
 import           XMonad.Hooks.FadeInactive
-import           XMonad.Hooks.ManageDocks (avoidStruts, manageDocks, docksEventHook, ToggleStruts(..), docksStartupHook)
+import           XMonad.Hooks.ManageDocks (docks, avoidStruts, ToggleStruts(..), docksStartupHook)
 import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.Minimize
 import           XMonad.Hooks.ServerMode
@@ -490,7 +490,7 @@ myManageHook =
   , [title     =? "screenkey"  -?>                             doIgnore]
   , [transience]
   , [resource  =? "xmessage" -?>                               doCenterFloatLarge]
-  ]) <+> manageDocks
+  ])
   where
     doCenterFloatLarge = myCenterFloat 0.95 0.85
     doSink = ask >>= doF . W.sink
@@ -506,7 +506,7 @@ myManageHook =
 -- return (All True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
 --
-myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> minimizeEventHook <+> serverModeEventHook <+> docksEventHook
+myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> minimizeEventHook <+> serverModeEventHook
 
 
 
@@ -552,7 +552,6 @@ myLogHook = do
 
 myStartupHook = do
   ewmhDesktopsStartup
-  docksStartupHook
   setWMName "LG3D"
   return ()
 
@@ -615,7 +614,7 @@ myNavigation2DConfig = def {
 a00001Config = do
   home <- io $ getEnv "HOME"
   darkmode <- doesFileExist $ home ++ "/.config/darkmode"
-  return . Nav2d.withNavigation2DConfig myNavigation2DConfig . myUrgencyHook . addDescrKeys' ((confModMask, xK_F1), showKeybindings) myKeys $ def {
+  return . docks . Nav2d.withNavigation2DConfig myNavigation2DConfig . myUrgencyHook . addDescrKeys' ((confModMask, xK_F1), showKeybindings) myKeys $ def {
     terminal           = myTerminal
   , focusFollowsMouse  = False
   , borderWidth        = myDefaultBorderWidth
