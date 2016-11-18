@@ -53,7 +53,7 @@ URxvt*internalBorder:                 7
 URxvt*cursorBlink:                    false
 ! URxvt*font:                           xft:Anonymous Pro:pixelsize=13
 ! URxvt*font:                           xft:PragmataPro:pixelsize=13
-URxvt*font:                           xft:PragmataPro:size=11.8
+URxvt*font:                           xft:PragmataPro:size=11
 ! NOTE letter spacing is specific to pragmata pro here!
 URxvt.letterSpace:	                 -2
 URxvt*jumpScroll:                     true
@@ -119,7 +119,7 @@ ssh_tmux*font:                             xft:PragmataPro:size=12
 ncmpcpp*scrollBar:                         false
 ncmpcpp*saveLines:                         0
 ! ncmpcpp*font:                              xft:Anonymous Pro:pixelsize=16
-ncmpcpp*font:                              xft:PragmataPro:size=12
+ncmpcpp*font:                              xft:PragmataPro:size=11
 
 
 
