@@ -23,22 +23,16 @@ module XMonad.Config.A00001
     ( -- * Usage
       -- $usage
       a00001Config,
-      resumeArgsFromFile,
-      restartFile,
-
     ) where
-import           Control.Exception
 import           Control.Monad
 import           Data.List
 import qualified Data.Map as M
-import           Data.Maybe
 import           Data.Ratio ((%))
 import qualified Solarized as Sol
 import           System.Directory
-import           System.Environment (getEnv, getArgs)
+import           System.Environment (getEnv)
 import           System.Exit ( exitSuccess )
 import           System.IO
-import           System.Posix.Process (executeFile)
 import           XMonad hiding ( (|||) )
 import           XMonad.Actions.CycleRecentWSAddons
 import           XMonad.Actions.CycleWS hiding (toggleWS)
@@ -232,8 +226,8 @@ myKeys conf =
   , ("M-p p",               addName "base" gotoBaseWS)
  ] ++
   subtitle "exit/quit/leave/reboot...": mkNamedKeymap conf
-  [ ("M-q r",             addName "restart xmonad"                       $ restartFile "xmonad" True)
-  , ("M-q x x x",         addName "restart xmonad without keeping state" $ restartFile "xmonad" False)
+  [ ("M-q r",             addName "restart xmonad"                       $ restart "xmonad" True)
+  , ("M-q x x x",         addName "restart xmonad without keeping state" $ restart "xmonad" False)
   , ("M-q k k k",         addName "KILL xmonad"                          $ io exitSuccess)
   , ("M-q <Space>",       addName "xmenu"                                $ spawn "xmenu")
  ]
@@ -781,41 +775,6 @@ showLayoutName = do
 -- | Enforce recaluclation of docks gaps. After updating a ~5month old xmonad master today docks were not being avoided by avoudStruts on new desktop.
 updateStruts = docksStartupHook
 
--- WIP restart state via file modification
--- TODO: handle file system errors properly
--- TODO: convert into xmonad patch
--- TODO: add --resumefile argument into xmonad and tempfile as state transfer holder(?)
-
-stateFile = "xmonadargs.txt"
-
-restartFile :: String -> Bool -> X ()
-restartFile prog resume = do
-    broadcastMessage ReleaseResources
-    io . flush =<< asks display
-    let wsData = show . W.mapLayout show . windowset
-        maybeShow (t, Right (PersistentExtension ext)) = Just (t, show ext)
-        maybeShow (t, Left str) = Just (t, str)
-        maybeShow _ = Nothing
-        extState = return . show . mapMaybe maybeShow . M.toList . extensibleState
-    args <- if resume then return ["--resume"] else return []
-    when resume $ do
-      argsstr <- gets (\s ->  intercalate "\n" ("--resume":wsData s:extState s))
-      catchIO $ writeFile stateFile argsstr
-      return ()
-    catchIO (executeFile prog True args Nothing)
-
-catchAny :: IO a -> (SomeException -> IO a) -> IO a
-catchAny = Control.Exception.catch
-
-resumeArgsFromFile :: IO [String]
-resumeArgsFromFile = do
-  let readLines = liftM lines . readFile $ stateFile
-  args <- getArgs
-  if ["--resume"] == args then
-    catchAny readLines $ \e -> do
-      putStrLn $ "got error" ++ show e
-      return args
-  else return args
 
 
 -- Local Variables:
