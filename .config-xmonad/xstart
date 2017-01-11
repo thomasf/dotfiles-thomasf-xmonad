@@ -221,6 +221,7 @@ export HOST="$HOSTNAME"
 # Set default window manger (xmonad) or try user selection
 WM=""
 if [ $(which xmonad) ]; then
+  rm -f ${HOME}/.xmonad/xmonad.state
   WM="xmonad"
 fi
 
