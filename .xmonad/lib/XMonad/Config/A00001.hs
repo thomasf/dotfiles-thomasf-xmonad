@@ -107,16 +107,16 @@ myKeys conf =
   , ("M-o <Space>",addName "Goto workspace by window search prompt"        $ gotoMenuArgs ["-l", "48"] >> movePointer)
   , ("M-o s", spawnh "sshmenu")
   , ("M-o m", spawnh "moshmenu")
-  , ("M-o c", spawnh "google-chrome")
-  , ("M-o f", spawnh "firefox")
+  , ("M-o c", spawnhm "google-chrome")
+  , ("M-o f", spawnhm "firefox")
   , ("M-o u", spawnh' "x.uptime")
   , ("M-o i", spawnh' "x.info")
   , ("M-o j", spawnh' "x.todo")
-  , ("M-o w", spawnh "www")
-  , ("M-o d", spawnh "www-dev")
+  , ("M-o w", spawnhm "www")
+  , ("M-o d", spawnhm "www-dev")
   , ("M-o t", spawnh "urxvt")
-  , ("M-o e", spawnh "e")
-  , ("M-o n", spawnh "nautilus")
+  , ("M-o e", spawnhm "e")
+  , ("M-o n", spawnhm "nautilus")
   , ("M-o a", addName "Run default workspace launcer script" $ bindOnProtectedWorkspace workspaceAction maybeWorkspaceAction)
   ] ++
   subtitle "Other window actions": mkNamedKeymap conf
@@ -239,8 +239,9 @@ myKeys conf =
   , ("M-q <Space>",       addName "xmenu"                                $ spawn "xmenu")
  ]
   where
-    spawnh' cmd'  = addName cmd' $ spawn cmd'
-    spawnh cmd'  = addName cmd' $ bindOn' $ spawn cmd'
+    spawnh' cmd' = addName cmd'           $ spawn cmd'
+    spawnh  cmd' = addName cmd' $ bindOn' $ spawn cmd'
+    spawnhm cmd' = addName cmd' $ bindOn' $ showAppName cmd' >> spawn cmd'
 
     -- | Remove current workpace if empty
     rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "scratch", "scratch.0", "scratch.1", "scratch.2" ]
@@ -752,6 +753,8 @@ showWorkspaceName = showWorkspaceName' showStatusMultipleMessagesDuration Sol.ye
 showWorkspaceNameOld = showWorkspaceName' showStatusMultipleMessagesDuration Sol.base1
 -- | Show active workspace name fast
 showWorkspaceNameFast = showWorkspaceName' showStatusSingleMessageDuration Sol.magenta
+
+showAppName msg = showMessage 1 Sol.cyan Sol.base03 msg
 
 getScreenRect :: X Rectangle
 getScreenRect = (screenRect . W.screenDetail . W.current) <$> gets windowset
