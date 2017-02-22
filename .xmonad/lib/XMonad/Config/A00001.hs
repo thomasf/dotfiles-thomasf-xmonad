@@ -58,11 +58,13 @@ import           XMonad.Hooks.SetWMName
 import           XMonad.Hooks.UrgencyHook hiding (args)
 import           XMonad.Hooks.WorkspaceHistory (workspaceHistoryHook)
 import           XMonad.Layout.BoringWindows hiding (Replace)
-import           XMonad.Layout.FixedColumn
 import           XMonad.Layout.Fullscreen
 import           XMonad.Layout.Grid
+import           XMonad.Layout.TwoPane
+import           XMonad.Layout.ThreeColumns
 import           XMonad.Layout.IM
 import           XMonad.Layout.LayoutCombinators
+import qualified XMonad.Layout.LayoutScreens as LS
 import           XMonad.Layout.Minimize
 import           XMonad.Layout.MultiToggle
 import           XMonad.Layout.MultiToggle.Instances
@@ -74,7 +76,6 @@ import           XMonad.Layout.Reflect
 import           XMonad.Layout.Renamed
 import           XMonad.Layout.Spacing
 import qualified XMonad.Layout.Spiral as Spiral
-import           XMonad.Layout.ThreeColumns
 import           XMonad.Prompt hiding (height)
 import           XMonad.Prompt.Workspace
 import qualified XMonad.StackSet as W hiding (swapUp, swapDown)
@@ -185,12 +186,18 @@ myKeys conf =
   , ("M-M1-<Print>",  addName "scrot full"                $ safeSpawn "scrot" ["screenshot-%Y-%m-%d_%H-%M-%S_$wx$h.png", "-e", "mv $f ~/Pictures/scrot/"])
   , ("<XF86Eject>",   addName "print "                    $ spawn "xdotool click -clearmodifiers 2")
   , ("M-<XF86Eject>", addName "print screen"              $ sendKey controlMask xK_Print)
-  , ("M-C-6",         addName "store workspace group 1"   $ addCurrentWSGroup "wsg")                
-  , ("M-6",           addName "restore workspace group 1" $ holdScreenFocus $ viewWSGroup "wsg")  
-  , ("M-C-7",         addName "store workspace group 2"   $ addCurrentWSGroup "wsg2")               
-  , ("M-7",           addName "restore workspace group 2" $ holdScreenFocus $ viewWSGroup "wsg2") 
-  , ("M-C-8",         addName "store workspace group 3"   $ addCurrentWSGroup "wsg3")               
-  , ("M-8",           addName "restore workspace group 3" $ holdScreenFocus $ viewWSGroup "wsg3") 
+  , ("M-C-6",         addName "store workspace group 1"   $ addCurrentWSGroup "wsg")
+  , ("M-6",           addName "restore workspace group 1" $ holdScreenFocus $ viewWSGroup "wsg")
+  , ("M-C-7",         addName "store workspace group 2"   $ addCurrentWSGroup "wsg2")
+  , ("M-7",           addName "restore workspace group 2" $ holdScreenFocus $ viewWSGroup "wsg2")
+  , ("M-C-8",         addName "store workspace group 3"   $ addCurrentWSGroup "wsg3")
+  , ("M-8",           addName "restore workspace group 3" $ holdScreenFocus $ viewWSGroup "wsg3")
+ ] ++
+  subtitle "screen splitting": mkNamedKeymap conf
+ [  ("M-5 2",  addName "Split current screen by 2 panes 0.7"              $ LS.layoutSplitScreen 2 $ smartSpacing 4 $(TwoPane 0 0.7))
+  , ("M-5 3",  addName "Split current screen by 3 even columns"           $ LS.layoutSplitScreen 3 $ smartSpacing 4 $ (Mirror (Tall 3 (0) (0)))  )
+  , ("M-5 4",  addName "Split current screen by 3 columns + bottom wide"  $ LS.layoutSplitScreen 4 $ smartSpacing 4 $Mirror (Tall 3 (0) (5/6)))
+  , ("M-5 r",  addName "Reset screens from xinerama, rescreen"            $ rescreen)
 
   ] ++
   subtitle "Toggle scratchpads and workspaces": mkNamedKeymap conf
@@ -236,7 +243,7 @@ myKeys conf =
     spawnh cmd'  = addName cmd' $ bindOn' $ spawn cmd'
 
     -- | Remove current workpace if empty
-    rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "scratch", "scratch.0" ]
+    rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "scratch", "scratch.0", "scratch.1", "scratch.2" ]
 
     -- | View a workspace by name and maybe run workspace action
     myViewWS wsid = do
@@ -380,7 +387,7 @@ largeFont = sizedFont "32"
 
 
 -- | Workspaces
-myWorkspaces = [ "scratch", "scratch.0"]
+myWorkspaces = [ "scratch", "scratch.0", "scratch.1", "scratch.2"]
 myTerminal = "urxvt"
 
 -- | Layout hook
@@ -404,11 +411,11 @@ myLayoutHook =
     -- control
     first = wide
     standard = onTall
-               (first ||| tcol ||| grid ||| fixcol)
-               (first ||| tall ||| fixcol ||| tabs ||| gridWide ||| spiral ||| oneBig)
+               (first ||| tcol ||| grid )
+               (first ||| tall ||| tabs ||| gridWide ||| spiral ||| oneBig)
     alternative = onTall
-               (tcol ||| first ||| grid ||| fixcol)
-               (first ||| tall ||| fixcol ||| tabs ||| gridWide ||| spiral ||| oneBig)
+               (tcol ||| first ||| grid)
+               (first ||| tall ||| tabs ||| gridWide ||| spiral ||| oneBig)
     onTall = onHosts ["transwhale"]
     -- helpers
     refmin = mkToggle (single REFLECTX) . minimize
@@ -416,11 +423,8 @@ myLayoutHook =
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
     -- layouts
-    fixcol = rename "fcol" . ss . refmin $ onTall
-             (FixedColumn 2 0 80 10)
-             (FixedColumn 1 0 80 10)
     oneBig = rename "1big" . ss . refmin $ OneBig (3/4) (3/4)
-    chat = rename "chat" . ss . refmin $ FixedColumn 1 0 100 0
+    chat = rename "chat" . ss . refmin $ Tall 1 0 0.93
     full = rename "full" $ noBorders (fullscreenFull Full)
     wide' nm ir = rename "wide" . ss . Mirror . refmin $ Tall nm (3/100) ir
     wide = onTall (wide' 1 (7/8)) (wide' 2 (4/5))
@@ -686,7 +690,7 @@ holdScreenFocus a = do
    r <- a
    screenWorkspace s >>= maybe (return ()) (windows . W.view)
    return r
-   
+
 
 -- | kill window with some exceptions
 kill' :: X ()
@@ -749,32 +753,45 @@ showWorkspaceNameOld = showWorkspaceName' showStatusMultipleMessagesDuration Sol
 -- | Show active workspace name fast
 showWorkspaceNameFast = showWorkspaceName' showStatusSingleMessageDuration Sol.magenta
 
--- | Show workspace name
-showWorkspaceName' timeout bg = do
-  ws <- gets (W.currentTag . windowset)
+getScreenRect :: X Rectangle
+getScreenRect = (screenRect . W.screenDetail . W.current) <$> gets windowset
+
+showMessage timeout bg fg msg = do
+  sr <-  getScreenRect
+  let rx p = (fromIntegral $ p sr)
+      sw = rx rect_width
+      sh = rx rect_height
+      sx = rx rect_x
+      sy = rx rect_y
+      w = max (sw/3) (min sw 400)
+      x = (sx + sw/2 - w/2)
+      h = min sh 100
+      y = (sy + sh/2 - h/2)
+
   DZ.dzenConfig
     (DZ.timeout timeout
-     >=> DZ.onCurr (DZ.center 400 48)
+     >=> DZ.addArgs ["-x", show x, "-w", show w]
+     >=> DZ.addArgs ["-y", show y, "-h", show h]
      >=> DZ.font largeFont
-     >=> DZ.addArgs ["-fg", Sol.base03]
+     >=> DZ.addArgs ["-fg", fg]
      >=> DZ.addArgs ["-bg", bg]
-    ) ws
+    ) msg
+
+
+-- | Show workspace name
+showWorkspaceName' timeout bg = do
+  wsn <- gets (W.currentTag . windowset)
+  showMessage timeout bg Sol.base03 wsn
 
 -- | Show current layout name
 showLayoutName = do
   winset <- gets windowset
   let ld = description . W.layout . W.workspace . W.current $ winset
-  DZ.dzenConfig
-    (DZ.timeout showStatusSingleMessageDuration
-     >=> DZ.onCurr (DZ.center 400 48)
-     >=> DZ.font largeFont
-     >=> DZ.addArgs ["-fg", Sol.base03]
-     >=> DZ.addArgs ["-bg", Sol.green]
-    ) ld
+  showMessage 2 Sol.green Sol.base03 ld
+
 
 -- | Enforce recaluclation of docks gaps. After updating a ~5month old xmonad master today docks were not being avoided by avoudStruts on new desktop.
 updateStruts = docksStartupHook
-
 
 
 -- Local Variables:
