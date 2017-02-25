@@ -194,9 +194,10 @@ myKeys conf =
   , ("M-8",           addName "restore workspace group 3" $ holdScreenFocus $ viewWSGroup "wsg3")
  ] ++
   subtitle "screen splitting": mkNamedKeymap conf
- [  ("M-5 2",  addName "Split current screen by 2 panes 0.7"              $ LS.layoutSplitScreen 2 $ smartSpacing 4 $(TwoPane 0 0.7))
-  , ("M-5 3",  addName "Split current screen by 3 even columns"           $ LS.layoutSplitScreen 3 $ smartSpacing 4 $ (Mirror (Tall 3 (0) (0)))  )
-  , ("M-5 4",  addName "Split current screen by 3 columns + bottom wide"  $ LS.layoutSplitScreen 4 $ smartSpacing 4 $Mirror (Tall 3 (0) (5/6)))
+ [  ("M-5 2",  addName "Split current screen by 2 panes 0.7"              $ LS.layoutSplitScreen 2 $ smartSpacing 2 $ (TwoPane 0 0.7))
+  , ("M-5 3",  addName "Split current screen by 3 even columns"           $ LS.layoutSplitScreen 3 $ smartSpacing 2 $ (Mirror (Tall 3 (0) (0))))
+  , ("M-5 4",  addName "Split current screen by 3 columns + bottom wide"  $ LS.layoutSplitScreen 4 $ smartSpacing 2 $ Mirror (Tall 3 (0) (5/6)))
+  , ("M-5 c",  addName "Combine screen 1 + 2"                             $ LS.layoutScreens 2 $ Full)
   , ("M-5 r",  addName "Reset screens from xinerama, rescreen"            $ rescreen)
 
   ] ++
