@@ -17,7 +17,11 @@ fi
 color="#b58900"
 
 
-if [ -x /usr/bin/rofi ]; then
+if [ -x ${HOME}/bin/rofi ]; then
+  cmd="${HOME}/bin/rofi"
+  cmd=/usr/bin/rofi
+  type=rofi
+elif [ -x /usr/bin/rofi ]; then
   cmd=rofi
   type=rofi
 elif [ -x /usr/bin/dmenu ]; then
@@ -35,7 +39,8 @@ case "${type}" in
          -bc "${border}" \
          -bw 4 \
          -hide-scrollbar \
-         -lines 25 -width 80 \
+         -font "PragmataPro 11" \
+         -lines 25 -width 50 \
          -dmenu -i "$@"
     ;;
   dmenu)
