@@ -16,9 +16,13 @@
 Xft.antialias:                        1
 Xft.autohint:                         true
 Xft.hinting:                          1
-!Xft.hintstyle:                       hintfull
-Xft.hintstyle:                        hintslight
-!Xft.dpi:                              96
+Xft.hintystyle:                       hintfull
+! Xft.hintstyle:                        hintslight
+! Xft.dpi:                            96
+! Xft.dpi:                            120
+! TODO: dpi should be set per system....
+Xft.dpi:                              137
+rofi.dpi:                             137
 Xft.rgba:                             rgb
 !Xft.embolden:                        false
 Xft.lcdfilter:                        lcddefault
