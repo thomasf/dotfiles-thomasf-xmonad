@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 #   Xsession file -- used by display managers and xinit (startx)
 #   Man page: Xsession

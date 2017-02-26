@@ -51,6 +51,10 @@ sleep 0.4
 #   && [ -z "$DBUS_SESSION_BUS_ADDRESS" ] \
 #   && eval `$dbuslaunch --sh-syntax --exit-with-session`
 
+# Source profile
+[ -f "${HOME}/.profile" ] \
+  && source "${HOME}/.profile"
+
 # Source default bash environment
 [ -f "${HOME}/.bashrc" ] \
   && source "${HOME}/.bashrc"
