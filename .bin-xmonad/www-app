@@ -5,4 +5,4 @@
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 #
 
-google-chrome -app="${1}"
+www -app="${1}"

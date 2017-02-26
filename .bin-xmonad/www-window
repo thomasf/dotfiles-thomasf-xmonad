@@ -1,8 +1,1 @@
-#!/bin/sh
-#
-# Opens an url in a new browser window
-#
-# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
-#
-
-exec google-chrome --new-window "$@"
+www

@@ -6,4 +6,23 @@
 # Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
 #
 
-exec google-chrome "$@"
+declare -a args
+
+case ${HOSTNAME} in
+  transwhale)
+    args+="--enable-native-gpu-memory-buffers "
+    args+="--enable-gpu-rasterization "
+    ;;
+esac
+
+
+case $(basename ${0}) in
+  www-temp)
+    args+="--incognito "
+    ;;
+  www-window)
+    args+="--new-window "
+    ;;
+esac
+
+exec google-chrome $args "$@"

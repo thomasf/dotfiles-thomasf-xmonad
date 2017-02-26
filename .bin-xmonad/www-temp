@@ -1,8 +1,1 @@
-#!/bin/sh
-#
-# Start a new google chrome incognito browser
-#
-# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
-#
-
-exec google-chrome --incognito "$@"
+www
