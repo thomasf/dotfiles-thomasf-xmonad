@@ -213,7 +213,6 @@ myKeys conf =
   , ("M-i s",               myViewWS' "scratch")
   , ("M-i w",               myViewWS' "www")
   , ("M-i j",               myViewWS' "work")
-  , ("M-i 2",               myViewWS' "work")
   , ("M-i M-i",             addName "cycle ws"                              $ rmEmptyWs $ myCycleRecentWs xK_i xK_o)
   , ("M-C-i M-C-i",         addName "cycle ws on next screen"               $ holdScreenFocus $ nextScreen >> myCycleRecentWs xK_i xK_o)
   , ("M-i i",               addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
