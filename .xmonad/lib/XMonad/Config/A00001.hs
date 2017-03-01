@@ -250,7 +250,7 @@ myKeys conf =
     -- | View a workspace by name and maybe run workspace action
     myViewWS wsid = do
       DW.addHiddenWorkspace wsid
-      windows (W.greedyView wsid)
+      windows (W.view wsid)
       showWorkspaceNameFast
       maybeWorkspaceAction
       updateStruts
