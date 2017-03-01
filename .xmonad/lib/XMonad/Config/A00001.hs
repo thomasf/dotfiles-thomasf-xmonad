@@ -245,7 +245,7 @@ myKeys conf =
     spawnhm cmd' = addName cmd' $ bindOn' $ showAppName cmd' >> spawn cmd'
 
     -- | Remove current workpace if empty
-    rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "scratch", "scratch.0", "scratch.1", "scratch.2" ]
+    rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "scratch", "scratch.0", "scratch.1", "scratch.2", "scratch.3", "scratch.4" ]
 
     -- | View a workspace by name and maybe run workspace action
     myViewWS wsid = do
@@ -389,7 +389,7 @@ largeFont = sizedFont "32"
 
 
 -- | Workspaces
-myWorkspaces = [ "scratch", "scratch.0", "scratch.1", "scratch.2"]
+myWorkspaces = [ "scratch", "scratch.0", "scratch.1", "scratch.2", "scratch.3", "scratch.4"]
 myTerminal = "urxvt"
 
 -- | Layout hook
