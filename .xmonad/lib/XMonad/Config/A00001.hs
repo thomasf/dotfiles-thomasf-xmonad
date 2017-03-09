@@ -192,14 +192,14 @@ myKeys conf =
   , ("M-7",           addName "restore workspace group 2" $ holdScreenFocus $ viewWSGroup "wsg2")
   , ("M-C-8",         addName "store workspace group 3"   $ addCurrentWSGroup "wsg3")
   , ("M-8",           addName "restore workspace group 3" $ holdScreenFocus $ viewWSGroup "wsg3")
- ] ++
+  ] ++
   subtitle "screen splitting": mkNamedKeymap conf
- [  ("M-5 2",  addName "Split current screen by 2 panes 0.7"              $ LS.layoutSplitScreen 2 $ smartSpacing 2 $ (TwoPane 0 0.7))
+  [ ("M-5 2",  addName "Split current screen by 2 panes 0.7"              $ LS.layoutSplitScreen 2 $ smartSpacing 2 $ (TwoPane 0 0.33))
   , ("M-5 3",  addName "Split current screen by 3 even columns"           $ LS.layoutSplitScreen 3 $ smartSpacing 2 $ (Mirror (Tall 3 (0) (0))))
+  -- , ("M-5 e",  addName "Split current screen by 3 larger center"          $ LS.layoutSplitScreen 3 $ smartSpacing 2 $ (ThreeColMid 1 (3/100) (4/10)))
   , ("M-5 4",  addName "Split current screen by 3 columns + bottom wide"  $ LS.layoutSplitScreen 4 $ smartSpacing 2 $ Mirror (Tall 3 (0) (5/6)))
   , ("M-5 c",  addName "Combine screen 1 + 2"                             $ LS.layoutScreens 2 $ Full)
   , ("M-5 r",  addName "Reset screens from xinerama, rescreen"            $ rescreen)
-
   ] ++
   subtitle "Toggle scratchpads and workspaces": mkNamedKeymap conf
   [ ("M-<Space>",           toggleScratch "largeTerminal")
@@ -414,7 +414,7 @@ myLayoutHook =
     -- control
     first = wide
     standard = onTall
-               (first ||| tcol ||| grid )
+               (first ||| tcol ||| grid ||| gridWide ||| spiral ||| oneBig )
                (first ||| tall ||| tabs ||| gridWide ||| spiral ||| oneBig)
     alternative = onTall
                (tcol ||| first ||| grid)
