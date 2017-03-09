@@ -127,9 +127,9 @@ myKeys conf =
   , ("M-u",        addName "Focus urgent winow"                            $ focusUrgent >> restoreFocused >> movePointer )
   , ("M-C-u",      addName "Clear all urgent window statuses"              $ clearUrgents >> focusUrgent)
   ] ++
-  subtitle "Cyclic display actions": mkNamedKeymap conf
-  [ ("M-f",   addName "Next screen"                        $ nextScreen >> movePointer >> showWorkspaceNameFast)
-  , ("M-d",   addName "Previous screen"                    $ prevScreen >> movePointer >> showWorkspaceNameFast)
+  subtitle "Screen actions": mkNamedKeymap conf
+  [ ("M-f",   addName "Next screen"                        $ showWorkspaceNameOld >> nextScreen >> movePointer >> showWorkspaceNameFast)
+  , ("M-d",   addName "Previous screen"                    $ showWorkspaceNameOld >> prevScreen >> movePointer >> showWorkspaceNameFast)
   , ("M-C-f", addName "Swap current display witn next"     $ swapNextScreen >> nextScreen >> showWorkspaceNameOld >> prevScreen >> showWorkspaceName >> movePointer )
   , ("M-C-d", addName "Swap current display witn previous" $ swapPrevScreen >> prevScreen >> showWorkspaceNameOld >> nextScreen >> showWorkspaceName >> movePointer )
   , ("M-S-f", addName "Move window to next screen"         $ shiftNextScreen >> nextScreen >> movePointer )
