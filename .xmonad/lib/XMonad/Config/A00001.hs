@@ -214,8 +214,9 @@ myKeys conf =
   , ("M-i w",               myViewWS' "www")
   , ("M-i j",               myViewWS' "work")
   , ("M-i M-i",             addName "cycle ws"                              $ rmEmptyWs $ myCycleRecentWs xK_i xK_o)
-  , ("M-C-i M-C-i",         addName "cycle ws on next screen"               $ holdScreenFocus $ nextScreen >> myCycleRecentWs xK_i xK_o)
-  , ("M-i i",               addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
+  , ("M-i i",               addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePromptHidden >> maybeWorkspaceAction >> movePointer)
+  -- , ("M-C-i M-C-i",         addName "cycle ws on next screen"               $ holdScreenFocus $ nextScreen >> myCycleRecentWs xK_i xK_o)
+  -- , ("M-C-u M-C-u",         addName "cycle ws on prev screen"               $ holdScreenFocus $ prevScreen >> myCycleRecentWs xK_o xK_i)
   , ("M-i <Space> <Space>", addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
   , ("M-S-i",               addName "Move window to other workspace prompt" $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer >> updateStruts)
   , ("M-i <Space> r",       addName "Rename current workspace"              $ DW.renameWorkspace myXPConfig >> movePointer)
@@ -246,25 +247,27 @@ myKeys conf =
     -- | Remove current workpace if empty
     rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "scratch", "scratch.0", "scratch.1", "scratch.2", "scratch.3", "scratch.4" ]
 
-    -- | View a workspace by name and maybe run workspace action
-    myViewWS wsid = do
-      DW.addHiddenWorkspace wsid
-      windows (W.view wsid)
-      showWorkspaceNameFast
-      maybeWorkspaceAction
-      updateStruts
 
     -- | View a workspace by name, remove left over empty workspace and move pointer
     myViewWS' wsid = addName("Show " ++ wsid ++ " workspace ") $ do
       rmEmptyWs $ myViewWS wsid
       movePointer
+    wsPrompt wsp = wsp myXPConfig afterWSPrompt
 
     -- | Select workspae prompt
-    selectWorkspacePrompt = workspacePrompt myXPConfig $ \w ->
-                            do s <- gets windowset
-                               if W.tagMember w s
-                                 then windows $ W.view w
-                                 else DW.addWorkspace w >> updateStruts
+    selectWorkspacePrompt = wsPrompt workspacePrompt
+
+    -- | Select workspace prompt
+    selectWorkspacePromptHidden = wsPrompt workspacePromptHidden
+    -- selectWorkspacePromptHidden = workspacePrompt'
+
+    -- | Select workspace promt only showing non visible workspaces
+    workspacePromptHidden :: XPConfig -> (String -> X ()) -> X ()
+    workspacePromptHidden c job = do ws <- gets (W.hidden . windowset)
+                                     s <- getSortByIndex
+                                     let ts = map W.tag $ s ws
+                                     mkXPrompt (Wor "") c (mkComplFunFromList' ts) job
+
 
     -- | Toggle scratch pad
     toggleScratch cmd' = addName("Toggle " ++ cmd' ++ " scratchpad ") $ namedScratchpadAction myScratchPads cmd'
@@ -317,7 +320,6 @@ myKeys conf =
     myFilterOutWorkspace :: String -> [WindowSpace] -> [WindowSpace]
     myFilterOutWorkspace wsname = filter (\(W.Workspace tag _ _) -> tag /= wsname)
 
-    -- | CycleRecentWs that does not include visible but non-focused workspaces or NSP
     cycleRecentWS' = cycleWindowSets' options
      where options w = map (W.view `flip` w) (recentTags w)
            recentTags w = filterSomeWorkspaces map W.tag $ W.hidden w ++ [W.workspace (W.current w)]
@@ -728,6 +730,27 @@ killPrompt' = withFocused $ \w ->
         , ("Run xkill", spawn "xkill")
         , ("Kill ALL workspace windows", killAll)
         ]
+
+
+
+
+-- | View a workspace by name and maybe run workspace action
+myViewWS wsid = do
+  showWorkspaceNameOld
+  DW.addHiddenWorkspace wsid
+  windows (W.view wsid)
+  maybeWorkspaceAction
+  updateStruts
+  showWorkspaceNameFast
+
+afterWSPrompt w = do s <- gets windowset
+                     showWorkspaceNameOld
+                     if W.tagMember w s
+                       then windows $ W.view w
+                       else DW.addWorkspace w >> updateStruts
+                     showWorkspaceNameFast
+
+
 
 
 -- | Run script with same name as "w.workspacename"
