@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Dmenu/rofi wrapper, changed colors
 #
@@ -16,10 +16,8 @@ else
 fi
 color="#b58900"
 
-
 if [ -x ${HOME}/bin/rofi ]; then
   cmd="${HOME}/bin/rofi"
-  cmd=/usr/bin/rofi
   type=rofi
 elif [ -x /usr/bin/rofi ]; then
   cmd=rofi
@@ -34,13 +32,19 @@ fi
 
 case "${type}" in
   rofi)
+    if [[ -z $PLACEMENT ]]; then
+      ROOFI_ARGS="-lines 25 -width 50"
+    else
+      IFS='x' read -r -a place <<< "$PLACEMENT"
+      ROOFI_ARGS="-m 1 -location 1 -xoffset ${place[0]} -yoffset ${place[1]} -width ${place[2]} -height ${place[3]}"
+    fi
     exec $cmd \
          -bg "${bg}" -fg "${fg}" -hlfg "${bg}" -hlbg "${color}" \
          -bc "${border}" \
          -bw 4 \
          -hide-scrollbar \
          -font "PragmataPro 11" \
-         -lines 25 -width 50 \
+         ${ROOFI_ARGS} \
          -dmenu -i "$@"
     ;;
   dmenu)
