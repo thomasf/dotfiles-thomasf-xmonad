@@ -232,11 +232,11 @@ myKeys conf =
   , ("M-p k",               addName "k"                                     $ gotoPrefixWS "k")
   , ("M-p p",               addName "base" gotoBaseWS)
  ] ++
-  subtitle "exit/quit/leave/reboot...": mkNamedKeymap conf
-  [ ("M-q r",             addName "restart xmonad"                       $ restart "xmonad" True)
-  , ("M-q x x x",         addName "restart xmonad without keeping state" $ restart "xmonad" False)
-  , ("M-q k k k",         addName "KILL xmonad"                          $ io exitSuccess)
-  , ("M-q <Space>",       addName "xmenu"                                $ spawn "xmenu")
+ subtitle "exit/quit/leave/reboot...": mkNamedKeymap conf
+ [ ("M-q r",             addName "restart xmonad"                       $ restart "xmonad" True)
+ , ("M-q x x x",         addName "restart xmonad without keeping state" $ restart "xmonad" False)
+ , ("M-q k k k",         addName "KILL xmonad"                          $ io exitSuccess)
+ , ("M-q <Space>",       addName "xmenu"                                $ spawn "xmenu")
  ]
   where
     spawnh' cmd' = addName cmd'           $ spawn cmd'
