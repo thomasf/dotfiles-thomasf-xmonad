@@ -28,6 +28,8 @@ import           Control.Monad
 import           Data.List
 import qualified Data.Map as M
 import           Data.Ratio ((%))
+import           Data.Ord
+import           Data.Maybe
 import qualified Solarized as Sol
 import           System.Directory
 import           System.Environment (getEnv)
@@ -525,7 +527,7 @@ myXmobarTopPP = def
   , ppTitle   = const ""
   , ppLayout  = const ""
   , ppSep     = " "
-  , ppSort    = getSortByXineramaRule
+  , ppSort    = mySortByXineramaPhysicalRule
   }
 
 myXmobarBottomPP = def
@@ -536,7 +538,7 @@ myXmobarBottomPP = def
   , ppTitle   = trim
   , ppLayout  = const ""
   , ppSep     = xmobarColor Sol.cyan "" " + "
-  , ppSort    = getSortByXineramaRule
+  , ppSort    = mySortByXineramaPhysicalRule
   }
 
 myLogHook = do
@@ -546,6 +548,34 @@ myLogHook = do
   ewmhDesktopsLogHook
   fadeInactiveLogHook 0.86
   setWMName "LG3D"
+
+-- | Like 'getSortByXineramaRule', but uses physical locations for screens.
+mySortByXineramaPhysicalRule :: X WorkspaceSort
+mySortByXineramaPhysicalRule = mkWsSort myXineramaPhysicalWsCompare
+-- | A comparison function like 'getXineramaWsCompare', but uses physical locations for screens.
+
+myXineramaPhysicalWsCompare :: X WorkspaceCompare
+myXineramaPhysicalWsCompare = myXineramaWsCompare' True
+
+-- | Modified to sort (x,y) instead of (y,x)
+myXineramaWsCompare' :: Bool -> X WorkspaceCompare
+myXineramaWsCompare' phy = do
+    w <- gets windowset
+    return $ \ a b -> case (isOnScreen a w, isOnScreen b w) of
+        -- (True, True)   -> cmpPosition phy w a b
+        (True, True)   -> cmpPosition phy w a b
+        (False, False) -> compare a b
+        (True, False)  -> LT
+        (False, True)  -> GT
+  where
+    onScreen w =  W.current w : W.visible w
+    isOnScreen a w  = a `elem` map (W.tag . W.workspace) (onScreen w)
+    tagToSid s x = W.screen $ fromJust $ find ((== x) . W.tag . W.workspace) s
+    cmpPosition False w a b = comparing (tagToSid $ onScreen w) a b
+    cmpPosition True w a b = comparing (rect.(tagToSid $ onScreen w)) a b
+      -- where rect i = let (Rectangle x y _ _) = screens !! fromIntegral i in (y,x)
+      where rect i = let (Rectangle x y _ _) = screens !! fromIntegral i in (x,y)
+            screens = map (screenRect . W.screenDetail) $ sortBy (comparing W.screen) $ W.current w : W.visible w
 
 
 
