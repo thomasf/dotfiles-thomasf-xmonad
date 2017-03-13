@@ -473,7 +473,9 @@ myManageHook =
   [ [resource  =? r -?>                                        doIgnore           | r <- ["desktop_window", "kdesktop", "Panel"]]
   , [className =? c -?>                                        doIgnore           | c <- ["Ediff", "Unity-2d-panel", "Xfce4-notifyd", "Xfdesktop"]]
   , [className =? c -?>                                        doSink             | c <- ["emulator64-mips", "emulator-arm", "emulator-x86"
-                                                                                         ,"emulator64-arm", "emulator64-x86", "emulator-mips"]]
+                                                                                          ,"emulator64-arm", "emulator64-x86", "emulator-mips"]]
+  , [isTooltip -?>                                             doIgnore]
+  , [className =? c <&&> skipTaskbar  -?>                      doIgnore           | c <- ["UE4Editor", "com-eteks-sweethome3d-SweetHome3D"]]
   , [className =? "Skype" <&&> title =? "Options" -?> doCenterFloatLarge]
   , [className =? "Skype" <&&> startsWith' title "Profile for " -?> doCenterFloat]
   , [className =? "Skype" <&&> startsWith' title "Add a Skype Contact" -?> doCenterFloatLarge]
@@ -498,6 +500,8 @@ myManageHook =
     doCenterFloatLarge = myCenterFloat 0.95 0.85
     doSink = ask >>= doF . W.sink
     role = stringProperty "WM_WINDOW_ROLE"
+    skipTaskbar = isInProperty "_NET_WM_STATE" "_NET_WM_STATE_SKIP_TASKBAR"
+    isTooltip = stringProperty "_NET_WM_WINDOW_TYPE" =? "_NET_WM_WINDOW_TYPE_TOOLTIP"
     startsWith' :: Eq a => Query [a] -> [a] -> Query Bool
     startsWith' q prefix = fmap (isPrefixOf prefix) q
 
