@@ -78,7 +78,7 @@ import           XMonad.Layout.Reflect
 import           XMonad.Layout.Renamed
 import           XMonad.Layout.Spacing
 import qualified XMonad.Layout.Spiral as Spiral
-import           XMonad.Prompt hiding (height)
+import           XMonad.Prompt
 import           XMonad.Prompt.Workspace
 import qualified XMonad.StackSet as W hiding (swapUp, swapDown)
 import qualified XMonad.Util.Dzen as DZ
@@ -603,7 +603,7 @@ myUrgencyHook =
 
 
 -- XMonad Prompt configuration
-
+myXPConfig :: XPConfig
 myXPConfig = def
  { position = CenteredAt 0.4 0.5
  , bgColor = Sol.base2
@@ -612,8 +612,10 @@ myXPConfig = def
  , fgHLight = Sol.magenta
  , borderColor = Sol.base2
  , promptBorderWidth = 1
- , font = "-xos4-terminus-*-r-*-*-16-*-*-*-*-*-iso8859-*"
- , promptKeymap = emacsLikeXPKeymap }
+ , font = sizedXftFont "20"
+ , height = 24
+ , promptKeymap = emacsLikeXPKeymap
+ }
 
 
 
