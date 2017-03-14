@@ -550,7 +550,7 @@ myLogHook = do
   dynamicLogString myXmobarBottomPP >>= xmonadPropLog' "_XMONAD_LOG_BOTTOM"
   workspaceHistoryHook
   ewmhDesktopsLogHook
-  fadeInactiveLogHook 0.86
+  -- fadeInactiveLogHook 0.86
   setWMName "LG3D"
 
 -- | Like 'getSortByXineramaRule', but uses physical locations for screens.
