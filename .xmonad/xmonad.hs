@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -W -fno-warn-missing-signatures -fwarn-unused-imports -fcontext-stack=99 #-}
+{-# OPTIONS_GHC -W -fno-warn-missing-signatures -fwarn-unused-imports -freduction-depth=99 #-}
 
 module Main (main) where
 import XMonad
