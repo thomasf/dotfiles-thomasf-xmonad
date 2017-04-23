@@ -54,7 +54,6 @@ import           XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
 import           XMonad.Hooks.FadeInactive
 import           XMonad.Hooks.ManageDocks (docks, avoidStruts, ToggleStruts(..), docksStartupHook)
 import           XMonad.Hooks.ManageHelpers
-import           XMonad.Hooks.Minimize
 import           XMonad.Hooks.ServerMode
 import           XMonad.Hooks.SetWMName
 import           XMonad.Hooks.UrgencyHook hiding (args)
@@ -67,7 +66,6 @@ import           XMonad.Layout.ThreeColumns
 import           XMonad.Layout.IM
 import           XMonad.Layout.LayoutCombinators
 import qualified XMonad.Layout.LayoutScreens as LS
-import           XMonad.Layout.Minimize
 import           XMonad.Layout.MultiToggle
 import           XMonad.Layout.MultiToggle.Instances
 import           XMonad.Layout.NoBorders
@@ -126,7 +124,7 @@ myKeys conf =
   , ("M-t",        addName "Push the window into tiling mode"              $ withFocused (windows . W.sink) >> movePointer)
   , ("M-C-c",      addName "kill"                                          kill')
   , ("M-S-C-c",    addName "run xkill or kill all windows on special workspaces" killPrompt')
-  , ("M-u",        addName "Focus urgent winow"                            $ focusUrgent >> restoreFocused >> movePointer )
+  , ("M-u",        addName "Focus urgent winow"                            $ focusUrgent >> movePointer )
   , ("M-C-u",      addName "Clear all urgent window statuses"              $ clearUrgents >> focusUrgent)
   ] ++
   subtitle "Screen actions": mkNamedKeymap conf
@@ -163,8 +161,6 @@ myKeys conf =
   , ("M-M1-s",      addName "Toggle visibiltiy of panels"                          $ sendMessage ToggleStruts >> movePointer)
   , ("M-M1-r",      addName "Toggle reflect layout direction"                      $ sendMessage (Toggle REFLECTX) >> movePointer)
   , ("C-M-r",       addName "Toggle reflect layout direction"                      $ sendMessage (Toggle REFLECTX) >> movePointer)
-  , ("M-M1-m",      addName "Minimize"                                             $ withFocused minimizeWindow >> movePointer)
-  , ("M-M1-u",      addName "UnMinimize"                                           $ sendMessage RestoreNextMinimizedWin)
   , ("M-,",         addName "Increment the number of windows in the master area"   $ sendMessage (IncMasterN 1) >> movePointer)
   , ("M-.",         addName "Deincrement the number of windows in the master area" $ sendMessage (IncMasterN (-1)) >> movePointer)
   , ("M-h",         addName "Expand the master area"                               $ sendMessage Expand >> movePointer)
@@ -338,8 +334,6 @@ myKeys conf =
     -- | Sort workspaces by tag name, exclude hidden scrachpad workspace.
     getSortByTagNoSP = filterSomeWorkspaces getSortByTag
 
-    -- | Restore focused window from minimized state
-    restoreFocused = withFocused $ \w -> sendMessage (RestoreMinimizedWin w)
 
 
 
@@ -359,8 +353,6 @@ myMouseBindings =
       gestures = M.fromList
                  [ ([    ], \_ -> gridselectWorkspace myGsconfig W.greedyView)
                  , ([R, D], \_ -> sendMessage NextLayout)
-                 , ([L, U], \w -> sendMessage RestoreNextMinimizedWin >> focus w)
-                 , ([L, D], \w -> focus w >> withFocused minimizeWindow)
                  , ([U   ], \w -> focus w >> Nav2d.windowSwap U False)
                  , ([D   ], \w -> focus w >> Nav2d.windowSwap D False)
                  , ([L   ], \w -> focus w >> Nav2d.windowSwap L False)
@@ -424,7 +416,7 @@ myLayoutHook =
                (first ||| tall ||| tabs ||| gridWide ||| spiral ||| oneBig)
     onTall = onHosts ["transwhale"]
     -- helpers
-    refmin = mkToggle (single REFLECTX) . minimize
+    refmin = mkToggle (single REFLECTX)
     ss = smartSpacingWithEdge myDefaultSpacerWidth
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
@@ -498,10 +490,11 @@ myManageHook =
   , [resource  =? "xmessage" -?>                               doCenterFloatLarge]
   ])
   where
+    role = stringProperty "WM_WINDOW_ROLE"
     doCenterFloatLarge = myCenterFloat 0.95 0.85
     doSink = ask >>= doF . W.sink
-    role = stringProperty "WM_WINDOW_ROLE"
     skipTaskbar = isInProperty "_NET_WM_STATE" "_NET_WM_STATE_SKIP_TASKBAR"
+    isAbove = isInProperty "_NET_WM_STATE" "_NET_WM_STATE_ABOVE"
     isTooltip = stringProperty "_NET_WM_WINDOW_TYPE" =? "_NET_WM_WINDOW_TYPE_TOOLTIP"
     startsWith' :: Eq a => Query [a] -> [a] -> Query Bool
     startsWith' q prefix = fmap (isPrefixOf prefix) q
@@ -514,7 +507,7 @@ myManageHook =
 -- return (All True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
 --
-myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> minimizeEventHook <+> serverModeEventHook
+myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> serverModeEventHook
 
 
 
