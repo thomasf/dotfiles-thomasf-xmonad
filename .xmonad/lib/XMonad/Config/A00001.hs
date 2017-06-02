@@ -400,7 +400,7 @@ myLayoutHook =
   onWorkspace "files" (grid ||| tabs) .
   onWorkspace "nodes" (renameStar tabs) .
   onWorkspace "dash" (dash ||| grid) .
-  onWorkspace "work" tabs .
+  onWorkspace "work" (fullBorder ||| tabs ||| gridWide) .
   onWorkspace "upgrade" alternative .
   onWorkspace "im" im $
   lessBorders OnlyFloat
@@ -422,7 +422,8 @@ myLayoutHook =
     renameStar = renamed [Replace "*"]
     -- layouts
     oneBig = rename "1big" . ss . refmin $ OneBig (3/4) (3/4)
-    chat = rename "chat" . ss . refmin $ Tall 1 0 0.93
+    chat = rename "chat" . ss . refmin $ fullscreenFull Full
+    fullBorder = rename "full" . ss . refmin $ fullscreenFull Full
     full = rename "full" $ noBorders (fullscreenFull Full)
     wide' nm ir = rename "wide" . ss . Mirror . refmin $ Tall nm (3/100) ir
     wide = onTall (wide' 1 (7/8)) (wide' 2 (4/5))
