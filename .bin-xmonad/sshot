@@ -1,0 +1,28 @@
+#!/bin/bash
+
+set -e
+
+mkdir -p ~/Pictures/scrot/
+cd ~/Pictures/scrot/
+
+shot() {
+  local fn_infix=$1
+  shift
+  local fn=$(scrot ${@} -e 'echo $f' '%Y-%m-%d_%H-%M-%S_'${fn_infix}'_$wx$h.png')
+  local msg="saved ${fn}"
+  notify-send -u normal -a shorter "sshot" "<span font='12'>${msg}</span>"
+  cat $fn | xclip -selection c -t image/png
+}
+
+case ${1} in
+  focused)
+    shot "window" -u
+    ;;
+  full)
+    shot "full"
+    ;;
+  "select"|*)
+    sleep 0.5
+    shot selection -s
+    ;;
+esac
