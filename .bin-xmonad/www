@@ -12,6 +12,7 @@ case ${HOSTNAME} in
   transwhale)
     args+="--enable-native-gpu-memory-buffers "
     args+="--enable-gpu-rasterization "
+    args+="--audio-buffer-size=1024 "
     ;;
 esac
 
