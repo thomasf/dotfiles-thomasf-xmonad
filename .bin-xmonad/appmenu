@@ -12,6 +12,20 @@ ppath() {
  [ -d "${1}" ] && PATH="${1}:${PATH}" || true
 }
 
+interm() {
+  urxvt -e bash -c \
+        "termcolors;
+      echo -n \`tput setaf 3\`
+      echo run: $*;
+      echo -n \`tput sgr0\`
+      $*;
+      echo ;
+      echo \`tput setaf 1\`
+      echo \">>> Newline closes terminal\";
+      echo \`tput sgr0\`
+      read any;
+"
+}
 # ppath ~/.opt/idea/bin
 
 tr=urxvt
@@ -27,9 +41,12 @@ shift
 
 cmd=$1
 shift || true
-
+set -x
 
 case $cmd in
+  go)
+    interm ${cmd} ${@}
+    ;;
   saidar)
     exec urxvt -e saidar -c
 	;;
