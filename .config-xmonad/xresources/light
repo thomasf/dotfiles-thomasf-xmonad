@@ -34,6 +34,12 @@ URxvt*color14:                #586e75
 URxvt*color7:                 #839496
 URxvt*color15:                #002b36
 
+! bg, fg, bgalt, hlbg, hlfg
+rofi.color-normal: #fdf6e3,#657b83,#fdf6e3,#eee8d5,#073642
+rofi.color-urgent: #fdf6e3,#d33682,#fdf6e3,#eee8d5,#d33682
+rofi.color-active: #fdf6e3,#268bd2,#fdf6e3,#eee8d5,#268bd2
+! background, border, separator
+rofi.color-window: #fdf6e3,#F771AC,#eee8d5
 
 ! Local Variables:
 ! eval: (rainbow-mode)

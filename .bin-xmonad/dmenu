@@ -38,14 +38,7 @@ case "${type}" in
     #   IFS='x' read -r -a place <<< "$PLACEMENT"
     #   ROOFI_ARGS="-m 1 -location 1 -xoffset ${place[0]} -yoffset ${place[1]} -width ${place[2]} -height ${place[3]}"
     # fi
-    ROOFI_ARGS="-lines 25 -width 50"
     exec $cmd \
-         -bg "${bg}" -fg "${fg}" -hlfg "${bg}" -hlbg "${color}" \
-         -bc "${border}" \
-         -bw 4 \
-         -hide-scrollbar \
-         -font "PragmataPro 11" \
-         ${ROOFI_ARGS} \
          -dmenu -i "$@"
     ;;
   dmenu)

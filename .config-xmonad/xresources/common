@@ -23,9 +23,22 @@ Xft.hintystyle:                       hintfull
 ! TODO: dpi should be set per system....
 Xft.dpi:                              137
 rofi.dpi:                             137
+rofi.font:                            PragmataPro 11
+
 Xft.rgba:                             rgb
 !Xft.embolden:                        false
 Xft.lcdfilter:                        lcddefault
+
+
+!---- rofi {
+rofi.hide-scrollbar:                  true
+rofi.bw:                              4
+rofi.lines:                           30
+rofi.width:                           75
+rofi.padding:                         8
+
+! rofi.fullscreen: true
+
 
 !---- X Cursor theme {
 Xcursor.theme:                        DMZ-White
