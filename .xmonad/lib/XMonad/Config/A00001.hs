@@ -47,7 +47,7 @@ import qualified XMonad.Actions.Navigation2D as Nav2d
 import           XMonad.Actions.PerWorkspaceKeys
 import           XMonad.Actions.RotSlaves
 import           XMonad.Actions.UpdatePointer
-import           XMonad.Actions.WindowBringer (gotoMenuArgs)
+import           XMonad.Actions.WindowBringer (gotoMenuConfig,  WindowBringerConfig(..))
 import           XMonad.Actions.WithAll
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
@@ -86,6 +86,8 @@ import           XMonad.Util.NamedScratchpad
 import           XMonad.Util.Paste
 import           XMonad.Util.Run
 import           XMonad.Util.WorkspaceCompare
+import           XMonad.Util.NamedWindows (getName)
+import           Text.Printf
 
 
 -- Keyboard configuration:
@@ -104,7 +106,7 @@ myKeys conf =
   ] ++
   subtitle "Application launching": mkNamedKeymap conf
   [ ("M-o o", spawnh "appmenu")
-  , ("M-o <Space>",addName "Goto workspace by window search prompt"        $ gotoMenuArgs ["-l", "48"] >> movePointer)
+  , ("M-o <Space>",addName "Goto workspace by window search prompt"        $ gotoWindow >> movePointer)
   , ("M-o s", spawnh "sshmenu")
   , ("M-o m", spawnh "moshmenu")
   , ("M-o c", spawnhm "google-chrome")
@@ -177,14 +179,19 @@ myKeys conf =
   , ("<XF86AudioStop>",         spawnh' "mpc stop")
   , ("<XF86MonBrightnessDown>", spawnh' "custom-backlight-macbookpro_gmux -m")
   , ("<XF86MonBrightnessUp>",   spawnh' "custom-backlight-macbookpro_gmux -p")
- ] ++
-  subtitle "misc": mkNamedKeymap conf
+  ] ++
+  subtitle "screenshot": mkNamedKeymap conf
   [ ("M-<Print>",     addName "sshot selected to clipboard" $ spawn "sshot")
   , ("M-C-<Print>",   addName "shhot focused window"        $ spawn "sshot focused")
   , ("M-M1-<Print>",  addName "shhot full"                  $ spawn "sshot full")
-  , ("<XF86Eject>",   addName "print "                      $ spawn "xdotool click -clearmodifiers 2")
+  ] ++
+  subtitle "macbook": mkNamedKeymap conf
+  [ ("<XF86Eject>",   addName "print "                      $ spawn "xdotool click -clearmodifiers 2")
   , ("M-<XF86Eject>", addName "print screen"                $ sendKey controlMask xK_Print)
-  , ("M-C-6",         addName "store workspace group 1"     $ addCurrentWSGroup "wsg")
+  ] ++
+  subtitle "named workspace group": mkNamedKeymap conf
+  [
+    ("M-C-6",         addName "store workspace group 1"     $ addCurrentWSGroup "wsg")
   , ("M-6",           addName "restore workspace group 1"   $ holdScreenFocus $ viewWSGroup "wsg")
   , ("M-C-7",         addName "store workspace group 2"     $ addCurrentWSGroup "wsg2")
   , ("M-7",           addName "restore workspace group 2"   $ holdScreenFocus $ viewWSGroup "wsg2")
@@ -334,8 +341,20 @@ myKeys conf =
     -- | Sort workspaces by tag name, exclude hidden scrachpad workspace.
     getSortByTagNoSP = filterSomeWorkspaces getSortByTag
 
+    -- | Returns the window name as will be listed in dmenu.
+    --   Tagged with the workspace ID, to guarantee uniqueness, and to let the user
+    --   know where he's going.
+    decorateName ws w = do
+      wName <- show <$> getName w
+      cName <- getClass w
+      return $ printf "%s - %s ● [%s]" wName cName (W.tag ws)
 
+    getClass w = do
+      classHint <- withDisplay $ \d -> io $ getClassHint d w
+      return $ resClass classHint
+    gotoWindow = gotoMenuConfig def {menuArgs=[], windowTitler=decorateName}
 
+
 
 -- | Mouse bindings
 myMouseBindings =
@@ -495,7 +514,7 @@ myManageHook =
     doCenterFloatLarge = myCenterFloat 0.95 0.85
     doSink = ask >>= doF . W.sink
     skipTaskbar = isInProperty "_NET_WM_STATE" "_NET_WM_STATE_SKIP_TASKBAR"
-    isAbove = isInProperty "_NET_WM_STATE" "_NET_WM_STATE_ABOVE"
+    -- isAbove = isInProperty "_NET_WM_STATE" "_NET_WM_STATE_ABOVE"
     isTooltip = stringProperty "_NET_WM_WINDOW_TYPE" =? "_NET_WM_WINDOW_TYPE_TOOLTIP"
     startsWith' :: Eq a => Query [a] -> [a] -> Query Bool
     startsWith' q prefix = fmap (isPrefixOf prefix) q
