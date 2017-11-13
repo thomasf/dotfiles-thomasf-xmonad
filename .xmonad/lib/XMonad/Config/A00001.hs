@@ -154,6 +154,7 @@ myKeys conf =
   subtitle "Workspace actions (E/R) [mod=select from prefix] [mod+control=select from all]": mkNamedKeymap conf
   [ ("M-e",         addName "Next workspace (prefix)"     $ rmEmptyWs $ nextWsPrefix >> movePointer >> showWorkspaceNameFast)
   , ("M-r",         addName "Previous workspace (prefix)" $ rmEmptyWs $ prevWsPrefix >> movePointer >> showWorkspaceNameFast)
+  , ("M-C-e",       addName "New workspace in prefix.sequence" $ newPrefixWS >> movePointer >> showWorkspaceNameFast)
   , ("M-S-<Space>", addName "reset layout"                $ setLayout (XMonad.layoutHook conf) >> updateStruts >> movePointer)
   ] ++
   subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]": mkNamedKeymap conf
@@ -318,6 +319,22 @@ myKeys conf =
     -- | Select previous workspac with same prefix
     prevWsPrefix = windows . W.greedyView
                    =<< findWorkspace getSortByTagNoSP Prev wsi 1
+
+    -- | Create a new prefixed sub workspace
+    newPrefixWS :: X ()
+    newPrefixWS = withWindowSet $ \w -> do
+      thisWS <- gets (W.currentTag . windowset)
+      let wss = W.workspaces w
+          currentTagPrefix = takeWhile (/='.') thisWS
+          cws = map W.tag $ filter (\ws -> (currentTagPrefix ++ ".") `isPrefixOf` W.tag ws && isJust (W.stack ws)) wss
+          num = head $ [0..] \\ mapMaybe (readMaybe . drop (length currentTagPrefix +1 )) cws :: Integer
+          new = printf "%s%c%i"currentTagPrefix wsSeparator num
+      unless (new `elem` map W.tag wss) $ myViewWS new
+      windows $ W.view new
+        where readMaybe s = case reads s of
+                       [(r,_)] -> Just r
+                       _       -> Nothing
+
 
     -- | filter some workspaces
     filterSomeWorkspaces = fmap (.namedScratchpadFilterOutWorkspace
