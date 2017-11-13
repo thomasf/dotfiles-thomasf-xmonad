@@ -47,7 +47,7 @@ import qualified XMonad.Actions.Navigation2D as Nav2d
 import           XMonad.Actions.PerWorkspaceKeys
 import           XMonad.Actions.RotSlaves
 import           XMonad.Actions.UpdatePointer
-import           XMonad.Actions.WindowBringer (gotoMenuConfig,  WindowBringerConfig(..))
+import           XMonad.Actions.WindowBringer as WB
 import           XMonad.Actions.WithAll
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
@@ -329,7 +329,7 @@ myKeys conf =
           currentTagPrefix = takeWhile (/='.') thisWS
           cws = map W.tag $ filter (\ws -> (currentTagPrefix ++ ".") `isPrefixOf` W.tag ws && isJust (W.stack ws)) wss
           num = head $ [0..] \\ mapMaybe (readMaybe . drop (length currentTagPrefix +1 )) cws :: Integer
-          new = printf "%s%c%i"currentTagPrefix wsSeparator num
+          new = printf "%s%c%i" currentTagPrefix wsSeparator num
       unless (new `elem` map W.tag wss) $ myViewWS new
       windows $ W.view new
         where readMaybe s = case reads s of
@@ -370,7 +370,7 @@ myKeys conf =
     getClass w = do
       classHint <- withDisplay $ \d -> io $ getClassHint d w
       return $ resClass classHint
-    gotoWindow = gotoMenuConfig def {menuArgs=[], windowTitler=decorateName}
+    gotoWindow = WB.gotoMenuConfig def {WB.menuArgs=[], windowTitler=decorateName}
 
 
 
@@ -887,14 +887,8 @@ showLayoutName = do
 -- | Enforce recaluclation of docks gaps. After updating a ~5month old xmonad master today docks were not being avoided by avoudStruts on new desktop.
 updateStruts = docksStartupHook
 
-
 -- -- -- -- WIP dmenu everywhere... there is a grab problem...
 
--- unGrab :: X ()
--- unGrab = withDisplay $ \d ->
---   do
---     io $ ungrabPointer d currentTime
---     io $ ungrabKeyboard d currentTime
 
 -- dmc ws = do
 --   DM.dmenu (map W.tag ws)
