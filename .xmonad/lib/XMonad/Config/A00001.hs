@@ -88,6 +88,7 @@ import           XMonad.Util.Run
 import           XMonad.Util.WorkspaceCompare
 import           XMonad.Util.NamedWindows (getName)
 import           Text.Printf
+import           XMonad.Util.Ungrab (unGrab)
 
 
 -- Keyboard configuration:
@@ -182,9 +183,9 @@ myKeys conf =
   , ("<XF86MonBrightnessUp>",   spawnh' "custom-backlight-macbookpro_gmux -p")
   ] ++
   subtitle "screenshot": mkNamedKeymap conf
-  [ ("M-<Print>",     addName "sshot selected to clipboard" $ spawn "sshot")
-  , ("M-C-<Print>",   addName "shhot focused window"        $ spawn "sshot focused")
-  , ("M-M1-<Print>",  addName "shhot full"                  $ spawn "sshot full")
+  [ ("M-<Print>",     addName "sshot selected to clipboard" $ unGrab >> spawn "sshot")
+  , ("M-C-<Print>",   addName "shhot focused window"        $ unGrab >> spawn "sshot focused")
+  , ("M-M1-<Print>",  addName "shhot full"                  $ unGrab >> spawn "sshot full")
   ] ++
   subtitle "macbook": mkNamedKeymap conf
   [ ("<XF86Eject>",   addName "print "                      $ spawn "xdotool click -clearmodifiers 2")
