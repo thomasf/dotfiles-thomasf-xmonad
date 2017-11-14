@@ -51,7 +51,6 @@ import           XMonad.Actions.WindowBringer as WB
 import           XMonad.Actions.WithAll
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
-import           XMonad.Hooks.FadeInactive
 import           XMonad.Hooks.ManageDocks (docks, avoidStruts, ToggleStruts(..), docksStartupHook)
 import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.ServerMode
@@ -76,7 +75,7 @@ import           XMonad.Layout.Reflect
 import           XMonad.Layout.Renamed
 import           XMonad.Layout.Spacing
 import qualified XMonad.Layout.Spiral as Spiral
-import           XMonad.Prompt
+import qualified XMonad.Prompt as XP
 import           XMonad.Prompt.Workspace
 import qualified XMonad.StackSet as W hiding (swapUp, swapDown)
 import qualified XMonad.Util.Dzen as DZ
@@ -201,13 +200,13 @@ myKeys conf =
   , ("M-8",           addName "restore workspace group 3"   $ holdScreenFocus $ viewWSGroup "wsg3")
   ] ++
   subtitle "screen splitting": mkNamedKeymap conf
-  [ ("M-5 2",  addName "Split current screen by 2 panes 0.5"              $ LS.layoutSplitScreen 2 $ smartSpacing 2 $ (TwoPane 0 0.5))
-  , ("M-5 1",  addName "Split current screen by 2 panes 0.7"              $ LS.layoutSplitScreen 2 $ smartSpacing 2 $ (TwoPane 0 0.33))
-  , ("M-5 3",  addName "Split current screen by 3 even columns"           $ LS.layoutSplitScreen 3 $ smartSpacing 2 $ (Mirror (Tall 3 (0) (0))))
+  [ ("M-5 2",  addName "Split current screen by 2 panes 0.5"              $ LS.layoutSplitScreen 2 $ smartSpacing 2 (TwoPane 0 0.5))
+  , ("M-5 1",  addName "Split current screen by 2 panes 0.7"              $ LS.layoutSplitScreen 2 $ smartSpacing 2 (TwoPane 0 0.33))
+  , ("M-5 3",  addName "Split current screen by 3 even columns"           $ LS.layoutSplitScreen 3 $ smartSpacing 2 (Mirror (Tall 3 0 0)))
   -- , ("M-5 e",  addName "Split current screen by 3 larger center"          $ LS.layoutSplitScreen 3 $ smartSpacing 2 $ (ThreeColMid 1 (3/100) (4/10)))
-  , ("M-5 4",  addName "Split current screen by 3 columns + bottom wide"  $ LS.layoutSplitScreen 4 $ smartSpacing 2 $ Mirror (Tall 3 (0) (5/6)))
-  , ("M-5 m",  addName "Merge screens 1 + 2"                              $ LS.layoutScreens 2 $ Full)
-  , ("M-5 r",  addName "Reset screens from xinerama, rescreen"            $ rescreen)
+  , ("M-5 4",  addName "Split current screen by 3 columns + bottom wide"  $ LS.layoutSplitScreen 4 $ smartSpacing 2 $ Mirror (Tall 3 0 (5/6)))
+  , ("M-5 m",  addName "Merge screens 1 + 2"                              $ LS.layoutScreens 2  Full)
+  , ("M-5 r",  addName "Reset screens from xinerama, rescreen"              rescreen)
   ] ++
   subtitle "Toggle scratchpads and workspaces": mkNamedKeymap conf
   [ ("M-<Space>",           toggleScratch "largeTerminal")
@@ -270,11 +269,11 @@ myKeys conf =
     -- selectWorkspacePromptHidden = workspacePrompt'
 
     -- | Select workspace promt only showing non visible workspaces
-    workspacePromptHidden :: XPConfig -> (String -> X ()) -> X ()
+    workspacePromptHidden :: XP.XPConfig -> (String -> X ()) -> X ()
     workspacePromptHidden c job = do ws <- gets (W.hidden . windowset)
                                      s <- getSortByIndex
                                      let ts = map W.tag $ s ws
-                                     mkXPrompt (Wor "") c (mkComplFunFromList' ts) job
+                                     XP.mkXPrompt (Wor "") c (XP.mkComplFunFromList' ts) job
 
 
     -- | Toggle scratch pad
@@ -608,7 +607,7 @@ myXineramaWsCompare' phy = do
     isOnScreen a w  = a `elem` map (W.tag . W.workspace) (onScreen w)
     tagToSid s x = W.screen $ fromJust $ find ((== x) . W.tag . W.workspace) s
     cmpPosition False w a b = comparing (tagToSid $ onScreen w) a b
-    cmpPosition True w a b = comparing (rect.(tagToSid $ onScreen w)) a b
+    cmpPosition True w a b = comparing (rect . tagToSid (onScreen w)) a b
       -- where rect i = let (Rectangle x y _ _) = screens !! fromIntegral i in (y,x)
       where rect i = let (Rectangle x y _ _) = screens !! fromIntegral i in (x,y)
             screens = map (screenRect . W.screenDetail) $ sortBy (comparing W.screen) $ W.current w : W.visible w
@@ -635,18 +634,18 @@ myUrgencyHook =
 
 
 -- XMonad Prompt configuration
-myXPConfig :: XPConfig
+myXPConfig :: XP.XPConfig
 myXPConfig = def
- { position = CenteredAt 0.4 0.5
- , bgColor = Sol.base2
- , fgColor = Sol.base01
- , bgHLight = Sol.base2
- , fgHLight = Sol.magenta
- , borderColor = Sol.base2
- , promptBorderWidth = 1
- , font = sizedXftFont "20"
- , height = 24
- , promptKeymap = emacsLikeXPKeymap
+ { XP.position = XP.CenteredAt 0.4 0.5
+ , XP.bgColor = Sol.base2
+ , XP.fgColor = Sol.base01
+ , XP.bgHLight = Sol.base2
+ , XP.fgHLight = Sol.magenta
+ , XP.borderColor = Sol.base2
+ , XP.promptBorderWidth = 1
+ , XP.font = sizedXftFont "20"
+ , XP.height = 24
+ , XP.promptKeymap = XP.emacsLikeXPKeymap
  }
 
 
@@ -669,9 +668,8 @@ myCenterFloat w h = customFloating $ W.RationalRect left top width height
   where
     width = w
     height = h
-    left = (1 - width) / 2
-    top = (1 - height) / 2
-
+    left = (1 - w) / 2
+    top = (1 - h) / 2
 
 myNavigation2DConfig = def {
   Nav2d.defaultTiledNavigation =  Nav2d.centerNavigation }
@@ -773,7 +771,8 @@ kill' = withFocused $ \win -> do
   killOrElse win appn titl res role
     where
   alwayskillable titl = "Developer Tools -" `isPrefixOf` titl
-  unkillable appn titl res = appn `elem` ["ssh_tmux"] || titl == "XMonad" || res == "floating-center-large"
+  -- unkillable appn titl res = appn `elem` ["ssh_tmux"] || titl == "XMonad" || res == "floating-center-large"
+  unkillable appn titl res = (appn == "ssh_tmux") || titl == "XMonad" || res == "floating-center-large"
   scratchTerm appn = appn == "scratchpad_largeTerminal"
   askToKill appn role = (appn == "google-chrome" && role == "browser") || (appn=="urxvt")
   killOrElse win appn titl res role
@@ -845,22 +844,22 @@ showWorkspaceNameOld = showWorkspaceName' showStatusMultipleMessagesDuration Sol
 -- | Show active workspace name fast
 showWorkspaceNameFast = showWorkspaceName' showStatusSingleMessageDuration Sol.magenta
 
-showAppName msg = showMessage 1 Sol.cyan Sol.base03 msg
+showAppName = showMessage 1 Sol.cyan Sol.base03
 
 getScreenRect :: X Rectangle
 getScreenRect = (screenRect . W.screenDetail . W.current) <$> gets windowset
 
 showMessage timeout bg fg msg = do
   sr <-  getScreenRect
-  let rx p = (fromIntegral $ p sr)
+  let rx p = fromIntegral $ p sr
       sw = rx rect_width
       sh = rx rect_height
       sx = rx rect_x
       sy = rx rect_y
-      w = max (sw/3) (min sw 400)
-      x = (sx + sw/2 - w/2)
-      h = min sh 100
-      y = (sy + sh/2 - h/2)
+      w = max (sw/3) (min sw 400) :: Double
+      x = sx + sw/2 - w/2
+      h = min sh 100 :: Double
+      y = sy + sh/2 - h/2
 
   DZ.dzenConfig
     (DZ.timeout timeout
