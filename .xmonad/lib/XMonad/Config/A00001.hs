@@ -95,7 +95,7 @@ import           XMonad.Util.Ungrab (unGrab)
 -- simply for convenience and readability
 confModMask = mod4Mask
 
-myKeys conf =
+myKeys xpc conf=
   subtitle "Cyclic window actions (J/K) [+=focus] [+control=cycle+keep focus] [+shift=move]": mkNamedKeymap conf
   [ ("M-j",             addName "Focus next window on workspace"          _windowFocusDown)
   , ("M-k",             addName "Focus previous window on workspace"      _windowFocusUp)
@@ -225,8 +225,8 @@ myKeys conf =
   -- , ("M-C-i M-C-i",         addName "cycle ws on next screen"               $ holdScreenFocus $ nextScreen >> myCycleRecentWs xK_i xK_o)
   -- , ("M-C-u M-C-u",         addName "cycle ws on prev screen"               $ holdScreenFocus $ prevScreen >> myCycleRecentWs xK_o xK_i)
   , ("M-i <Space> <Space>", addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
-  , ("M-S-i",               addName "Move window to other workspace prompt" $ DW.withWorkspace myXPConfig (windows . W.shift) >> movePointer >> updateStruts)
-  , ("M-i <Space> r",       addName "Rename current workspace"              $ DW.renameWorkspace myXPConfig >> movePointer)
+  , ("M-S-i",               addName "Move window to other workspace prompt" $ DW.withWorkspace xpc (windows . W.shift) >> movePointer >> updateStruts)
+  , ("M-i <Space> r",       addName "Rename current workspace"              $ DW.renameWorkspace xpc >> movePointer)
   , ("M-i <Backspace>",     addName "Delete current workspace"              $ DW.removeWorkspace >> movePointer)
   , ("M-p w",               addName "www"                                   $ gotoPrefixWS "www" >> movePointer)
   , ("M-p d",               addName "doc"                                   $ gotoPrefixWS "doc" >> movePointer)
@@ -259,7 +259,7 @@ myKeys conf =
     myViewWS' wsid = addName("Show " ++ wsid ++ " workspace ") $ do
       rmEmptyWs $ myViewWS wsid
       movePointer
-    wsPrompt wsp = wsp myXPConfig afterWSPrompt
+    wsPrompt wsp = wsp xpc afterWSPrompt
 
     -- | Select workspae prompt
     selectWorkspacePrompt = wsPrompt workspacePrompt
@@ -272,8 +272,11 @@ myKeys conf =
     workspacePromptHidden :: XP.XPConfig -> (String -> X ()) -> X ()
     workspacePromptHidden c job = do ws <- gets (W.hidden . windowset)
                                      s <- getSortByIndex
+                                     thisWS <- gets (W.currentTag . windowset)
                                      let ts = map W.tag $ s ws
-                                     XP.mkXPrompt (Wor "") c (XP.mkComplFunFromList' ts) job
+                                         prefix = takeWhile (/= wsSeparator) thisWS
+                                     XP.mkXPrompt (Wor " ") c{XP.defaultText=prefix} (XP.mkComplFunFromList' ts) job
+
 
 
     -- | Toggle scratch pad
@@ -634,19 +637,29 @@ myUrgencyHook =
 
 
 -- XMonad Prompt configuration
-myXPConfig :: XP.XPConfig
-myXPConfig = def
+
+defXPConfig = def
  { XP.position = XP.CenteredAt 0.4 0.5
- , XP.bgColor = Sol.base2
- , XP.fgColor = Sol.base01
- , XP.bgHLight = Sol.base2
- , XP.fgHLight = Sol.magenta
- , XP.borderColor = Sol.base2
  , XP.promptBorderWidth = 1
  , XP.font = sizedXftFont "20"
  , XP.height = 24
  , XP.promptKeymap = XP.emacsLikeXPKeymap
  }
+myXPConfig darkmode = if darkmode
+  then defXPConfig
+ { XP.bgColor = Sol.base02
+ , XP.fgColor = Sol.base1
+ , XP.bgHLight = Sol.base02
+ , XP.fgHLight = Sol.magenta
+ , XP.borderColor = Sol.base02
+ } else defXPConfig
+ { XP.bgColor = Sol.base2
+ , XP.fgColor = Sol.base01
+ , XP.bgHLight = Sol.base2
+ , XP.fgHLight = Sol.magenta
+ , XP.borderColor = Sol.base2
+ }
+
 
 
 
@@ -681,7 +694,7 @@ myNavigation2DConfig = def {
 a00001Config = do
   home <- io $ getEnv "HOME"
   darkmode <- doesFileExist $ home ++ "/.config/darkmode"
-  return . docks . Nav2d.withNavigation2DConfig myNavigation2DConfig . myUrgencyHook . addDescrKeys' ((confModMask, xK_F1), showKeybindings) myKeys $ def {
+  return . docks . Nav2d.withNavigation2DConfig myNavigation2DConfig . myUrgencyHook . addDescrKeys' ((confModMask, xK_F1), showKeybindings) (myKeys $ myXPConfig darkmode) $ def {
     terminal           = myTerminal
   , focusFollowsMouse  = False
   , borderWidth        = myDefaultBorderWidth
