@@ -25,6 +25,7 @@ module XMonad.Config.A00001
       a00001Config,
     ) where
 import           Control.Monad
+import           Data.Char (isSpace)
 import           Data.List
 import qualified Data.Map as M
 import           Data.Ratio ((%))
@@ -88,6 +89,8 @@ import           XMonad.Util.WorkspaceCompare
 import           XMonad.Util.NamedWindows (getName)
 import           Text.Printf
 import           XMonad.Util.Ungrab (unGrab)
+import qualified Control.Arrow as Arrow
+import qualified Graphics.Rendering.Pango.Layout as PL
 
 
 -- Keyboard configuration:
@@ -272,11 +275,11 @@ myKeys xpc conf=
     workspacePromptHidden :: XP.XPConfig -> (String -> X ()) -> X ()
     workspacePromptHidden c job = do ws <- gets (W.hidden . windowset)
                                      s <- getSortByIndex
-                                     thisWS <- gets (W.currentTag . windowset)
+                                     -- thisWS <- gets (W.currentTag . windowset)
                                      let ts = map W.tag $ s ws
-                                         prefix = takeWhile (/= wsSeparator) thisWS
-                                     XP.mkXPrompt (Wor " ") c{XP.defaultText=prefix} (XP.mkComplFunFromList' ts) job
-
+                                         -- prefix = takeWhile (/= wsSeparator) thisWS
+                                         prefix = ""
+                                     XP.mkXPrompt (Wor "") c {XP.defaultText=prefix} (XP.mkComplFunFromList' ts) job
 
 
     -- | Toggle scratch pad
@@ -329,6 +332,7 @@ myKeys xpc conf=
       thisWS <- gets (W.currentTag . windowset)
       let wss = W.workspaces w
           currentTagPrefix = takeWhile (/='.') thisWS
+
           cws = map W.tag $ filter (\ws -> (currentTagPrefix ++ ".") `isPrefixOf` W.tag ws && isJust (W.stack ws)) wss
           num = head $ [0..] \\ mapMaybe (readMaybe . drop (length currentTagPrefix +1 )) cws :: Integer
           new = printf "%s%c%i" currentTagPrefix wsSeparator num
@@ -337,6 +341,20 @@ myKeys xpc conf=
         where readMaybe s = case reads s of
                        [(r,_)] -> Just r
                        _       -> Nothing
+
+   -- | Create a new prefixed sub workspace
+    -- newPrefixWSName wsid
+    newPrefixWSName wsid = withWindowSet $ \w -> do
+    -- newPrefixWSName wsid = do
+      let wss = W.workspaces w
+          currentTagPrefix = takeWhile (/='.') wsid
+          cws = map W.tag $ filter (\ws -> (currentTagPrefix ++ ".") `isPrefixOf` W.tag ws && isJust (W.stack ws)) wss
+          num = head $ [0..] \\ mapMaybe (readMaybe . drop (length currentTagPrefix +1 )) cws :: Integer
+          new = printf "%s%c%i" currentTagPrefix wsSeparator num
+      return new
+        where readMaybe s = case reads s of
+                [(r,_)] -> Just r
+                _       -> Nothing
 
 
     -- | filter some workspaces
@@ -367,12 +385,20 @@ myKeys xpc conf=
     decorateName ws w = do
       wName <- show <$> getName w
       cName <- getClass w
-      return $ printf "%s - %s ● [%s]" wName cName (W.tag ws)
+      let wm = PL.escapeMarkup wName
+          cn = PL.escapeMarkup cName
+          tn = PL.escapeMarkup (W.tag ws)
+      return $ printf "%s<span font_family='Consolas'> — %s</span> ❨%s❩" wm cn tn
 
     getClass w = do
       classHint <- withDisplay $ \d -> io $ getClassHint d w
       return $ resClass classHint
-    gotoWindow = WB.gotoMenuConfig def {WB.menuArgs=[], windowTitler=decorateName}
+
+    gotoWindow = WB.gotoMenuConfig def {
+      WB.menuCommand="rofi",
+      WB.menuArgs=["-markup-rows", "-dmenu"],
+      windowTitler=decorateName }
+
 
 
 
@@ -643,7 +669,7 @@ defXPConfig = def
  , XP.promptBorderWidth = 1
  , XP.font = sizedXftFont "20"
  , XP.height = 24
- , XP.promptKeymap = XP.emacsLikeXPKeymap
+ , XP.promptKeymap = emacsLikeXPKeymap' (\c -> isSpace c || c == '.')
  }
 myXPConfig darkmode = if darkmode
   then defXPConfig
@@ -660,6 +686,47 @@ myXPConfig darkmode = if darkmode
  , XP.borderColor = Sol.base2
  }
 
+emacsLikeXPKeymap' :: (Char -> Bool) -> M.Map (KeyMask,KeySym) (XP.XP ())
+emacsLikeXPKeymap' p = M.fromList $
+  map (Arrow.first $ (,) controlMask) -- control + <key>
+  [ (xK_z, XP.killBefore) --kill line backwards
+  , (xK_k, XP.killAfter) -- kill line fowards
+  , (xK_a, XP.startOfLine) --move to the beginning of the line
+  , (xK_e, XP.endOfLine) -- move to the end of the line
+  , (xK_d, XP.deleteString Next) -- delete a character foward
+  , (xK_b, XP.moveCursor Prev) -- move cursor forward
+  , (xK_f, XP.moveCursor Next) -- move cursor backward
+  , (xK_BackSpace, XP.killWord' p Prev) -- kill the previous word
+  , (xK_y, XP.pasteString)
+  , (xK_g, XP.quit)
+  , (xK_bracketleft, XP.quit)
+  ] ++
+  map (Arrow.first $ (,) mod1Mask) -- meta key + <key>
+  [ (xK_BackSpace, XP.killWord' p Prev)
+  , (xK_f, XP.moveWord' p Next) -- move a word forward
+  , (xK_b, XP.moveWord' p Prev) -- move a word backward
+  , (xK_d, XP.killWord' p Next) -- kill the next word
+  , (xK_n, XP.moveHistory W.focusUp')
+  , (xK_p, XP.moveHistory W.focusDown')
+  ]
+  ++
+  map (Arrow.first $ (,) 0) -- <key>
+  [ (xK_Return, XP.setSuccess True >> XP.setDone True)
+  , (xK_KP_Enter, XP.setSuccess True >> XP.setDone True)
+  , (xK_BackSpace, XP.deleteString Prev)
+  , (xK_Delete, XP.deleteString Next)
+  , (xK_Left, XP.moveCursor Prev)
+  , (xK_Right, XP.moveCursor Next)
+  , (xK_Home, XP.startOfLine)
+  , (xK_End, XP.endOfLine)
+  , (xK_Down, XP.moveHistory W.focusUp')
+  , (xK_Up, XP.moveHistory W.focusDown')
+  , (xK_Escape, XP.quit)
+  , (xK_space, setSomething)
+  ] where
+    setSomething = do
+      XP.setInput ""
+      XP.endOfLine
 
 
 
