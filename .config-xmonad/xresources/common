@@ -36,7 +36,10 @@ rofi.bw:                              4
 rofi.lines:                           30
 rofi.width:                           75
 rofi.padding:                         8
-
+rofi.kb-primary-paste:               Control+y,Shift+Insert
+rofi.kb-secondary-paste:             Control+y,Insert
+rofi.kb-page-prev:                   Alt+v,Page_Up
+rofi.kb-page-next:                   Control+v,Page_Down
 ! rofi.fullscreen: true
 
 
