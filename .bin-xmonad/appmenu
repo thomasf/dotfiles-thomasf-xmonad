@@ -26,7 +26,6 @@ interm() {
       read any;
 "
 }
-# ppath ~/.opt/idea/bin
 
 tr=urxvt
 
@@ -66,9 +65,7 @@ case $cmd in
     exec www $*
     ;;
   man)
-    init=""
-    [ -e ~/.emacs.d/init-low.el ] && init="-l ~/.emacs.d/init-low";
-    exec emacs -q $init -eval "(man \"$*\")"
+    exec emacs -q -eval "(progn (setq Man-notify-method 'bully) (man \"$*\"))"
     ;;
   reboot|shutdown|suspend|hibernate)
     exec a.$cmd
