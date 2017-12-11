@@ -220,7 +220,7 @@ myKeys xpc conf=
   , ("M-i h",               myViewWS' "home")
   , ("M-i m",               myViewWS' "mail")
   , ("M-i n",               myViewWS' "nodes")
-  , ("M-i s",               myViewWS' "scratch")
+  , ("M-i s",               myViewWS' "s")
   , ("M-i w",               myViewWS' "www")
   , ("M-i j",               myViewWS' "work")
   , ("M-i M-i",             addName "cycle ws"                              $ rmEmptyWs $ myCycleRecentWs xK_i xK_o)
@@ -235,12 +235,8 @@ myKeys xpc conf=
   , ("M-p d",               addName "doc"                                   $ gotoPrefixWS "doc" >> movePointer)
   , ("M-p c",               addName "code"                                  $ gotoPrefixWS "code" >> movePointer)
   , ("M-p r",               addName "remote/ssh"                            $ gotoPrefixWS "remote" >> movePointer)
-  , ("M-p s",               addName "scratch"                               $ gotoPrefixWS "scratch" >> movePointer)
-  , ("M-p t",               addName "term"                                  $ gotoPrefixWS "term" >> movePointer)
-  , ("M-p e",               addName "emacs"                                 $ gotoPrefixWS "emacs" >> movePointer)
-  , ("M-p j",               addName "j"                                     $ gotoPrefixWS "j")
+  , ("M-p s",               addName "scratch"                               $ gotoPrefixWS "s" >> movePointer)
   , ("M-p f",               addName "files"                                 $ gotoPrefixWS "files")
-  , ("M-p k",               addName "k"                                     $ gotoPrefixWS "k")
   , ("M-p p",               addName "base" gotoBaseWS)
  ] ++
  subtitle "exit/quit/leave/reboot...": mkNamedKeymap conf
@@ -255,7 +251,7 @@ myKeys xpc conf=
     spawnhm cmd' = addName cmd' $ bindOn' $ showAppName cmd' >> spawn cmd'
 
     -- | Remove current workpace if empty
-    rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "scratch", "scratch.0", "scratch.1", "scratch.2", "scratch.3", "scratch.4" ]
+    rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "", "s.0", "s.1", "s.2", "s.3", "s.4" ]
 
 
     -- | View a workspace by name, remove left over empty workspace and move pointer
@@ -450,7 +446,7 @@ largeFont = sizedFont "32"
 
 
 -- | Workspaces
-myWorkspaces = [ "scratch", "scratch.0", "scratch.1", "scratch.2", "scratch.3", "scratch.4"]
+myWorkspaces = [ "s", "s.0", "s.1", "s.2", "s.3", "s.4"]
 myTerminal = "urxvt"
 
 -- | Layout hook
