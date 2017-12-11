@@ -392,7 +392,7 @@ myKeys xpc conf=
 
     gotoWindow = WB.gotoMenuConfig def {
       WB.menuCommand="rofi",
-      WB.menuArgs=["-markup-rows", "-dmenu"],
+      WB.menuArgs=["-markup-rows", "-dmenu", "-i", "-no-custom"],
       windowTitler=decorateName }
 
 
