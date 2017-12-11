@@ -539,6 +539,7 @@ myManageHook =
   -- NOTE chrome does note set title early enough for this
   -- , [role      =? "pop-up" <&&> appName =? "google-chrome" <&&> startsWith' title "Developer Tools - "  -?> doSink]
   , [role      =? "pop-up" <&&> appName =? "google-chrome" -?> doCenterFloatLarge]
+  , [role      =? "GtkFileChooserDialog" -?> doCenterFloatLarge]
   , [role      =? "bubble" -?>                                 doIgnore]
   , [className =? "Zenity" <&&> title =? "Question" -?>        doCenterFloat]
   , [className =? "Zenity" -?>                                 doCenterFloatLarge]
