@@ -1,6 +1,6 @@
 -- THIS IS A DERIVED THEME - DO NOT EDIT MANUALLY !!!
-Config { font = "xft:Pragmata Pro:pixelsize=20"
-       , additionalFonts = ["xft:Pragmata Pro:pixelsize=15", "xft:Pragmata Pro:pixelsize=14:weight=bold"]
+Config { font = "xft:Pragmata Pro:pixelsize=27"
+       , additionalFonts = ["xft:Pragmata Pro:pixelsize=17", "xft:Pragmata Pro:pixelsize=16 :weight=bold"]
        , borderColor = "#fdf6e3"
        , bgColor = "#fdf6e3"
        , fgColor = "#839496"
@@ -14,7 +14,7 @@ Config { font = "xft:Pragmata Pro:pixelsize=20"
        , overrideRedirect = True
        , persistent = True
        , pickBroadest = False
-       , position = TopSize C 100 28
+       , position = TopSize C 100 32
        , textOffset = -1
        , commands = [ Run DynNetwork ["-t", "<dev>:t<tx>:r<rx>k", "-L","0","-H","1000","--normal","#839496","--high","#586e75"] 30
                     , Run MultiCpu ["-t", "<total>%", "-L","3","-H","80","--normal","#586e75","--high","#dc322f", "-c", "0", "-p", "2"] 10

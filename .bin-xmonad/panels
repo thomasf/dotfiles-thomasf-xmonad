@@ -32,5 +32,5 @@ old_trayer=$(pidof trayer)
 [ ! -z "${old_xmobars}" ] && sleep 1.5 && kill $old_xmobars
 [ ! -z "${old_trayer}" ] && kill $old_trayer
 [ $(pidof trayer) ] && sleep 0.4
-trayer --edge top --align right --widthtype percent --width 12 --height 28 --tint ${bg} --alpha 0 --transparent true --monitor primary &
+trayer --edge top --align right --widthtype percent --width 12 --height 32 --tint ${bg} --alpha 0 --transparent true --monitor primary &
 sleep 0.8

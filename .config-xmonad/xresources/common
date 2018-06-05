@@ -20,9 +20,9 @@ Xft.hintystyle:                       hintfull
 ! Xft.hintstyle:                        hintslight
 ! Xft.dpi:                            96
 ! Xft.dpi:                            120
-! TODO: dpi should be set per system....
-Xft.dpi:                              137
-rofi.dpi:                             137
+! TODO: dpi should be set per system.... 
+Xft.dpi:                              170
+rofi.dpi:                             170
 rofi.font:                            PragmataPro 11
 
 Xft.rgba:                             rgb
