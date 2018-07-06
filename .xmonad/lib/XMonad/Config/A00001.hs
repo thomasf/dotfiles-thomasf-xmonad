@@ -464,7 +464,7 @@ myLayoutHook =
   onWorkspace "work" (fullBorder ||| tabs ||| gridWide) .
   onWorkspace "upgrade" alternative .
   onWorkspace "im" im $
-  lessBorders OnlyFloat
+  lessBorders OnlyScreenFloat
   standard
   where
     -- control
@@ -478,7 +478,8 @@ myLayoutHook =
     onTall = onHosts ["transwhale"]
     -- helpers
     refmin = mkToggle (single REFLECTX)
-    ss = smartSpacingWithEdge myDefaultSpacerWidth
+    mySpacing i = spacingRaw True (Border i i i i) True (Border i i i i) True
+    ss = mySpacing myDefaultSpacerWidth
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
     -- layouts
