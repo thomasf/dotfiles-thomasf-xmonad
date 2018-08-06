@@ -55,9 +55,10 @@ case $cmd in
   iptraf-ng|aptitude|iotop)
     exec urxvt -e sudo $cmd $*
     ;;
-  wireshark|synaptic|zenmap|firestarter|nm-connection-editor|gnome-disks|baobab|usb-creator-gtk|gparted)
-    exec gksudo $cmd $*
-    ;;
+  # TODO: gksudo removed in ubuntuap
+  # wireshark|synaptic|zenmap|firestarter|nm-connection-editor|gnome-disks|baobab|usb-creator-gtk|gparted)
+  # exec gksudo $cmd $*
+  # ;;
   dropbox)
     exec dropboxmenu
     ;;
