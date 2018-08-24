@@ -485,7 +485,9 @@ myLayoutHook =
     -- layouts
     oneBig = rename "1big" . ss . refmin $ OneBig (3/4) (3/4)
     chat = rename "chat" . ss . refmin $ fullscreenFull Full
-    fullBorder = rename "full" . ss . refmin $ fullscreenFull Full
+    -- disable fullscreenFull because there were issues
+    -- fullBorder = rename "full" . ss . refmin $ fullscreenFull Full
+    fullBorder = rename "full" . ss . refmin $ Full
     full = rename "full" $ noBorders (fullscreenFull Full)
     wide' nm ir = rename "wide" . ss . Mirror . refmin $ Tall nm (3/100) ir
     wide = onTall (wide' 1 (7/8)) (wide' 2 (4/5))
