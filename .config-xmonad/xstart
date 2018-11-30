@@ -11,6 +11,10 @@
 # Fixes OpenJDK for usage with XMonad (or other non parenting window managers)
 export _JAVA_AWT_WM_NONREPARENTING=1
 
+# Fix alacritty starting with different scaling when >1 displays with physical
+# DPI differences.
+export WINIT_HIDPI_FACTOR=1
+
 # Set the backbround color
 [ $(which xsetroot ) ] \
   && xsetroot -solid '#073642' &
