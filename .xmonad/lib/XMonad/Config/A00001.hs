@@ -119,7 +119,7 @@ myKeys xpc conf=
   , ("M-o j", spawnh' "x.todo")
   , ("M-o w", spawnhm "www")
   , ("M-o d", spawnhm "www-dev")
-  , ("M-o t", spawnh "urxvt")
+  , ("M-o t", spawnh "term")
   , ("M-o e", spawnhm "e")
   , ("M-o n", spawnhm "nautilus")
   , ("M-o a", addName "Run default workspace launcer script" $ bindOnProtectedWorkspace workspaceAction maybeWorkspaceAction)
@@ -457,7 +457,7 @@ largeFont = sizedFont "32"
 
 -- | Workspaces
 myWorkspaces = [ "s", "s.0", "s.1", "s.2", "s.3", "s.4"]
-myTerminal = "urxvt"
+myTerminal = "term"
 
 -- | Layout hook
 myLayoutHook =
@@ -746,7 +746,8 @@ myScratchPads = [ NS "largeTerminal" (term "largeTerminal") (res =? scratch "lar
                 ]
   where
     scratch sname = "scratchpad_" ++ sname
-    term sname = myTerminal ++ " -name " ++ scratch sname
+    -- term sname = myTerminal ++ " -name " ++ scratch sname
+    term sname = " urxvt " ++ " -name " ++ scratch sname
     termScratch scmd = NS scmd (inTerm' scmd scmd) (res =? scratch scmd)
     inTerm' sname scmd = term sname ++ " -e " ++  scmd
     res = resource
@@ -862,7 +863,7 @@ kill' = withFocused $ \win -> do
   -- unkillable appn titl res = appn `elem` ["ssh_tmux"] || titl == "XMonad" || res == "floating-center-large"
   unkillable appn titl res = (appn == "ssh_tmux") || titl == "XMonad" || res == "floating-center-large"
   scratchTerm appn = appn == "scratchpad_largeTerminal"
-  askToKill appn role = (appn == "google-chrome" && role == "browser") || (appn=="urxvt")
+  askToKill appn role = (appn == "google-chrome" && role == "browser") || (appn=="urxvt") || (appn=="Alacitty")
   killOrElse win appn titl res role
     | alwayskillable titl = killWindow win
     | unkillable appn titl res = return ()

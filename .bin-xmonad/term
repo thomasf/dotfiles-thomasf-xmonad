@@ -8,18 +8,14 @@
 
 set -e
 
-cmd=${1}
-# FIXME this just ignores the l/d/o options.. this script is deprecated so best to remove all references to it.
-case $cmd in
-    l|light)
-        shift 1
-        ;;
-    d|dark)
-        shift 1
-        ;;
-    o|other)
-        shift 1
-        ;;
-esac
-
-exec urxvt "$@"
+if hash alacritty 2>/dev/null; then
+  dir="${XDG_CONFIG_HOME:-${HOME}/.config-xmonad}/alacritty"
+  config="alacritty.${HOST}.yml"
+  if cp -n "${dir}/_default.yml" "${dir}/${config}" 2>/dev/null; then
+    exec alacritty --config-file "${dir}/${config}" "$@"
+  else
+    exec alacritty "$@"
+  fi
+else
+  exec urxvt "$@"
+fi
