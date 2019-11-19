@@ -42,7 +42,7 @@ font:
 selection:
   semantic_escape_chars: ",│`|:\"' ()[]{}<>\t"
   # When set to `true`, selected text will be copied to the primary clipboard.
-  save_to_clipboard: false
+  save_to_clipboard: true
 
 dynamic_title: true
 cursor:
