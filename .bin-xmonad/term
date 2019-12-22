@@ -10,7 +10,7 @@ set -e
 
 if hash alacritty 2>/dev/null; then
   dir="${XDG_CONFIG_HOME:-${HOME}/.config-xmonad}/alacritty"
-  config="alacritty.${HOST}.yml"
+  config="alacritty.${HOSTNAME:-tmp}.yml"
   if cp -n "${dir}/_default.yml" "${dir}/${config}" 2>/dev/null; then
     exec alacritty --config-file "${dir}/${config}" "$@"
   else
