@@ -75,6 +75,7 @@ import           XMonad.Layout.PerWorkspace (onWorkspace)
 import           XMonad.Layout.Reflect
 import           XMonad.Layout.Renamed
 import           XMonad.Layout.Spacing
+import           XMonad.Layout.SimpleFloat (simpleFloat)
 import qualified XMonad.Layout.Spiral as Spiral
 import qualified XMonad.Prompt as XP
 import           XMonad.Prompt.Workspace
@@ -213,6 +214,7 @@ myKeys xpc conf=
   ] ++
   subtitle "Toggle scratchpads and workspaces": mkNamedKeymap conf
   [ ("M-<Space>",           toggleScratch "largeTerminal")
+  , ("M-i a",               myViewWS' "android")
   , ("M-i b",               myViewWS' "vbox")
   , ("M-i c",               myViewWS' "chat")
   , ("M-i d",               myViewWS' "dash")
@@ -464,6 +466,7 @@ myTerminal = "term"
 myLayoutHook =
   onWorkspace "video" (renameStar full) .
   onWorkspace "vbox" (renameStar full) .
+  onWorkspace "android" (renameStar simpleFloat) .
   avoidStruts .
   mkToggle (single NBFULL) .
   boringWindows .
@@ -540,8 +543,9 @@ myManageHook =
   fullscreenManageHook <+> namedScratchpadManageHook myScratchPads <+> (composeOne . concat $
   [ [resource  =? r -?>                                        doIgnore           | r <- ["desktop_window", "kdesktop", "Panel"]]
   , [className =? c -?>                                        doIgnore           | c <- ["Ediff", "Unity-2d-panel", "Xfce4-notifyd", "Xfdesktop"]]
-  , [className =? c -?>                                        doSink             | c <- ["emulator64-mips", "emulator-arm", "emulator-x86"
-                                                                                          ,"emulator64-arm", "emulator64-x86", "emulator-mips"]]
+  -- , [className =? c -?>                                        doSink             | c <- ["emulator64-mips", "emulator-arm", "emulator-x86"
+  --                                                                                        ,"emulator64-arm", "emulator64-x86", "emulator-mips"]]
+  , [wmName    =? "Emulator" -?> doFloat]
   , [isTooltip -?>                                             doIgnore]
   , [className =? c <&&> skipTaskbar  -?>                      doIgnore           | c <- ["UE4Editor", "com-eteks-sweethome3d-SweetHome3D"]]
   , [className =? "Skype" <&&> title =? "Options" -?> doCenterFloatLarge]
@@ -566,7 +570,9 @@ myManageHook =
   , [resource  =? "xmessage" -?>                               doCenterFloatLarge]
   ])
   where
+
     role = stringProperty "WM_WINDOW_ROLE"
+    wmName = stringProperty "WM_WINDOW_NAME"
     doCenterFloatLarge = myCenterFloat 0.95 0.85
     doSink = ask >>= doF . W.sink
     skipTaskbar = isInProperty "_NET_WM_STATE" "_NET_WM_STATE_SKIP_TASKBAR"
