@@ -288,7 +288,7 @@ myKeys xpc conf=
                                      let ts = map W.tag $ s ws
                                          -- prefix = takeWhile (/= wsSeparator) thisWS
                                          prefix = ""
-                                     XP.mkXPrompt (Wor "") c {XP.defaultText=prefix} (XP.mkComplFunFromList' ts) job
+                                     XP.mkXPrompt (Wor "") c {XP.defaultText=prefix} (XP.mkComplFunFromList' c ts ) job
 
 
     -- | Toggle scratch pad
