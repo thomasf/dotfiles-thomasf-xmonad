@@ -105,3 +105,15 @@ colors:
     magenta: '0x6c71c4' # violet
     cyan:    '0x93a1a1' # base1
     white:   '0xfdf6e3' # base3
+
+key_bindings:
+  - { key: V,        mods: Super,         action: Paste            }
+  - { key: C,        mods: Super,         action: Copy             }
+  - { key: Insert,   mods: Shift,         action: PasteSelection   }
+  - { key: Key0,     mods: Control,       action: ResetFontSize    }
+  - { key: Equals,   mods: Control,       action: IncreaseFontSize }
+  - { key: Add,      mods: Control,       action: IncreaseFontSize }
+  - { key: Subtract, mods: Control,       action: DecreaseFontSize }
+  - { key: Minus,    mods: Control,       action: DecreaseFontSize }
+  - { key: V,        mods: Control|Shift, action: ReceiveChar      }
+  - { key: C,        mods: Control|Shift, action: ReceiveChar      }
