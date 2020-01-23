@@ -45,7 +45,7 @@ rofi.kb-page-next:                   Control+v,Page_Down
 
 !---- X Cursor theme {
 Xcursor.theme:                        DMZ-White
-Xcursor.size:                         16
+Xcursor.size:                         48
 
 !---- Emacs {
 Emacs*.FontBackend:                   xft
