@@ -1,5 +1,4 @@
 #!/bin/bash
-
 if [ -e ~/.config/darkmode ]; then
     mode=dark
     bg=0x002b36
@@ -8,14 +7,15 @@ else
     bg=0xfdf6e3
 fi
 
+# set -x
 
-xStatus=`xrandr -q`
-connectedOutputs=$(echo "$xStatus" | grep " connected" | sed -e "s/\([A-Z0-9]\+\) connected.*/\1/")
+xStatus="$(xrandr -q)"
+# connectedOutputs=$(echo "$xStatus" | grep " connected" | sed -e "s/\([A-Z0-9]\+\) connected.*/\1/")
 activeOutputs=$(echo "$xStatus" | grep -e " connected [^(]" | sed -e "s/\([A-Z0-9]\+\) connected.*/\1/")
-connected=$(echo $connectedOutputs | wc -w)
-active=$(echo $activeOutputs | wc -w)
+# connected=$(echo $connectedOutputs | wc -w)
+active="$(echo $activeOutputs | wc -w)"
 
-cd ~/.config-xmonad/xmobar/
+cd ~/.config-xmonad/xmobar/ || exit 1
 
 old_xmobars="$(pidof xmobar)"
 xmobar ${mode}-top-x0 -x 0 &
@@ -29,8 +29,8 @@ if [ $active -gt 1 ]; then
 fi
 
 old_trayer=$(pidof trayer)
-[ ! -z "${old_xmobars}" ] && sleep 1.5 && kill $old_xmobars
+[ ! -z "${old_xmobars}" ] && sleep 1.5 && kill -9 $old_xmobars
 [ ! -z "${old_trayer}" ] && kill $old_trayer
 [ $(pidof trayer) ] && sleep 0.4
-trayer --edge top --align right --widthtype percent --width 12 --height 32 --tint ${bg} --alpha 0 --transparent true --monitor primary &
+trayer --edge top --align right --widthtype percent --width 12 --height 32 --tint "${bg}" --alpha 0 --transparent true --monitor primary &
 sleep 0.8
