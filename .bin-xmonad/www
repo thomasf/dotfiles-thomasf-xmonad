@@ -26,4 +26,11 @@ case $(basename ${0}) in
     ;;
 esac
 
-exec google-chrome $args "$@"
+
+if hash google-chrome 2>/dev/null; then
+  exec google-chrome $args "$@"
+elif [ -e /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome ]; then
+  exec /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome $args "$@"
+else
+  exit 1
+fi

@@ -16,6 +16,16 @@ if hash alacritty 2>/dev/null; then
   else
     exec alacritty "$@"
   fi
+elif [ -e /Applications/Alacritty.app/Contents/MacOS/alacritty ]; then
+  dir="${XDG_CONFIG_HOME:-${HOME}/.config-xmonad}/alacritty"
+  config="alacritty.${HOSTNAME:-tmp}.yml"
+  if cp -n "${dir}/_default.yml" "${dir}/${config}" 2>/dev/null; then
+    exec /Applications/Alacritty.app/Contents/MacOS/alacritty --config-file "${dir}/${config}" "$@"
+  else
+    exec /Applications/Alacritty.app/Contents/MacOS/alacritty "$@"
+  fi
+elif [ -e /Applications/iTerm.app/Contents/MacOS/iTerm2 ]; then
+  exec /Applications/iTerm.app/Contents/MacOS/iTerm2 "$@"
 else
   exec urxvt "$@"
 fi
