@@ -9,8 +9,11 @@ case $(gsettings get org.gnome.nautilus.preferences recursive-search) in
     ;;
   *)
     echo "no match for current state"
+    notify-send "no match for current state" &
     exit 1
     ;;
 esac
 
+
+notify-send "next state: ${next}" &
 exec gsettings set org.gnome.nautilus.preferences recursive-search "${next}"
