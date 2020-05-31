@@ -20,7 +20,6 @@ Config { font = "xft:Pragmata Pro:pixelsize=27"
                     , Run MultiCpu ["-t", "<total>%", "-L","3","-H","80","--normal","#93a1a1","--high","#dc322f", "-c", "0", "-p", "2"] 10
                     , Run Memory ["-t","<fc=#93a1a1><available></fc>M"] 30
                     , Run DateZone "%a %b %-d %H:%M" "en_US.utf8" "Europe/Stockholm" "sthmlDate" 10
-                    , Run DateZone "%H:" "en_US.utf8" "Asia/Singapore" "time2" 10
                     , Run Battery ["-t", "<left>%", "-L", "10", "-H", "80"
                                   , "--"
                                   , "-L", "-15", "-H", "-5", "-l", "#93a1a1", "-m", "#93a1a1", "-h", "#93a1a1"] 600
@@ -28,7 +27,7 @@ Config { font = "xft:Pragmata Pro:pixelsize=27"
        ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%xm% }{ <fn=1>%dynnetwork%  <action=`x.info` button=1>ma%memory%  cu%multicpu%  b%battery%</action></fn>  <fn=1><fc=#859900><action=`x.todo` button=1>%sthmlDate%</action></fc> <fc=#657b83>(%time2%)</fc>  </fn>"
+       , template = "%xm% }{ <fn=1>%dynnetwork%  <action=`x.info` button=1>ma%memory%  cu%multicpu%  b%battery%</action></fn>  <fn=1><fc=#859900><action=`x.todo` button=1>%sthmlDate%</action></fc></fn> "
 
        
 
