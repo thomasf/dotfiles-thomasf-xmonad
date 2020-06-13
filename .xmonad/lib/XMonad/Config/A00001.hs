@@ -225,7 +225,7 @@ myKeys xpc conf=
   , ("M-i s",               myViewWS' "s")
   , ("M-i w",               myViewWS' "www")
   , ("M-i j",               myViewWS' "work")
-  , ("M-i k",               myViewWS' "worklib")
+  , ("M-i k",               myViewWS' "work-client")
   , ("M-i M-i",             addName "cycle ws"                              $ rmEmptyWs $ myCycleRecentWs xK_i xK_o)
   , ("M-i i",               addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePromptHidden >> maybeWorkspaceAction >> movePointer)
   -- , ("M-C-i M-C-i",         addName "cycle ws on next screen"               $ holdScreenFocus $ nextScreen >> myCycleRecentWs xK_i xK_o)
@@ -476,7 +476,7 @@ myLayoutHook =
   onWorkspace "nodes" (renameStar tabs) .
   onWorkspace "dash" (dash ||| grid) .
   onWorkspace "work" (fullBorder ||| tabs ||| gridWide) .
-  onWorkspace "worklib" (fullBorder ||| tabs ||| gridWide) .
+  onWorkspace "work-client" (fullBorder ||| tabs ||| gridWide) .
   onWorkspace "upgrade" alternative .
   onWorkspace "im" im $
   lessBorders OnlyScreenFloat
@@ -839,7 +839,7 @@ movePointer = updatePointer (0.99, 0.99) (0, 0)
 -- | bind keys but not for some protected workspaces
 bindOnProtectedWorkspace cmd' altCmd  = bindOn
     [ ("work", altCmd)
-    , ("worklib", altCmd)
+    , ("work-client", altCmd)
     , ("dash", altCmd)
     , ("chat", altCmd)
     , ("mail", altCmd)
