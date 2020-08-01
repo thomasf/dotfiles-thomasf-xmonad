@@ -23,17 +23,7 @@ type Flags struct {
 
 func (f *Flags) Register() {
 
-	hostname, err := os.Hostname()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if strings.Contains(hostname, ".") {
-		ss := strings.Split(hostname, ".")
-		hostname = ss[0]
-	}
-
-	flag.StringVar(&f.Host, "host", hostname, "host name")
+	flag.StringVar(&f.Host, "host", Hostname(), "host name")
 	flag.StringVar(&f.OS, "os", runtime.GOOS, "os name")
 	flag.StringVar(&f.Theme, "theme", "solarized-light", "theme name")
 	flag.StringVar(&f.Keys, "keys", runtime.GOOS, "keys name")
@@ -59,6 +49,7 @@ func main() {
 		log.Fatalf("error: %v", err)
 	}
 	ioutil.WriteFile("alacritty.yml", d, 0600)
+	ioutil.WriteFile(fmt.Sprintf("alacritty.%s.yml", Hostname()), d, 0600)
 
 }
 
@@ -93,4 +84,17 @@ func loadAndMerge(filename string, m map[interface{}]interface{}) error {
 		return err
 	}
 	return nil
+}
+
+func Hostname() string {
+	hostname, err := os.Hostname()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if strings.Contains(hostname, ".") {
+		ss := strings.Split(hostname, ".")
+		hostname = ss[0]
+	}
+	return hostname
 }
