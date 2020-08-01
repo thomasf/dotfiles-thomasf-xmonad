@@ -1,0 +1,13 @@
+font:
+  normal:
+    family: "Pragmata Pro Mono"
+    style: Regular
+
+  bold:
+    family: "Pragmata Pro Mono"
+    style: Bold
+
+  italic:
+    family: "Pragmata Pro Mono"
+    style: Italic
+

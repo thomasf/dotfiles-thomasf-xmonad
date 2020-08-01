@@ -18,7 +18,6 @@ type Flags struct {
 	OS    string
 	Host  string
 	Theme string
-	Font  string
 	Keys  string
 }
 
@@ -37,7 +36,6 @@ func (f *Flags) Register() {
 	flag.StringVar(&f.Host, "host", hostname, "host name")
 	flag.StringVar(&f.OS, "os", runtime.GOOS, "os name")
 	flag.StringVar(&f.Theme, "theme", "solarized-light", "theme name")
-	flag.StringVar(&f.Font, "font", "pragmatapro", "font name")
 	flag.StringVar(&f.Keys, "keys", runtime.GOOS, "keys name")
 }
 
@@ -53,7 +51,6 @@ func main() {
 	mustLoadAndMerge("c.common.yml", m)
 	mustLoadAndMergeIfExists(fmt.Sprintf("c.keys.%s.yml", flags.Keys), m)
 	mustLoadAndMerge(fmt.Sprintf("c.colors.%s.yml", flags.Theme), m)
-	mustLoadAndMerge(fmt.Sprintf("c.font.%s.yml", flags.Font), m)
 	mustLoadAndMergeIfExists(fmt.Sprintf("c.os.%s.yml", flags.OS), m)
 	mustLoadAndMergeIfExists(fmt.Sprintf("c.host.%s.yml", flags.Host), m)
 

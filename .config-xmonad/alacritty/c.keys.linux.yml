@@ -1,3 +1,4 @@
+
 key_bindings:
   - { key: V,        mods: Super,         action: Paste            }
   - { key: C,        mods: Super,         action: Copy             }
