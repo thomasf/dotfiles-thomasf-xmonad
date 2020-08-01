@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"runtime"
+	"strings"
 
 	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
@@ -27,6 +28,12 @@ func (f *Flags) Register() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	if strings.Contains(hostname, ".") {
+		ss := strings.Split(hostname, ".")
+		hostname = ss[0]
+	}
+
 	flag.StringVar(&f.Host, "host", hostname, "host name")
 	flag.StringVar(&f.OS, "os", runtime.GOOS, "os name")
 	flag.StringVar(&f.Theme, "theme", "solarized-light", "theme name")
