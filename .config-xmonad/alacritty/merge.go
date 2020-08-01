@@ -18,7 +18,8 @@ type Flags struct {
 	OS    string
 	Host  string
 	Theme string
-	Keys  string
+
+	Out string
 }
 
 func (f *Flags) Register() {
@@ -26,7 +27,7 @@ func (f *Flags) Register() {
 	flag.StringVar(&f.Host, "host", Hostname(), "host name")
 	flag.StringVar(&f.OS, "os", runtime.GOOS, "os name")
 	flag.StringVar(&f.Theme, "theme", "solarized-light", "theme name")
-	flag.StringVar(&f.Keys, "keys", runtime.GOOS, "keys name")
+	flag.StringVar(&f.Out, "out", "alacritty.yml", "output filename")
 }
 
 func main() {
@@ -39,7 +40,6 @@ func main() {
 
 	m := make(map[interface{}]interface{})
 	mustLoadAndMerge("c.common.yml", m)
-	mustLoadAndMergeIfExists(fmt.Sprintf("c.keys.%s.yml", flags.Keys), m)
 	mustLoadAndMerge(fmt.Sprintf("c.colors.%s.yml", flags.Theme), m)
 	mustLoadAndMergeIfExists(fmt.Sprintf("c.os.%s.yml", flags.OS), m)
 	mustLoadAndMergeIfExists(fmt.Sprintf("c.host.%s.yml", flags.Host), m)
@@ -48,7 +48,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
-	ioutil.WriteFile("alacritty.yml", d, 0600)
+	ioutil.WriteFile(flags.Out, d, 0600)
 	// ioutil.WriteFile(fmt.Sprintf("alacritty.%s.yml", Hostname()), d, 0600)
 
 }

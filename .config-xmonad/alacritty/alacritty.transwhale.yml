@@ -240,6 +240,9 @@ key_bindings:
   mods: Shift
 mouse:
   hide_when_typing: true
+  url:
+    launcher:
+      program: www
 scrolling:
   history: 100000
 selection:
