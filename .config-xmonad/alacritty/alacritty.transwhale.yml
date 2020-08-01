@@ -1,6 +1,9 @@
 env:
   # TERM: xterm-256color
   TERM: xterm-24bit
+
+window:
+  dynamic_title: true
   # padding:
     # x: "1"
     # y: " 1"
@@ -42,8 +45,6 @@ selection:
   semantic_escape_chars: ",│`|:\"' ()[]{}<>\t"
   # When set to `true`, selected text will be copied to the primary clipboard.
   save_to_clipboard: true
-window:
-  dynamic_title: true
 
 cursor:
   style: Block
