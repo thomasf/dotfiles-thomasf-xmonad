@@ -1,3 +1,6 @@
+window:
+  decorations: buttonless
+
 font:
   normal:
     family: "Pragmata Pro Mono"
