@@ -1,0 +1,20 @@
+env:
+  TERM: xterm-24bit
+
+font:
+  size: 11.0
+  offset:
+    'x': 0
+    'y': 1
+
+  normal:
+    family: "PragmataPro MONGO"
+    style: Regular
+
+  bold:
+    family: "PragmataPro MONGO"
+    style: Bold
+
+  italic:
+    family: "PragmataPro MONGO"
+    style: Italic

@@ -1,0 +1,5 @@
+mouse:
+  url:
+    launcher:
+      program: www
+      # args: []

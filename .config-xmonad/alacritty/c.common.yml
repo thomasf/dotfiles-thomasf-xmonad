@@ -1,0 +1,22 @@
+env:
+  TERM: xterm-256color
+
+window:
+  dynamic_title: true
+
+scrolling:
+  history: 100000
+
+selection:
+  semantic_escape_chars: ",│`|:\"' ()[]{}<>\t"
+  save_to_clipboard: true
+
+cursor:
+  style: Block
+  unfocused_hollow: true
+  vi_mode_style: Underline
+
+working_directory: None
+
+mouse:
+  hide_when_typing: true
