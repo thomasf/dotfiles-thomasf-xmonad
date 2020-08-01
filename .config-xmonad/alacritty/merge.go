@@ -49,7 +49,7 @@ func main() {
 		log.Fatalf("error: %v", err)
 	}
 	ioutil.WriteFile("alacritty.yml", d, 0600)
-	ioutil.WriteFile(fmt.Sprintf("alacritty.%s.yml", Hostname()), d, 0600)
+	// ioutil.WriteFile(fmt.Sprintf("alacritty.%s.yml", Hostname()), d, 0600)
 
 }
 
