@@ -11,7 +11,7 @@ set -e
 if hash alacritty 2>/dev/null; then
   dir="${XDG_CONFIG_HOME:-${HOME}/.config-xmonad}/alacritty"
   config="alacritty.${HOSTNAME:-tmp}.yml"
-  if cp -n "${dir}/_default.yml" "${dir}/${config}" 2>/dev/null; then
+  if [ -e "${dir}/${config}" ]; then
     exec alacritty --config-file "${dir}/${config}" "$@"
   else
     exec alacritty "$@"
@@ -19,7 +19,7 @@ if hash alacritty 2>/dev/null; then
 elif [ -e /Applications/Alacritty.app/Contents/MacOS/alacritty ]; then
   dir="${XDG_CONFIG_HOME:-${HOME}/.config-xmonad}/alacritty"
   config="alacritty.${HOSTNAME:-tmp}.yml"
-  if cp -n "${dir}/_default.yml" "${dir}/${config}" 2>/dev/null; then
+  if [ -e "${dir}/${config}" ]; then
     exec /Applications/Alacritty.app/Contents/MacOS/alacritty --config-file "${dir}/${config}" "$@"
   else
     exec /Applications/Alacritty.app/Contents/MacOS/alacritty "$@"
