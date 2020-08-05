@@ -250,4 +250,7 @@ selection:
   semantic_escape_chars: ",│`|:\"' ()[]{}<>\t"
 window:
   dynamic_title: true
+  padding:
+    x: 4
+    "y": 4
 working_directory: None
