@@ -58,7 +58,7 @@ import           XMonad.Hooks.ServerMode
 import           XMonad.Hooks.SetWMName
 import           XMonad.Hooks.UrgencyHook hiding (args)
 import           XMonad.Hooks.WorkspaceHistory (workspaceHistoryHook)
-import           XMonad.Layout.BoringWindows hiding (Replace)
+import           XMonad.Layout.BoringWindows hiding (Replace, swapUp, swapDown)
 import           XMonad.Layout.Fullscreen
 import           XMonad.Layout.Grid
 import           XMonad.Layout.TwoPane
