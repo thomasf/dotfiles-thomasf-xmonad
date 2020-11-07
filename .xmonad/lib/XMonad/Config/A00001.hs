@@ -800,7 +800,7 @@ a00001Config = do
     -- | Display keyboard mappings using zenity
     showKeybindings :: [((KeyMask, KeySym), NamedAction)] -> NamedAction
     showKeybindings x = addName "Show Keybindings" $ io $ do
-      h <- spawnPipe "zenity --text-info --font=terminus"
+      h <- spawnPipe "zenity --text-info --font='Ubuntu Mono'"
       hPutStr h (unlines $ showKm x)
       hClose h
       return ()
