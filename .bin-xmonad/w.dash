@@ -29,7 +29,8 @@ esac
 wsname -s && exit 1
 
 
-launchTerminal "pamixer" "pamixer" "-a 2"
+# launchTerminal "pamixer" "pamixer" "-a 2"
+pavucontrol &
 launchTerminal "htop" "htop"
 # launchTerminal "dstat" "dstat" "--time --load --cpu --mem --swap --disk --fs --net --socket --sys 30"
 launchTerminal "ncmpcpp" "ncmpcpp"
