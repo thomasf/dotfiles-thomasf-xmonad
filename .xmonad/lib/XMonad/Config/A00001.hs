@@ -28,6 +28,7 @@ import           Control.Monad
 import           Data.Char (isSpace)
 import           Data.List
 import qualified Data.Map as M
+import           Data.Monoid
 import           Data.Ratio ((%))
 import           Data.Ord
 import           Data.Maybe
@@ -589,8 +590,14 @@ myManageHook =
 -- return (All True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
 --
-myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> serverModeEventHook
+myHandleEventHook = noRescreenEventHook <+> ewmhDesktopsEventHook <+> fullscreenEventHook <+> serverModeEventHook
 
+
+noRescreenEventHook (ConfigureEvent {ev_window = w}) = do
+    r <- asks theRoot
+    return $ All $ w /= r
+
+noRescreenEventHook _ = mempty
 
 
 -- Status bars and logging
