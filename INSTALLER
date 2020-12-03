@@ -26,4 +26,6 @@ fi
 [ -e "${HOME}/.fonts.conf.d" ] \
   || ln -fs "$(pwd)/.config-xmonad/fontconfig/conf.d" "${HOME}/.fonts.conf.d"
 
+go install ./cmd/...
+
 set +x

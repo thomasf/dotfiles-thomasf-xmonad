@@ -46,7 +46,7 @@ killall -q nm-applet
 killall -q dropboxd
 killall -q pulseaudio
 killall -q compton
-sleep 0.4
+sleep 0.3
 
 # Launch a new dbus-session if not already running
 # dbuslaunch="`which dbus-launch 2>/dev/null`"
@@ -147,14 +147,6 @@ if [ $(which mpd) ]; then
       mpc -q single off
       mpc -q consume off
     fi
-    sleep 4
-    # FIXME this file is removed at start up because scmpc can hang and
-    # resubmit the cache forever under some circumstances.
-    [ -f $HOME/.scmpc/scmpc.cache ] \
-      && rm $HOME/.scmpc/scmpc.cache
-    [ $(which scmpc) ] \
-      && [ -f $HOME/.scmpc/scmpc.conf ] \
-      && scmpc
   ) &
 fi
 
