@@ -80,160 +80,192 @@ key_bindings:
   mods: Control|Shift
 - action: ScrollToBottom
   key: Space
-  mode: Vi
+  mode: Vi|~Search
   mods: Shift|Control
 - action: ToggleViMode
   key: Space
+  mode: ~Search
   mods: Shift|Control
 - action: ClearSelection
   key: Escape
-  mode: Vi
+  mode: Vi|~Search
 - action: ScrollToBottom
   key: I
-  mode: Vi
+  mode: Vi|~Search
+- action: ToggleViMode
+  key: I
+  mode: Vi|~Search
+- action: ToggleViMode
+  key: C
+  mode: Vi|~Search
+  mods: Control
 - action: ScrollLineUp
   key: "Y"
-  mode: Vi
+  mode: Vi|~Search
   mods: Control
 - action: ScrollLineDown
   key: E
-  mode: Vi
+  mode: Vi|~Search
   mods: Control
 - action: ScrollToTop
   key: G
-  mode: Vi
+  mode: Vi|~Search
 - action: ScrollToBottom
   key: G
-  mode: Vi
+  mode: Vi|~Search
   mods: Shift
 - action: ScrollPageUp
   key: B
-  mode: Vi
+  mode: Vi|~Search
   mods: Control
 - action: ScrollPageDown
   key: F
-  mode: Vi
+  mode: Vi|~Search
   mods: Control
 - action: ScrollHalfPageUp
   key: U
-  mode: Vi
+  mode: Vi|~Search
   mods: Control
 - action: ScrollHalfPageDown
   key: D
-  mode: Vi
+  mode: Vi|~Search
   mods: Control
 - action: Copy
   key: "Y"
-  mode: Vi
+  mode: Vi|~Search
 - action: ClearSelection
   key: "Y"
-  mode: Vi
+  mode: Vi|~Search
 - action: ClearSelection
   key: Copy
-  mode: Vi
+  mode: Vi|~Search
 - action: ToggleNormalSelection
   key: V
-  mode: Vi
+  mode: Vi|~Search
 - action: ToggleLineSelection
   key: V
-  mode: Vi
+  mode: Vi|~Search
   mods: Shift
 - action: ToggleBlockSelection
   key: V
-  mode: Vi
+  mode: Vi|~Search
   mods: Control
 - action: ToggleSemanticSelection
   key: V
-  mode: Vi
+  mode: Vi|~Search
   mods: Alt
 - action: Open
   key: Return
-  mode: Vi
+  mode: Vi|~Search
 - action: Up
   key: K
-  mode: Vi
+  mode: Vi|~Search
 - action: Down
   key: J
-  mode: Vi
+  mode: Vi|~Search
 - action: Left
   key: H
-  mode: Vi
+  mode: Vi|~Search
 - action: Right
   key: L
-  mode: Vi
+  mode: Vi|~Search
 - action: Up
   key: Up
-  mode: Vi
+  mode: Vi|~Search
 - action: Down
   key: Down
-  mode: Vi
+  mode: Vi|~Search
 - action: Left
   key: Left
-  mode: Vi
+  mode: Vi|~Search
 - action: Right
   key: Right
-  mode: Vi
+  mode: Vi|~Search
 - action: First
   key: Key0
-  mode: Vi
+  mode: Vi|~Search
 - action: Last
   key: Key4
-  mode: Vi
+  mode: Vi|~Search
   mods: Shift
 - action: FirstOccupied
   key: Key6
-  mode: Vi
+  mode: Vi|~Search
   mods: Shift
 - action: High
   key: H
-  mode: Vi
+  mode: Vi|~Search
   mods: Shift
 - action: Middle
   key: M
-  mode: Vi
+  mode: Vi|~Search
   mods: Shift
 - action: Low
   key: L
-  mode: Vi
+  mode: Vi|~Search
   mods: Shift
 - action: SemanticLeft
   key: B
-  mode: Vi
+  mode: Vi|~Search
 - action: SemanticRight
   key: W
-  mode: Vi
+  mode: Vi|~Search
 - action: SemanticRightEnd
   key: E
-  mode: Vi
+  mode: Vi|~Search
 - action: WordLeft
   key: B
-  mode: Vi
+  mode: Vi|~Search
   mods: Shift
 - action: WordRight
   key: W
-  mode: Vi
+  mode: Vi|~Search
   mods: Shift
 - action: WordRightEnd
   key: E
-  mode: Vi
+  mode: Vi|~Search
   mods: Shift
 - action: Bracket
   key: Key5
-  mode: Vi
+  mode: Vi|~Search
   mods: Shift
 - action: SearchForward
   key: Slash
-  mode: Vi
+  mode: Vi|~Search
 - action: SearchBackward
   key: Slash
-  mode: Vi
+  mode: Vi|~Search
   mods: Shift
 - action: SearchNext
   key: "N"
-  mode: Vi
+  mode: Vi|~Search
 - action: SearchPrevious
   key: "N"
-  mode: Vi
+  mode: Vi|~Search
+  mods: Shift
+- action: SearchPrevious
+  key: P
+  mode: Vi|~Search
+- action: SearchConfirm
+  key: Return
+  mode: Search|Vi
+- action: SearchCancel
+  key: Escape
+  mode: Search
+- action: SearchClear
+  key: U
+  mode: Search
+  mods: Control
+- action: SearchDeleteWord
+  key: W
+  mode: Search
+  mods: Control
+- action: SearchFocusNext
+  key: Return
+  mode: Search|~Vi
+- action: SearchFocusPrevious
+  key: Return
+  mode: Search|~Vi
   mods: Shift
 mouse:
   hide_when_typing: true
