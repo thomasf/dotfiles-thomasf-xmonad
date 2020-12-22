@@ -271,6 +271,7 @@ mouse:
   hide_when_typing: true
   url:
     launcher:
+      args: []
       program: www
 scrolling:
   history: 100000

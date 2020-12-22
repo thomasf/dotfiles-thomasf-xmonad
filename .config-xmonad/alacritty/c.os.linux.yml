@@ -15,7 +15,7 @@ mouse:
   url:
     launcher:
       program: www
-      # args: []
+      args: []
 
 key_bindings:
   - { key: V,        mods: Super,         action: Paste            }
