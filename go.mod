@@ -1,4 +1,4 @@
-module dotfiles/xmonad/cmd
+module dotfiles/xmonad
 
 go 1.15
 
