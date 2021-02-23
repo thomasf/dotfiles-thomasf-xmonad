@@ -1,4 +1,4 @@
-module dotfiles/xmonad/.config-xmonad/alacritty-genconfig
+module dotfiles/alacritty-genconfig
 
 go 1.14
 
