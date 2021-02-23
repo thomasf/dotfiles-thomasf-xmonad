@@ -4,9 +4,9 @@
 
 projectsroot="/Users/${USER}/Music/Ableton/projects/"
 project="${projectsroot}/scriptdev Project/scriptdev.als"
-lver="10.1.9"
+lver="11.0"
 log="/Users/${USER}/Library/Preferences/Ableton/Live ${lver}/log.txt"
-scriptsPath="/Applications/Ableton Live 10 Suite.app/Contents/App-Resources/MIDI Remote Scripts"
+scriptsPath="/Applications/Ableton Live 11 Suite.app/Contents/App-Resources/MIDI Remote Scripts"
 cleanScripts="launchpad95 launchpad95hk fs2 beatstep twister twister2 nanocontrol Livid_DS1 Livid_DS1hk"
 
 waitForLiveToExit() {
@@ -59,7 +59,7 @@ startLive() {
   echo ""
   echo "---------------- LIVE IS STARTING ----------- "
   echo ""
-  /Applications/Ableton\ Live\ 10\ Suite.app/Contents/MacOS/Live "${project}" &
+  /Applications/Ableton\ Live\ 11\ Suite.app/Contents/MacOS/Live "${project}" &
 }
 
 
