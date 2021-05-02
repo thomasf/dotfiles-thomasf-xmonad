@@ -50,6 +50,18 @@ font:
     x: 0
     "y": 1
   size: 11
+hints:
+  enabled:
+  - binding:
+      key: U
+      mods: Control|Shift
+    command: www
+    mouse:
+      enabled: true
+      mods: None
+    post_processing: true
+    regex: "(mailto:|gemini:|gopher:|https:|http:|news:|file:|git:|ssh:|ftp:)[^\0-\x1F\x7F-\x9F<>\"
+      {-}\\^⟨⟩`]+"
 key_bindings:
 - action: Paste
   key: V
@@ -269,10 +281,9 @@ key_bindings:
   mods: Shift
 mouse:
   hide_when_typing: true
-  url:
-    launcher:
-      args: []
-      program: www
+mouse_bindings:
+- action: PasteSelection
+  mouse: Middle
 scrolling:
   history: 100000
 selection:
