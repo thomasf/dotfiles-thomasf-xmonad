@@ -486,7 +486,7 @@ myLayoutHook =
     -- control
     first = wide
     standard = onTall
-               (first ||| tcol ||| grid ||| gridWide ||| spiral ||| oneBig )
+               (first ||| tall ||| tcol ||| grid ||| gridWide ||| spiral ||| oneBig )
                (first ||| tall ||| tabs ||| gridWide ||| spiral ||| oneBig)
     alternative = onTall
                (tcol ||| first ||| grid)
