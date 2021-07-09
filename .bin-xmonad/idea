@@ -5,4 +5,11 @@
 
 set -e
 
-exec ~/.opt/idea/bin/idea.sh
+case ${1} in
+  format|inspect)
+    exec ~/.opt/idea/bin/idea.sh dontReopenProjects "$@"
+    ;;
+  *)
+    exec nohup ~/.opt/idea/bin/idea.sh nosplash dontReopenProjects "$@" > /dev/null 2>&1 &
+    ;;
+esac
