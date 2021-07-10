@@ -39,7 +39,7 @@ import           System.Exit ( exitSuccess )
 import           System.IO
 import           XMonad hiding ( (|||) )
 import           XMonad.Actions.CycleRecentWSAddons
-import           XMonad.Actions.CycleWS hiding (toggleWS)
+import           XMonad.Actions.CycleWS hiding (toggleWS, Not)
 import           XMonad.Actions.DwmPromote
 import           XMonad.Actions.DynamicWorkspaceGroups
 import qualified XMonad.Actions.DynamicWorkspaces as DW
