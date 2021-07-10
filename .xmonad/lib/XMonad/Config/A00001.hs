@@ -72,7 +72,7 @@ import           XMonad.Layout.MultiToggle.Instances
 import           XMonad.Layout.NoBorders
 import           XMonad.Layout.OnHost
 import           XMonad.Layout.OneBig
-import           XMonad.Layout.PerWorkspace (onWorkspace)
+import           XMonad.Layout.PerWorkspace (onWorkspace, onWorkspaces)
 import           XMonad.Layout.Reflect
 import           XMonad.Layout.Renamed
 import           XMonad.Layout.Spacing
@@ -477,7 +477,7 @@ myLayoutHook =
   onWorkspace "nodes" (renameStar tabs) .
   onWorkspace "dash" (dash ||| grid) .
   onWorkspace "work" (fullBorder ||| tabs ||| gridWide) .
-  onWorkspace "work-client" (fullBorder ||| tabs ||| gridWide) .
+  onWorkspaces ["work-client", "work-client.1", "work-client.2", "work-client.3"] (fullBorder ||| tabs ||| gridWide) .
   onWorkspace "upgrade" alternative .
   onWorkspace "im" im $
   lessBorders OnlyScreenFloat
@@ -498,6 +498,7 @@ myLayoutHook =
     ss = mySpacing myDefaultSpacerWidth
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
+
     -- layouts
     oneBig = rename "1big" . ss . refmin $ OneBig (3/4) (3/4)
     chat = rename "chat" . ss . refmin $ fullscreenFull Full
