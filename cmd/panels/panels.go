@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	_ "embed"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -343,72 +344,12 @@ type RenderContext struct {
 	Height int
 }
 
-const (
-	xmobarTopTemplate = `Config { font = "xft:Pragmata Pro:pixelsize=27"
-       , additionalFonts = ["xft:Pragmata Pro:pixelsize=17", "xft:Pragmata Pro:pixelsize=16 :weight=bold"]
-       , borderColor = "{{ .Sol.Base03 }}"
-       , bgColor = "{{ .Sol.Base03 }}"
-       , fgColor = "{{ .Sol.Base00 }}"
-       , allDesktops = True
-       , alpha = 255
-       , border = NoBorder
-       , hideOnStart = False
-       , iconOffset = -1
-       , iconRoot = "."
-       , lowerOnStart = True
-       , overrideRedirect = True
-       , persistent = True
-       , pickBroadest = False
-     {{ if eq .Width 0 }}
-       , position = TopSize C 100 {{ .Height }}
-     {{ else }}
-       , position =  Static { xpos = {{ .Xpos }}, ypos = {{ .Ypos }}, width = {{ .Width }}, height = {{ .Height }}  }
-     {{ end }}
-       , textOffset = -1
-       , commands = [ Run NamedXPropertyLog "_XMONAD_LOG_TOP" "xm"
-                    , Run DynNetwork ["-t", "<dev>:t<tx>:r<rx>k", "-L","0","-H","1000","--normal","{{ .Sol.Base00 }}","--high","{{ .Sol.Base1 }}"] 30
-                    , Run MultiCpu ["-t", "<total>%", "-L","3","-H","80","--normal","{{ .Sol.Base1 }}","--high","{{ .Sol.Red }}", "-c", "0", "-p", "2"] 10
-                    , Run Memory ["-t","<fc={{ .Sol.Base1 }}><available></fc>M"] 30
-                    , Run DateZone "%a %b %-d %H:%M" "en_US.utf8" "Europe/Stockholm" "sthmlDate" 10
-                    , Run DateZone "%H:%M" "en_US.utf8" "UTC" "time2" 10
-                    , Run Battery ["-t", "<left>%", "-L", "10", "-H", "80"
-                                  , "--"
-                                  , "-L", "-15", "-H", "-5", "-l", "{{ .Sol.Base1 }}", "-m", "{{ .Sol.Base1 }}", "-h", "{{ .Sol.Base1 }}"] 600
-                     -- , Run DiskIO [("/", "/ w<fc={{ .Sol.Base1 }}><write></fc> r<fc={{ .Sol.Base1 }}><read></fc>")] [] 20
-       ]
-       , sepChar = "%"
-       , alignSep = "}{",
-       , template = "%xm% }{ <fn=1>%dynnetwork%  <action=` + "`" + `x.info` + "`" + ` button=1>ma%memory%  cu%multicpu%  b%battery%</action></fn>  <fn=1><fc={{ .Sol.Green }}><action=` + "`" + `x.todo` + "`" + ` button=1>%sthmlDate%</action></fc> <fc={{ .Sol.Base00 }}>(%time2%)</fc>  </fn>"
-`
-	xmobarBottomTemplate = `Config { font = "xft:PT Sans Narrow-14:style=bold"
-       , additionalFonts = ["xft:PT Sans Narrow-14", "xft:Pragmata Pro:pixelsize=18:weight:bold"]
-       , borderColor = "{{ .Sol.Base02 }}"
-       , bgColor = "{{ .Sol.Base03 }}"
-       , fgColor = "{{ .Sol.Base00 }}"
-       , allDesktops = True
-       , alpha = 255
-       , border = TopB
-       , hideOnStart = False
-       , iconOffset = -1
-       , iconRoot = "."
-       , lowerOnStart = True
-       , overrideRedirect = True
-       , persistent = True
-       , pickBroadest = False
-       , position = BottomSize C 100 16
-       , textOffset = -1
-       , commands = [ Run MPD ["-t",
-                       " <statei> <artist> - <title> ",
-                       "--", "-P", ">>", "-Z", "||", "-S", "><"] 10
-                    -- , Run Com "fortune" ["~/.config-base/fortunes"] "quote" 9000
-                    , Run NamedXPropertyLog "_XMONAD_LOG_BOTTOM" "xm"
-                    , Run Kbd [("us(dvorak)", "DV"), ("us", "US")]
-                    ]
+var (
+	//go:embed xmobarTopTemplate
+	xmobarTopTemplate string
 
-       , sepChar = "%"
-       , alignSep = "}{"
-       , template = "  <fn=1><fc={{ .Sol.Base1 }}>%kbd%</fc></fn>   <fc={{ .Sol.Yellow }}>%xm%</fc> }{<fn=1><fc={{ .Sol.Green }}>%mpd%</fc></fn>"
-`
+	//go:embed xmobarBottomTemplate
+	xmobarBottomTemplate string
 )
 
 func KillAll(ctx context.Context, names ...string) error {
