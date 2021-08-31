@@ -47,6 +47,7 @@ import           XMonad.Actions.GridSelect
 import           XMonad.Actions.MouseGestures
 import qualified XMonad.Actions.Navigation2D as Nav2d
 import           XMonad.Actions.PerWorkspaceKeys
+import           XMonad.Actions.PhysicalScreens
 import           XMonad.Actions.RotSlaves
 import           XMonad.Actions.UpdatePointer
 import           XMonad.Actions.WindowBringer as WB
@@ -135,12 +136,12 @@ myKeys xpc conf=
   , ("M-C-u",      addName "Clear all urgent window statuses"              $ clearUrgents >> focusUrgent)
   ] ++
   subtitle "Screen actions": mkNamedKeymap conf
-  [ ("M-f",   addName "Next screen"                        $ showWorkspaceNameOld >> nextScreen >> movePointer >> showWorkspaceNameFast)
-  , ("M-d",   addName "Previous screen"                    $ showWorkspaceNameOld >> prevScreen >> movePointer >> showWorkspaceNameFast)
-  , ("M-C-f", addName "Swap current display witn next"     $ swapNextScreen >> nextScreen >> showWorkspaceNameOld >> prevScreen >> showWorkspaceName >> movePointer )
-  , ("M-C-d", addName "Swap current display witn previous" $ swapPrevScreen >> prevScreen >> showWorkspaceNameOld >> nextScreen >> showWorkspaceName >> movePointer )
-  , ("M-S-f", addName "Move window to next screen"         $ shiftNextScreen >> nextScreen >> movePointer )
-  , ("M-S-d", addName "Move window to previous screen"     $ shiftPrevScreen >> prevScreen >> movePointer )
+  [ ("M-f",   addName "Next screen"                        $ showWorkspaceNameOld >> nextScreen' >> movePointer >> showWorkspaceNameFast)
+  , ("M-d",   addName "Previous screen"                    $ showWorkspaceNameOld >> prevScreen' >> movePointer >> showWorkspaceNameFast)
+  , ("M-C-f", addName "Swap current display witn next"     $ swapNextScreen' >> nextScreen' >> showWorkspaceNameOld >> prevScreen' >> showWorkspaceName >> movePointer )
+  , ("M-C-d", addName "Swap current display witn previous" $ swapPrevScreen' >> prevScreen' >> showWorkspaceNameOld >> nextScreen' >> showWorkspaceName >> movePointer )
+  , ("M-S-f", addName "Move window to next screen"         $ shiftNextScreen' >> nextScreen' >> movePointer )
+  , ("M-S-d", addName "Move window to previous screen"     $ shiftPrevScreen' >> prevScreen' >> movePointer )
   ] ++
   subtitle "2D Navigation": mkNamedKeymap conf
   [ ("M-<Up>",      addName "Focus window above" $ Nav2d.windowGo U False)
@@ -229,8 +230,8 @@ myKeys xpc conf=
   , ("M-i k",               myViewWS' "work-client")
   , ("M-i M-i",             addName "cycle ws"                              $ rmEmptyWs $ myCycleRecentWs xK_i xK_o)
   , ("M-i i",               addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePromptHidden >> maybeWorkspaceAction >> movePointer)
-  -- , ("M-C-i M-C-i",         addName "cycle ws on next screen"               $ holdScreenFocus $ nextScreen >> myCycleRecentWs xK_i xK_o)
-  -- , ("M-C-u M-C-u",         addName "cycle ws on prev screen"               $ holdScreenFocus $ prevScreen >> myCycleRecentWs xK_o xK_i)
+  -- , ("M-C-i M-C-i",         addName "cycle ws on next screen"               $ holdScreenFocus $ nextScreen' >> myCycleRecentWs xK_i xK_o)
+  -- , ("M-C-u M-C-u",         addName "cycle ws on prev screen"               $ holdScreenFocus $ prevScreen' >> myCycleRecentWs xK_o xK_i)
   , ("M-i <Space> <Space>", addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
   , ("M-S-i",               addName "Move window to other workspace prompt" $ DW.withWorkspace xpc (windows . W.shift) >> movePointer >> updateStruts)
   , ("M-i <Space> r",       addName "Rename current workspace"              $ DW.renameWorkspace xpc >> movePointer)
@@ -672,6 +673,15 @@ myXineramaWsCompare' phy = do
       where rect i = let (Rectangle x y _ _) = screens !! fromIntegral i in (x,y)
             screens = map (screenRect . W.screenDetail) $ sortBy (comparing W.screen) $ W.current w : W.visible w
 
+
+physicalScreenOrder= horizontalScreenOrderer
+
+nextScreen' = onNextNeighbour  physicalScreenOrder W.view
+prevScreen' = onPrevNeighbour physicalScreenOrder W.view
+swapNextScreen' = onNextNeighbour physicalScreenOrder W.greedyView
+swapPrevScreen' = onPrevNeighbour physicalScreenOrder W.greedyView
+shiftNextScreen' = onNextNeighbour physicalScreenOrder W.shift
+shiftPrevScreen' = onPrevNeighbour physicalScreenOrder W.shift
 
 
 -- Startup hook
