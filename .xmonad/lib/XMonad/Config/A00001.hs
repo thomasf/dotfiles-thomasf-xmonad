@@ -1,9 +1,5 @@
-{-# LANGUAGE FlexibleContexts,
-  FlexibleInstances, MultiParamTypeClasses,
-  NoMonomorphismRestriction, ScopedTypeVariables,
-  TypeSynonymInstances, UndecidableInstances,
-  PostfixOperators #-}
-{-# OPTIONS_GHC -W -fno-warn-missing-signatures -fwarn-unused-imports -freduction-depth=99 #-}
+{-# LANGUAGE FlexibleContexts, FlexibleInstances, MultiParamTypeClasses, NoMonomorphismRestriction, ScopedTypeVariables, UndecidableInstances, PostfixOperators #-}
+{-# OPTIONS_GHC -W -fno-warn-missing-signatures -fwarn-unused-imports -freduction-depth=99 -Wno-deprecations #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  XMonad.Config.A00001
@@ -95,7 +91,7 @@ import           XMonad.Util.Ungrab (unGrab)
 import qualified Control.Arrow as Arrow
 import qualified Graphics.Rendering.Pango.Layout as PL
 
-
+
 -- Keyboard configuration:
 
 -- simply for convenience and readability
@@ -376,7 +372,7 @@ myKeys xpc conf=
     myFilterOutWorkspace wsname = filter (\(W.Workspace tag _ _) -> tag /= wsname)
 
     cycleRecentWS' = cycleWindowSets' options
-     where options w = map (W.view `flip` w) (recentTags w)
+     where options w = map (`W.view` w) (recentTags w)
            recentTags w = filterSomeWorkspaces map W.tag $ W.hidden w ++ [W.workspace (W.current w)]
 
     -- | Cycle recent ws
@@ -411,8 +407,8 @@ myKeys xpc conf=
       windowTitler=decorateName }
 
 
-
-
+
+
 -- | Mouse bindings
 myMouseBindings =
     [ ((0, button10), mouseGesture gestures)
@@ -437,7 +433,7 @@ myMouseBindings =
 
 
 
-
+
 -- | Colors
 myFocusedColor = Sol.magenta
 myFocusedColor2 darkmode = if darkmode then Sol.magenta else Sol.magentaL
@@ -459,7 +455,7 @@ sizedFont px = "-xos4-terminus-*-r-*-*-" ++ px  ++ "-*-*-*-*-*-iso8859-*"
 largeFont = sizedFont "32"
 
 
-
+
 -- | Workspaces
 myWorkspaces = [ "s", "s.0", "s.1", "s.2", "s.3", "s.4"]
 myTerminal = "term"
@@ -530,7 +526,7 @@ myLayoutHook =
 
 
 
-
+
 -- Window rules:
 --
 -- To find the property name associated with a program, use
@@ -577,7 +573,7 @@ myManageHook =
     role = stringProperty "WM_WINDOW_ROLE"
     wmName = stringProperty "WM_WINDOW_NAME"
     doCenterFloatLarge = myCenterFloat 0.95 0.85
-    doSink = ask >>= doF . W.sink
+    -- doSink = ask >>= doF . W.sink
     skipTaskbar = isInProperty "_NET_WM_STATE" "_NET_WM_STATE_SKIP_TASKBAR"
     -- isAbove = isInProperty "_NET_WM_STATE" "_NET_WM_STATE_ABOVE"
     isTooltip = stringProperty "_NET_WM_WINDOW_TYPE" =? "_NET_WM_WINDOW_TYPE_TOOLTIP"
@@ -585,7 +581,7 @@ myManageHook =
     startsWith' q prefix = fmap (isPrefixOf prefix) q
 
 
-
+
 -- Event handling
 
 -- Defines a <custom handler function for X Events. The function should
@@ -595,13 +591,13 @@ myManageHook =
 myHandleEventHook = noRescreenEventHook <+> ewmhDesktopsEventHook <+> fullscreenEventHook <+> serverModeEventHook
 
 
-noRescreenEventHook (ConfigureEvent {ev_window = w}) = do
+noRescreenEventHook ConfigureEvent {ev_window = w} = do
     r <- asks theRoot
     return $ All $ w /= r
 
 noRescreenEventHook _ = mempty
 
-
+
 -- Status bars and logging
 
 -- Perform an arbitrary action on each internal state change or X event.
@@ -671,9 +667,10 @@ myXineramaWsCompare' phy = do
     cmpPosition True w a b = comparing (rect . tagToSid (onScreen w)) a b
       -- where rect i = let (Rectangle x y _ _) = screens !! fromIntegral i in (y,x)
       where rect i = let (Rectangle x y _ _) = screens !! fromIntegral i in (x,y)
-            screens = map (screenRect . W.screenDetail) $ sortBy (comparing W.screen) $ W.current w : W.visible w
+            screens = map (screenRect . W.screenDetail) $ sortOn W.screen $ W.current w : W.visible w
 
 
+-- physicalScreenOrder= horizontalScreenOrderer
 physicalScreenOrder= horizontalScreenOrderer
 
 nextScreen' = onNextNeighbour  physicalScreenOrder W.view
@@ -683,7 +680,7 @@ swapPrevScreen' = onPrevNeighbour physicalScreenOrder W.greedyView
 shiftNextScreen' = onNextNeighbour physicalScreenOrder W.shift
 shiftPrevScreen' = onPrevNeighbour physicalScreenOrder W.shift
 
-
+
 -- Startup hook
 
 myStartupHook = do
@@ -692,7 +689,7 @@ myStartupHook = do
   return ()
 
 
-
+
 -- Urgency hook
 
 myUrgencyHook =
@@ -702,7 +699,7 @@ myUrgencyHook =
       { suppressWhen = XMonad.Hooks.UrgencyHook.Focused }
 
 
-
+
 -- XMonad Prompt configuration
 
 defXPConfig = def
@@ -770,7 +767,7 @@ emacsLikeXPKeymap' p = M.fromList $
       XP.endOfLine
 
 
-
+
 -- Scratch pads:
 
 myScratchPads = [ NS "largeTerminal" (term "largeTerminal") (res =? scratch "largeTerminal") $ myCenterFloat 0.95 0.8
@@ -796,7 +793,7 @@ myCenterFloat w h = customFloating $ W.RationalRect left top width height
 myNavigation2DConfig = def {
   Nav2d.defaultTiledNavigation =  Nav2d.centerNavigation }
 
-
+
 --  a00001Config
 
 
@@ -833,7 +830,7 @@ a00001Config = do
 
 
 
-
+
 -- | Working versions of swapup/swapdown
 swapUp'  (W.Stack t (l:ls) rs) = W.Stack t ls (l:rs)
 swapUp'  (W.Stack t []     rs) = W.Stack t (rot $ reverse rs) []
@@ -860,7 +857,7 @@ _windowRotateAllUp = rotAllUp >> movePointer
 movePointer = updatePointer (0.99, 0.99) (0, 0)
 
 
-
+
 -- | bind keys but not for some protected workspaces
 bindOnProtectedWorkspace cmd' altCmd  = bindOn
     [ ("work", altCmd)
@@ -883,7 +880,7 @@ holdScreenFocus a = do
    screenWorkspace s >>= maybe (return ()) (windows . W.view)
    return r
 
-
+
 -- | kill window with some exceptions
 kill' :: X ()
 kill' = withFocused $ \win -> do
@@ -895,9 +892,9 @@ kill' = withFocused $ \win -> do
     where
   alwayskillable titl = "Developer Tools -" `isPrefixOf` titl
   -- unkillable appn titl res = appn `elem` ["ssh_tmux"] || titl == "XMonad" || res == "floating-center-large"
-  unkillable appn titl res = (appn == "emacs") || (appn == "ssh_tmux") || titl == "XMonad" || res == "floating-center-large"
+  unkillable appn titl res = appn == "emacs" || appn == "ssh_tmux" || titl == "XMonad" || res == "floating-center-large"
   scratchTerm appn = appn == "scratchpad_largeTerminal"
-  askToKill appn role = (appn == "google-chrome" && role == "browser") || (appn=="urxvt") || (appn=="Alacitty")
+  askToKill appn role = appn == "google-chrome" && role == "browser" || appn=="urxvt" || appn=="Alacitty"
   killOrElse win appn titl res role
     | alwayskillable titl = killWindow win
     | unkillable appn titl res = return ()
@@ -942,7 +939,7 @@ afterWSPrompt w = do s <- gets windowset
 
 
 
-
+
 -- | Run script with same name as "w.workspacename"
 workspaceAction = do
   ws <- gets (W.currentTag . windowset)
@@ -970,7 +967,7 @@ showWorkspaceNameFast = showWorkspaceName' showStatusSingleMessageDuration Sol.m
 showAppName = showMessage 1 Sol.cyan Sol.base03
 
 getScreenRect :: X Rectangle
-getScreenRect = (screenRect . W.screenDetail . W.current) <$> gets windowset
+getScreenRect = screenRect . W.screenDetail . W.current <$> gets windowset
 
 showMessage timeout bg fg msg = do
   sr <-  getScreenRect
