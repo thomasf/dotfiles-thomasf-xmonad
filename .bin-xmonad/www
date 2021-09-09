@@ -13,6 +13,13 @@ case ${HOSTNAME} in
     args+="--enable-native-gpu-memory-buffers "
     args+="--enable-gpu-rasterization "
     args+="--audio-buffer-size=1024 "
+    if [ -e ~/.config/darkmode ]; then
+      args+="--enable-features=WebUIDarkMode "
+      args+="--force-dark-mode "
+    else
+      args+="--disable-features=WebUIDarkMode "
+      # args+="--force-light-mode "
+    fi
     ;;
 esac
 
