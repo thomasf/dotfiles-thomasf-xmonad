@@ -152,6 +152,10 @@ myKeys xpc conf=
   , ("M-S-<Down>",  addName "Swap window below"  $ Nav2d.windowSwap D False)
   , ("M-S-<Left>",  addName "Swap window left"   $ Nav2d.windowSwap L False)
   , ("M-S-<Right>", addName "Swap window right"  $ Nav2d.windowSwap R False)
+  , ("M-S-C-<Up>",    addName "Drag window to screen above"  $ Nav2d.windowToScreen U False >> showWorkspaceNameOld >> Nav2d.screenGo U False >> showWorkspaceNameFast)
+  , ("M-S-C-<Down>",  addName "Drag window to screen below"  $ Nav2d.windowToScreen D False >> showWorkspaceNameOld >> Nav2d.screenGo D False >> showWorkspaceNameFast)
+  , ("M-S-C-<Left>",  addName "Drag window to to screen left"   $ Nav2d.windowToScreen L False >> showWorkspaceNameOld >> Nav2d.screenGo L False >> showWorkspaceNameFast)
+  , ("M-S-C-<Right>", addName "Drag window to screen right"  $ Nav2d.windowToScreen R False >> showWorkspaceNameOld >> Nav2d.screenGo R False >> showWorkspaceNameFast)
   ] ++
   subtitle "Workspace actions (E/R) [mod=select from prefix] [mod+control=select from all]": mkNamedKeymap conf
   [ ("M-e",         addName "Next workspace (prefix)"     $ rmEmptyWs $ nextWsPrefix >> movePointer >> showWorkspaceNameFast)
