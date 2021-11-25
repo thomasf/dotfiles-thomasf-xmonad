@@ -13,10 +13,11 @@ font:
 
 hints:
   enabled:
-  - regex: "(mailto:|gemini:|gopher:|https:|http:|news:|file:|git:|ssh:|ftp:)\
+  - regex: "(ipfs:|ipns:|magnet:|mailto:|gemini:|gopher:|https:|http:|news:|file:|git:|ssh:|ftp:)\
             [^\u0000-\u001F\u007F-\u009F<>\"\\s{-}\\^⟨⟩`]+"
 
     command: www
+    # command: xdg-open
     post_processing: true
     mouse:
       enabled: true
@@ -26,25 +27,47 @@ hints:
       mods: Control|Shift
 
 mouse_bindings:
-  - { mouse: Middle, action: PasteSelection }
+  - { mouse: Middle, mode: ~Vi, action: PasteSelection  }
+  # - { mouse: Right,             action: ExpandSelection }
 
 key_bindings:
+  # My
   - { key: V,        mods: Super,         action: Paste            }
   - { key: C,        mods: Super,         action: Copy             }
-  - { key: Insert,   mods: Shift,         action: PasteSelection   }
-  - { key: Key0,     mods: Control,       action: ResetFontSize    }
-  - { key: Equals,   mods: Control,       action: IncreaseFontSize }
-  - { key: Plus,     mods: Control,       action: IncreaseFontSize }
-  - { key: Minus,    mods: Control,       action: DecreaseFontSize }
   - { key: V,        mods: Control|Shift, action: ReceiveChar      }
   - { key: C,        mods: Control|Shift, action: ReceiveChar      }
 
+  # Common
+  - { key: Paste,                                       action: Paste          }
+  - { key: Copy,                                        action: Copy           }
+  - { key: L,         mods: Control,                    action: ClearLogNotice }
+  - { key: L,         mods: Control, mode: ~Vi|~Search, chars: "\x0c"          }
+  - { key: PageUp,    mods: Shift,   mode: ~Alt,        action: ScrollPageUp,  }
+  - { key: PageDown,  mods: Shift,   mode: ~Alt,        action: ScrollPageDown }
+  - { key: Home,      mods: Shift,   mode: ~Alt,        action: ScrollToTop,   }
+  - { key: End,       mods: Shift,   mode: ~Alt,        action: ScrollToBottom }
+
+
+  # (Windows, Linux, and BSD only)
+  # - { key: V,              mods: Control|Shift, mode: ~Vi,        action: Paste            }
+  # - { key: C,              mods: Control|Shift,                   action: Copy             }
+  - { key: F,              mods: Control|Shift, mode: ~Search,    action: SearchForward    }
+  - { key: B,              mods: Control|Shift, mode: ~Search,    action: SearchBackward   }
+  - { key: C,              mods: Control|Shift, mode: Vi|~Search, action: ClearSelection   }
+  - { key: Insert,         mods: Shift,                           action: PasteSelection   }
+  - { key: Key0,           mods: Control,                         action: ResetFontSize    }
+  - { key: Equals,         mods: Control,                         action: IncreaseFontSize }
+  - { key: Plus,           mods: Control,                         action: IncreaseFontSize }
+  - { key: NumpadAdd,      mods: Control,                         action: IncreaseFontSize }
+  - { key: Minus,          mods: Control,                         action: DecreaseFontSize }
+  - { key: NumpadSubtract, mods: Control,                         action: DecreaseFontSize }
+
   # Vi Mode
-  - { key: Space,  mods: Shift|Control, mode: Vi|~Search, action: ScrollToBottom          }
   - { key: Space,  mods: Shift|Control, mode: ~Search,    action: ToggleViMode            }
+  - { key: Space,  mods: Shift|Control, mode: Vi|~Search, action: ScrollToBottom          }
   - { key: Escape,                      mode: Vi|~Search, action: ClearSelection          }
-  - { key: I,                           mode: Vi|~Search, action: ScrollToBottom          }
   - { key: I,                           mode: Vi|~Search, action: ToggleViMode            }
+  - { key: I,                           mode: Vi|~Search, action: ScrollToBottom          }
   - { key: C,      mods: Control,       mode: Vi|~Search, action: ToggleViMode            }
   - { key: 'Y',    mods: Control,       mode: Vi|~Search, action: ScrollLineUp            }
   - { key: E,      mods: Control,       mode: Vi|~Search, action: ScrollLineDown          }
@@ -87,12 +110,19 @@ key_bindings:
   - { key: Slash,  mods: Shift,         mode: Vi|~Search, action: SearchBackward          }
   - { key: 'N',                         mode: Vi|~Search, action: SearchNext              }
   - { key: 'N',    mods: Shift,         mode: Vi|~Search, action: SearchPrevious          }
-  - { key: 'P',                         mode: Vi|~Search, action: SearchPrevious          }
 
   # Search Mode
-  - { key: Return,                mode: Search|Vi,  action: SearchConfirm       }
-  - { key: Escape,                mode: Search,     action: SearchCancel        }
-  - { key: U,      mods: Control, mode: Search,     action: SearchClear         }
-  - { key: W,      mods: Control, mode: Search,     action: SearchDeleteWord    }
-  - { key: Return,                mode: Search|~Vi, action: SearchFocusNext     }
-  - { key: Return, mods: Shift,   mode: Search|~Vi, action: SearchFocusPrevious }
+  - { key: Return,                mode: Search|Vi,  action: SearchConfirm         }
+  - { key: Escape,                mode: Search,     action: SearchCancel          }
+  - { key: C,      mods: Control, mode: Search,     action: SearchCancel          }
+  - { key: U,      mods: Control, mode: Search,     action: SearchClear           }
+  - { key: W,      mods: Control, mode: Search,     action: SearchDeleteWord      }
+  - { key: P,      mods: Control, mode: Search,     action: SearchHistoryPrevious }
+  - { key: 'N',    mods: Control, mode: Search,     action: SearchHistoryNext     }
+  - { key: Up,                    mode: Search,     action: SearchHistoryPrevious }
+  - { key: Down,                  mode: Search,     action: SearchHistoryNext     }
+  - { key: Return,                mode: Search|~Vi, action: SearchFocusNext       }
+  - { key: Return, mods: Shift,   mode: Search|~Vi, action: SearchFocusPrevious   }
+
+
+

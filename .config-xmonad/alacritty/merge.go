@@ -66,7 +66,7 @@ func mustLoadAndMergeIfExists(filename string, m map[interface{}]interface{}) {
 		if os.IsNotExist(err) {
 			return
 		}
-		log.Fatal(err)
+		log.Fatal(filename, err)
 	}
 }
 

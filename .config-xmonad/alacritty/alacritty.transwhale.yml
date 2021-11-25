@@ -60,7 +60,7 @@ hints:
       enabled: true
       mods: None
     post_processing: true
-    regex: "(mailto:|gemini:|gopher:|https:|http:|news:|file:|git:|ssh:|ftp:)[^\0-\x1F\x7F-\x9F<>\"\\s{-}\\^⟨⟩`]+"
+    regex: "(ipfs:|ipns:|magnet:|mailto:|gemini:|gopher:|https:|http:|news:|file:|git:|ssh:|ftp:)[^\0-\x1F\x7F-\x9F<>\"\\s{-}\\^⟨⟩`]+"
 key_bindings:
 - action: Paste
   key: V
@@ -68,6 +68,51 @@ key_bindings:
 - action: Copy
   key: C
   mods: Super
+- action: ReceiveChar
+  key: V
+  mods: Control|Shift
+- action: ReceiveChar
+  key: C
+  mods: Control|Shift
+- action: Paste
+  key: Paste
+- action: Copy
+  key: Copy
+- action: ClearLogNotice
+  key: L
+  mods: Control
+- chars: "\f"
+  key: L
+  mode: ~Vi|~Search
+  mods: Control
+- action: ScrollPageUp
+  key: PageUp
+  mode: ~Alt
+  mods: Shift
+- action: ScrollPageDown
+  key: PageDown
+  mode: ~Alt
+  mods: Shift
+- action: ScrollToTop
+  key: Home
+  mode: ~Alt
+  mods: Shift
+- action: ScrollToBottom
+  key: End
+  mode: ~Alt
+  mods: Shift
+- action: SearchForward
+  key: F
+  mode: ~Search
+  mods: Control|Shift
+- action: SearchBackward
+  key: B
+  mode: ~Search
+  mods: Control|Shift
+- action: ClearSelection
+  key: C
+  mode: Vi|~Search
+  mods: Control|Shift
 - action: PasteSelection
   key: Insert
   mods: Shift
@@ -80,30 +125,30 @@ key_bindings:
 - action: IncreaseFontSize
   key: Plus
   mods: Control
+- action: IncreaseFontSize
+  key: NumpadAdd
+  mods: Control
 - action: DecreaseFontSize
   key: Minus
   mods: Control
-- action: ReceiveChar
-  key: V
-  mods: Control|Shift
-- action: ReceiveChar
-  key: C
-  mods: Control|Shift
-- action: ScrollToBottom
-  key: Space
-  mode: Vi|~Search
-  mods: Shift|Control
+- action: DecreaseFontSize
+  key: NumpadSubtract
+  mods: Control
 - action: ToggleViMode
   key: Space
   mode: ~Search
   mods: Shift|Control
+- action: ScrollToBottom
+  key: Space
+  mode: Vi|~Search
+  mods: Shift|Control
 - action: ClearSelection
   key: Escape
   mode: Vi|~Search
-- action: ScrollToBottom
+- action: ToggleViMode
   key: I
   mode: Vi|~Search
-- action: ToggleViMode
+- action: ScrollToBottom
   key: I
   mode: Vi|~Search
 - action: ToggleViMode
@@ -254,15 +299,16 @@ key_bindings:
   key: "N"
   mode: Vi|~Search
   mods: Shift
-- action: SearchPrevious
-  key: P
-  mode: Vi|~Search
 - action: SearchConfirm
   key: Return
   mode: Search|Vi
 - action: SearchCancel
   key: Escape
   mode: Search
+- action: SearchCancel
+  key: C
+  mode: Search
+  mods: Control
 - action: SearchClear
   key: U
   mode: Search
@@ -271,6 +317,20 @@ key_bindings:
   key: W
   mode: Search
   mods: Control
+- action: SearchHistoryPrevious
+  key: P
+  mode: Search
+  mods: Control
+- action: SearchHistoryNext
+  key: "N"
+  mode: Search
+  mods: Control
+- action: SearchHistoryPrevious
+  key: Up
+  mode: Search
+- action: SearchHistoryNext
+  key: Down
+  mode: Search
 - action: SearchFocusNext
   key: Return
   mode: Search|~Vi
@@ -278,10 +338,12 @@ key_bindings:
   key: Return
   mode: Search|~Vi
   mods: Shift
+live_config_reload: true
 mouse:
   hide_when_typing: true
 mouse_bindings:
 - action: PasteSelection
+  mode: ~Vi
   mouse: Middle
 scrolling:
   history: 100000
