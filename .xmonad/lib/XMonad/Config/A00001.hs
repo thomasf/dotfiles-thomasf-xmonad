@@ -780,8 +780,8 @@ myScratchPads = [ NS "largeTerminal" (term "largeTerminal") (res =? scratch "lar
                 ]
   where
     scratch sname = "scratchpad_" ++ sname
-    -- term sname = myTerminal ++ " -name " ++ scratch sname
-    term sname = " urxvt " ++ " -name " ++ scratch sname
+    -- term sname = " urxvt " ++ " -name " ++ scratch sname
+    term sname = " alacritty " ++ " --class " ++ scratch sname
     termScratch scmd = NS scmd (inTerm' scmd scmd) (res =? scratch scmd)
     inTerm' sname scmd = term sname ++ " -e " ++  scmd
     res = resource
