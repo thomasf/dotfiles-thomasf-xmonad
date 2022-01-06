@@ -635,15 +635,16 @@ myLogHook = do
   dynamicLogString myXmobarBottomPP >>= xmonadPropLog' "_XMONAD_LOG_BOTTOM"
   workspaceHistoryHook
   ewmhDesktopsLogHook
-  desktopLogHook
+  -- desktopLogHook
   -- fadeInactiveLogHook 0.86
   setWMName "LG3D"
 
 
 -- | 'logHook' preserving old 'ewmh' behavior to switch workspace and focus to
 -- activated window.
-desktopLogHook :: X ()
-desktopLogHook      = activateLogHook (reader W.focusWindow >>= doF)
+-- desktopLogHook :: X ()
+-- -- desktopLogHook      = activateLogHook (reader W.focusWindow >>= doF)
+
 
 -- | Like 'getSortByXineramaRule', but uses physical locations for screens.
 mySortByXineramaPhysicalRule :: X WorkspaceSort
