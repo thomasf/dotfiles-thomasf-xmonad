@@ -51,6 +51,7 @@ key_bindings:
   # (Windows, Linux, and BSD only)
   # - { key: V,              mods: Control|Shift, mode: ~Vi,        action: Paste            }
   # - { key: C,              mods: Control|Shift,                   action: Copy             }
+  - { key: S,              mods: Super,                             action: SearchBackward   }
   - { key: F,              mods: Control|Shift, mode: ~Search,    action: SearchForward    }
   - { key: B,              mods: Control|Shift, mode: ~Search,    action: SearchBackward   }
   - { key: C,              mods: Control|Shift, mode: Vi|~Search, action: ClearSelection   }

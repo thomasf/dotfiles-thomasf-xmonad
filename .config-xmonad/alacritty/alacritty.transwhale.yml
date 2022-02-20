@@ -101,6 +101,9 @@ key_bindings:
   key: End
   mode: ~Alt
   mods: Shift
+- action: SearchBackward
+  key: S
+  mods: Super
 - action: SearchForward
   key: F
   mode: ~Search
