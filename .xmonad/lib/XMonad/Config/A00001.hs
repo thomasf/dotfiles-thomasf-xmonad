@@ -48,6 +48,7 @@ import           XMonad.Actions.RotSlaves
 import           XMonad.Actions.UpdatePointer
 import           XMonad.Actions.WindowBringer as WB
 import           XMonad.Actions.WithAll
+import           XMonad.Hooks.Focus
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
 import           XMonad.Hooks.ManageDocks (docks, avoidStruts, ToggleStruts(..), docksStartupHook)
@@ -228,6 +229,7 @@ myKeys xpc conf=
   , ("M-i w",               myViewWS' "www")
   , ("M-i j",               myViewWS' "work")
   , ("M-i k",               myViewWS' "work-client")
+  , ("M-i q",               myViewWS' "hass")
   , ("M-i M-i",             addName "cycle ws"                              $ rmEmptyWs $ myCycleRecentWs xK_i xK_o)
   , ("M-i i",               addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePromptHidden >> maybeWorkspaceAction >> movePointer)
   -- , ("M-C-i M-C-i",         addName "cycle ws on next screen"               $ holdScreenFocus $ nextScreen' >> myCycleRecentWs xK_i xK_o)
