@@ -5,24 +5,28 @@ set -e
 mkdir -p ~/Pictures/scrot/
 cd ~/Pictures/scrot/
 
+
+
 shot() {
-  local fn_infix=$1
+  local suffix=${1}
   shift
-  local fn=$(scrot ${@} -e 'echo $f' '%Y-%m-%d_%H-%M-%S_'${fn_infix}'_$wx$h.png')
+  local fn="$(date '+%Y-%m-%d  %H %M %S')  ${suffix}.png"
+  rm -f "${fn}"
+  maim -u ${@} "${fn}"
   local msg="saved ${fn}"
   notify-send -u normal -a shorter "sshot" "<span font='12'>${msg}</span>"
-  cat ${fn} | xclip -selection c -t image/png
+  cat "${fn}" | xclip -selection c -t image/png
 }
 
 case ${1} in
   focused)
-    shot "window" -u
+    shot "window" -n 2 -i $(xdotool getactivewindow)
     ;;
   full)
-    shot "full"
+    shot "full" -B
     ;;
   "select"|*)
-    # sleep 0.5
-    shot selection -s
+    sshot-select
+    notify-send -u normal -a shorter "sshot" "<span font='12'>selection saved</span>"
     ;;
 esac

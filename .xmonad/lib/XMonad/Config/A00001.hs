@@ -191,7 +191,7 @@ myKeys xpc conf=
   subtitle "screenshot": mkNamedKeymap conf
   [ ("M-<Print>",     addName "sshot selected to clipboard" $ unGrab >> spawn "sshot")
   , ("M-C-<Print>",   addName "shhot focused window"        $ unGrab >> spawn "sshot focused")
-  , ("M-M1-<Print>",  addName "shhot full"                  $ unGrab >> spawn "sshot full")
+  , ("M-S-<Print>",   addName "shhot full"                  $ unGrab >> spawn "sshot full")
   ] ++
   subtitle "macbook": mkNamedKeymap conf
   [ ("<XF86Eject>",   addName "print "                      $ spawn "xdotool click -clearmodifiers 2")
