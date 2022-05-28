@@ -37,9 +37,10 @@ func main() {
 	flags.Register(flag.CommandLine)
 	flag.Parse()
 
+	args := flag.CommandLine.Args()
 	subcommand := "select"
-	if len(os.Args) > 1 {
-		subcommand = os.Args[1]
+	if len(args) > 0 {
+		subcommand = args[0]
 	}
 
 	filename := flags.Out
