@@ -4,7 +4,7 @@
 # font = Monospace 8
 # font =  -*-terminus-bold-r-normal--18-*-*-*-*-*-*-*
 font =  PragmataPro 10
-allow_markup = yes
+markup = full
 plain_text = no
 format = "[%a] %s %b"
 sort = yes
@@ -13,7 +13,7 @@ alignment = left
 bounce_freq = 0
 show_age_threshold = 120
 word_wrap = yes
-geometry = "0x10-0+32"
+geometry = "1000x10-0+32"
 shrink = no
 transparency = 0
 idle_threshold = 120
@@ -21,16 +21,22 @@ monitor = 0
 follow = keyboard
 sticky_history = yes
 line_height = 4
-separator_height = 0;
+separator_height = 10
 padding = 9
-horizontal_padding = 18
-separator_color = frame
+horizontal_padding = 20
+separator_color = auto
 dmenu = dmenu -p dunst:
 browser = www
 ignore_newline = no
-
-[frame]
-width = 0
+frame_width = 0
+ellipsize = middle
+stack_duplicates = true
+show_indicators = yes
+history_length = 100
+corner_radius = 8
+mouse_left_click = do_action, close_current
+mouse_middle_click = close_all
+mouse_right_click = close_current
 
 [shortcuts]
 close = mod4+0
@@ -42,13 +48,13 @@ context = mod4+2
 
 [urgency_low]
 background = "#2aa198"
-foreground = "#002b36"
-timeout = 5
+foreground = "0#02b36"
+timeout = 7
 
 [urgency_normal]
 background = "#859900"
 foreground = "#002b36"
-timeout = 20
+timeout = 30
 
 [urgency_critical]
 background = "#dc322f"
@@ -114,3 +120,4 @@ format = ""
 # Local Variables:
 # eval: (rainbow-mode 1)
 # End:
+ 

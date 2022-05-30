@@ -3,7 +3,7 @@
 # This file might be sourced during installation with hsadmin
 #
 
-if [ -e "${HOME}/.config/dunst/dunstrc" ]; then
+if [ ! -e "${HOME}/.config/dunst/dunstrc" ]; then
   mkdir -p "${HOME}/.config/dunst/" \
     && ln -fs "$(pwd)/.config-xmonad/dunstrc" "${HOME}/.config/dunst/"
 fi
