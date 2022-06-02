@@ -1,8 +1,8 @@
 module dotfiles/alacritty-genconfig
 
-go 1.14
+go 1.18
 
 require (
-	github.com/imdario/mergo v0.3.12
-	gopkg.in/yaml.v2 v2.4.0
+	github.com/imdario/mergo v0.3.13
+	gopkg.in/yaml.v3 v3.0.1
 )

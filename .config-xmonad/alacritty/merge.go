@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -10,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/imdario/mergo"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 // Flags .
@@ -44,11 +45,14 @@ func main() {
 	mustLoadAndMergeIfExists(fmt.Sprintf("c.os.%s.yml", flags.OS), m)
 	mustLoadAndMergeIfExists(fmt.Sprintf("c.host.%s.yml", flags.Host), m)
 
-	d, err := yaml.Marshal(&m)
-	if err != nil {
+	var buf bytes.Buffer
+	enc := yaml.NewEncoder(&buf)
+	enc.SetIndent(2)
+
+	if err := enc.Encode(&m); err != nil {
 		log.Fatalf("error: %v", err)
 	}
-	ioutil.WriteFile(flags.Out, d, 0600)
+	ioutil.WriteFile(flags.Out, buf.Bytes(), 0600)
 	// ioutil.WriteFile(fmt.Sprintf("alacritty.%s.yml", Hostname()), d, 0600)
 
 }
