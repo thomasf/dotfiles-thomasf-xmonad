@@ -177,7 +177,7 @@ Launch drop box
 
 # Launch gpome (binds apple hw control keys)
 # TODO pomme does not seem to work with ubuntu 13.10
-#      Maybe its not needed anymore?
+k#      Maybe its not needed anymore?
 # [ $(which gpomme) ] \
 #   && gpomme &
 
@@ -194,9 +194,9 @@ export DE
   && BROWSER=$(which www) \
   && export BROWSER
 
-# Launch miniserv
-[ -f ~/.config-base/miniserv/miniserv.py ] && \
-  python ~/.config-base/miniserv/miniserv.py -d &
+if [ $(which miniserv) ]; then
+  miniserv &
+fi
 
 (
   darkmodearg=l
