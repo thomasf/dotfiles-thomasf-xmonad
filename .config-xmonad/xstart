@@ -177,7 +177,7 @@ Launch drop box
 
 # Launch gpome (binds apple hw control keys)
 # TODO pomme does not seem to work with ubuntu 13.10
-k#      Maybe its not needed anymore?
+#      Maybe its not needed anymore?
 # [ $(which gpomme) ] \
 #   && gpomme &
 
