@@ -21,8 +21,8 @@ monitor = 0
 follow = keyboard
 sticky_history = yes
 line_height = 4
-separator_height = 10
-padding = 9
+separator_height = 0
+padding = 18
 horizontal_padding = 20
 separator_color = auto
 dmenu = dmenu -p dunst:
@@ -47,32 +47,32 @@ context = mod4+2
 # urgency based templates
 
 [urgency_low]
-background = "#2aa198"
-foreground = "0#02b36"
+background = "#e4ecda"
+foreground = "#207e7b"
 timeout = 7
 
 [urgency_normal]
-background = "#859900"
-foreground = "#002b36"
+background = "#efeac7"
+foreground = "#657827"
 timeout = 30
 
 [urgency_critical]
-background = "#dc322f"
-foreground = "#002b36"
+background = "#ffdec8"
+foreground = "#a33c35"
 timeout = 0
 
 [orgmode]
 appname = "orgmode"
 format = "%s %b"
-foreground = "#002b36"
-background = "#b58900"
+background = "#f8e8c6"
+foreground = "#876d26"
 timeout = 0
 
 [todo]
 appname = "todo"
 format = "TODO %b"
-foreground = "#002b36"
-background = "#859900"
+background = "#efeac7"
+foreground = "#657827"
 timeout = 0
 
 # other templates
@@ -81,35 +81,50 @@ timeout = 0
 appname = "NetworkManager"
 format = "%s %b"
 urgency = low
-background = "#6c71c4"
-foreground = "#002b36"
+background = "#ebe4e2"
+foreground = "#4f5e99"
 
 [short]
 appname = "short"
 format = "%s %b"
-background = "#d33682"
-foreground = "#002b36"
+background = "#ffe5f3"
+foreground = "#a72f7a"
 timeout = 5
+
+[signal]
+appname = "Signal"
+format = "%s %b"
+background = "#ebe4e2"
+foreground = "#4f5e99"
+timeout = 20
+
+[Chrome]
+appname = "Google Chrome"
+format = "%s %b"
+background = "#ebe4e2"
+foreground = "#4f5e99"
+timeout = 20
+
 
 [shorter]
 appname = "shorter"
 format = "%s %b"
-background = "#268bd2"
-foreground = "#002b36"
+background = "#e5f6f2"
+foreground = "#2e8579"
 timeout = 2
 
 [clock]
 appname = "clock"
 format = "%s %b"
-background = "#859900"
-foreground = "#002b36"
+background = "#efeac7"
+foreground = "#657827"
 timeout = 30
 
 [sticky]
 appname = "sticky"
 format = "%s %b"
-background = "#b58900"
-foreground = "#002b36"
+background = "#f8e8c6"
+foreground = "#876d26"
 timeout = 0
 
 [ignore-dropbox]
