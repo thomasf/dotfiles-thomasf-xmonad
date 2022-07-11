@@ -11,6 +11,9 @@ colors:
   cursor:
     cursor: '#657b83'
     text: '#fdf6e3'
+  footer_bar:
+    background: '#268bd2'
+    foreground: '#ffffff'
   normal:
     black: '#073642'
     blue: '#268bd2'
@@ -24,9 +27,6 @@ colors:
     background: '#fdf6e3'
     foreground: '#657b83'
   search:
-    bar:
-      background: '#268bd2'
-      foreground: '#ffffff'
     matches:
       background: '#d33682'
       foreground: '#ffffff'
