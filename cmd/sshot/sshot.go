@@ -22,17 +22,32 @@ import (
 // Flags .
 type Flags struct {
 	Out    string
-	Noclip bool
+	NoClip bool
+	NoCrop bool
 }
 
 func (f *Flags) Register(fs *flag.FlagSet) {
 	fs.StringVar(&f.Out, "out", "", "output filename, autochosen if empty")
-	fs.BoolVar(&f.Noclip, "noclip", false, "don not save to clipboard")
+	fs.BoolVar(&f.NoClip, "noclip", false, "don not save to clipboard")
+	fs.BoolVar(&f.NoCrop, "nocrop", false, "don not auto crop image")
 }
 
 func main() {
 
+	var fs = flag.CommandLine
 	var flags Flags
+
+	fs.Usage = func() {
+		fmt.Fprintf(fs.Output(), "Usage of %s -args subcommand:\n", os.Args[0])
+		flag.PrintDefaults()
+		fmt.Fprint(fs.Output(), `
+Subcommands:
+   select : select region with mouse
+   full: full srreen
+   focused:  currently focused window
+
+`)
+	}
 
 	flags.Register(flag.CommandLine)
 	flag.Parse()
@@ -65,11 +80,11 @@ func main() {
 	var err error
 	switch subcommand {
 	case "select":
-		data, err = selectScreenshot(ctx)
+		data, err = selectScreenshot(ctx, !flags.NoCrop)
 	case "full":
 		data, err = fullScreenshot(ctx)
 	case "active", "focused":
-		data, err = activeWindowScreenshot(ctx)
+		data, err = activeWindowScreenshot(ctx, !flags.NoCrop)
 	default:
 		fmt.Fprintln(os.Stderr, subcommand, "is an invalid subcommand")
 
@@ -87,7 +102,7 @@ func main() {
 		}
 	}
 
-	if !flags.Noclip && data != nil {
+	if !flags.NoClip && data != nil {
 		if err := xclip(ctx, data); err != nil {
 			fmt.Fprintln(os.Stderr, "ERROR", err)
 			os.Exit(1)
@@ -97,16 +112,18 @@ func main() {
 	notify(ctx, "saved "+filepath.Base(filename))
 }
 
-func selectScreenshot(ctx context.Context) ([]byte, error) {
+func selectScreenshot(ctx context.Context, crop bool) ([]byte, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	img, err := maim(ctx, "-s")
 	if err != nil {
 		return nil, err
 	}
-	croppedImg := smartCrop(img)
+	if crop {
+		img = smartCrop(img)
+	}
 	var buf bytes.Buffer
-	if err := png.Encode(&buf, croppedImg); err != nil {
+	if err := png.Encode(&buf, img); err != nil {
 		return nil, err
 	}
 	return buf.Bytes(), nil
@@ -127,7 +144,7 @@ func fullScreenshot(ctx context.Context) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func activeWindowScreenshot(ctx context.Context) ([]byte, error) {
+func activeWindowScreenshot(ctx context.Context, crop bool) ([]byte, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
@@ -144,8 +161,10 @@ func activeWindowScreenshot(ctx context.Context) ([]byte, error) {
 
 	nrgbaImg := image.NewNRGBA(image.Rect(0, 0, img.Bounds().Dx(), img.Bounds().Dy()))
 	draw.Draw(nrgbaImg, nrgbaImg.Bounds(), img, img.Bounds().Min, draw.Src)
-	nrgbaImg = autocrop.ToThreshold(nrgbaImg, 0.01)
-	nrgbaImg = smartCrop(nrgbaImg)
+	if crop {
+		nrgbaImg = autocrop.ToThreshold(nrgbaImg, 0.01)
+		nrgbaImg = smartCrop(nrgbaImg)
+	}
 
 	var buf bytes.Buffer
 	if err := png.Encode(&buf, nrgbaImg); err != nil {
