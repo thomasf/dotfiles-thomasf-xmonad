@@ -1,5 +1,5 @@
-Config { font = "xft:Pragmata Pro:pixelsize=27"
-       , additionalFonts = ["xft:Pragmata Pro:pixelsize=17", "xft:Pragmata Pro:pixelsize=16 :weight=bold"]
+Config { font = "Pragmata Pro 27px"
+       , additionalFonts = ["Pragmata Pro 17px", "Pragmata Pro Bold 16px"]
        , borderColor = "{{ .Sol.Base03 }}"
        , bgColor = "{{ .Sol.Base03 }}"
        , fgColor = "{{ .Sol.Base00 }}"
