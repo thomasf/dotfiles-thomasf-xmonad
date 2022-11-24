@@ -256,6 +256,11 @@ myKeys xpc conf=
   , ("M-p 0",               addName ".0"                                    $ gotoPrefixWS "0" >> movePointer)
   , ("M-p p",               addName "base" gotoBaseWS)
  ] ++
+ subtitle "dunst controls": mkNamedKeymap conf
+ [ ("M-1",             addName "close dunst popup"                       $ spawn "dunstctl close")
+ , ("M-9",             addName "context action"                          $ spawn "dunstctl action")
+ , ("M-0",             addName "reopen dunst popup"                      $ spawn "dunstctl history-pop")
+ ] ++
  subtitle "exit/quit/leave/reboot...": mkNamedKeymap conf
  [ ("M-q r",             addName "restart xmonad"                       $ restart "xmonad" True)
  , ("M-q x x x",         addName "restart xmonad without keeping state" $ restart "xmonad" False)
