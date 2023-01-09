@@ -3,8 +3,11 @@
 # Nautilus wrapper
 #
 
-# nargs="--new-window --no-desktop"
+bin=/usr/bin/nautilus
 nargs="--new-window"
+
+#bin=/usr/bin/pcmanfm
+#nargs="-n"
 
 if [ $# -eq 0 ]; then
 
@@ -31,8 +34,8 @@ if [ $# -eq 0 ]; then
                 ;;
         esac
     fi
-    exec /usr/bin/nautilus $nargs .
+    exec $bin $nargs .
 else
-    exec /usr/bin/nautilus $nargs "$@"
+    exec $bin $nargs "$@"
 
 fi

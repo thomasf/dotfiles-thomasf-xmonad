@@ -6,4 +6,5 @@
 #
 wsname -s && exit 1
 
-exec nautilus ~/ ~/Downloads
+nautilus ~/ &
+nautilus ~/Downloads &
