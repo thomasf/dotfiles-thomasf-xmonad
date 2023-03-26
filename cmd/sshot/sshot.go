@@ -25,6 +25,7 @@ type Flags struct {
 	Dir    string
 	NoClip bool
 	NoCrop bool
+	NoSave bool
 }
 
 func (f *Flags) Register(fs *flag.FlagSet) {
@@ -32,6 +33,8 @@ func (f *Flags) Register(fs *flag.FlagSet) {
 	fs.StringVar(&f.Dir, "dir", "", "output directory, autochosen if empty")
 	fs.BoolVar(&f.NoClip, "noclip", false, "don not save to clipboard")
 	fs.BoolVar(&f.NoCrop, "nocrop", false, "don not auto crop image")
+	fs.BoolVar(&f.NoSave, "nosave", false, "don save image file to disk")
+
 }
 
 func main() {
@@ -94,18 +97,20 @@ Subcommands:
 		data, err = activeWindowScreenshot(ctx, !flags.NoCrop)
 	default:
 		fmt.Fprintln(os.Stderr, subcommand, "is an invalid subcommand")
+		os.Exit(1)
 
 	}
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "ERROR", err)
 		os.Exit(1)
 	}
+	if !flags.NoSave {
+		if filename != "" {
+			if err := os.WriteFile(filename, data, 0o600); err != nil {
+				fmt.Fprintln(os.Stderr, "ERROR", err)
+				os.Exit(1)
 
-	if filename != "" {
-		if err := os.WriteFile(filename, data, 0o600); err != nil {
-			fmt.Fprintln(os.Stderr, "ERROR", err)
-			os.Exit(1)
-
+			}
 		}
 	}
 
@@ -116,8 +121,10 @@ Subcommands:
 		}
 	}
 
-	notify(ctx, "saved "+filepath.Base(filename))
-	fmt.Println(filename)
+	if !flags.NoSave {
+		notify(ctx, "saved "+filepath.Base(filename))
+		fmt.Println(filename)
+	}
 }
 
 func selectScreenshot(ctx context.Context, crop bool) ([]byte, error) {
