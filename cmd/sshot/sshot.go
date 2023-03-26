@@ -22,12 +22,14 @@ import (
 // Flags .
 type Flags struct {
 	Out    string
+	Dir    string
 	NoClip bool
 	NoCrop bool
 }
 
 func (f *Flags) Register(fs *flag.FlagSet) {
 	fs.StringVar(&f.Out, "out", "", "output filename, autochosen if empty")
+	fs.StringVar(&f.Dir, "dir", "", "output directory, autochosen if empty")
 	fs.BoolVar(&f.NoClip, "noclip", false, "don not save to clipboard")
 	fs.BoolVar(&f.NoCrop, "nocrop", false, "don not auto crop image")
 }
@@ -60,16 +62,21 @@ Subcommands:
 
 	filename := flags.Out
 	if filename == "" {
-		homedir, err := os.UserHomeDir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+		dir := flags.Dir
+		if dir == "" {
+			var err error
+			dir, err = os.UserHomeDir()
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			dir = filepath.Join(dir,
+				"Pictures",
+				"scrot",
+			)
 		}
-
 		filename = filepath.Join(
-			homedir,
-			"Pictures",
-			"scrot",
+			dir,
 			fmt.Sprintf("%s %s.png", time.Now().Format("2006-01-02 15_04_05"), subcommand))
 
 	}
@@ -110,6 +117,7 @@ Subcommands:
 	}
 
 	notify(ctx, "saved "+filepath.Base(filename))
+	fmt.Println(filename)
 }
 
 func selectScreenshot(ctx context.Context, crop bool) ([]byte, error) {
@@ -209,7 +217,7 @@ func notify(ctx context.Context, message string) error {
 		"sshot",
 		fmt.Sprintf("<span font='8'>%s</span>", safeMessage),
 	)
-	cmd.Stdout = os.Stdout
+	cmd.Stdout = os.Stderr
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		return err
