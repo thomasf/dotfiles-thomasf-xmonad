@@ -7,4 +7,6 @@
 
 wsname -s && exit 1
 
-www-app "https://mail.google.com/a/jossystem.se/" &
+www-app "https://mail.google.com/?authuser=thomas.frossman@tracklib.com" &
+sleep 1
+www-app "https://mail.google.com/?authuser=thomasf@jossystem.se" &
