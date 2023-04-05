@@ -486,6 +486,7 @@ myLayoutHook =
   onWorkspace "dash" (dash ||| grid) .
   onWorkspace "work" (fullBorder ||| tabs ||| gridWide) .
   onWorkspace "mail" (fullBorder ||| gridWide) .
+  onWorkspace "cal" (fullBorder ||| gridWide) .
   onWorkspaces ["work-client", "work-client.1", "work-client.2", "work-client.3"] (fullBorder ||| tabs ||| gridWide) .
   onWorkspace "upgrade" alternative .
   onWorkspace "im" im $
