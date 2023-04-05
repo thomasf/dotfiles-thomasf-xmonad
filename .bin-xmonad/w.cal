@@ -5,4 +5,9 @@
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 #
 
+
+wsname -s && exit 1
+
+www-app "http://www.google.com/calendar/hosted/tracklib.com/render" &
+sleep 1
 www-app "http://www.google.com/calendar/hosted/jossystem.se/render" &
