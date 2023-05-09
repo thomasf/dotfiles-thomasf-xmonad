@@ -5,7 +5,10 @@
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 # Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
 #
-# exec java -jar ~/.opt/SweetHome3D.jar
+
+
+export GDK_SCALE=2g
+export JAVA_TOOL_OPTIONS="-Dcom.eteks.sweethome3d.j3d.useOffScreen3DView=true"
 exec java -jar ~/.opt/SweetHome3D.jar \
      -Dcom.eteks.sweethome3d.j3d.PhotoRenderer.highQuality.globalIllumination=path \
      -Dcom.eteks.sweethome3d.j3d.PhotoRenderer.highQuality.diffusedBounces=8
