@@ -6,7 +6,7 @@
 
   if [[ "$is_paused"  == true ]]; then
     dunstctl set-paused false
-    dunstify -a shorter -r 616797153 "RESUME DUNST"
+    dunstify -a short -r 616797153 "RESUME DUNST"
   else
     dunstify -b -a shorter -r 616797153 "PAUSE DUNST" >/dev/null
     dunstctl set-paused true
