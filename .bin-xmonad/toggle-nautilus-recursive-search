@@ -1,19 +1,27 @@
 #!/bin/bash
 
 case $(gsettings get org.gnome.nautilus.preferences recursive-search) in
-  "'local-only'")
-    next="'never'"
-    ;;
   "'never'")
-    next="'local-only'"
+    next="local-only"
     ;;
+  "'local-only'")
+    next="never"
+    ;;
+
+  # "'never'")
+  #   next="local-only"
+  #   ;;
+  # "'local-only'")
+  #   next="always"
+  #   ;;
+  # "'always'")
+  #   next="never"
+  #   ;;
   *)
-    echo "no match for current state"
-    notify-send "no match for current state" &
-    exit 1
+    next="never"
     ;;
 esac
 
 
-notify-send "next state: ${next}" &
-exec gsettings set org.gnome.nautilus.preferences recursive-search "${next}"
+notify-send -a short -r 616797154 "recursive search: ${next}" &
+exec gsettings set org.gnome.nautilus.preferences recursive-search "'${next}'"
