@@ -544,6 +544,7 @@ myManageHook =
   , [wmName    =? "Emulator" -?> doFloat]
   , [isTooltip -?>                                             doIgnore]
   , [className =? c <&&> skipTaskbar  -?>                      doIgnore           | c <- ["UE4Editor", "com-eteks-sweethome3d-SweetHome3D"]]
+  , [isDialog  <&&> className =? "org.gnome.Nautilus" -?>      myCenterFloat 0.5 0.3]
   , [resource  =? r -?>                                        doFloat            | r <- ["floating"]]
   , [className =? c -?>                                        doFloat            | c <- ["Unity-2d-launcher", "Orage", "feh"]]
   -- NOTE chrome does note set title early enough for this
