@@ -488,8 +488,7 @@ myLayoutHook =
   onWorkspace "mail" (fullBorder ||| gridWide) .
   onWorkspace "cal" (fullBorder ||| gridWide) .
   onWorkspaces ["work-client", "work-client.1", "work-client.2", "work-client.3"] (fullBorder ||| tabs ||| gridWide) .
-  onWorkspace "upgrade" alternative .
-  onWorkspace "im" im $
+  onWorkspace "upgrade" alternative $
   lessBorders OnlyScreenFloat
   standard
   where
@@ -523,21 +522,6 @@ myLayoutHook =
     tabs = rename "tabs" . ss . Mirror $ Tall 1 0 0.93
     gridWide = rename "gridw" . ss . refmin $ GridRatio (16/9)
     grid = rename "grid" . ss . refmin $ GridRatio (4/3)
-    im = onTall (im' 2) (im' 1)
-    im' r =  withIM (r%9) pidginRoster . reflectHoriz $ withIM (r%8) skypeRoster
-         (gridWide ||| grid ||| spiral)
-      where
-        pidginRoster = ClassName "Pidgin" `And` Role "buddy_list"
-        skypeRoster  = ClassName "Skype"
-                       `And` Not (Title "Options")
-                       `And` Not (Title "Add a Skype Contact")
-                       `And` Not (Title "Start a conference call")
-                       `And` Not (Title "Terms of Use")
-                       `And` Not (Role "ConversationsWindow")
-                       `And` Not (Role "CallWindowForm")
-                       `And` Not (Role "CallWindow")
-
-
 
 
 -- Window rules:
@@ -560,9 +544,6 @@ myManageHook =
   , [wmName    =? "Emulator" -?> doFloat]
   , [isTooltip -?>                                             doIgnore]
   , [className =? c <&&> skipTaskbar  -?>                      doIgnore           | c <- ["UE4Editor", "com-eteks-sweethome3d-SweetHome3D"]]
-  , [className =? "Skype" <&&> title =? "Options" -?> doCenterFloatLarge]
-  , [className =? "Skype" <&&> startsWith' title "Profile for " -?> doCenterFloat]
-  , [className =? "Skype" <&&> startsWith' title "Add a Skype Contact" -?> doCenterFloatLarge]
   , [resource  =? r -?>                                        doFloat            | r <- ["floating"]]
   , [className =? c -?>                                        doFloat            | c <- ["Unity-2d-launcher", "Orage", "feh"]]
   -- NOTE chrome does note set title early enough for this
