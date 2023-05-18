@@ -666,7 +666,6 @@ myXineramaWsCompare' phy = do
             screens = map (screenRect . W.screenDetail) $ sortOn W.screen $ W.current w : W.visible w
 
 
--- physicalScreenOrder= horizontalScreenOrderer
 physicalScreenOrder= horizontalScreenOrderer
 
 nextScreen' = onNextNeighbour  physicalScreenOrder W.view
@@ -822,9 +821,6 @@ a00001Config = do
       hPutStr h (unlines $ showKm x)
       hClose h
       return ()
-
-
-
 
 
 -- | Working versions of swapup/swapdown
