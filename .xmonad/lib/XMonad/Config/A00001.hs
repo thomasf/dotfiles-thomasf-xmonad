@@ -244,6 +244,8 @@ myKeys xpc conf=
   , ("M-p r",               addName ".remote"                               $ gotoPrefixWS "remote" >> movePointer)
   , ("M-p s",               addName ".s"                                    $ gotoPrefixWS "s" >> movePointer)
   , ("M-p f",               addName ".files"                                $ gotoPrefixWS "files" >> movePointer)
+  , ("M-p t",               addName ".term"                                 $ gotoPrefixWS "term" >> movePointer)
+  , ("M-p l",               addName ".logs"                                 $ gotoPrefixWS "logs" >> movePointer)
   , ("M-p 1",               addName ".1"                                    $ gotoPrefixWS "1" >> movePointer)
   , ("M-p 2",               addName ".2"                                    $ gotoPrefixWS "2" >> movePointer)
   , ("M-p 3",               addName ".3"                                    $ gotoPrefixWS "3" >> movePointer)
