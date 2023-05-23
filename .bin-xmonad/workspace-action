@@ -27,7 +27,7 @@ case $suffix in
     exec sshmenu
     ;;
   term|terminal)
-    exec urxvt
+    exec term
     ;;
   emacs)
     exec e
