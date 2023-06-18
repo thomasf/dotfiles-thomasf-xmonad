@@ -16,16 +16,16 @@ fi
 [ -e "${HOME}/.config/alacritty" ] \
   || ln -fs "$(pwd)/.config-xmonad/alacritty" "${HOME}/.config/alacritty"
 
-(
-  cd "$(pwd)/.config-xmonad/alacritty"
-  go run .
-)
-
 # ln -fs "$(pwd)/.config-xmonad/fontconfig/fonts.conf" "${HOME}/.fonts.conf"
 
 [ -e "${HOME}/.fonts.conf.d" ] \
   || ln -fs "$(pwd)/.config-xmonad/fontconfig/conf.d" "${HOME}/.fonts.conf.d"
 
 go install ./cmd/...
+
+(
+  create-alacritty-config
+  create-alacritty-config -os linux -host transwhale -out alacritty.transwhale
+)
 
 set +x
