@@ -1,0 +1,6 @@
+[font]
+  size = 16.0
+
+  [font.offset]
+    x = 0
+    y = 1

@@ -26,7 +26,7 @@ colors:
     green:   '#586e75' # base01
     yellow:  '#657b83' # base00
     blue:    '#839496' # base0
-    magenta: '#6c71c4' # violet
+    magenta: '#6c71c4' # violetc
     cyan:    '#93a1a1' # base1
     white:   '#fdf6e3' # base3
 

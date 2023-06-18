@@ -1,0 +1,474 @@
+[font]
+
+  [font.normal]
+    family = "PragmataPro Mono"
+    style = "Regular"
+
+  [font.bold]
+    family = "PragmataPro Mono"
+    style = "Bold"
+
+  [font.italic]
+    family = "PragmataPro Mono"
+    style = "Italic"
+
+[hints]
+
+  [[hints.enabled]]
+    regex = "(ipfs:|ipns:|magnet:|mailto:|gemini:|gopher:|https:|http:|news:|file:|git:|ssh:|ftp:)[^\u0000-\u001F\u007F-<>\"\\s{-}\\^⟨⟩`]+"
+    command = "www"
+    post_processing = true
+
+    [hints.enabled.mouse]
+      enabled = true
+      mods = "None"
+
+    [hints.enabled.binding]
+      key = "U"
+      mods = "Control|Shift"
+
+[[mouse.bindings]]
+  mouse = "Middle"
+  mode = "~Vi"
+  action = "PasteSelection"
+
+[[keyboard.bindings]]
+  key = "V"
+  mods = "Super"
+  action = "Paste"
+
+[[keyboard.bindings]]
+  key = "C"
+  mods = "Super"
+  action = "Copy"
+
+[[keyboard.bindings]]
+  key = "V"
+  mods = "Control|Shift"
+  action = "ReceiveChar"
+
+[[keyboard.bindings]]
+  key = "C"
+  mods = "Control|Shift"
+  action = "ReceiveChar"
+
+[[keyboard.bindings]]
+  key = "Paste"
+  action = "Paste"
+
+[[keyboard.bindings]]
+  key = "Copy"
+  action = "Copy"
+
+[[keyboard.bindings]]
+  key = "L"
+  mods = "Control"
+  action = "ClearLogNotice"
+
+[[keyboard.bindings]]
+  key = "L"
+  mods = "Control"
+  mode = "~Vi|~Search"
+  chars = "\f"
+
+[[keyboard.bindings]]
+  key = "PageUp"
+  mods = "Shift"
+  mode = "~Alt"
+  action = "ScrollPageUp"
+
+[[keyboard.bindings]]
+  key = "PageDown"
+  mods = "Shift"
+  mode = "~Alt"
+  action = "ScrollPageDown"
+
+[[keyboard.bindings]]
+  key = "Home"
+  mods = "Shift"
+  mode = "~Alt"
+  action = "ScrollToTop"
+
+[[keyboard.bindings]]
+  key = "End"
+  mods = "Shift"
+  mode = "~Alt"
+  action = "ScrollToBottom"
+
+[[keyboard.bindings]]
+  key = "S"
+  mods = "Super"
+  action = "SearchBackward"
+
+[[keyboard.bindings]]
+  key = "F"
+  mods = "Control|Shift"
+  mode = "~Search"
+  action = "SearchForward"
+
+[[keyboard.bindings]]
+  key = "B"
+  mods = "Control|Shift"
+  mode = "~Search"
+  action = "SearchBackward"
+
+[[keyboard.bindings]]
+  key = "C"
+  mods = "Control|Shift"
+  mode = "Vi|~Search"
+  action = "ClearSelection"
+
+[[keyboard.bindings]]
+  key = "Insert"
+  mods = "Shift"
+  action = "PasteSelection"
+
+[[keyboard.bindings]]
+  key = "Key0"
+  mods = "Control"
+  action = "ResetFontSize"
+
+[[keyboard.bindings]]
+  key = "Equals"
+  mods = "Control"
+  action = "IncreaseFontSize"
+
+[[keyboard.bindings]]
+  key = "Plus"
+  mods = "Control"
+  action = "IncreaseFontSize"
+
+[[keyboard.bindings]]
+  key = "NumpadAdd"
+  mods = "Control"
+  action = "IncreaseFontSize"
+
+[[keyboard.bindings]]
+  key = "Minus"
+  mods = "Control"
+  action = "DecreaseFontSize"
+
+[[keyboard.bindings]]
+  key = "NumpadSubtract"
+  mods = "Control"
+  action = "DecreaseFontSize"
+
+[[keyboard.bindings]]
+  key = "Space"
+  mods = "Shift|Control"
+  mode = "~Search"
+  action = "ToggleViMode"
+
+[[keyboard.bindings]]
+  key = "Space"
+  mods = "Shift|Control"
+  mode = "Vi|~Search"
+  action = "ScrollToBottom"
+
+[[keyboard.bindings]]
+  key = "Escape"
+  mode = "Vi|~Search"
+  action = "ClearSelection"
+
+[[keyboard.bindings]]
+  key = "I"
+  mode = "Vi|~Search"
+  action = "ToggleViMode"
+
+[[keyboard.bindings]]
+  key = "I"
+  mode = "Vi|~Search"
+  action = "ScrollToBottom"
+
+[[keyboard.bindings]]
+  key = "C"
+  mods = "Control"
+  mode = "Vi|~Search"
+  action = "ToggleViMode"
+
+[[keyboard.bindings]]
+  key = "Y"
+  mods = "Control"
+  mode = "Vi|~Search"
+  action = "ScrollLineUp"
+
+[[keyboard.bindings]]
+  key = "E"
+  mods = "Control"
+  mode = "Vi|~Search"
+  action = "ScrollLineDown"
+
+[[keyboard.bindings]]
+  key = "G"
+  mode = "Vi|~Search"
+  action = "ScrollToTop"
+
+[[keyboard.bindings]]
+  key = "G"
+  mods = "Shift"
+  mode = "Vi|~Search"
+  action = "ScrollToBottom"
+
+[[keyboard.bindings]]
+  key = "B"
+  mods = "Control"
+  mode = "Vi|~Search"
+  action = "ScrollPageUp"
+
+[[keyboard.bindings]]
+  key = "F"
+  mods = "Control"
+  mode = "Vi|~Search"
+  action = "ScrollPageDown"
+
+[[keyboard.bindings]]
+  key = "U"
+  mods = "Control"
+  mode = "Vi|~Search"
+  action = "ScrollHalfPageUp"
+
+[[keyboard.bindings]]
+  key = "D"
+  mods = "Control"
+  mode = "Vi|~Search"
+  action = "ScrollHalfPageDown"
+
+[[keyboard.bindings]]
+  key = "Y"
+  mode = "Vi|~Search"
+  action = "Copy"
+
+[[keyboard.bindings]]
+  key = "Y"
+  mode = "Vi|~Search"
+  action = "ClearSelection"
+
+[[keyboard.bindings]]
+  key = "Copy"
+  mode = "Vi|~Search"
+  action = "ClearSelection"
+
+[[keyboard.bindings]]
+  key = "V"
+  mode = "Vi|~Search"
+  action = "ToggleNormalSelection"
+
+[[keyboard.bindings]]
+  key = "V"
+  mods = "Shift"
+  mode = "Vi|~Search"
+  action = "ToggleLineSelection"
+
+[[keyboard.bindings]]
+  key = "V"
+  mods = "Control"
+  mode = "Vi|~Search"
+  action = "ToggleBlockSelection"
+
+[[keyboard.bindings]]
+  key = "V"
+  mods = "Alt"
+  mode = "Vi|~Search"
+  action = "ToggleSemanticSelection"
+
+[[keyboard.bindings]]
+  key = "Return"
+  mode = "Vi|~Search"
+  action = "Open"
+
+[[keyboard.bindings]]
+  key = "K"
+  mode = "Vi|~Search"
+  action = "Up"
+
+[[keyboard.bindings]]
+  key = "J"
+  mode = "Vi|~Search"
+  action = "Down"
+
+[[keyboard.bindings]]
+  key = "H"
+  mode = "Vi|~Search"
+  action = "Left"
+
+[[keyboard.bindings]]
+  key = "L"
+  mode = "Vi|~Search"
+  action = "Right"
+
+[[keyboard.bindings]]
+  key = "Up"
+  mode = "Vi|~Search"
+  action = "Up"
+
+[[keyboard.bindings]]
+  key = "Down"
+  mode = "Vi|~Search"
+  action = "Down"
+
+[[keyboard.bindings]]
+  key = "Left"
+  mode = "Vi|~Search"
+  action = "Left"
+
+[[keyboard.bindings]]
+  key = "Right"
+  mode = "Vi|~Search"
+  action = "Right"
+
+[[keyboard.bindings]]
+  key = "Key0"
+  mode = "Vi|~Search"
+  action = "First"
+
+[[keyboard.bindings]]
+  key = "Key4"
+  mods = "Shift"
+  mode = "Vi|~Search"
+  action = "Last"
+
+[[keyboard.bindings]]
+  key = "Key6"
+  mods = "Shift"
+  mode = "Vi|~Search"
+  action = "FirstOccupied"
+
+[[keyboard.bindings]]
+  key = "H"
+  mods = "Shift"
+  mode = "Vi|~Search"
+  action = "High"
+
+[[keyboard.bindings]]
+  key = "M"
+  mods = "Shift"
+  mode = "Vi|~Search"
+  action = "Middle"
+
+[[keyboard.bindings]]
+  key = "L"
+  mods = "Shift"
+  mode = "Vi|~Search"
+  action = "Low"
+
+[[keyboard.bindings]]
+  key = "B"
+  mode = "Vi|~Search"
+  action = "SemanticLeft"
+
+[[keyboard.bindings]]
+  key = "W"
+  mode = "Vi|~Search"
+  action = "SemanticRight"
+
+[[keyboard.bindings]]
+  key = "E"
+  mode = "Vi|~Search"
+  action = "SemanticRightEnd"
+
+[[keyboard.bindings]]
+  key = "B"
+  mods = "Shift"
+  mode = "Vi|~Search"
+  action = "WordLeft"
+
+[[keyboard.bindings]]
+  key = "W"
+  mods = "Shift"
+  mode = "Vi|~Search"
+  action = "WordRight"
+
+[[keyboard.bindings]]
+  key = "E"
+  mods = "Shift"
+  mode = "Vi|~Search"
+  action = "WordRightEnd"
+
+[[keyboard.bindings]]
+  key = "Key5"
+  mods = "Shift"
+  mode = "Vi|~Search"
+  action = "Bracket"
+
+[[keyboard.bindings]]
+  key = "Slash"
+  mode = "Vi|~Search"
+  action = "SearchForward"
+
+[[keyboard.bindings]]
+  key = "Slash"
+  mods = "Shift"
+  mode = "Vi|~Search"
+  action = "SearchBackward"
+
+[[keyboard.bindings]]
+  key = "N"
+  mode = "Vi|~Search"
+  action = "SearchNext"
+
+[[keyboard.bindings]]
+  key = "N"
+  mods = "Shift"
+  mode = "Vi|~Search"
+  action = "SearchPrevious"
+
+[[keyboard.bindings]]
+  key = "Return"
+  mode = "Search|Vi"
+  action = "SearchConfirm"
+
+[[keyboard.bindings]]
+  key = "Escape"
+  mode = "Search"
+  action = "SearchCancel"
+
+[[keyboard.bindings]]
+  key = "C"
+  mods = "Control"
+  mode = "Search"
+  action = "SearchCancel"
+
+[[keyboard.bindings]]
+  key = "U"
+  mods = "Control"
+  mode = "Search"
+  action = "SearchClear"
+
+[[keyboard.bindings]]
+  key = "W"
+  mods = "Control"
+  mode = "Search"
+  action = "SearchDeleteWord"
+
+[[keyboard.bindings]]
+  key = "P"
+  mods = "Control"
+  mode = "Search"
+  action = "SearchHistoryPrevious"
+
+[[keyboard.bindings]]
+  key = "N"
+  mods = "Control"
+  mode = "Search"
+  action = "SearchHistoryNext"
+
+[[keyboard.bindings]]
+  key = "Up"
+  mode = "Search"
+  action = "SearchHistoryPrevious"
+
+[[keyboard.bindings]]
+  key = "Down"
+  mode = "Search"
+  action = "SearchHistoryNext"
+
+[[keyboard.bindings]]
+  key = "Return"
+  mode = "Search|~Vi"
+  action = "SearchFocusNext"
+
+[[keyboard.bindings]]
+  key = "Return"
+  mods = "Shift"
+  mode = "Search|~Vi"
+  action = "SearchFocusPrevious"

@@ -1,0 +1,85 @@
+[window]
+  decorations = "buttonless"
+
+  [window.padding]
+    x = 8
+    y = 8
+
+[font]
+
+  [font.normal]
+    family = "Pragmata Pro Mono"
+    style = "Regular"
+
+  [font.bold]
+    family = "Pragmata Pro Mono"
+    style = "Bold"
+
+  [font.italic]
+    family = "Pragmata Pro Mono"
+    style = "Italic"
+
+[[keyboard.bindings]]
+  key = "Key0"
+  mods = "Command"
+  action = "ResetFontSize"
+
+[[keyboard.bindings]]
+  key = "Equals"
+  mods = "Command"
+  action = "IncreaseFontSize"
+
+[[keyboard.bindings]]
+  key = "Plus"
+  mods = "Command"
+  action = "IncreaseFontSize"
+
+[[keyboard.bindings]]
+  key = "Minus"
+  mods = "Command"
+  action = "DecreaseFontSize"
+
+[[keyboard.bindings]]
+  key = "K"
+  mods = "Command"
+  action = "ClearHistory"
+
+[[keyboard.bindings]]
+  key = "V"
+  mods = "Command"
+  action = "Paste"
+
+[[keyboard.bindings]]
+  key = "C"
+  mods = "Command"
+  action = "Copy"
+
+[[keyboard.bindings]]
+  key = "H"
+  mods = "Command"
+  action = "Hide"
+
+[[keyboard.bindings]]
+  key = "M"
+  mods = "Command"
+  action = "Minimize"
+
+[[keyboard.bindings]]
+  key = "Q"
+  mods = "Command"
+  action = "Quit"
+
+[[keyboard.bindings]]
+  key = "W"
+  mods = "Command"
+  action = "Quit"
+
+[[keyboard.bindings]]
+  key = "N"
+  mods = "Command"
+  action = "SpawnNewInstance"
+
+[[keyboard.bindings]]
+  key = "F"
+  mods = "Command|Control"
+  action = "ToggleFullscreen"
