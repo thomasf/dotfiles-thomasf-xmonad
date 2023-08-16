@@ -15,7 +15,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/imdario/mergo"
+	"dario.cat/mergo"
 	"gopkg.in/yaml.v3"
 )
 
