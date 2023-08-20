@@ -198,6 +198,10 @@ if [ $(which miniserv) ]; then
   miniserv &
 fi
 
+if [ $(which xscreensaver) ]; then
+  xscreensaver --no-splash &
+fi
+
 (
   darkmodearg=l
   if [ $(which zenity) ]; then
