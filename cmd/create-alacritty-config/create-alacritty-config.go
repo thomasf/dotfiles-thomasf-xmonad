@@ -13,9 +13,9 @@ import (
 	"runtime"
 	"strings"
 
+	"dario.cat/mergo"
 	"github.com/BurntSushi/toml"
 	"github.com/davecgh/go-spew/spew"
-	"dario.cat/mergo"
 	"gopkg.in/yaml.v3"
 )
 
@@ -63,7 +63,7 @@ func main() {
 	flag.Parse()
 
 	{
-		m := make(map[interface{}]interface{})
+		m := make(map[any]any)
 		mustLoadAndMergeYaml("c.common.yml", m)
 		mustLoadAndMergeYaml(fmt.Sprintf("c.colors.%s.yml", flags.Theme), m)
 		mustLoadAndMergeIfExistsYaml(fmt.Sprintf("c.os.%s.yml", flags.OS), m)
@@ -80,7 +80,7 @@ func main() {
 	}
 
 	{
-		m := make(map[string]interface{})
+		m := make(map[string]any)
 		mustLoadAndMergeToml("c.common.toml", m)
 		mustLoadAndMergeToml(fmt.Sprintf("c.colors.%s.toml", flags.Theme), m)
 		mustLoadAndMergeIfExistsToml(fmt.Sprintf("c.os.%s.toml", flags.OS), m)
@@ -97,14 +97,14 @@ func main() {
 	}
 }
 
-func mustLoadAndMergeYaml(filename string, m map[interface{}]interface{}) {
+func mustLoadAndMergeYaml(filename string, m map[any]any) {
 	err := loadAndMergeYaml(filename, m)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func mustLoadAndMergeIfExistsYaml(filename string, m map[interface{}]interface{}) {
+func mustLoadAndMergeIfExistsYaml(filename string, m map[any]any) {
 	err := loadAndMergeYaml(filename, m)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -114,12 +114,12 @@ func mustLoadAndMergeIfExistsYaml(filename string, m map[interface{}]interface{}
 	}
 }
 
-func loadAndMergeYaml(filename string, m map[interface{}]interface{}) error {
+func loadAndMergeYaml(filename string, m map[any]any) error {
 	ymldata, err := config.ReadFile(filepath.Join("config", filename))
 	if err != nil {
 		return err
 	}
-	nm := make(map[interface{}]interface{})
+	nm := make(map[any]any)
 	err = yaml.Unmarshal(ymldata, &nm)
 	if err != nil {
 		return err
@@ -130,12 +130,12 @@ func loadAndMergeYaml(filename string, m map[interface{}]interface{}) error {
 	return nil
 }
 
-func loadAndMergeToml(filename string, m map[string]interface{}) error {
+func loadAndMergeToml(filename string, m map[string]any) error {
 	tomldata, err := config.ReadFile(filepath.Join("config", filename))
 	if err != nil {
 		return err
 	}
-	nm := make(map[string]interface{})
+	nm := make(map[string]any)
 
 	err = toml.Unmarshal(tomldata, &nm)
 	if err != nil {
@@ -147,14 +147,14 @@ func loadAndMergeToml(filename string, m map[string]interface{}) error {
 	return nil
 }
 
-func mustLoadAndMergeToml(filename string, m map[string]interface{}) {
+func mustLoadAndMergeToml(filename string, m map[string]any) {
 	err := loadAndMergeToml(filename, m)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func mustLoadAndMergeIfExistsToml(filename string, m map[string]interface{}) {
+func mustLoadAndMergeIfExistsToml(filename string, m map[string]any) {
 	err := loadAndMergeToml(filename, m)
 	if err != nil {
 		if os.IsNotExist(err) {
