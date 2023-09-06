@@ -25,6 +25,7 @@ Config { font = "Pragmata Pro 27px"
                     , Run Memory ["-t","<fc={{ .Sol.Base1 }}><available></fc>M"] 30
                     , Run DateZone "%a %b %-d %H:%M" "en_US.utf8" "Europe/Stockholm" "sthmlDate" 10
                     , Run DateZone "%H:%M" "en_US.utf8" "UTC" "time2" 10
+                    , Run DateZone "%H:%M" "en_US.utf8" "America/Montreal" "time3" 10
                     , Run Battery ["-t", "<left>%", "-L", "10", "-H", "80"
                                   , "--"
                                   , "-L", "-15", "-H", "-5", "-l", "{{ .Sol.Base1 }}", "-m", "{{ .Sol.Base1 }}", "-h", "{{ .Sol.Base1 }}"] 600
@@ -32,4 +33,4 @@ Config { font = "Pragmata Pro 27px"
        ]
        , sepChar = "%"
        , alignSep = "}{",
-       , template = "%xm% }{ <fn=1>%dynnetwork%  <action=`x.info` button=1>ma%memory%  cu%multicpu%  b%battery%</action></fn>  <fn=1><fc={{ .Sol.Green }}><action=`x.todo` button=1>%sthmlDate%</action></fc> <fc={{ .Sol.Base00 }}>(%time2%)</fc>  </fn>"
+       , template = "%xm% }{ <fn=1>%dynnetwork%  <action=`x.info` button=1>ma%memory%  cu%multicpu%  b%battery%</action></fn>  <fn=1><fc={{ .Sol.Green }}><action=`x.todo` button=1>%sthmlDate%</action></fc> <fc={{ .Sol.Base00 }}>UTC:%time2% M:%time3%</fc>  </fn>"
