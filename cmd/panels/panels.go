@@ -18,7 +18,7 @@ import (
 	"github.com/BurntSushi/xgb"
 	"github.com/BurntSushi/xgb/randr"
 	"github.com/BurntSushi/xgb/xproto"
-	cl "github.com/go-pa/colorlab"
+	"github.com/go-pa/colorlab"
 	process "github.com/shirou/gopsutil/v3/process"
 )
 
@@ -31,39 +31,6 @@ type Screen struct {
 }
 
 type Screens []Screen
-
-var (
-	solarized = cl.Solarized{
-		Base: cl.Base{
-			Base03: cl.SolarizedBase03,
-			Base02: cl.SolarizedBase02,
-			Base01: cl.SolarizedBase01,
-			Base00: cl.SolarizedBase00,
-			Base0:  cl.SolarizedBase0,
-			Base1:  cl.SolarizedBase1,
-			Base2:  cl.SolarizedBase2,
-			Base3:  cl.SolarizedBase3,
-		},
-		Accents: cl.Accents{
-			Blue:    cl.SolarizedBlue,
-			Cyan:    cl.SolarizedCyan,
-			Green:   cl.SolarizedGreen,
-			Magenta: cl.SolarizedMagenta,
-			Orange:  cl.SolarizedOrange,
-			Red:     cl.SolarizedRed,
-			Violet:  cl.SolarizedViolet,
-			Yellow:  cl.SolarizedYellow,
-		},
-	}
-	// solarizedDarkHighContrast = cl.Solarized{
-	// 	Base:    solarized.Base.Clone().ChangeLightness(0.04, -0.02),
-	// 	Accents: solarized.Accents.Clone().ChangeLightness(0.05),
-	// }
-	// solarizedLightHighContrast = cl.Solarized{
-	// 	Base:    solarized.Base.Clone().ChangeLightness(0.02, -0.05),
-	// 	Accents: solarized.Accents.Clone().ChangeLightness(-0.05),
-	// }
-)
 
 func getScreens() (Screens, error) {
 
@@ -189,9 +156,9 @@ func panels() error {
 	}
 	// spew.Dump(screens)
 
-	sol := solarized
+	sol := colorlab.SelenizedDarkPalette.Solarized
 	if !dm {
-		sol = sol.Inverse()
+		sol = colorlab.SelenizedLightPalette.Solarized
 	}
 	var xmobarConfigs []string
 	defer func() {
@@ -336,7 +303,7 @@ func main() {
 
 // Theme .
 type RenderContext struct {
-	Sol    cl.Solarized
+	Sol    colorlab.Solarized
 	Width  int
 	Xpos   int
 	Ypos   int
