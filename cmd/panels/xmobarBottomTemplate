@@ -15,14 +15,13 @@ Config { font = "PT Sans Narrow Bold 28px"
        , pickBroadest = False
        , position = BottomSize C 100 32
        , textOffset = -1
-       , commands = [ Run MPD ["-t",
-                       " <statei> <artist> - <title> ",
-                       "--", "-P", ">>", "-Z", "||", "-S", "><"] 10
+       , commands = [ -- Run MPD ["-t", " <statei> <artist> - <title> ", "--", "-P", ">>", "-Z", "||", "-S", "><"] 10
                     -- , Run Com "fortune" ["~/.config-base/fortunes"] "quote" 9000
-                    , Run NamedXPropertyLog "_XMONAD_LOG_BOTTOM" "xm"
+                      Run NamedXPropertyLog "_XMONAD_LOG_BOTTOM" "xm"
                     , Run Kbd [("us(dvorak)", "DV"), ("us", "US")]
                     ]
 
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "  <fn=1><fc={{ .Sol.Base1 }}>%kbd%</fc></fn>   <fc={{ .Sol.Yellow }}>%xm%</fc> }{<fn=1><fc={{ .Sol.Green }}>%mpd%</fc></fn>"
+       -- , template = "  <fn=1><fc={{ .Sol.Base1 }}>%kbd%</fc></fn>   <fc={{ .Sol.Yellow }}>%xm%</fc> }{<fn=1><fc={{ .Sol.Green }}>%mpd%</fc></fn>"
+       , template = "  <fn=1><fc={{ .Sol.Base1 }}>%kbd%</fc></fn>   <fc={{ .Sol.Yellow }}>%xm%</fc>"
