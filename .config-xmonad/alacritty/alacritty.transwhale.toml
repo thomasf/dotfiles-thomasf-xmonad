@@ -43,7 +43,7 @@ working_directory = "None"
   TERM = "xterm-24bit"
 
 [font]
-  size = 11.0
+  size = 12
   [font.bold]
     family = "PragmataPro Mono"
     style = "Bold"
