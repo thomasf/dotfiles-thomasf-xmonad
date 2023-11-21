@@ -8,15 +8,15 @@
 [font]
 
   [font.normal]
-    family = "Pragmata Pro Mono"
+    family = "PragmataPro Mono"
     style = "Regular"
 
   [font.bold]
-    family = "Pragmata Pro Mono"
+    family = "PragmataPro Mono"
     style = "Bold"
 
   [font.italic]
-    family = "Pragmata Pro Mono"
+    family = "PragmataPro Mono"
     style = "Italic"
 
 [[keyboard.bindings]]
