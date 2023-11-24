@@ -9,8 +9,10 @@ wsname -s && exit 1
 
 pavucontrol &
 ario &
+www-app \
+  "https://deezer.com" &
 www-window \
-    "http://soundcloud.com" \
-    "http://mixcloud.com" \
-    "http://wfmu.org" \
-    "http://last.fm" &
+    "https://soundcloud.com" \
+    "https://mixcloud.com" \
+    "https://wfmu.org" \
+    "https://last.fm" &
