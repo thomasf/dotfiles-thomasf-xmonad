@@ -143,8 +143,8 @@ myKeys xpc conf=
   subtitle "Horizontal screen actions": mkNamedKeymap conf
   [ ("M-f",   addName "Next screen"                        $ showWorkspaceNameOld >> Nav2d.screenGo R True >> movePointer >> showWorkspaceNameFast)
   , ("M-d",   addName "Previous screen"                    $ showWorkspaceNameOld >> Nav2d.screenGo L True >> movePointer >> showWorkspaceNameFast)
-  , ("M-C-f", addName "Swap current display witn next"     $ Nav2d.screenSwap R True >> showWorkspaceNameOld >> Nav2d.screenGo R True >> showWorkspaceNameFast)
-  , ("M-C-d", addName "Swap current display witn previous" $ Nav2d.screenSwap L True >> showWorkspaceNameOld >> Nav2d.screenGo L True >> showWorkspaceNameFast)
+  , ("M-C-f", addName "Swap current display witn next"     $ Nav2d.screenGo R True >> showWorkspaceNameOld >> Nav2d.screenGo L True >> Nav2d.screenSwap R True >> showWorkspaceNameFast)
+  , ("M-C-d", addName "Swap current display witn previous" $ Nav2d.screenGo L True >> showWorkspaceNameOld >> Nav2d.screenGo R True >> Nav2d.screenSwap L True >> showWorkspaceNameFast)
   , ("M-S-f", addName "Move window to next screen"         $ Nav2d.windowToScreen R True  >> showWorkspaceNameOld >> Nav2d.screenGo R True >> showWorkspaceNameFast)
   , ("M-S-d", addName "Move window to previous screen"     $ Nav2d.windowToScreen L True  >> showWorkspaceNameOld >> Nav2d.screenGo L True >> showWorkspaceNameFast)
   ] ++
