@@ -132,13 +132,21 @@ myKeys xpc conf=
   , ("M-u",        addName "Focus urgent winow"                            $ focusUrgent >> movePointer )
   , ("M-C-u",      addName "Clear all urgent window statuses"              $ clearUrgents >> focusUrgent)
   ] ++
-  subtitle "Screen actions": mkNamedKeymap conf
-  [ ("M-f",   addName "Next screen"                        $ showWorkspaceNameOld >> nextScreen' >> movePointer >> showWorkspaceNameFast)
-  , ("M-d",   addName "Previous screen"                    $ showWorkspaceNameOld >> prevScreen' >> movePointer >> showWorkspaceNameFast)
-  , ("M-C-f", addName "Swap current display witn next"     $ swapNextScreen' >> nextScreen' >> showWorkspaceNameOld >> prevScreen' >> showWorkspaceName >> movePointer )
-  , ("M-C-d", addName "Swap current display witn previous" $ swapPrevScreen' >> prevScreen' >> showWorkspaceNameOld >> nextScreen' >> showWorkspaceName >> movePointer )
-  , ("M-S-f", addName "Move window to next screen"         $ shiftNextScreen' >> nextScreen' >> movePointer )
-  , ("M-S-d", addName "Move window to previous screen"     $ shiftPrevScreen' >> prevScreen' >> movePointer )
+  -- subtitle "Screen actions": mkNamedKeymap conf
+  -- [ ("M-f",   addName "Next screen"                        $ showWorkspaceNameOld >> nextScreen' >> movePointer >> showWorkspaceNameFast)
+  -- , ("M-d",   addName "Previous screen"                    $ showWorkspaceNameOld >> prevScreen' >> movePointer >> showWorkspaceNameFast)
+  -- , ("M-C-f", addName "Swap current display witn next"     $ swapNextScreen' >> nextScreen' >> showWorkspaceNameOld >> prevScreen' >> showWorkspaceName >> movePointer )
+  -- , ("M-C-d", addName "Swap current display witn previous" $ swapPrevScreen' >> prevScreen' >> showWorkspaceNameOld >> nextScreen' >> showWorkspaceName >> movePointer )
+  -- , ("M-S-f", addName "Move window to next screen"         $ shiftNextScreen' >> nextScreen' >> movePointer )
+  -- , ("M-S-d", addName "Move window to previous screen"     $ shiftPrevScreen' >> prevScreen' >> movePointer )
+  -- ] ++
+  subtitle "Horizontal screen actions": mkNamedKeymap conf
+  [ ("M-f",   addName "Next screen"                        $ showWorkspaceNameOld >> Nav2d.screenGo R True >> movePointer >> showWorkspaceNameFast)
+  , ("M-d",   addName "Previous screen"                    $ showWorkspaceNameOld >> Nav2d.screenGo L True >> movePointer >> showWorkspaceNameFast)
+  , ("M-C-f", addName "Swap current display witn next"     $ Nav2d.screenSwap R True >> showWorkspaceNameOld >> Nav2d.screenGo R True >> showWorkspaceNameFast)
+  , ("M-C-d", addName "Swap current display witn previous" $ Nav2d.screenSwap L True >> showWorkspaceNameOld >> Nav2d.screenGo L True >> showWorkspaceNameFast)
+  , ("M-S-f", addName "Move window to next screen"         $ Nav2d.windowToScreen R True  >> showWorkspaceNameOld >> Nav2d.screenGo R True >> showWorkspaceNameFast)
+  , ("M-S-d", addName "Move window to previous screen"     $ Nav2d.windowToScreen L True  >> showWorkspaceNameOld >> Nav2d.screenGo L True >> showWorkspaceNameFast)
   ] ++
   subtitle "2D Navigation": mkNamedKeymap conf
   [ ("M-<Up>",      addName "Focus window above" $ Nav2d.windowGo U False)
