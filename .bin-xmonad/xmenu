@@ -8,13 +8,13 @@
 
 set -e
 
-actions="[cancel]\nleave\nsuspend\nhibernate\nreboot\nshutdown"
+actions="[cancel]\nleave\ndisplay-off\nsuspend\nhibernate\nreboot\nshutdown"
 action=$(echo -e "$actions" | dmenu -l 20 -p "xmenu")
 
 [ -z $action ] && exit 1
 
 case $action in
-  leave|suspend|hibernate|reboot|shutdown)
+  leave|suspend|hibernate|reboot|shutdown|display-off)
     exec a.$action
     ;;
   *)
