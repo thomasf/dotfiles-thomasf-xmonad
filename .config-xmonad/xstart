@@ -48,6 +48,10 @@ killall -q pulseaudio
 killall -q compton
 sleep 0.3
 
+(
+  hash docker 2> /dev/null && docker stop $(docker ps -q)
+) &
+
 # Launch a new dbus-session if not already running
 # dbuslaunch="`which dbus-launch 2>/dev/null`"
 # [ -n "$dbuslaunch" ] \
