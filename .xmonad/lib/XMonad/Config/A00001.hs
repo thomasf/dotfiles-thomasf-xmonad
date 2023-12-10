@@ -88,7 +88,7 @@ import           XMonad.Util.Run
 import           XMonad.Util.WorkspaceCompare
 import           XMonad.Util.NamedWindows (getName)
 import           Text.Printf
-import           XMonad.Util.Ungrab (unGrab)
+import           XMonad.Operations (unGrab)
 import qualified Control.Arrow as Arrow
 import qualified Graphics.Rendering.Pango.Layout as PL
 
