@@ -276,6 +276,8 @@ myKeys xpc conf=
  , ("M-q x x x",         addName "restart xmonad without keeping state" $ restart "xmonad" False)
  , ("M-q k k k",         addName "KILL xmonad"                          $ io exitSuccess)
  , ("M-q <Space>",       addName "xmenu"                                $ spawn "xmenu")
+ , ("M-q d",             addName "display off"                          $ spawn "a.display-off")
+ , ("M-q l",             addName "leave"                                $ spawn "a.leave")
  ]
   where
     spawnh' cmd' = addName cmd'           $ spawn cmd'
