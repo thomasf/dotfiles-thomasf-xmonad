@@ -277,6 +277,7 @@ myKeys xpc conf=
  , ("M-q k k k",         addName "KILL xmonad"                          $ io exitSuccess)
  , ("M-q <Space>",       addName "xmenu"                                $ spawn "xmenu")
  , ("M-q d",             addName "display off"                          $ spawn "a.display-off")
+ , ("M-q q",             addName "display off"                          $ spawn "a.display-off -nowait")
  , ("M-q l",             addName "leave"                                $ spawn "a.leave")
  ]
   where

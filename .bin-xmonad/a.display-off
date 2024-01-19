@@ -1,3 +1,4 @@
 #!/bin/sh
-sleep 5
+
+[ "$1" != "-nowait" ] && sleep 5
 exec xset -display :0.0 dpms force off
