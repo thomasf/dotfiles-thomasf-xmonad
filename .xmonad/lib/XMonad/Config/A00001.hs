@@ -641,7 +641,6 @@ myLogHook = do
   ewmhDesktopsLogHook
   -- desktopLogHook
   -- fadeInactiveLogHook 0.86
-  setWMName "LG3D"
 
 
 -- | 'logHook' preserving old 'ewmh' behavior to switch workspace and focus to
