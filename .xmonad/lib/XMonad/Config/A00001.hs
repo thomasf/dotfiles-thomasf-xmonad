@@ -580,7 +580,8 @@ myManageHook =
 
     role = stringProperty "WM_WINDOW_ROLE"
     wmName = stringProperty "WM_WINDOW_NAME"
-    doCenterFloatLarge = myCenterFloat 0.95 0.85
+    doCenterFloatLarge = myCenterFloat 0.95 0.8
+
     -- doSink = ask >>= doF . W.sink
     skipTaskbar = isInProperty "_NET_WM_STATE" "_NET_WM_STATE_SKIP_TASKBAR"
     -- isAbove = isInProperty "_NET_WM_STATE" "_NET_WM_STATE_ABOVE"
