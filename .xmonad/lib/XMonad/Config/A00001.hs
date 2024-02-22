@@ -283,6 +283,7 @@ myKeys xpc conf=
  , ("M-q d",             addName "display off"                          $ spawn "a.display-off")
  , ("M-q q",             addName "display off"                          $ spawn "a.display-off -nowait")
  , ("M-q l",             addName "leave"                                $ spawn "a.leave")
+ , ("M-q p",             addName "restart panels"                       $ spawn "panels")
  ]
   where
     spawnh' cmd' = addName cmd'           $ spawn cmd'
