@@ -16,7 +16,6 @@ import (
 	"dario.cat/mergo"
 	"github.com/BurntSushi/toml"
 	"github.com/davecgh/go-spew/spew"
-	"gopkg.in/yaml.v3"
 )
 
 // Flags .
@@ -63,23 +62,6 @@ func main() {
 	flag.Parse()
 
 	{
-		m := make(map[any]any)
-		mustLoadAndMergeYaml("c.common.yml", m)
-		mustLoadAndMergeYaml(fmt.Sprintf("c.colors.%s.yml", flags.Theme), m)
-		mustLoadAndMergeIfExistsYaml(fmt.Sprintf("c.os.%s.yml", flags.OS), m)
-		mustLoadAndMergeIfExistsYaml(fmt.Sprintf("c.host.%s.yml", flags.Host), m)
-
-		var buf bytes.Buffer
-		enc := yaml.NewEncoder(&buf)
-		enc.SetIndent(2)
-
-		if err := enc.Encode(&m); err != nil {
-			log.Fatalf("error: %v", err)
-		}
-		ioutil.WriteFile(filepath.Join(flags.Dir, fmt.Sprintf("%s.yml", flags.Out)), buf.Bytes(), 0600)
-	}
-
-	{
 		m := make(map[string]any)
 		mustLoadAndMergeToml("c.common.toml", m)
 		mustLoadAndMergeToml(fmt.Sprintf("c.colors.%s.toml", flags.Theme), m)
@@ -95,39 +77,6 @@ func main() {
 		}
 		ioutil.WriteFile(filepath.Join(flags.Dir, fmt.Sprintf("%s.toml", flags.Out)), buf.Bytes(), 0600)
 	}
-}
-
-func mustLoadAndMergeYaml(filename string, m map[any]any) {
-	err := loadAndMergeYaml(filename, m)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func mustLoadAndMergeIfExistsYaml(filename string, m map[any]any) {
-	err := loadAndMergeYaml(filename, m)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return
-		}
-		log.Fatal(filename, err)
-	}
-}
-
-func loadAndMergeYaml(filename string, m map[any]any) error {
-	ymldata, err := config.ReadFile(filepath.Join("config", filename))
-	if err != nil {
-		return err
-	}
-	nm := make(map[any]any)
-	err = yaml.Unmarshal(ymldata, &nm)
-	if err != nil {
-		return err
-	}
-	if err := mergo.Merge(&m, nm, mergo.WithOverride); err != nil {
-		return err
-	}
-	return nil
 }
 
 func loadAndMergeToml(filename string, m map[string]any) error {
