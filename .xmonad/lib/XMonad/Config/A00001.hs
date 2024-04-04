@@ -506,6 +506,7 @@ myLayoutHook =
   onWorkspace "mail" (fullBorder ||| gridWide) .
   onWorkspace "cal" (fullBorder ||| gridWide) .
   onWorkspaces ["work-client", "work-client.1", "work-client.2", "work-client.3"] (fullBorder ||| tabs ||| gridWide) .
+  onWorkspaces ["tl.jira"] (fullBorder ||| tabs ||| gridWide) .
   onWorkspace "upgrade" alternative $
   lessBorders OnlyScreenFloat
   standard
