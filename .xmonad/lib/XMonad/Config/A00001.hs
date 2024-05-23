@@ -573,6 +573,8 @@ myManageHook =
   , [role      =? "bubble" -?>                                 doIgnore]
   , [className =? "Zenity" <&&> title =? "Question" -?>        doCenterFloat]
   , [className =? "Zenity" -?>                                 doCenterFloatLarge]
+  , [className =? "zenity" <&&> title =? "Question" -?>        doCenterFloat]
+  , [className =? "zenity" -?>                                 doCenterFloatLarge]
   , [className =? c -?>                                        doCenterFloat      | c <- ["Xfce4-settings-manager", "Pinentry", "connected-app"]]
   , [className =? c -?>                                        doCenterFloatLarge | c <-  ["Xfce4-appfinder"]]
   , [resource  =? c -?>                                        doCenterFloatLarge | c <-  ["floating-center-large"]]
