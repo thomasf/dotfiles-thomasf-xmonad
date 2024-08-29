@@ -126,6 +126,16 @@ appname = Dropbox
 summary = "*"
 format = ""
 
+[8bitdo-numpad]
+appname = blueman
+summary = "8BitDo Retro 18 Numpad*"
+background = "#e4ecda"
+foreground = "#207e7b"
+urgency = low
+format = "%s %b"
+timeout = 2
+
+
 # Local Variables:
 # eval: (rainbow-mode 1)
 # End:
