@@ -222,6 +222,10 @@ fi
   ) &
 ) &
 
+if [ $(which numlockx) ]; then
+  numlockx
+fi
+
 export HOST="$HOSTNAME"
 
 # Set default window manger (xmonad) or try user selection
