@@ -1,5 +1,5 @@
 working_directory = "None"
-live_config_reload = true
+# live_config_reload = true
 
 [window]
   dynamic_title = true
