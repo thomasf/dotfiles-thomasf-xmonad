@@ -23,6 +23,7 @@ func main() {
 	includeAudio := flag.Bool("audio", false, "record audio")
 	sinkName := flag.String("sink", "alsa_output.usb-Roland_UA-22-00.analog-stereo.monitor", "PulseAudio sink name")
 	listSourcesFlag := flag.Bool("sources", false, "List available PulseAudio sources")
+	watermark := flag.String("watermark", "", "Add bottom right banner text")
 
 	flag.Parse()
 
@@ -60,6 +61,14 @@ func main() {
 			"-probesize", "200M",
 		)
 	}
+
+	if *watermark != "" {
+		fontPath := "/usr/share/fonts/truetype/noto/NotoMono-Regular.ttf"
+		args = append(args,
+			"-vf", fmt.Sprintf("drawtext=fontfile=%s:text='%s':fontcolor=white:fontsize=24:box=1:boxcolor=black@0.5:boxborderw=5:x=(w-tw-10):y=(h-th-10)", fontPath, *watermark),
+		)
+	}
+
 	args = append(args, *output)
 
 	if err := runFfmpeg(ctx, args); err != nil {
