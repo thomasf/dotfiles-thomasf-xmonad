@@ -10,3 +10,7 @@ a.out
 sendCommand
 repos/
 prompt-history
+/xmonad/
+/xmonad-contrib/
+/.stack-work/
+/dist-newstyle/

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if ! [ -d xmonad ]; then
+  git clone git@github.com:thomasf/xmonad.git
+fi
+
+if ! [ -d xmonad-contrib ]; then
+  git clone git@github.com:thomasf/xmonad-contrib.git
+fi
+
+cabal install --package-env=$HOME/.config/xmonad --force-reinstalls --lib base xmonad xmonad-contrib pango
+cabal install --package-env=$HOME/.config/xmonad --force-reinstalls --overwrite-policy=always xmonad
