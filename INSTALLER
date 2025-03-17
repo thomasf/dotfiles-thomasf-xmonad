@@ -26,6 +26,7 @@ go install ./cmd/...
 (
   create-alacritty-config
   create-alacritty-config -os linux -host transwhale -out alacritty.transwhale
+  create-alacritty-config -os linux -host flam -out alacritty.flam
 )
 
 set +x
