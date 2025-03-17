@@ -9,7 +9,7 @@
 declare -a args
 
 case ${HOSTNAME} in
-  transwhale)
+  transwhale|flam)
     args+="--enable-native-gpu-memory-buffers "
     args+="--enable-gpu-rasterization "
     # args+="--audio-buffer-size=1024 "
