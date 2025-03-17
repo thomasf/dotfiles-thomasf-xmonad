@@ -43,7 +43,7 @@ import           XMonad.Actions.GridSelect
 import           XMonad.Actions.MouseGestures
 import qualified XMonad.Actions.Navigation2D as Nav2d
 import           XMonad.Actions.PerWorkspaceKeys
-import           XMonad.Actions.PhysicalScreens
+import           XMonad.Actions.PhysicalScreens hiding (rescreen)
 import           XMonad.Actions.RotSlaves
 import           XMonad.Actions.UpdatePointer
 import           XMonad.Actions.WindowBringer as WB
