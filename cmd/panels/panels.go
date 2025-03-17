@@ -122,7 +122,7 @@ func getScreens() (Screens, error) {
 	hn, err := os.Hostname()
 	if err != nil {
 		fmt.Println("hostname", err)
-	} else if hn == "transwhale" {
+	} else if hn == "transwhale" || hn == "flam" {
 		return ss[:1], nil
 	}
 
