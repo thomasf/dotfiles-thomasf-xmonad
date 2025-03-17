@@ -1,0 +1,15 @@
+[env]
+  TERM = "xterm-24bit"
+
+[font]
+  size = 11.8
+
+  [font.offset]
+    x = 0
+    y = 0
+
+[window]
+
+  [window.padding]
+    x = 4
+    y = 4
