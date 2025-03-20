@@ -29,11 +29,7 @@ interm() {
 
 tr=urxvt
 
-if [ `which yeganesh` ]; then
-  input=`yeganesh -p appmenu -x -- -p launch -l 25`
-else
-  input=`dmenu_path | dmenu -p launch -i -l 25`
-fi
+input=`dmenu_path | dmenu -p launch -i -l 25`
 
 set -- nil $input
 shift

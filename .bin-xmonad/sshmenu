@@ -24,11 +24,7 @@ case ${cmd} in
     ;;
 esac
 
-if  [ `which yeganesh` ]; then
-  args="yeganesh -p sshmenu -- -p ${run} -l 30"
-else
-  args="dmenu -p ${run} -l 30"
-fi
+args="dmenu -p ${run} -l 30"
 
 cs=`cat ~/.ssh/config | grep ^Host | awk '{ print $2 }' | $args`
 
