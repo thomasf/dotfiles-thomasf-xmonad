@@ -8,6 +8,8 @@
 
 declare -a args
 
+args+="--hide-crash-restore-bubble "
+
 case ${HOSTNAME} in
   transwhale|flam)
     args+="--enable-native-gpu-memory-buffers "
