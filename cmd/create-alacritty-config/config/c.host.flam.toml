@@ -1,5 +1,6 @@
 [env]
-  TERM = "xterm-24bit"
+  # TERM = "xterm-24bit"
+  TERM = "alacritty"
 
 [font]
   size = 11.8

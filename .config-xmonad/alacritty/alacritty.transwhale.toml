@@ -39,7 +39,7 @@ working_directory = "None"
   vi_mode_style = "Underline"
 
 [env]
-  TERM = "xterm-24bit"
+  TERM = "alacritty"
 
 [font]
   size = 11.8
