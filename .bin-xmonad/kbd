@@ -31,3 +31,12 @@ setl "8BitDo 8BitDo Retro Keyboard" my-us-intl 1
 setl "USBPS2" my-us-intl 1
 setl "Kenth" my-mac-us-ctrl-caps-super 1
 setl "Apple Internal Keyboard" my-mac-us-ctrl-caps-super
+setl "AT Translated Set 2 keyboard" my-us-intl
+
+
+# TODO: for some reasons the xkb caps lock keyswap does not work on the lenovo laptop
+if [ "$HOST" == "yak" ]; then
+  xmodmap -e "remove Lock = Caps_Lock"
+  xmodmap -e "keysym Caps_Lock = Control_L"
+  xmodmap -e "add Control = Control_L"
+fi
