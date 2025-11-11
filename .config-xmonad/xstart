@@ -179,8 +179,11 @@ Launch drop box
 [ $(which blueman-applet) ] \
   && blueman-applet &
 
-[ $(which xfce4-power-manager) ] \
-  && xfce4-power-manager &
+# [ $(which xfce4-power-manager) ] \
+#   && xfce4-power-manager &
+
+[ $(which cbatticon) ] \
+  && cbatticon &
 
 # Launch gpome (binds apple hw control keys)
 # TODO pomme does not seem to work with ubuntu 13.10
