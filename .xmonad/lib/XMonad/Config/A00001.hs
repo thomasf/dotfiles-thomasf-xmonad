@@ -197,8 +197,8 @@ myKeys xpc conf=
   , ("C-<XF86AudioPrev>",       spawnh' "mpc seek -3%")
   , ("C-<XF86AudioNext>",       spawnh' "mpc seek +3%")
   , ("<XF86AudioStop>",         spawnh' "mpc stop")
-  , ("<XF86MonBrightnessDown>", spawnh' "custom-backlight-macbookpro_gmux -m")
-  , ("<XF86MonBrightnessUp>",   spawnh' "custom-backlight-macbookpro_gmux -p")
+  , ("<XF86MonBrightnessDown>", spawnh' "brightnessctl s 3-%")
+  , ("<XF86MonBrightnessUp>",   spawnh' "brightnessctl s +3%")
   ] ++
   subtitle "screenshot": mkNamedKeymap conf
   [ ("M-<Print>",     addName "sshot selected to clipboard" $ unGrab >> spawn "sshot")
