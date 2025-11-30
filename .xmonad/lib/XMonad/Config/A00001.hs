@@ -196,12 +196,12 @@ myKeys xpc conf=
   , ("<XF86AudioNext>",         spawnh' "mpc seek +00:00:10")
   , ("C-<XF86AudioPrev>",       spawnh' "mpc seek -3%")
   , ("C-<XF86AudioNext>",       spawnh' "mpc seek +3%")
-  , ("<XF86AudioLowerVolume>",  spawnh' "pamixer -d 5")
-  , ("<XF86AudioRaiseVolume>",  spawnh' "pamixer -i 5")
-  , ("<XF86AudioMute>",         spawnh' "pamixer -t")
+  , ("<XF86AudioLowerVolume>",  spawnh' "pamixer -d 5 ; dunstify -a shorter -u low -r 83723223 \"Volume: $(pamixer --get-volume-human)\"")
+  , ("<XF86AudioRaiseVolume>",  spawnh' "pamixer -i 5 ; dunstify -a shorter -u low -r 83723223 \"Volume: $(pamixer --get-volume-human)\"")
+  , ("<XF86AudioMute>",         spawnh' "pamixer -t   ; dunstify -a shorter -u low -r 83723223 \"Volume: $(pamixer --get-volume-human)\"")
   , ("<XF86AudioStop>",         spawnh' "mpc stop")
-  , ("<XF86MonBrightnessDown>", spawnh' "brightnessctl s 3-%")
-  , ("<XF86MonBrightnessUp>",   spawnh' "brightnessctl s +3%")
+  , ("<XF86MonBrightnessDown>", spawnh' "brightnessctl s 3-% ; dunstify -a shorter -u low -r 83723223 \"$(brightnessctl)\"")
+  , ("<XF86MonBrightnessUp>",   spawnh' "brightnessctl s +3% ; dunstify -a shorter -u low -r 83723223 \"$(brightnessctl)\"")
   ] ++
   subtitle "screenshot": mkNamedKeymap conf
   [ ("M-<Print>",     addName "sshot selected to clipboard" $ unGrab >> spawn "sshot")
