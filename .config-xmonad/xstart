@@ -46,6 +46,7 @@ killall -q nm-applet
 killall -q dropboxd
 killall -q pulseaudio
 killall -q compton
+killall -q dunst
 sleep 0.3
 
 (
