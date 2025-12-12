@@ -233,7 +233,9 @@ myKeys xpc conf=
   subtitle "Toggle scratchpads and workspaces": mkNamedKeymap conf
   [ ("M-<Space>",           toggleScratch "largeTerminal")
   , ("M-i a",               myViewWS' "android")
-  , ("M-i b",               myViewWS' "vbox")
+  , ("M-i b",               myViewWS' "chatbot")
+  , ("M-i v",               myViewWS' "vbox")
+  , ("M-i v",               myViewWS' "vbox")
   , ("M-i c",               myViewWS' "chat")
   , ("M-i d",               myViewWS' "dash")
   , ("M-i f",               myViewWS' "files")
