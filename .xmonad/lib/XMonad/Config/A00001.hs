@@ -235,7 +235,6 @@ myKeys xpc conf=
   , ("M-i a",               myViewWS' "android")
   , ("M-i b",               myViewWS' "chatbot")
   , ("M-i v",               myViewWS' "vbox")
-  , ("M-i v",               myViewWS' "vbox")
   , ("M-i c",               myViewWS' "chat")
   , ("M-i d",               myViewWS' "dash")
   , ("M-i f",               myViewWS' "files")
