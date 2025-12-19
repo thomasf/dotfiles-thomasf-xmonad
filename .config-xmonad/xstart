@@ -131,6 +131,10 @@ fi
 [ $(which mountavfs) ] \
   && mountavfs 2>/dev/null &
 
+# dunst
+[ $(which dunst) ] \
+  && dunst &
+
 # Launch the network manager applet
 [ $(which nm-applet) ] \
   && nm-applet --sm-disable &
