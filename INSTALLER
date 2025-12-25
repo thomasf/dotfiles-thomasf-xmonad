@@ -21,12 +21,13 @@ fi
 [ -e "${HOME}/.fonts.conf.d" ] \
   || ln -fs "$(pwd)/.config-xmonad/fontconfig/conf.d" "${HOME}/.fonts.conf.d"
 
-go install ./cmd/...
-
-(
-  create-alacritty-config
-  create-alacritty-config -os linux -host transwhale -out alacritty.transwhale
-  create-alacritty-config -os linux -host flam -out alacritty.flam
-)
-
-set +x
+if hash go 2>/dev/null; then
+  go install ./cmd/...
+  (
+    create-alacritty-config
+    create-alacritty-config -os linux -host transwhale -out alacritty.transwhale
+    create-alacritty-config -os linux -host flam -out alacritty.flam
+  )
+else
+  echo "go not found, skipping building"
+fi

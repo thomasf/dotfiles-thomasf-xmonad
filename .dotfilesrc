@@ -1,2 +1,2 @@
 [dotfiles]
-ignore = [ '.DS_Store', '.git', '.gitignore', 'README.md', 'INSTALLER', '.dotfilesrc', '.#.*', 'cmd', 'pkg' 'go.mod', 'go.sum' ]
+ignore = [ '.DS_Store', '.git', '.gitignore', 'README.md', 'INSTALLER', '.dotfilesrc', '.#.*', 'cmd', 'pkg', 'go.mod', 'go.sum' ]
