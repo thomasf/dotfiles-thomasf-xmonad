@@ -11,6 +11,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -24,6 +25,7 @@ func main() {
 	sinkName := flag.String("sink", "alsa_output.usb-Roland_UA-22-00.analog-stereo.monitor", "PulseAudio sink name")
 	listSourcesFlag := flag.Bool("sources", false, "List available PulseAudio sources")
 	watermark := flag.String("watermark", "", "Add bottom right banner text")
+	screenName := flag.String("screen", "", "Record a specific screen (e.g., HDMI-1, DP-0) instead of a window")
 
 	flag.Parse()
 
@@ -37,9 +39,19 @@ func main() {
 		return
 	}
 
-	x, y, width, height, err := getWindowGeometry(ctx)
-	if err != nil {
-		log.Fatalf("Failed to get window geometry: %v", err)
+	var x, y, width, height int
+	var err error
+
+	if *screenName != "" {
+		x, y, width, height, err = getScreenGeometry(ctx, *screenName)
+		if err != nil {
+			log.Fatalf("Failed to get screen geometry: %v", err)
+		}
+	} else {
+		x, y, width, height, err = getWindowGeometry(ctx)
+		if err != nil {
+			log.Fatalf("Failed to get window geometry: %v", err)
+		}
 	}
 
 	var args = []string{
@@ -71,10 +83,46 @@ func main() {
 
 	args = append(args, *output)
 
+	fmt.Printf("Recording area: %dx%d at %d,%d\n", width, height, x, y)
 	if err := runFfmpeg(ctx, args); err != nil {
 		log.Fatalf("ffmpeg finished with error: %v", err)
 	}
+}
 
+func getScreenGeometry(ctx context.Context, name string) (x, y, width, height int, err error) {
+	cmd := exec.CommandContext(ctx, "xrandr", "--current")
+	out, err := cmd.Output()
+	if err != nil {
+		return 0, 0, 0, 0, fmt.Errorf("xrandr failed: %w", err)
+	}
+
+	// Regex to match: "HDMI-1 connected 1920x1080+1920+0"
+	// Captures: Name, Width, Height, X offset, Y offset
+	re := regexp.MustCompile(fmt.Sprintf(`(?m)^%s\s+connected.*?(\d+)x(\d+)\+(\d+)\+(\d+)`, regexp.QuoteMeta(name)))
+	matches := re.FindStringSubmatch(string(out))
+
+	if len(matches) < 5 {
+		return 0, 0, 0, 0, fmt.Errorf("could not find screen %q or it is disconnected", name)
+	}
+
+	width, err = strconv.Atoi(matches[1])
+	if err != nil {
+		return 0, 0, 0, 0, err
+	}
+	height, err = strconv.Atoi(matches[2])
+	if err != nil {
+		return 0, 0, 0, 0, err
+	}
+	x, err = strconv.Atoi(matches[3])
+	if err != nil {
+		return 0, 0, 0, 0, err
+	}
+	y, err = strconv.Atoi(matches[4])
+	if err != nil {
+		return 0, 0, 0, 0, err
+	}
+
+	return x, y, width, height, nil
 }
 
 func runFfmpeg(ctx context.Context, args []string) error {
