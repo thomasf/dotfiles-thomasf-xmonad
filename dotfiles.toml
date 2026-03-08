@@ -1,6 +1,13 @@
-script = '''
+[[script]]
+condition = "os == 'linux'"
+src= '''
 create-alacritty-config -os linux -host transwhale -out alacritty.transwhale
 create-alacritty-config -os linux -host flam -out alacritty.flam
+'''
+
+[[script]]
+src= '''
+create-alacritty-config
 '''
 
 [[mount]]
