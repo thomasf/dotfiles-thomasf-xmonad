@@ -27,9 +27,5 @@ src = 'config-xmonad/alacritty'
 dst = '.config/alacritty'
 
 [[mount]]
-src = 'config-xmonad/fontconfig/fonts.conf'
-dst = '.fonts.conf'
-
-[[mount]]
 src = 'config-xmonad/fontconfig/conf.d'
 dst = '.fonts.conf.d'
