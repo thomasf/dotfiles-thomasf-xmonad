@@ -11,25 +11,25 @@ create-alacritty-config
 '''
 
 [[mount]]
-src = '.config-xmonad/dunstrc'
+src = 'config-xmonad/dunstrc'
 dst = '.config/dunst/dunstrc'
 
 [[mount]]
-src = '.config-xmonad/gtk/gtk-3.0'
+src = 'config-xmonad/gtk/gtk-3.0'
 dst = '.config/gtk-3.0'
 
 [[mount]]
-src = '.config-xmonad/gtk/themes'
+src = 'config-xmonad/gtk/themes'
 dst = '.themes'
 
 [[mount]]
-src = '.config-xmonad/alacritty'
+src = 'config-xmonad/alacritty'
 dst = '.config/alacritty'
 
 [[mount]]
-src = '.config-xmonad/fontconfig/fonts.conf'
+src = 'config-xmonad/fontconfig/fonts.conf'
 dst = '.fonts.conf'
 
 [[mount]]
-src = '.config-xmonad/fontconfig/conf.d'
+src = 'config-xmonad/fontconfig/conf.d'
 dst = '.fonts.conf.d'
