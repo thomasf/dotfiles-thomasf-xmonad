@@ -1,3 +1,5 @@
+//go:build linux
+
 // recordwindow records an X11 window using ffmpeg.
 //
 // NOTE: This program is mostly written by chatgpt.
