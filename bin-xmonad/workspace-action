@@ -26,7 +26,7 @@ case $suffix in
   remote|ssh)
     exec sshmenu
     ;;
-  term|terminal)
+  term|terminal|chatbot)
     exec term
     ;;
   emacs)

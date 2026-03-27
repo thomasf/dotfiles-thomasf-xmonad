@@ -256,6 +256,7 @@ myKeys xpc conf=
   , ("M-i <Backspace>",     addName "Delete current workspace"              $ DW.removeWorkspace >> movePointer)
   , ("M-p w",               addName ".www"                                  $ gotoPrefixWS "www" >> movePointer)
   , ("M-p d",               addName ".doc"                                  $ gotoPrefixWS "doc" >> movePointer)
+  , ("M-p b",               addName ".chatbot"                              $ gotoPrefixWS "chatbot" >> movePointer)
   , ("M-p c",               addName ".code"                                 $ gotoPrefixWS "code" >> movePointer)
   , ("M-p r",               addName ".remote"                               $ gotoPrefixWS "remote" >> movePointer)
   , ("M-p s",               addName ".s"                                    $ gotoPrefixWS "s" >> movePointer)
