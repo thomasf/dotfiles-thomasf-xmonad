@@ -2,36 +2,39 @@ working_directory = "None"
 
 [colors]
   [colors.bright]
-    black = "#002b36"
-    blue = "#839496"
-    cyan = "#93a1a1"
-    green = "#586e75"
-    magenta = "#6c71c4"
-    red = "#cb4b16"
-    white = "#fdf6e3"
-    yellow = "#657b83"
+    black = "#d5cdb6"
+    blue = "#006dce"
+    cyan = "#00978a"
+    green = "#428b00"
+    magenta = "#c44392"
+    red = "#cc1729"
+    white = "#3a4d53"
+    yellow = "#a78300"
   [colors.cursor]
-    cursor = "#657b83"
-    text = "#fdf6e3"
+    cursor = "#53676d"
+    text = "#fbf3db"
   [colors.footer_bar]
-    background = "#268bd2"
-    foreground = "#ffffff"
+    background = "#0072d4"
+    foreground = "#fbf3db"
   [colors.normal]
-    black = "#073642"
-    blue = "#268bd2"
-    cyan = "#2aa198"
-    green = "#859900"
-    magenta = "#d33682"
-    red = "#dc322f"
-    white = "#eee8d5"
-    yellow = "#b58900"
+    black = "#ece3cc"
+    blue = "#0072d4"
+    cyan = "#009c8f"
+    green = "#489100"
+    magenta = "#ca4898"
+    red = "#d2212d"
+    white = "#909995"
+    yellow = "#ad8900"
   [colors.primary]
-    background = "#fdf6e3"
-    foreground = "#657b83"
+    background = "#fbf3db"
+    foreground = "#53676d"
   [colors.search]
     [colors.search.matches]
-      background = "#d33682"
-      foreground = "#ffffff"
+      background = "#8762c6"
+      foreground = "#fbf3db"
+  [colors.selection]
+    background = "#c25d1e"
+    text = "#fbf3db"
 
 [cursor]
   style = "Block"

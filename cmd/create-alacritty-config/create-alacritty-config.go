@@ -32,7 +32,7 @@ func (f *Flags) Register() {
 
 	flag.StringVar(&f.Host, "host", Hostname(), "host name")
 	flag.StringVar(&f.OS, "os", runtime.GOOS, "os name")
-	flag.StringVar(&f.Theme, "theme", "solarized-light", "theme name")
+	flag.StringVar(&f.Theme, "theme", "selenized-light", "theme name")
 	flag.StringVar(&f.Out, "out", "alacritty", "output filename (minus extension)")
 	dir, err := homedir()
 	if err != nil {
