@@ -1,3 +1,5 @@
+public = true
+
 [[script]]
 condition = "os == 'linux'"
 src= '''
