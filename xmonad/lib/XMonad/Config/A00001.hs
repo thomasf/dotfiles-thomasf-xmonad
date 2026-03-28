@@ -28,7 +28,7 @@ import           Data.Monoid
 import           Data.Ratio ((%))
 import           Data.Ord
 import           Data.Maybe
-import qualified Solarized as Sol
+import qualified Selenized as Sol
 import           System.Directory
 import           System.Environment (getEnv)
 import           System.Exit ( exitSuccess )
