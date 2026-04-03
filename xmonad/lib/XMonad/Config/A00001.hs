@@ -524,7 +524,7 @@ myLayoutHook =
     alternative = onTall
                (tcol ||| first ||| grid)
                (first ||| tall ||| tabs ||| gridWide ||| spiral ||| oneBig)
-    onTall = onHosts ["transwhale", "flam"]
+    onTall = onHosts ["transwhale", "flam", "yak"]
     -- helpers
     refmin = mkToggle (single REFLECTX)
     mySpacing i = spacingRaw True (Border i i i i) True (Border i i i i) True
