@@ -12,6 +12,22 @@ src= '''
 create-alacritty-config
 '''
 
+[[go]]
+src = 'cmd/batt'
+condition = "os == 'linux'"
+
+[[go]]
+src = 'cmd/recordwindow'
+condition = "os == 'linux'"
+
+[[go]]
+src = 'cmd/sshot'
+condition = "os == 'linux'"
+
+[[go]]
+src = 'cmd/panels'
+condition = "os == 'linux'"
+
 [[mount]]
 src = 'config-xmonad/dunstrc'
 dst = '.config/dunst/dunstrc'
