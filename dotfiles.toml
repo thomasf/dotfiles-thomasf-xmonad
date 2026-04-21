@@ -14,7 +14,7 @@ create-alacritty-config
 
 [[go]]
 src = 'cmd/batt'
-condition = "os == 'linux'"
+condition = "os == 'linux' && hostname in ['yak']"
 
 [[go]]
 src = 'cmd/recordwindow'
