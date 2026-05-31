@@ -9,6 +9,7 @@ if ! [ -d xmonad-contrib ]; then
 fi
 
 cabal v1-install happy
+cabal v1-install alex
 cabal v1-install pango
 
 (
