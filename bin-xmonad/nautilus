@@ -12,7 +12,6 @@ nargs="--new-window"
 if [ $# -eq 0 ]; then
 
     source ~/.config-base/bash/common
-    source "${__BASH}/z"
 
     if [ $(which wsname) ]; then
         name="$(wsname -p)"
@@ -29,9 +28,9 @@ if [ $# -eq 0 ]; then
             books)
                 cd ~/books
                 ;;
-            *)
-                _z "${HOME}" "${name/-/ }"
-                ;;
+            # *)
+            # cd $(zzz "${HOME}" "${name/-/ }")
+            # ;;
         esac
     fi
     exec $bin $nargs .
