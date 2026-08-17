@@ -233,7 +233,7 @@ myKeys xpc conf=
   subtitle "Toggle scratchpads and workspaces": mkNamedKeymap conf
   [ ("M-<Space>",           toggleScratch "largeTerminal")
   , ("M-i a",               myViewWS' "android")
-  , ("M-i b",               myViewWS' "chatbot")
+  , ("M-i b",               myViewWS' "bot")
   , ("M-i v",               myViewWS' "vbox")
   , ("M-i c",               myViewWS' "chat")
   , ("M-i d",               myViewWS' "dash")
@@ -256,7 +256,7 @@ myKeys xpc conf=
   , ("M-i <Backspace>",     addName "Delete current workspace"              $ DW.removeWorkspace >> movePointer)
   , ("M-p w",               addName ".www"                                  $ gotoPrefixWS "www" >> movePointer)
   , ("M-p d",               addName ".doc"                                  $ gotoPrefixWS "doc" >> movePointer)
-  , ("M-p b",               addName ".chatbot"                              $ gotoPrefixWS "chatbot" >> movePointer)
+  , ("M-p b",               addName ".bot"                                  $ gotoPrefixWS "bot" >> movePointer)
   , ("M-p c",               addName ".code"                                 $ gotoPrefixWS "code" >> movePointer)
   , ("M-p r",               addName ".remote"                               $ gotoPrefixWS "remote" >> movePointer)
   , ("M-p s",               addName ".s"                                    $ gotoPrefixWS "s" >> movePointer)
