@@ -1,0 +1,27 @@
+Config { font = "Pragmata Pro 27px"
+       , additionalFonts = ["Pragmata Pro 17px", "Pragmata Pro Bold 16px"]
+       , borderColor = "{{ .Sol.Base03 }}"
+       , bgColor = "{{ .Sol.Base03 }}"
+       , fgColor = "{{ .Sol.Base0 }}"
+       , allDesktops = True
+       , alpha = 255
+       , border = NoBorder
+       , hideOnStart = False
+       , iconOffset = -1
+       , iconRoot = "."
+       , lowerOnStart = True
+       , overrideRedirect = True
+       , persistent = True
+       , pickBroadest = False
+     {{ if eq .Width 0 }}
+       , position = TopSize C 100 {{ .Height }}
+     {{ else }}
+       , position =  Static { xpos = {{ .Xpos }}, ypos = {{ .Ypos }}, width = {{ .Width }}, height = {{ .Height }}  }
+     {{ end }}
+       , textOffset = -1
+       , commands = [ Run NamedXPropertyLog "_XMONAD_LOG_TOP" "xm"
+                    ]
+       , sepChar = "%"
+       , alignSep = "}{"
+       , template = "%xm%"
+}

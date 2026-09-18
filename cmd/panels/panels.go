@@ -5,6 +5,7 @@ package main
 import (
 	"context"
 	_ "embed"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -33,6 +34,77 @@ type Screen struct {
 }
 
 type Screens []Screen
+
+// ScreenConfig specifies which panels/bars are displayed on a screen.
+type ScreenConfig struct {
+	Top         bool   `toml:"top"`
+	TopSimple   bool   `toml:"top_simple"`
+	TopTemplate string `toml:"top_template"`
+	Bottom      bool   `toml:"bottom"`
+	Trayer      bool   `toml:"trayer"`
+}
+
+func (sc ScreenConfig) hasTop() bool {
+	return sc.Top || sc.TopSimple || sc.TopTemplate != ""
+}
+
+func (sc ScreenConfig) topTemplate() string {
+	if sc.TopSimple || sc.TopTemplate == "simple" {
+		return xmobarTopSimpleTemplate
+	}
+	return xmobarTopTemplate
+}
+
+// ComputerConfig defines panel configurations for a computer.
+type ComputerConfig struct {
+	Screens map[int]ScreenConfig `toml:"screens"`
+	Default ScreenConfig         `toml:"default"`
+}
+
+// ConfigForScreen returns the ScreenConfig for the given screen index.
+func (c ComputerConfig) ConfigForScreen(screenIndex int) ScreenConfig {
+	if cfg, ok := c.Screens[screenIndex]; ok {
+		return cfg
+	}
+	return c.Default
+}
+
+var (
+	hostFlag = flag.String("host", "", "override hostname for configuration")
+
+	computerConfigs = map[string]ComputerConfig{
+		"flam": {
+			Screens: map[int]ScreenConfig{
+				0: {Top: true, Bottom: true, Trayer: true},
+				1: {Top: true, TopSimple: true},
+				2: {},
+				3: {Top: true, TopSimple: true},
+			},
+			Default: ScreenConfig{},
+		},
+		"transwhale": {
+			Screens: map[int]ScreenConfig{
+				0: {Top: true, Bottom: true, Trayer: true},
+			},
+			Default: ScreenConfig{},
+		},
+	}
+
+	defaultComputerConfig = ComputerConfig{
+		Screens: map[int]ScreenConfig{
+			0: {Top: true, Bottom: true, Trayer: true},
+		},
+		Default: ScreenConfig{Top: true, Bottom: true},
+	}
+)
+
+func getComputerConfig(hostname string) ComputerConfig {
+	hostname = strings.ToLower(strings.TrimSpace(strings.Split(hostname, ".")[0]))
+	if cfg, ok := computerConfigs[hostname]; ok {
+		return cfg
+	}
+	return defaultComputerConfig
+}
 
 func getScreens() (Screens, error) {
 
@@ -121,13 +193,6 @@ func getScreens() (Screens, error) {
 	// 	fmt.Println(ev)
 	// }
 
-	hn, err := os.Hostname()
-	if err != nil {
-		fmt.Println("hostname", err)
-	} else if hn == "transwhale" || hn == "flam" {
-		return ss[:1], nil
-	}
-
 	return ss, nil
 }
 
@@ -146,7 +211,7 @@ func IsDarkmode() (bool, error) {
 	return true, nil
 }
 
-func panels() error {
+func panels(hostname string) error {
 	dm, err := IsDarkmode()
 	if err != nil {
 		return err
@@ -169,28 +234,33 @@ func panels() error {
 		}
 	}()
 	const height = 32
+
+	compConfig := getComputerConfig(hostname)
+
 	for i, s := range screens {
-		_ = s
-		if i == 0 {
+		sc := compConfig.ConfigForScreen(i)
 
-			trayerWidth := height * 8
-			xmobarWidth := int(s.W) - int(trayerWidth)
-			// topWidth := int(0.8 * float64(s.W))
-			{
-				f, err := runXmobar(xmobarTopTemplate, RenderContext{
-					Sol:    sol,
-					Width:  xmobarWidth,
-					Screen: i,
-					Xpos:   int(s.X),
-					Ypos:   int(s.Y),
-					Height: height,
-				})
-				if err != nil {
-					return err
-				}
-				xmobarConfigs = append(xmobarConfigs, f)
+		if sc.hasTop() {
+			rc := RenderContext{
+				Sol:    sol,
+				Screen: i,
+				Height: height,
 			}
+			if sc.Trayer {
+				trayerWidth := height * 8
+				rc.Width = int(s.W) - int(trayerWidth)
+				rc.Xpos = int(s.X)
+				rc.Ypos = int(s.Y)
+			}
+			f, err := runXmobar(sc.topTemplate(), rc)
+			if err != nil {
+				return err
+			}
+			xmobarConfigs = append(xmobarConfigs, f)
+		}
 
+		if sc.Trayer {
+			trayerWidth := height * 8
 			if err := runTrayer(RenderContext{
 				Sol:    sol,
 				Width:  trayerWidth,
@@ -199,33 +269,9 @@ func panels() error {
 			}); err != nil {
 				return err
 			}
-
-			{
-				f, err := runXmobar(xmobarBottomTemplate, RenderContext{
-					Sol:    sol,
-					Screen: i,
-					Height: height,
-				})
-				if err != nil {
-					return err
-				}
-				xmobarConfigs = append(xmobarConfigs, f)
-			}
-
-			continue
 		}
-		{
-			f, err := runXmobar(xmobarTopTemplate, RenderContext{
-				Sol:    sol,
-				Screen: i,
-				Height: height,
-			})
-			if err != nil {
-				return err
-			}
-			xmobarConfigs = append(xmobarConfigs, f)
-		}
-		{
+
+		if sc.Bottom {
 			f, err := runXmobar(xmobarBottomTemplate, RenderContext{
 				Sol:    sol,
 				Screen: i,
@@ -290,12 +336,22 @@ func homedir() (string, error) {
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	flag.Parse()
+
+	hostname := *hostFlag
+	if hostname == "" {
+		hn, err := os.Hostname()
+		if err != nil {
+			log.Printf("hostname: %v", err)
+		}
+		hostname = hn
+	}
 
 	if err := KillAll(context.Background(), "xmobar", "trayer"); err != nil {
 		log.Fatal(err)
 	}
 
-	err := panels()
+	err := panels(hostname)
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
@@ -316,6 +372,9 @@ type RenderContext struct {
 var (
 	//go:embed xmobarTopTemplate
 	xmobarTopTemplate string
+
+	//go:embed xmobarTopSimpleTemplate
+	xmobarTopSimpleTemplate string
 
 	//go:embed xmobarBottomTemplate
 	xmobarBottomTemplate string
