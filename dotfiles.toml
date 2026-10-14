@@ -1,5 +1,8 @@
 public = true
 
+[vars]
+dpi = '{{ expr `{"flam": 165, "yak": 170}[hostname] ?? 170` }}'
+
 [[script]]
 condition = "os == 'linux'"
 src= '''
@@ -47,3 +50,9 @@ dst = '.config/alacritty'
 [[mount]]
 src = 'config-xmonad/fontconfig/conf.d'
 dst = '.fonts.conf.d'
+
+[[template]]
+condition = "os == 'linux'"
+src = 'config-xmonad/xresources/Xresources.tmpl'
+dst = '.Xresources'
+
