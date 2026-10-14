@@ -37,4 +37,9 @@ wsname -s && exit 1
 launchTerminal "htop" "htop"
 launchTerminal "pipemixer" "pipemixer"
 # launchTerminal "dstat" "dstat" "--time --load --cpu --mem --swap --disk --fs --net --socket --sys 30"
-launchTerminal "ncmpcpp" "ncmpcpp"
+
+if hash mpdplay 2>/dev/null; then
+   launchTerminal "mpdplay" "mpdplay"
+else
+  launchTerminal "ncmpcpp" "ncmpcpp"
+fi
