@@ -33,7 +33,8 @@ wsname -s && exit 1
 
 
 # launchTerminal "pamixer" "pamixer" "-a 2"
-pavucontrol &
+# pavucontrol &
 launchTerminal "htop" "htop"
+launchTerminal "pipemixer" "pipemixer"
 # launchTerminal "dstat" "dstat" "--time --load --cpu --mem --swap --disk --fs --net --socket --sys 30"
 launchTerminal "ncmpcpp" "ncmpcpp"
