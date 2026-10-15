@@ -15,6 +15,7 @@ golight() {
   xrdb -merge ~/.config-xmonad/xresources/light
   hash create-alacritty-config 2>/dev/null && create-alacritty-config -dark=false
   ln -sf light.rasi ~/.config/rofi/colors.rasi
+  hash gsettings 2>/dev/null && gsettings set org.gnome.desktop.interface color-scheme prefer-light
   xmonad --restart
 }
 
@@ -29,6 +30,7 @@ godark() {
   xrdb -merge ~/.config-xmonad/xresources/dark
   hash create-alacritty-config 2>/dev/null && create-alacritty-config -dark
   ln -sf dark.rasi ~/.config/rofi/colors.rasi
+  hash gsettings 2>/dev/null && gsettings set org.gnome.desktop.interface color-scheme prefer-dark
   xmonad --restart
 }
 
