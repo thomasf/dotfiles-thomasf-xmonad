@@ -4,13 +4,6 @@ public = true
 dpi = '{{ expr `{"flam": 165, "yak": 170}[hostname] ?? 170` }}'
 
 [[script]]
-condition = "os == 'linux'"
-src= '''
-create-alacritty-config -os linux -host transwhale -out alacritty.transwhale
-create-alacritty-config -os linux -host flam -out alacritty.flam
-'''
-
-[[script]]
 src= '''
 create-alacritty-config
 '''

@@ -13,6 +13,7 @@ golight() {
   fi
   panels
   xrdb -merge ~/.config-xmonad/xresources/light
+  hash create-alacritty-config 2>/dev/null && create-alacritty-config -dark=false
   ln -sf light.rasi ~/.config/rofi/colors.rasi
   xmonad --restart
 }
@@ -26,6 +27,7 @@ godark() {
   fi
   panels
   xrdb -merge ~/.config-xmonad/xresources/dark
+  hash create-alacritty-config 2>/dev/null && create-alacritty-config -dark
   ln -sf dark.rasi ~/.config/rofi/colors.rasi
   xmonad --restart
 }

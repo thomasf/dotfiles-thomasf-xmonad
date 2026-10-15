@@ -1,0 +1,42 @@
+[colors]
+
+  [colors.primary]
+    background = "#103c48"
+    foreground = "#adbcbc"
+
+  [colors.cursor]
+    text = "#103c48"
+    cursor = "#adbcbc"
+
+  [colors.normal]
+    black   = "#184956"
+    red     = "#fa5750"
+    green   = "#75b938"
+    yellow  = "#dbb32d"
+    blue    = "#4695f7"
+    magenta = "#f275be"
+    cyan    = "#41c7b9"
+    white   = "#72898f"
+
+  [colors.bright]
+    black   = "#2d5b69"
+    red     = "#ff665c"
+    green   = "#84c747"
+    yellow  = "#ebc13d"
+    blue    = "#58a3ff"
+    magenta = "#ff84cd"
+    cyan    = "#53d6c7"
+    white   = "#cad8d9"
+
+  [colors.search]
+    [colors.search.matches]
+      foreground = "#103c48"
+      background = "#af88eb"
+
+  [colors.footer_bar]
+    foreground = "#103c48"
+    background = "#4695f7"
+
+  [colors.selection]
+    text = "#103c48"
+    background = "#ed8649"

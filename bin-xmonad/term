@@ -9,21 +9,9 @@
 set -e
 
 if hash alacritty 2>/dev/null; then
-  dir="${XDG_CONFIG_HOME:-${HOME}/.config-xmonad}/alacritty"
-  config="alacritty.${HOSTNAME:-tmp}.toml"
-  if [ -e "${dir}/${config}" ]; then
-    exec alacritty --config-file "${dir}/${config}" "$@"
-  else
-    exec alacritty "$@"
-  fi
+  exec alacritty "$@"
 elif [ -e /Applications/Alacritty.app/Contents/MacOS/alacritty ]; then
-  dir="${XDG_CONFIG_HOME:-${HOME}/.config-xmonad}/alacritty"
-  config="alacritty.${HOSTNAME:-tmp}.toml"
-  if [ -e "${dir}/${config}" ]; then
-    exec /Applications/Alacritty.app/Contents/MacOS/alacritty --config-file "${dir}/${config}" "$@"
-  else
-    exec /Applications/Alacritty.app/Contents/MacOS/alacritty "$@"
-  fi
+  exec /Applications/Alacritty.app/Contents/MacOS/alacritty "$@"
 elif [ -e /Applications/iTerm.app/Contents/MacOS/iTerm2 ]; then
   exec /Applications/iTerm.app/Contents/MacOS/iTerm2 "$@"
 else

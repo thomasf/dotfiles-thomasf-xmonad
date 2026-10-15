@@ -5,7 +5,6 @@ import (
 	"embed"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/user"
@@ -23,6 +22,7 @@ type Flags struct {
 	OS    string
 	Host  string
 	Theme string
+	Dark  bool
 
 	Out string
 	Dir string
@@ -33,6 +33,7 @@ func (f *Flags) Register() {
 	flag.StringVar(&f.Host, "host", Hostname(), "host name")
 	flag.StringVar(&f.OS, "os", runtime.GOOS, "os name")
 	flag.StringVar(&f.Theme, "theme", "selenized-light", "theme name")
+	flag.BoolVar(&f.Dark, "dark", darkmode(), "use the -dark variant of a -light theme, on by default while ~/.config/darkmode exists")
 	flag.StringVar(&f.Out, "out", "alacritty", "output filename (minus extension)")
 	dir, err := homedir()
 	if err != nil {
@@ -60,6 +61,9 @@ func main() {
 	flags.Register()
 
 	flag.Parse()
+	if base, ok := strings.CutSuffix(flags.Theme, "-light"); ok && flags.Dark {
+		flags.Theme = base + "-dark"
+	}
 
 	{
 		m := make(map[string]any)
@@ -75,8 +79,28 @@ func main() {
 			spew.Dump(m)
 			log.Fatalf("error: %v", err)
 		}
-		ioutil.WriteFile(filepath.Join(flags.Dir, fmt.Sprintf("%s.toml", flags.Out)), buf.Bytes(), 0600)
+		// Write to a temporary file and rename it so that a running alacritty
+		// never live reloads a half written config.
+		out := filepath.Join(flags.Dir, fmt.Sprintf("%s.toml", flags.Out))
+		tmp := out + ".tmp"
+		if err := os.WriteFile(tmp, buf.Bytes(), 0600); err != nil {
+			log.Fatal(err)
+		}
+		if err := os.Rename(tmp, out); err != nil {
+			log.Fatal(err)
+		}
 	}
+}
+
+// darkmode reports whether dark mode is on. The darkmode script creates
+// ~/.config/darkmode while it is.
+func darkmode() bool {
+	dir, err := homedir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = os.Stat(filepath.Join(dir, ".config/darkmode"))
+	return err == nil
 }
 
 func loadAndMergeToml(filename string, m map[string]any) error {
