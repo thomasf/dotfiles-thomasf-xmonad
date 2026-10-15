@@ -21,7 +21,7 @@ module XMonad.Config.A00001
       a00001Config,
     ) where
 import           Control.Monad
-import           Data.Char (isSpace)
+import           Data.Char (isSpace, toLower)
 import           Data.List
 import qualified Data.Map as M
 import           Data.Monoid
@@ -77,7 +77,6 @@ import           XMonad.Layout.Spacing
 import           XMonad.Layout.SimpleFloat (simpleFloat)
 import qualified XMonad.Layout.Spiral as Spiral
 import qualified XMonad.Prompt as XP
-import           XMonad.Prompt.Workspace
 import qualified XMonad.StackSet as W hiding (swapUp, swapDown)
 import qualified XMonad.Util.Dzen as DZ
 import           XMonad.Util.EZConfig
@@ -306,11 +305,17 @@ myKeys xpc conf=
     wsPrompt wsp = wsp xpc afterWSPrompt
 
     -- | Select workspae prompt
-    selectWorkspacePrompt = wsPrompt workspacePrompt
+    selectWorkspacePrompt = wsPrompt workspacePromptAll
 
     -- | Select workspace prompt
     selectWorkspacePromptHidden = wsPrompt workspacePromptHidden
     -- selectWorkspacePromptHidden = workspacePrompt'
+
+    -- | Prompt for any workspace, sorted by index
+    workspacePromptAll :: XP.XPConfig -> (String -> X ()) -> X ()
+    workspacePromptAll c job = do ws <- gets (W.workspaces . windowset)
+                                  s <- getSortByIndex
+                                  XP.mkXPrompt (WsPrompt "") c (XP.mkComplFunFromList' c (map W.tag $ s ws)) job
 
     -- | Select workspace promt only showing non visible workspaces
     workspacePromptHidden :: XP.XPConfig -> (String -> X ()) -> X ()
@@ -320,7 +325,7 @@ myKeys xpc conf=
                                      let ts = map W.tag $ s ws
                                          -- prefix = takeWhile (/= wsSeparator) thisWS
                                          prefix = ""
-                                     XP.mkXPrompt (Wor "") c {XP.defaultText=prefix} (XP.mkComplFunFromList' c ts ) job
+                                     XP.mkXPrompt (WsPrompt "") c {XP.defaultText=prefix} (XP.mkComplFunFromList' c ts ) job
 
 
     -- | Toggle scratch pad
@@ -729,7 +734,46 @@ defXPConfig = def
  , XP.font = sizedXftFont "20"
  , XP.height = 24
  , XP.promptKeymap = emacsLikeXPKeymap' (\c -> isSpace c || c == '.')
+ , XP.searchPredicate = subsequenceMatch
+ , XP.sorter = subsequenceSort
  }
+
+-- | The input of a prompt as subsequenceMatch reads it: spaces left out,
+-- lower case.
+subsequenceQuery :: String -> String
+subsequenceQuery = map toLower . filter (not . isSpace)
+
+-- | Prompt completion match: the characters of the input, spaces left
+-- out, occur in the completion in that order, ignoring case. "pi2" and
+-- "pi 2" match "pi.2".
+subsequenceMatch :: String -> String -> Bool
+subsequenceMatch input = isSubsequenceOf (subsequenceQuery input) . map toLower
+
+-- | Sorts the completions matched by subsequenceMatch: the shortest
+-- stretch holding the input first, then the shortest completion. For
+-- "pi2", "pi.2" comes before "pinta.12". An empty input keeps the order.
+subsequenceSort :: String -> [String] -> [String]
+subsequenceSort input
+  | null q    = id
+  | otherwise = sortOn (\c -> (tightest (map toLower c), length c))
+  where
+    q = subsequenceQuery input
+    tightest c = minimum (maxBound : [n | t <- tails c, Just n <- [window q t]])
+    window [] _ = Just (0 :: Int)
+    window _ [] = Nothing
+    window qs@(x:xs) (y:ys)
+      | qs == q && x /= y = Nothing  -- a stretch starts with a match
+      | otherwise         = (+ 1) <$> window (if x == y then xs else qs) ys
+
+-- | A prompt that completes its whole input. Prompts complete only the
+-- last space separated word by default, which subsequenceMatch would
+-- read as an empty input.
+newtype WsPrompt = WsPrompt String
+
+instance XP.XPrompt WsPrompt where
+  showXPrompt (WsPrompt s) = s
+  commandToComplete _ c = c
+  nextCompletion _ = XP.getNextCompletion
 myXPConfig darkmode = if darkmode
   then defXPConfig
  { XP.bgColor = Sol.base02
@@ -781,11 +825,7 @@ emacsLikeXPKeymap' p = M.fromList $
   , (xK_Down, XP.moveHistory W.focusUp')
   , (xK_Up, XP.moveHistory W.focusDown')
   , (xK_Escape, XP.quit)
-  , (xK_space, setSomething)
-  ] where
-    setSomething = do
-      XP.setInput ""
-      XP.endOfLine
+  ]
 
 
 
