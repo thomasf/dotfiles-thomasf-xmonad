@@ -931,9 +931,14 @@ myNavigation2DConfig = def {
 --  a00001Config
 
 
+-- | Whether the darkmode script last switched to dark mode.
+isDarkmode :: IO Bool
+isDarkmode = do
+  home <- getEnv "HOME"
+  doesFileExist $ home ++ "/.config/darkmode"
+
 a00001Config = do
-  home <- io $ getEnv "HOME"
-  darkmode <- doesFileExist $ home ++ "/.config/darkmode"
+  darkmode <- io isDarkmode
   return . docks . Nav2d.withNavigation2DConfig myNavigation2DConfig . myUrgencyHook . addDescrKeys' ((confModMask, xK_F1), showKeybindings) (myKeys $ myXPConfig darkmode) $ def {
     terminal           = myTerminal
   , focusFollowsMouse  = False
@@ -1089,18 +1094,22 @@ showStatusSingleMessageDuration = 0.7
 showStatusMultipleMessagesDuration = 0.7
 
 -- | Show active workspace name slow
-showWorkspaceName = showWorkspaceName' showStatusMultipleMessagesDuration Sol.yellow
+showWorkspaceName = showWorkspaceName' showStatusMultipleMessagesDuration (Sol.yellow, Sol.yellowD)
 -- | Show inactve workspace name slow
-showWorkspaceNameOld = showWorkspaceName' showStatusMultipleMessagesDuration Sol.base1
+showWorkspaceNameOld = showWorkspaceName' showStatusMultipleMessagesDuration (Sol.base1, Sol.base00)
 -- | Show active workspace name fast
-showWorkspaceNameFast = showWorkspaceName' showStatusSingleMessageDuration Sol.magenta
+showWorkspaceNameFast = showWorkspaceName' showStatusSingleMessageDuration (Sol.magenta, Sol.magentaD)
 
-showAppName = showMessage 1 Sol.cyan Sol.base03
+showAppName = showMessage 1 (Sol.cyan, Sol.cyanD)
 
 getScreenRect :: X Rectangle
 getScreenRect = screenRect . W.screenDetail . W.current <$> gets windowset
 
-showMessage timeout bg fg msg = do
+-- | Show msg in a dzen popup in the middle of the screen, on the light or dark
+-- background colour depending on the darkmode script.
+showMessage timeout (lightBg, darkBg) msg = do
+  darkmode <- io isDarkmode
+  let (fg, bg) = if darkmode then (Sol.base3, darkBg) else (Sol.base03, lightBg)
   sr <-  getScreenRect
   let rx p = fromIntegral $ p sr
       sw = rx rect_width
@@ -1123,15 +1132,15 @@ showMessage timeout bg fg msg = do
 
 
 -- | Show workspace name
-showWorkspaceName' timeout bg = do
+showWorkspaceName' timeout bgs = do
   wsn <- gets (W.currentTag . windowset)
-  showMessage timeout bg Sol.base03 wsn
+  showMessage timeout bgs wsn
 
 -- | Show current layout name
 showLayoutName = do
   winset <- gets windowset
   let ld = description . W.layout . W.workspace . W.current $ winset
-  showMessage 2 Sol.green Sol.base03 ld
+  showMessage 2 (Sol.green, Sol.greenD) ld
 
 
 -- | Enforce recaluclation of docks gaps. After updating a ~5month old xmonad master today docks were not being avoided by avoudStruts on new desktop.
