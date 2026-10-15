@@ -27,20 +27,26 @@ func goWorkspace(name string) error {
 		return err
 	}
 	defer X.Close()
-	root := xproto.Setup(X).DefaultScreen(X).Root
 	a, err := internAtom(X, name)
 	if err != nil {
 		return err
 	}
-	typ, err := internAtom(X, "WS_GO")
+	return sendXmonad(X, "WS_GO", uint32(a))
+}
+
+// sendXmonad sends xmonad a client message of type typ on the root
+// window, with datum as its first datum.
+func sendXmonad(X *xgb.Conn, typ string, datum uint32) error {
+	root := xproto.Setup(X).DefaultScreen(X).Root
+	t, err := internAtom(X, typ)
 	if err != nil {
 		return err
 	}
 	ev := xproto.ClientMessageEvent{
 		Format: 32,
 		Window: root,
-		Type:   typ,
-		Data:   xproto.ClientMessageDataUnionData32New([]uint32{uint32(a), xproto.TimeCurrentTime, 0, 0, 0}),
+		Type:   t,
+		Data:   xproto.ClientMessageDataUnionData32New([]uint32{datum, xproto.TimeCurrentTime, 0, 0, 0}),
 	}
 	return xproto.SendEventChecked(X, false, root,
 		xproto.EventMaskSubstructureNotify|xproto.EventMaskSubstructureRedirect, string(ev.Bytes())).Check()

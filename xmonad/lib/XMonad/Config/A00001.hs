@@ -108,7 +108,7 @@ myKeys xpc conf=
   ] ++
   subtitle "Application launching": mkNamedKeymap conf
   [ ("M-o o", spawnh "appmenu")
-  , ("M-o <Space>",addName "Goto workspace by window search prompt"        $ gotoWindow >> movePointer)
+  , ("M-o <Space>",addName "Goto workspace by window search (ws window)"   $ spawn "ws window")
   , ("M-o s", spawnh "sshmenu")
   , ("M-o m", spawnh "moshmenu")
   , ("M-o c", spawnhm "google-chrome")
@@ -458,25 +458,26 @@ myKeys xpc conf=
     -- | Sort workspaces by tag name, exclude hidden scrachpad workspace.
     getSortByTagNoSP = filterSomeWorkspaces getSortByTag
 
-    -- | Returns the window name as will be listed in dmenu.
-    --   Tagged with the workspace ID, to guarantee uniqueness, and to let the user
-    --   know where he's going.
-    decorateName ws w = do
-      wName <- show <$> getName w
-      cName <- getClass w
-      let wm = PL.escapeMarkup wName
-          cn = PL.escapeMarkup cName
-          tn = PL.escapeMarkup (W.tag ws)
-      return $ printf "%s<span font_family='Consolas'> — %s</span> ❨%s❩" wm cn tn
-
-    getClass w = do
-      classHint <- withDisplay $ \d -> io $ getClassHint d w
-      return $ resClass classHint
-
-    gotoWindow = WB.gotoMenuConfig def {
-      WB.menuCommand="rofi",
-      WB.menuArgs=["-markup-rows", "-dmenu", "-i", "-no-custom"],
-      windowTitler=decorateName }
+    -- The window search M-o <Space>, replaced by ws window:
+    -- -- | Returns the window name as will be listed in dmenu.
+    -- --   Tagged with the workspace ID, to guarantee uniqueness, and to let the user
+    -- --   know where he's going.
+    -- decorateName ws w = do
+    --   wName <- show <$> getName w
+    --   cName <- getClass w
+    --   let wm = PL.escapeMarkup wName
+    --       cn = PL.escapeMarkup cName
+    --       tn = PL.escapeMarkup (W.tag ws)
+    --   return $ printf "%s<span font_family='Consolas'> — %s</span> ❨%s❩" wm cn tn
+    --
+    -- getClass w = do
+    --   classHint <- withDisplay $ \d -> io $ getClassHint d w
+    --   return $ resClass classHint
+    --
+    -- gotoWindow = WB.gotoMenuConfig def {
+    --   WB.menuCommand="rofi",
+    --   WB.menuArgs=["-markup-rows", "-dmenu", "-i", "-no-custom"],
+    --   windowTitler=decorateName }
 
 
 
@@ -648,7 +649,7 @@ myManageHook =
 -- return (All True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
 --
-myHandleEventHook = noRescreenEventHook <+> ewmhDesktopsEventHook <+> fullscreenEventHook <+> serverModeEventHook <+> wsGoEventHook
+myHandleEventHook = noRescreenEventHook <+> ewmhDesktopsEventHook <+> fullscreenEventHook <+> serverModeEventHook <+> wsGoEventHook <+> wsFocusEventHook
 
 
 noRescreenEventHook ConfigureEvent {ev_window = w} = do
@@ -681,6 +682,20 @@ wsGoEventHook ClientMessageEvent {ev_message_type = mt, ev_data = dt} = do
           movePointer
     return (All True)
 wsGoEventHook _ = return (All True)
+
+-- | Focus the window "ws window" names, as the window search did: a
+-- WS_FOCUS client message whose first datum is the window. Its
+-- workspace is shown if need be.
+wsFocusEventHook :: Event -> X All
+wsFocusEventHook ClientMessageEvent {ev_message_type = mt, ev_data = dt} = do
+    d <- asks display
+    wsFocus <- io $ internAtom d "WS_FOCUS" False
+    when (mt == wsFocus) $ forM_ (take 1 dt) $ \a -> do
+      let w = fromIntegral a
+      managed <- gets (W.member w . windowset)
+      when managed $ windows (W.focusWindow w) >> movePointer
+    return (All True)
+wsFocusEventHook _ = return (All True)
 
 
 -- Status bars and logging

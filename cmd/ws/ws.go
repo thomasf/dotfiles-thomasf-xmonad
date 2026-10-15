@@ -15,6 +15,7 @@
 //	ws wt remove [-force] [-y] [-pick] [[project@]name]
 //	ws pick [-go] [-p prompt] [-columns n] [-lines n] [-worktrees]
 //	ws go workspace
+//	ws window
 //	ws rofi [rofi arguments]
 //
 // A workspace name is <prefix>[.<suffix>], and the prefix is
@@ -100,6 +101,11 @@
 // Go asks xmonad to show a workspace, creating it if it is new, with a
 // WS_GO client message that the xmonad configuration handles.
 //
+// Window lets the user choose a window with rofi, listed with its class
+// and workspace, and asks xmonad to focus it, switching to its workspace,
+// with a WS_FOCUS client message that the xmonad configuration handles.
+// Like pick -go, it lets xmonad start the window search with spawn.
+//
 // Rofi runs rofi with the given arguments, its window centred on the
 // xmonad screen that shows the current workspace and 75% as wide as it.
 // rofi itself knows only monitors, not the screens xmonad splits them
@@ -145,6 +151,8 @@ func main() {
 		err = runRofi(args)
 	case "go":
 		err = runGo(args)
+	case "window":
+		err = runWindow(args)
 	default:
 		usage()
 	}
@@ -167,6 +175,7 @@ func usage() {
        ws wt remove [-force] [-y] [-pick] [[project@]name]
        ws pick [-go] [-p prompt] [-columns n] [-lines n] [-worktrees]
        ws go workspace
+       ws window
        ws rofi [rofi arguments]`)
 	os.Exit(2)
 }
