@@ -173,6 +173,7 @@ myKeys xpc conf=
   [ ("M-e",         addName "Next workspace (prefix)"     $ rmEmptyWs $ nextWsPrefix >> movePointer >> showWorkspaceNameFast)
   , ("M-r",         addName "Previous workspace (prefix)" $ rmEmptyWs $ prevWsPrefix >> movePointer >> showWorkspaceNameFast)
   , ("M-C-e",       addName "New workspace in prefix.sequence" $ newPrefixWS >> movePointer >> showWorkspaceNameFast)
+  , ("M-S-e",       addName "Same workspace in another worktree prompt" $ rmEmptyWs $ worktreePrompt >> movePointer)
   , ("M-S-<Space>", addName "reset layout"                $ setLayout (XMonad.layoutHook conf) >> updateStruts >> movePointer)
   ] ++
   subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]": mkNamedKeymap conf
@@ -359,6 +360,29 @@ myKeys xpc conf=
           new = currentTagPrefix ++ "." ++ suffix
       unless (new `elem` map W.tag wss) $ myViewWS new
       windows $ W.view new
+
+    -- | Prompt for a worktree of the project and go to the same workspace
+    -- (same suffix) in it: hello.bot -> hello@test.bot. Completes on
+    -- "ws wt list" and existing workspaces of the project. A new name goes
+    -- to project@name, where ws action offers to create the worktree.
+    worktreePrompt :: X ()
+    worktreePrompt = do
+      w <- gets windowset
+      let thisWS = W.currentTag w
+          wss = W.workspaces w
+          (prefix, suffix) = break (== wsSeparator) thisWS
+          projectOf = takeWhile (/= '@') . takeWhile (/= wsSeparator)
+          project = projectOf thisWS
+          existing = [takeWhile (/= wsSeparator) (W.tag ws) | ws <- wss, projectOf (W.tag ws) == project]
+      listed <- lines <$> runProcessWithInput "sh" ["-c", "exec ws wt list \"$1\" 2>/dev/null", "sh", thisWS] ""
+      let prefixes = delete prefix $ nub (listed ++ sort existing)
+          go input = do
+            let p = takeWhile (/= wsSeparator) input
+                target = (if '@' `elem` p || p == project then p else project ++ "@" ++ p) ++ suffix
+            unless (null p || target == thisWS) $ do
+              unless (target `elem` map W.tag wss) $ myViewWS target
+              windows $ W.view target
+      XP.mkXPrompt (WsPrompt ("worktree" ++ suffix ++ ": ")) xpc (XP.mkComplFunFromList' xpc prefixes) go
 
     wsi = WSIs wsPred
      where
