@@ -1,0 +1,25 @@
+// Generated from dotfiles/xmonad/config-xmonad/rofi/config.rasi.tmpl.
+// rofi 1.7 and later read no X resources: what was in rofi.* X resources
+// is set here.
+// Colours: darkmode links colors.rasi to dark.rasi or light.rasi.
+@import "colors.rasi"
+
+configuration {
+  font: "PragmataPro 11";
+  dpi: {{.vars.dpi}};
+  kb-primary-paste: "Alt+y,Shift+Insert";
+  kb-secondary-paste: "Control+y,Insert";
+  kb-page-prev: "Alt+v,Page_Up";
+  kb-page-next: "Control+v,Page_Down";
+}
+
+window {
+  width: 75%;
+  border: 4px;
+  padding: 8px;
+}
+
+listview {
+  lines: 30;
+  scrollbar: false;
+}

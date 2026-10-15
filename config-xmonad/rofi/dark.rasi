@@ -1,0 +1,44 @@
+// rofi colours for dark mode, the Selenized colours of the XMonad prompts.
+// darkmode links ~/.config/rofi/colors.rasi to this file or its pair.
+* {
+  bg:               #103c48;
+  bg-alt:           #184956;
+  fg:               #d5cdb6;
+  fg-dim:           #72898f;
+  accent:           #ca4898;
+
+  background-color: transparent;
+  text-color:       @fg;
+}
+
+window {
+  background-color: @bg;
+  border-color:     @bg-alt;
+}
+
+prompt {
+  text-color:       @accent;
+}
+
+textbox {
+  text-color:       @fg-dim;
+}
+
+element {
+  padding:          2px 6px;
+}
+
+element normal.normal, element alternate.normal {
+  background-color: transparent;
+  text-color:       @fg;
+}
+
+element selected.normal {
+  background-color: @bg-alt;
+  text-color:       @accent;
+}
+
+element-text {
+  background-color: inherit;
+  text-color:       inherit;
+}

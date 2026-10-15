@@ -13,6 +13,7 @@ golight() {
   fi
   panels
   xrdb ~/.config-xmonad/xresources/light
+  ln -sf light.rasi ~/.config/rofi/colors.rasi
   xmonad --restart
 }
 
@@ -25,6 +26,7 @@ godark() {
   fi
   panels
   xrdb ~/.config-xmonad/xresources/dark
+  ln -sf dark.rasi ~/.config/rofi/colors.rasi
   xmonad --restart
 }
 

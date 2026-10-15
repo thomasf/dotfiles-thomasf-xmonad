@@ -31,6 +31,10 @@ condition = "os == 'linux'"
 src = 'cmd/panels'
 condition = "os == 'linux'"
 
+[[go]]
+src = 'cmd/ws'
+condition = "os == 'linux'"
+
 [[mount]]
 src = 'config-xmonad/dunstrc'
 dst = '.config/dunst/dunstrc'
@@ -55,4 +59,29 @@ dst = '.fonts.conf.d'
 condition = "os == 'linux'"
 src = 'config-xmonad/xresources/Xresources.tmpl'
 dst = '.Xresources'
+
+[[template]]
+condition = "os == 'linux'"
+src = 'config-xmonad/rofi/config.rasi.tmpl'
+dst = '.config/rofi/config.rasi'
+
+[[mount]]
+condition = "os == 'linux'"
+src = 'config-xmonad/rofi/dark.rasi'
+dst = '.config/rofi/dark.rasi'
+
+[[mount]]
+condition = "os == 'linux'"
+src = 'config-xmonad/rofi/light.rasi'
+dst = '.config/rofi/light.rasi'
+
+# rofi's colours: darkmode links colors.rasi to dark.rasi or light.rasi.
+# Until it has run, link the one for the current mode.
+# TODO: probably not like this
+[[script]]
+condition = "os == 'linux'"
+src = '''
+mkdir -p ~/.config/rofi
+[ -e ~/.config/rofi/colors.rasi ] || ln -sf "$([ -e ~/.config/darkmode ] && echo dark || echo light).rasi" ~/.config/rofi/colors.rasi
+'''
 

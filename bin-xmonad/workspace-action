@@ -1,38 +1,10 @@
 #!/bin/bash
 #
-# Workspace launcher
+# Workspace launcher, run by xmonad on an empty workspace. Kept for
+# xmonad.hs: see ws action. Its questions go to rofi, never to a
+# terminal xmonad may have been started from.
 #
-# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
-#
-set -e
 
-name="$@"
-prefix=$(echo -n $name | cut -d '.' -f -1)
+# TODO: this is here for backwards compatible, remove later
 
-if [[ "$name" == *\.* ]]; then
-  suffix=$(echo -n $name | cut -d '.' -f 2-)
-else
-  suffix=""
-fi
-
-if [ $(which w.$prefix) ]; then
-  w.$prefix && exit 0
-fi
-
-case $suffix in
-  www|doc)
-    exec www-window
-    ;;
-  remote|ssh)
-    exec sshmenu
-    ;;
-  term|terminal|bot)
-    exec term
-    ;;
-  emacs)
-    exec e
-    ;;
-  files)
-    exec nautilus --new-window --no-default-window --no-desktop ~/
-    ;;
-esac
+exec ws action "$@" </dev/null

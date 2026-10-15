@@ -1,0 +1,8 @@
+#!/bin/sh
+#
+# rofi placed on the xmonad screen that shows the current workspace,
+# rather than on a whole monitor: see ws rofi.
+#
+
+command -v ws >/dev/null 2>&1 && exec ws rofi "$@"
+exec /usr/bin/rofi "$@"
