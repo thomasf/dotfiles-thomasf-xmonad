@@ -12,7 +12,7 @@ golight() {
     xsetroot -bitmap ~/.config-xmonad/bgbitmap -bg '#fdf6e3' -fg '#93a1a1'
   fi
   panels
-  xrdb ~/.config-xmonad/xresources/light
+  xrdb -merge ~/.config-xmonad/xresources/light
   ln -sf light.rasi ~/.config/rofi/colors.rasi
   xmonad --restart
 }
@@ -25,7 +25,7 @@ godark() {
     xsetroot -bitmap ~/.config-xmonad/bgbitmap -bg '#002b36' -fg '#586e75'
   fi
   panels
-  xrdb ~/.config-xmonad/xresources/dark
+  xrdb -merge ~/.config-xmonad/xresources/dark
   ln -sf dark.rasi ~/.config/rofi/colors.rasi
   xmonad --restart
 }

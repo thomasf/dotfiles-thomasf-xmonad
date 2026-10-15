@@ -1,4 +1,4 @@
-oo#include "common"
+#include "common"
 
 Emacs*.background:            #fdf6e3
 Emacs*.foreground:            #657b83
