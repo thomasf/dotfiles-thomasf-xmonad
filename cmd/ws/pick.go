@@ -21,6 +21,7 @@ func runPick(args []string) error {
 	prompt := fs.String("p", "workspace", "rofi `prompt`")
 	goTo := fs.Bool("go", false, "go to the workspace instead of printing its name")
 	withWorktrees := fs.Bool("worktrees", false, "also list worktrees without a workspace")
+	withEmpty := fs.Bool("empty", false, "also list workspaces without windows")
 	columns := fs.Int("columns", 4, "show `n` columns")
 	lines := fs.Int("lines", 20, "show `n` rows in each column")
 	fs.Parse(args)
@@ -35,6 +36,16 @@ func runPick(args []string) error {
 	if cur < len(names) {
 		current = names[cur]
 	}
+	occupied, err := occupiedDesktops()
+	if err != nil {
+		return err
+	}
+	var busy []string
+	for i, name := range names {
+		if occupied[i] {
+			busy = append(busy, name)
+		}
+	}
 	// Listing the worktrees takes a while, so it is done only once
 	// they are asked for, and then only once.
 	var wts []string
@@ -43,14 +54,28 @@ func runPick(args []string) error {
 	for {
 		if *withWorktrees && !listed {
 			wts, listed = worktreePrefixes(projectsOf(names)), true
+			// pickGroups sees only the workspaces shown, so leave out
+			// the worktrees of hidden ones here.
+			wts = slices.DeleteFunc(wts, func(p string) bool {
+				return slices.ContainsFunc(names, func(t string) bool { return workspace(t).prefix() == p })
+			})
 		}
-		var shown []string
+		shown := busy
+		if *withEmpty {
+			shown = names
+		}
+		var shownWts []string
 		if *withWorktrees {
-			shown = wts
+			shownWts = wts
 		}
-		name, err := rofiPickWorkspace(*prompt, *columns, *lines, filter, *withWorktrees, pickGroups(current, names, shown))
+		name, err := rofiPickWorkspace(*prompt, *columns, *lines, filter, *withWorktrees, *withEmpty, pickGroups(current, shown, shownWts))
 		if t, ok := errors.AsType[toggleWorktrees](err); ok {
 			*withWorktrees = !*withWorktrees
+			filter = t.filter
+			continue
+		}
+		if t, ok := errors.AsType[toggleEmpty](err); ok {
+			*withEmpty = !*withEmpty
 			filter = t.filter
 			continue
 		}
@@ -226,6 +251,13 @@ type toggleWorktrees struct{ filter string }
 
 func (toggleWorktrees) Error() string { return "toggle worktrees" }
 
+// toggleEmpty is the error rofiPickWorkspace returns when the user asks
+// to show or hide the workspaces without windows. filter is what the
+// user had typed.
+type toggleEmpty struct{ filter string }
+
+func (toggleEmpty) Error() string { return "toggle empty workspaces" }
+
 // completeRow is the error rofiPickWorkspace returns when the user asks
 // to type in the name of the selected row. filter is that name, or what
 // the user had typed if no row was selected.
@@ -239,23 +271,22 @@ func (completeRow) Error() string { return "complete row" }
 // not empty, is typed in already. The user can also enter a name of
 // their own with Ctrl+Enter, or show or hide the worktrees without a
 // workspace with Ctrl+t, which returns a toggleWorktrees; worktrees says
-// whether they are shown. Ctrl+Tab returns a completeRow with the
+// whether they are shown. Likewise Ctrl+s returns a toggleEmpty for the
+// workspaces without windows; empty says whether they are shown. Ctrl+Tab returns a completeRow with the
 // name of the selected row. It returns errFalse if the user cancels.
-func rofiPickWorkspace(prompt string, columns, lines int, filter string, worktrees bool, groups []pickGroup) (string, error) {
+func rofiPickWorkspace(prompt string, columns, lines int, filter string, worktrees, empty bool, groups []pickGroup) (string, error) {
 	rows, names := pickRows(groups, worktreeColour())
 	theme := fmt.Sprintf("listview { columns: %d; lines: %d; flow: vertical; fixed-columns: true; }", columns, lines)
-	toggle := "show worktrees without workspaces"
-	if worktrees {
-		toggle = "hide worktrees without workspaces"
-	}
+	// What Ctrl+s and Ctrl+t do: + shows, - hides.
+	sign := map[bool]string{false: "+", true: "-"}
 	args := []string{"-dmenu", "-i", "-matching", "fuzzy", "-markup-rows",
-		"-kb-custom-1", "Control+t",
+		"-kb-custom-1", "Control+t", "-kb-custom-3", "Control+s",
 		// rofi's own Ctrl+Space types in the row as it is shown,
 		// markup and indent included, so ws types in its name on
 		// Ctrl+Tab instead. Switching modes has no use in dmenu.
 		"-kb-row-select", "", "-kb-mode-next", "Shift+Right", "-kb-custom-2", "Control+Tab",
 		"-format", "i f", "-p", prompt,
-		"-mesg", "Enter: workspace   Ctrl+Enter: name as typed   Ctrl+Tab: complete   Ctrl+t: " + toggle}
+		"-mesg", "C-Ret typed   C-Tab complete   C-s " + sign[empty] + "empty   C-t " + sign[worktrees] + "worktrees"}
 	if filter != "" {
 		args = append(args, "-filter", filter)
 	}
@@ -267,7 +298,8 @@ func rofiPickWorkspace(prompt string, columns, lines int, filter string, worktre
 	out, err := cmd.Output()
 	i, typed, _ := strings.Cut(strings.TrimSuffix(string(out), "\n"), " ")
 	n, nerr := strconv.Atoi(i)
-	// rofi exits with status 10 for kb-custom-1, 11 for kb-custom-2.
+	// rofi exits with status 10 for kb-custom-1, 11 for kb-custom-2,
+	// and so on.
 	if ee, ok := errors.AsType[*exec.ExitError](err); ok {
 		switch ee.ExitCode() {
 		case 10:
@@ -277,6 +309,8 @@ func rofiPickWorkspace(prompt string, columns, lines int, filter string, worktre
 				return "", completeRow{names[n]}
 			}
 			return "", completeRow{typed}
+		case 12:
+			return "", toggleEmpty{typed}
 		}
 	}
 	if err != nil {

@@ -76,18 +76,18 @@
 // If the worktree has changes, agreeing discards them; with -y, git
 // refuses to remove it unless -force is given.
 //
-// Pick lets the user choose a workspace with rofi and prints its name.
-// It lists the workspaces other than the current one, grouped by
-// project, in -columns columns of -lines rows. Ctrl+Enter takes the
-// name as typed instead, for a new workspace. Ctrl+Tab types in the
-// name of the selected workspace, to edit it. Ctrl+t shows or hides the
-// worktrees of their projects that have no workspace yet; -worktrees
-// shows them from the start. Listing them takes a moment, so they are
-// hidden by default.
-// It exits with status 1 if the user cancels. With -go, it goes to the
-// workspace instead of printing it, as ws go does; this way xmonad can
-// start it with spawn, rather than wait for it while rofi runs and lock
-// up input.
+// Pick lets the user choose a workspace with rofi and prints its name. It
+// lists the workspaces with windows other than the current one, grouped by
+// project, in -columns columns of -lines rows. Ctrl+Enter takes the name as
+// typed instead, for a new workspace. Ctrl+Tab types in the name of the
+// selected workspace, to edit it. Ctrl+s shows or hides the workspaces without
+// windows; -empty shows them from the start. Ctrl+t shows or hides the
+// worktrees of their projects that have no workspace yet; -worktrees shows
+// them from the start. Listing them takes a moment, so they are hidden by
+// default. It exits with status 1 if the user cancels. With -go, it goes to
+// the workspace instead of printing it, as ws go does; this way xmonad can
+// start it with spawn, rather than wait for it while rofi runs and lock up
+// input.
 //
 // Go asks xmonad to show a workspace, creating it if it is new, with a
 // WS_GO client message that the xmonad configuration handles.

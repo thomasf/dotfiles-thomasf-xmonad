@@ -67,9 +67,10 @@ func TestRofiPickWorkspace(t *testing.T) {
 		{"echo '2 hb'; exit 11", "", completeRow{"hello.bot"}},
 		{"echo '0 he'; exit 11", "", completeRow{"hello"}},
 		{"echo '-1 xyz'; exit 11", "", completeRow{"xyz"}},
+		{"echo '1 he'; exit 12", "", toggleEmpty{"he"}},
 	} {
 		fakeCommand(t, "rofi", "cat >/dev/null; "+tt.script)
-		got, err := rofiPickWorkspace("ws", 3, 20, "", false, groups)
+		got, err := rofiPickWorkspace("ws", 3, 20, "", false, false, groups)
 		if got != tt.want || err != tt.err {
 			t.Errorf("rofi %q: got %q, %v, want %q, %v", tt.script, got, err, tt.want, tt.err)
 		}

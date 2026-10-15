@@ -115,3 +115,37 @@ func rootProperty(X *xgb.Conn, root xproto.Window, name string) (*xproto.GetProp
 	}
 	return xproto.GetProperty(X, false, root, atom.Atom, xproto.GetPropertyTypeAny, 0, 1<<16).Reply()
 }
+
+// occupiedDesktops returns which workspaces, by index, have windows on
+// them: the _NET_WM_DESKTOP of each window in _NET_CLIENT_LIST.
+func occupiedDesktops() (map[int]bool, error) {
+	X, err := xgb.NewConn()
+	if err != nil {
+		return nil, err
+	}
+	defer X.Close()
+	root := xproto.Setup(X).DefaultScreen(X).Root
+
+	l, err := rootProperty(X, root, "_NET_CLIENT_LIST")
+	if err != nil {
+		return nil, err
+	}
+	desktop, err := internAtom(X, "_NET_WM_DESKTOP")
+	if err != nil {
+		return nil, err
+	}
+	// Ask for all windows at once, rather than waiting for each.
+	var cookies []xproto.GetPropertyCookie
+	for v := l.Value; len(v) >= 4; v = v[4:] {
+		w := xproto.Window(xgb.Get32(v))
+		cookies = append(cookies, xproto.GetProperty(X, false, w, desktop, xproto.AtomCardinal, 0, 1))
+	}
+	occupied := make(map[int]bool)
+	for _, c := range cookies {
+		// A window may be gone by now.
+		if r, err := c.Reply(); err == nil && r.Format == 32 && len(r.Value) >= 4 {
+			occupied[int(xgb.Get32(r.Value))] = true
+		}
+	}
+	return occupied, nil
+}
