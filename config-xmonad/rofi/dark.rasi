@@ -7,6 +7,13 @@
   fg-dim:           #72898f;
   accent:           #ca4898;
 
+  // The default theme's colours, used by the entry and other widgets this
+  // file does not style.
+  foreground:       @fg;
+  background:       @bg;
+  lightfg:          @fg-dim;
+  lightbg:          @bg-alt;
+
   background-color: transparent;
   text-color:       @fg;
 }
