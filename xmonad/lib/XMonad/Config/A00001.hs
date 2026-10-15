@@ -246,7 +246,8 @@ myKeys xpc conf=
   , ("M-i k",               myViewWS' "work-client")
   , ("M-i q",               myViewWS' "hass")
   , ("M-i M-i",             addName "cycle ws"                              $ rmEmptyWs $ myCycleRecentWs xK_i xK_o)
-  , ("M-i i",               addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePromptHidden >> maybeWorkspaceAction >> movePointer)
+  , ("M-i i",               addName "Create or change workspace (ws pick)"  $ spawn "ws pick -go")
+  -- , ("M-i i",               addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePromptHidden >> maybeWorkspaceAction >> movePointer)
   -- , ("M-C-i M-C-i",         addName "cycle ws on next screen"               $ holdScreenFocus $ nextScreen' >> myCycleRecentWs xK_i xK_o)
   -- , ("M-C-u M-C-u",         addName "cycle ws on prev screen"               $ holdScreenFocus $ prevScreen' >> myCycleRecentWs xK_o xK_i)
   , ("M-i <Space> <Space>", addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
@@ -295,7 +296,7 @@ myKeys xpc conf=
     spawnhm cmd' = addName cmd' $ bindOn' $ showAppName cmd' >> spawn cmd'
 
     -- | Remove current workpace if empty
-    rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept [ "NSP", "", "s.0", "s.1", "s.2", "s.3", "s.4" ]
+    rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept keptWorkspaces
 
 
     -- | View a workspace by name, remove left over empty workspace and move pointer
@@ -306,10 +307,6 @@ myKeys xpc conf=
 
     -- | Select workspae prompt
     selectWorkspacePrompt = wsPrompt workspacePromptAll
-
-    -- | Select workspace prompt
-    selectWorkspacePromptHidden = wsPrompt workspacePromptHidden
-    -- selectWorkspacePromptHidden = workspacePrompt'
 
     -- | Prompt for any workspace, sorted by index
     workspacePromptAll :: XP.XPConfig -> (String -> X ()) -> X ()
@@ -324,15 +321,20 @@ myKeys xpc conf=
       unless exists $ DW.addHiddenWorkspace t
       job t
 
-    -- | Select workspace promt only showing non visible workspaces
-    workspacePromptHidden :: XP.XPConfig -> (String -> X ()) -> X ()
-    workspacePromptHidden c job = do ws <- gets (W.hidden . windowset)
-                                     s <- getSortByIndex
-                                     -- thisWS <- gets (W.currentTag . windowset)
-                                     let ts = map W.tag $ s ws
-                                         -- prefix = takeWhile (/= wsSeparator) thisWS
-                                         prefix = ""
-                                     XP.mkXPrompt (WsPrompt "") c {XP.defaultText=prefix} (XP.mkComplFunFromList' c ts ) job
+    -- The XPrompt M-i i, replaced by ws pick:
+    -- -- | Select workspace prompt
+    -- selectWorkspacePromptHidden = wsPrompt workspacePromptHidden
+    -- -- selectWorkspacePromptHidden = workspacePrompt'
+    --
+    -- -- | Select workspace promt only showing non visible workspaces
+    -- workspacePromptHidden :: XP.XPConfig -> (String -> X ()) -> X ()
+    -- workspacePromptHidden c job = do ws <- gets (W.hidden . windowset)
+    --                                  s <- getSortByIndex
+    --                                  -- thisWS <- gets (W.currentTag . windowset)
+    --                                  let ts = map W.tag $ s ws
+    --                                      -- prefix = takeWhile (/= wsSeparator) thisWS
+    --                                      prefix = ""
+    --                                  XP.mkXPrompt (WsPrompt "") c {XP.defaultText=prefix} (XP.mkComplFunFromList' c ts ) job
 
 
     -- | Toggle scratch pad
@@ -622,7 +624,7 @@ myManageHook =
 -- return (All True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
 --
-myHandleEventHook = noRescreenEventHook <+> ewmhDesktopsEventHook <+> fullscreenEventHook <+> serverModeEventHook
+myHandleEventHook = noRescreenEventHook <+> ewmhDesktopsEventHook <+> fullscreenEventHook <+> serverModeEventHook <+> wsGoEventHook
 
 
 noRescreenEventHook ConfigureEvent {ev_window = w} = do
@@ -630,6 +632,31 @@ noRescreenEventHook ConfigureEvent {ev_window = w} = do
     return $ All $ w /= r
 
 noRescreenEventHook _ = mempty
+
+-- | Workspaces kept when they are left empty
+keptWorkspaces :: [WorkspaceId]
+keptWorkspaces = [ "NSP", "", "s.0", "s.1", "s.2", "s.3", "s.4" ]
+
+-- | Go to the workspace "ws go" names, as the workspace prompt did: a
+-- WS_GO client message whose first datum is an atom with the workspace
+-- name. A new workspace is created, an empty one gets its workspace
+-- action, and the workspace left is removed if empty. EWMH can only
+-- switch to existing workspaces.
+wsGoEventHook :: Event -> X All
+wsGoEventHook ClientMessageEvent {ev_message_type = mt, ev_data = dt} = do
+    d <- asks display
+    wsGo <- io $ internAtom d "WS_GO" False
+    when (mt == wsGo) $ forM_ (take 1 dt) $ \a -> do
+      name <- io $ getAtomName d (fromIntegral a)
+      forM_ (mfilter (not . null) name) $ \n ->
+        DW.removeEmptyWorkspaceAfterExcept keptWorkspaces $ do
+          exists <- gets (W.tagMember n . windowset)
+          if exists
+            then showWorkspaceNameOld >> windows (W.view n) >> maybeWorkspaceAction >> showWorkspaceNameFast
+            else myViewWS n
+          movePointer
+    return (All True)
+wsGoEventHook _ = return (All True)
 
 
 -- Status bars and logging
