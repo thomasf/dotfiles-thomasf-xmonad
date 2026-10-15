@@ -7,6 +7,7 @@
 //
 //	ws name [-p | -s]
 //	ws dir [-set | -unset] [-pick] [workspace]
+//	ws env [-file] [workspace]
 //	ws action [workspace]
 //	ws wt list [-l] [-pick] [workspace]
 //	ws wt add [-branch branch] [-pick] [project@]name
@@ -34,6 +35,13 @@
 // sibling of the project's main checkout named <repo>@<worktree>,
 // at the same place within it. -set stores the working directory for
 // the prefix, in ~/.config/wsdirs, and -unset removes it.
+//
+// Env prints the environment file of a workspace, by default the
+// current one, for a shell to evaluate: eval "$(ws env)". The file is
+// the shell script in ~/.config/wsenv named like the directory of the
+// workspace, or like its prefix if it has none. With -file it prints
+// the name of the file, which need not exist. Without it, it exits
+// with status 1 if the file does not exist.
 //
 // Action is run by xmonad when it opens an empty workspace. For a
 // workspace in a worktree that does not exist yet, it first offers to
@@ -125,6 +133,8 @@ func main() {
 		err = runName(args)
 	case "dir":
 		err = runDir(args)
+	case "env":
+		err = runEnv(args)
 	case "action":
 		err = runAction(args)
 	case "wt":
@@ -149,6 +159,7 @@ func main() {
 func usage() {
 	fmt.Fprintln(os.Stderr, `usage: ws name [-p | -s]
        ws dir [-set | -unset] [-pick] [workspace]
+       ws env [-file] [workspace]
        ws action [workspace]
        ws wt list [-l] [-pick] [workspace]
        ws wt add [-branch branch] [-pick] [project@]name

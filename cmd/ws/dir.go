@@ -168,14 +168,20 @@ func git(dir string, args ...string) (string, error) {
 // wsdirsFile returns the file that stores the directory for prefix,
 // shared with the wsdir-* functions in the bash configuration.
 func wsdirsFile(prefix string) (string, error) {
-	if prefix == "" || prefix == "." || prefix == ".." || strings.ContainsRune(prefix, '/') {
-		return "", fmt.Errorf("bad workspace prefix %q", prefix)
+	return configFile("wsdirs", prefix)
+}
+
+// configFile returns the file name in the directory dir of
+// ~/.config.
+func configFile(dir, name string) (string, error) {
+	if name == "" || name == "." || name == ".." || strings.ContainsRune(name, '/') {
+		return "", fmt.Errorf("bad file name %q in ~/.config/%s", name, dir)
 	}
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(home, ".config", "wsdirs", prefix), nil
+	return filepath.Join(home, ".config", dir, name), nil
 }
 
 // storedDir returns the directory stored for prefix, or "" if there is

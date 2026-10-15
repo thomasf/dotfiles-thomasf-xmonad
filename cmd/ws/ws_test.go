@@ -127,6 +127,37 @@ func TestWorkspaceDirStored(t *testing.T) {
 	}
 }
 
+func TestEnvFile(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	repo := newRepo(t, "dpg")
+	if err := storeDir("dp", repo); err != nil {
+		t.Fatal(err)
+	}
+	if err := storeDir("dp@other", "/elsewhere"); err != nil {
+		t.Fatal(err)
+	}
+	wsenv := filepath.Join(home, ".config", "wsenv")
+	for _, tt := range []struct {
+		w    workspace
+		want string
+	}{
+		{"dp.1", "dpg"},
+		{"dp@test.bot", "dpg@test"},
+		{"dp@other", "elsewhere"},
+		{"dp@nosuch.bot", "dp@nosuch"},
+	} {
+		got, err := envFile(tt.w)
+		if want := filepath.Join(wsenv, tt.want); err != nil || got != want {
+			t.Errorf("envFile(%q) = %q, %v, want %q", tt.w, got, err, want)
+		}
+	}
+
+	if _, err := readEnv(filepath.Join(wsenv, "dpg")); !errors.Is(err, errFalse) {
+		t.Errorf("readEnv of a missing file: error = %v, want errFalse", err)
+	}
+}
+
 func TestValidWorktreeName(t *testing.T) {
 	for name, want := range map[string]bool{
 		"test": true, "fix-auth": true, "v2": true,
