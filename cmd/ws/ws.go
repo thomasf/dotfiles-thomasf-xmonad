@@ -79,7 +79,8 @@
 // Pick lets the user choose a workspace with rofi and prints its name.
 // It lists the workspaces other than the current one, grouped by
 // project, in -columns columns of -lines rows. Ctrl+Enter takes the
-// name as typed instead, for a new workspace. Ctrl+t shows or hides the
+// name as typed instead, for a new workspace. Ctrl+Tab types in the
+// name of the selected workspace, to edit it. Ctrl+t shows or hides the
 // worktrees of their projects that have no workspace yet; -worktrees
 // shows them from the start. Listing them takes a moment, so they are
 // hidden by default.

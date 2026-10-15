@@ -54,6 +54,10 @@ func runPick(args []string) error {
 			filter = t.filter
 			continue
 		}
+		if c, ok := errors.AsType[completeRow](err); ok {
+			filter = c.filter
+			continue
+		}
 		if err != nil {
 			return err
 		}
@@ -222,13 +226,21 @@ type toggleWorktrees struct{ filter string }
 
 func (toggleWorktrees) Error() string { return "toggle worktrees" }
 
+// completeRow is the error rofiPickWorkspace returns when the user asks
+// to type in the name of the selected row. filter is that name, or what
+// the user had typed if no row was selected.
+type completeRow struct{ filter string }
+
+func (completeRow) Error() string { return "complete row" }
+
 // rofiPickWorkspace lets the user pick one of the workspaces in groups
 // with rofi and returns its name. The list has columns of lines rows,
 // filled from top to bottom so that groups read downwards; filter, if
 // not empty, is typed in already. The user can also enter a name of
 // their own with Ctrl+Enter, or show or hide the worktrees without a
 // workspace with Ctrl+t, which returns a toggleWorktrees; worktrees says
-// whether they are shown. It returns errFalse if the user cancels.
+// whether they are shown. Ctrl+Tab returns a completeRow with the
+// name of the selected row. It returns errFalse if the user cancels.
 func rofiPickWorkspace(prompt string, columns, lines int, filter string, worktrees bool, groups []pickGroup) (string, error) {
 	rows, names := pickRows(groups, worktreeColour())
 	theme := fmt.Sprintf("listview { columns: %d; lines: %d; flow: vertical; fixed-columns: true; }", columns, lines)
@@ -238,7 +250,12 @@ func rofiPickWorkspace(prompt string, columns, lines int, filter string, worktre
 	}
 	args := []string{"-dmenu", "-i", "-matching", "fuzzy", "-markup-rows",
 		"-kb-custom-1", "Control+t",
-		"-format", "i f", "-p", prompt, "-mesg", "Enter: workspace   Ctrl+Enter: name as typed   Ctrl+t: " + toggle}
+		// rofi's own Ctrl+Space types in the row as it is shown,
+		// markup and indent included, so ws types in its name on
+		// Ctrl+Tab instead. Switching modes has no use in dmenu.
+		"-kb-row-select", "", "-kb-mode-next", "Shift+Right", "-kb-custom-2", "Control+Tab",
+		"-format", "i f", "-p", prompt,
+		"-mesg", "Enter: workspace   Ctrl+Enter: name as typed   Ctrl+Tab: complete   Ctrl+t: " + toggle}
 	if filter != "" {
 		args = append(args, "-filter", filter)
 	}
@@ -249,16 +266,24 @@ func rofiPickWorkspace(prompt string, columns, lines int, filter string, worktre
 	cmd.Stdin = strings.NewReader(strings.Join(rows, "\n"))
 	out, err := cmd.Output()
 	i, typed, _ := strings.Cut(strings.TrimSuffix(string(out), "\n"), " ")
-	// rofi exits with status 10 for kb-custom-1.
-	if ee, ok := errors.AsType[*exec.ExitError](err); ok && ee.ExitCode() == 10 {
-		return "", toggleWorktrees{typed}
+	n, nerr := strconv.Atoi(i)
+	// rofi exits with status 10 for kb-custom-1, 11 for kb-custom-2.
+	if ee, ok := errors.AsType[*exec.ExitError](err); ok {
+		switch ee.ExitCode() {
+		case 10:
+			return "", toggleWorktrees{typed}
+		case 11:
+			if nerr == nil && n >= 0 && n < len(names) {
+				return "", completeRow{names[n]}
+			}
+			return "", completeRow{typed}
+		}
 	}
 	if err != nil {
 		return "", errFalse
 	}
-	n, err := strconv.Atoi(i)
 	switch {
-	case err != nil:
+	case nerr != nil:
 		return "", fmt.Errorf("rofi: unexpected output %q", out)
 	case n >= 0 && n < len(names):
 		return names[n], nil

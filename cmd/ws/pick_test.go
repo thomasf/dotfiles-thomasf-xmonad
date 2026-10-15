@@ -64,6 +64,9 @@ func TestRofiPickWorkspace(t *testing.T) {
 		{"echo '3 '", "", errFalse},
 		{"exit 1", "", errFalse},
 		{"echo '1 he'; exit 10", "", toggleWorktrees{"he"}},
+		{"echo '2 hb'; exit 11", "", completeRow{"hello.bot"}},
+		{"echo '0 he'; exit 11", "", completeRow{"hello"}},
+		{"echo '-1 xyz'; exit 11", "", completeRow{"xyz"}},
 	} {
 		fakeCommand(t, "rofi", "cat >/dev/null; "+tt.script)
 		got, err := rofiPickWorkspace("ws", 3, 20, "", false, groups)
