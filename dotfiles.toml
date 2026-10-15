@@ -28,6 +28,10 @@ condition = "os == 'linux'"
 src = 'cmd/ws'
 condition = "os == 'linux'"
 
+[[go]]
+src = 'cmd/kbd'
+condition = "os == 'linux'"
+
 [[mount]]
 src = 'config-xmonad/dunstrc'
 dst = '.config/dunst/dunstrc'

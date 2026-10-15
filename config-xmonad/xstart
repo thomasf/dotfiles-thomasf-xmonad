@@ -122,10 +122,9 @@ export SSH_AGENT_PID
   fi
 ) &
 
-# Configure keyboard mode buttons
-if [ -f $HOME/.bin-xmonad/kbd ]; then
-  ${HOME}/.bin-xmonad/kbd
-fi
+# Load the keymaps
+[ $(which kbd) ] \
+  && kbd
 
 # Launch avfs daemon
 [ $(which mountavfs) ] \
@@ -180,10 +179,6 @@ fi
       && comptonrestart
   ) &
 ) &
-
-if [ $(which numlockx) ]; then
-  numlockx &
-fi
 
 export HOST="$HOSTNAME"
 
