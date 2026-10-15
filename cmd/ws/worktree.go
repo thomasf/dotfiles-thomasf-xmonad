@@ -118,10 +118,18 @@ func runWtRemove(args []string) error {
 		}
 		*force = *force || discard
 	}
+	// The branch is kept; look it up now, as the worktree is gone after.
+	branch, _ := git(worktreePath(main, name), "branch", "--show-current")
 	if err := removeWorktree(main, name, *force); err != nil {
 		return err
 	}
-	return storeDir(project+"@"+name, "")
+	if err := storeDir(project+"@"+name, ""); err != nil {
+		return err
+	}
+	if branch != "" {
+		fmt.Printf("\nBranch %s was kept. To delete it:\n\n  git -C %s branch -d %s\n\n", branch, main, branch)
+	}
+	return nil
 }
 
 // confirmRemove asks the user whether to remove worktree name, with

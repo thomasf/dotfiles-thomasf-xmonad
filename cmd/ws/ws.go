@@ -71,7 +71,8 @@
 //
 // Remove removes worktree name, by default the worktree of the current
 // workspace, and the directory stored for its workspace prefix; the
-// branch is kept. It asks first, where init asks, unless -y is given.
+// branch is kept, and it prints the git command to delete it. It asks
+// first, where init asks, unless -y is given.
 // If the worktree has changes, agreeing discards them; with -y, git
 // refuses to remove it unless -force is given.
 //
