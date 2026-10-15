@@ -250,7 +250,7 @@ myKeys xpc conf=
   -- , ("M-C-i M-C-i",         addName "cycle ws on next screen"               $ holdScreenFocus $ nextScreen' >> myCycleRecentWs xK_i xK_o)
   -- , ("M-C-u M-C-u",         addName "cycle ws on prev screen"               $ holdScreenFocus $ prevScreen' >> myCycleRecentWs xK_o xK_i)
   , ("M-i <Space> <Space>", addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
-  , ("M-S-i",               addName "Move window to other workspace prompt" $ DW.withWorkspace xpc (windows . W.shift) >> movePointer >> updateStruts)
+  , ("M-S-i",               addName "Move window to other workspace prompt" $ withWorkspacePrompt xpc (windows . W.shift) >> movePointer >> updateStruts)
   , ("M-i <Space> r",       addName "Rename current workspace"              $ DW.renameWorkspace xpc >> movePointer)
   , ("M-i <Backspace>",     addName "Delete current workspace"              $ DW.removeWorkspace >> movePointer)
   , ("M-p w",               addName ".www"                                  $ gotoPrefixWS "www" >> movePointer)
@@ -316,6 +316,13 @@ myKeys xpc conf=
     workspacePromptAll c job = do ws <- gets (W.workspaces . windowset)
                                   s <- getSortByIndex
                                   XP.mkXPrompt (WsPrompt "") c (XP.mkComplFunFromList' c (map W.tag $ s ws)) job
+
+    -- | Prompt for a workspace, created hidden if it is new, and run job on it
+    withWorkspacePrompt :: XP.XPConfig -> (String -> X ()) -> X ()
+    withWorkspacePrompt c job = workspacePromptAll c $ \t -> do
+      exists <- gets (W.tagMember t . windowset)
+      unless exists $ DW.addHiddenWorkspace t
+      job t
 
     -- | Select workspace promt only showing non visible workspaces
     workspacePromptHidden :: XP.XPConfig -> (String -> X ()) -> X ()
