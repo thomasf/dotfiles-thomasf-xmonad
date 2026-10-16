@@ -39,7 +39,6 @@ killall -q blueman-applet
 killall -q nm-applet
 killall -q dropboxd
 killall -q pulseaudio
-killall -q compton
 killall -q dunst
 killall -q kbd
 sleep 0.3
@@ -59,10 +58,6 @@ sleep 0.3
 # Ensure sane file permissions etc.
 [ -f "${HOME}/.bin/home-fix" ] \
   && "${HOME}/.bin/home-fix"
-
-# Load gtk2 style settings
-[ -f  "${HOME}/.config-xmonad/gtk/gtk-2.0/default" ] \
-  && export GTK2_RC_FILES="${HOME}/.config-xmonad/gtk/gtk-2.0/default"
 
 
 # Devmon udev mounter (part of udevil)
@@ -178,11 +173,6 @@ fi
     fi
   fi
   darkmode $darkmodearg
-  (
-    sleep 3
-    [ $(which comptonrestart) ] \
-      && comptonrestart
-  ) &
 ) &
 
 export HOST="$HOSTNAME"
