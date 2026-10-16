@@ -7,12 +7,13 @@ set -e
 
 usage() {
   cat <<EOF
-usage: term-run [-h] [-n name] [-m once|hold|loop|relaunch] [--] cmd [args...]
+usage: term-run [-h] [-n name] [-c class] [-m once|hold|loop|relaunch] [--] cmd [args...]
 
 Run cmd in a new alacritty window.
 
   -h        print this help
-  -n name   window title and class (default: basename of cmd)
+  -n name   window title, and class unless -c is given (default: basename of cmd)
+  -c class  window class
   -m mode
      once      close when cmd exits (default)
      hold      wait for enter, then close
@@ -22,11 +23,13 @@ EOF
 }
 
 name=
+class=
 mode=once
-while getopts hn:m: opt; do
+while getopts hn:c:m: opt; do
   case $opt in
     h) usage; exit 0 ;;
     n) name=$OPTARG ;;
+    c) class=$OPTARG ;;
     m) mode=$OPTARG ;;
     *) usage >&2; exit 2 ;;
   esac
@@ -46,9 +49,10 @@ esac
 # Outer invocation: open the window and run ourselves inside it.
 if [ -z "$TERM_RUN_INNER" ]; then
   : "${name:=$(basename "$1")}"
+  : "${class:=$name}"
   TERM_RUN_INNER=1 exec alacritty \
     --title "$name" \
-    --class "$name" \
+    --class "$class" \
     -e "$0" -m "$mode" -- "$@"
 fi
 unset TERM_RUN_INNER

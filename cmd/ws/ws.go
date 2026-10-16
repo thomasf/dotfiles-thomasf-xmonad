@@ -51,7 +51,6 @@
 // none, or it fails, it starts what the suffix calls for:
 //
 //	www, doc              www-window
-//	remote, ssh           sshmenu
 //	term, terminal, bot   term
 //	emacs                 e
 //	files                 nautilus, in the workspace directory

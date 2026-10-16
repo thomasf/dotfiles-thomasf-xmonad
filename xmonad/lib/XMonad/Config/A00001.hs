@@ -109,8 +109,6 @@ myKeys xpc conf=
   subtitle "Application launching": mkNamedKeymap conf
   [ ("M-o o", spawnh "appmenu")
   , ("M-o <Space>",addName "Goto workspace by window search (ws window)"   $ spawn "ws window")
-  , ("M-o s", spawnh "sshmenu")
-  , ("M-o m", spawnh "moshmenu")
   , ("M-o c", spawnhm "google-chrome")
   , ("M-o f", spawnhm "firefox")
   , ("M-o u", spawnh' "x.uptime")

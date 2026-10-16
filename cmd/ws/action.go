@@ -68,8 +68,6 @@ func action(w workspace) error {
 	switch suffix {
 	case "www", "doc":
 		return execLauncher("www-window")
-	case "remote", "ssh":
-		return execLauncher("sshmenu")
 	case "term", "terminal", "bot":
 		return execLauncher("term")
 	case "emacs":
