@@ -51,6 +51,8 @@ func runPick(args []string) error {
 	var wts []string
 	listed := false
 	filter := ""
+	// dotted is the last name that Ctrl+Tab typed in with a dot added.
+	dotted := ""
 	for {
 		if *withWorktrees && !listed {
 			wts, listed = worktreePrefixes(projectsOf(names)), true
@@ -80,11 +82,24 @@ func runPick(args []string) error {
 			continue
 		}
 		if c, ok := errors.AsType[completeRow](err); ok {
+			// Completing the same name again readies it for a
+			// suffix, unless it has one. The first time leaves it
+			// as is, as a dot would filter out the name itself.
+			again := c.filter == filter
 			filter = c.filter
+			if again && filter != "" && !strings.Contains(filter, ".") {
+				filter += "."
+				dotted = filter
+			}
 			continue
 		}
 		if err != nil {
 			return err
+		}
+		// Drop the dot again if nothing was typed after it, unless
+		// a workspace has that name.
+		if name == dotted && !slices.Contains(names, name) {
+			name = strings.TrimSuffix(name, ".")
 		}
 		if *goTo {
 			return goWorkspace(name)
