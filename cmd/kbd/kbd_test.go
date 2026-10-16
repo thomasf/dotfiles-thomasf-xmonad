@@ -50,6 +50,7 @@ func TestCommands(t *testing.T) {
 		devs    []device
 		keymap  string
 		numlock bool
+		verbose bool
 		want    []string
 	}{{
 		name:   "rules",
@@ -57,10 +58,10 @@ func TestCommands(t *testing.T) {
 		keymap: auto,
 		want: []string{
 			"setxkbmap",
-			"xkbcomp -I/x /x/my-mac-us-ctrl-caps-super :0",
-			"xkbcomp -I/x -i 13 /x/my-us-ctrl-caps :0",
-			"xkbcomp -I/x -i 114 /x/my-mac-us-ctrl-caps-super :0",
-			"xkbcomp -I/x -i 115 /x/my-mac-us-ctrl-caps-super :0",
+			"xkbcomp -w 0 -I/x /x/my-mac-us-ctrl-caps-super :0",
+			"xkbcomp -w 0 -I/x -i 13 /x/my-us-ctrl-caps :0",
+			"xkbcomp -w 0 -I/x -i 114 /x/my-mac-us-ctrl-caps-super :0",
+			"xkbcomp -w 0 -I/x -i 115 /x/my-mac-us-ctrl-caps-super :0",
 		},
 	}, {
 		name:   "first every keyboard rule wins",
@@ -68,7 +69,7 @@ func TestCommands(t *testing.T) {
 		keymap: auto,
 		want: []string{
 			"setxkbmap",
-			"xkbcomp -I/x /x/my-us-intl :0",
+			"xkbcomp -w 0 -I/x /x/my-us-intl :0",
 		},
 	}, {
 		name:    "no rule matches",
@@ -81,10 +82,16 @@ func TestCommands(t *testing.T) {
 		devs:    parseKeyboards(testXinputList),
 		keymap:  "my-se-default",
 		numlock: true,
-		want:    []string{"xkbcomp -I/x /x/my-se-default :0", "numlockx on"},
+		want:    []string{"xkbcomp -w 0 -I/x /x/my-se-default :0", "numlockx on"},
+	}, {
+		name:    "verbose",
+		devs:    parseKeyboards(testXinputList),
+		keymap:  "my-se-default",
+		verbose: true,
+		want:    []string{"xkbcomp -I/x /x/my-se-default :0"},
 	}} {
 		t.Run(tc.name, func(t *testing.T) {
-			got := joinAll(commands(tc.devs, "/x", ":0", tc.keymap, tc.numlock))
+			got := joinAll(commands(tc.devs, "/x", ":0", tc.keymap, tc.numlock, tc.verbose))
 			if !slices.Equal(got, tc.want) {
 				t.Errorf("commands:\n got %q\nwant %q", got, tc.want)
 			}
@@ -147,7 +154,7 @@ func TestLoad(t *testing.T) {
 
 func TestSet(t *testing.T) {
 	k, ran := testKbd(t, "my-us-intl", "my-se-default")
-	xkbcomp := "xkbcomp -I" + k.xkbDir + " " + filepath.Join(k.xkbDir, "my-se-default") + " :0"
+	xkbcomp := "xkbcomp -w 0 -I" + k.xkbDir + " " + filepath.Join(k.xkbDir, "my-se-default") + " :0"
 
 	k.dryRun = true
 	if err := k.set("my-se-default"); err != nil {
@@ -245,7 +252,7 @@ func TestCommand(t *testing.T) {
 	if err := k.command([]string{"set", "my-us-intl"}); err != nil {
 		t.Fatal(err)
 	}
-	if want := []string{"xkbcomp -I" + k.xkbDir + " " + filepath.Join(k.xkbDir, "my-us-intl") + " :0"}; !slices.Equal(*ran, want) {
+	if want := []string{"xkbcomp -w 0 -I" + k.xkbDir + " " + filepath.Join(k.xkbDir, "my-us-intl") + " :0"}; !slices.Equal(*ran, want) {
 		t.Errorf("kbd set ran %q, want %q", *ran, want)
 	}
 }

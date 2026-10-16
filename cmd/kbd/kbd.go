@@ -15,7 +15,9 @@
 // and for the next login. List prints the keymaps, the selected one marked
 // with *, and pick chooses one with rofi. Watch loads, then keeps running
 // and loads again whenever an input device is plugged in. With -n kbd
-// prints the commands instead of running them.
+// prints the commands instead of running them. The hundreds of warnings
+// xkbcomp prints for keys X has no keycodes for are hidden unless
+// -verbose is given.
 package main
 
 import (
@@ -100,10 +102,15 @@ const auto = "auto"
 // rules if it is auto, for the connected keyboards devs, then turn num lock
 // on if numlock is set, since loading a keymap can turn it off. The rules
 // start from the X session's default keymap, so that keyboards no rule
-// matches don't keep a keymap switched to earlier.
-func commands(devs []device, xkbDir, display, keymap string, numlock bool) [][]string {
+// matches don't keep a keymap switched to earlier. Unless verbose is set,
+// xkbcomp is told not to print warnings.
+func commands(devs []device, xkbDir, display, keymap string, numlock, verbose bool) [][]string {
 	xkbcomp := func(keymap string, deviceArgs ...string) []string {
-		return slices.Concat([]string{"xkbcomp", "-I" + xkbDir}, deviceArgs,
+		args := []string{"xkbcomp"}
+		if !verbose {
+			args = append(args, "-w", "0")
+		}
+		return slices.Concat(args, []string{"-I" + xkbDir}, deviceArgs,
 			[]string{filepath.Join(xkbDir, keymap), display})
 	}
 	var cmds [][]string
@@ -133,13 +140,14 @@ type kbd struct {
 	stateFile string
 	display   string
 	dryRun    bool
+	verbose   bool // pass on xkbcomp's warnings
 	numlockx  bool // numlockx is installed
 
 	xinput func() (string, error)    // returns the output of `xinput list`
 	run    func(args []string) error // runs, or with -n prints, a command
 }
 
-func newKbd(dryRun bool) (kbd, error) {
+func newKbd(dryRun, verbose bool) (kbd, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return kbd{}, err
@@ -154,6 +162,7 @@ func newKbd(dryRun bool) (kbd, error) {
 		stateFile: filepath.Join(stateDir, "kbd", "keymap"),
 		display:   os.Getenv("DISPLAY"),
 		dryRun:    dryRun,
+		verbose:   verbose,
 		numlockx:  err == nil,
 		xinput:    xinputList,
 		run:       runCommand,
@@ -188,7 +197,7 @@ func (k kbd) load(keymap string) error {
 		return fmt.Errorf("xinput list: %w", err)
 	}
 	var errs []error
-	for _, args := range commands(parseKeyboards(out), k.xkbDir, k.display, keymap, k.numlockx) {
+	for _, args := range commands(parseKeyboards(out), k.xkbDir, k.display, keymap, k.numlockx, k.verbose) {
 		if err := k.run(args); err != nil {
 			errs = append(errs, fmt.Errorf("%s: %w", strings.Join(args, " "), err))
 		}
@@ -413,9 +422,10 @@ func main() {
 	log.SetPrefix("kbd: ")
 	flag.Usage = usage
 	dryRun := flag.Bool("n", false, "print the commands instead of running them")
+	verbose := flag.Bool("verbose", false, "show xkbcomp's warnings")
 	flag.Parse()
 
-	k, err := newKbd(*dryRun)
+	k, err := newKbd(*dryRun, *verbose)
 	if err == nil {
 		err = k.command(flag.Args())
 	}
