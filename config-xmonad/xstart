@@ -135,6 +135,10 @@ export SSH_AGENT_PID
 [ $(which dunst) ] \
   && dunst &
 
+# Launch the polkit authentication agent (apt install mate-polkit)
+[ -x /usr/libexec/polkit-mate-authentication-agent-1 ] \
+  && /usr/libexec/polkit-mate-authentication-agent-1 &
+
 # Launch the network manager applet
 [ $(which nm-applet) ] \
   && nm-applet --sm-disable &
