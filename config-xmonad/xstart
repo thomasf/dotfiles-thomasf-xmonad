@@ -41,6 +41,7 @@ killall -q dropboxd
 killall -q pulseaudio
 killall -q compton
 killall -q dunst
+killall -q kbd
 sleep 0.3
 
 (
@@ -122,9 +123,9 @@ export SSH_AGENT_PID
   fi
 ) &
 
-# Load the keymaps
+# Load the keymaps, and again whenever a keyboard is plugged in
 [ $(which kbd) ] \
-  && kbd
+  && kbd watch &
 
 # Launch avfs daemon
 [ $(which mountavfs) ] \
