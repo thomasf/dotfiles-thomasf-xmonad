@@ -1,0 +1,85 @@
+#!/bin/bash
+#
+# term-run runs a command in a new alacritty window. See term-run -h.
+#
+
+set -e
+
+usage() {
+  cat <<EOF
+usage: term-run [-h] [-n name] [-m once|hold|loop|relaunch] [--] cmd [args...]
+
+Run cmd in a new alacritty window.
+
+  -h        print this help
+  -n name   window title and class (default: basename of cmd)
+  -m mode
+     once      close when cmd exits (default)
+     hold      wait for enter, then close
+     loop      rerun cmd forever
+     relaunch  wait for enter, then rerun cmd
+EOF
+}
+
+name=
+mode=once
+while getopts hn:m: opt; do
+  case $opt in
+    h) usage; exit 0 ;;
+    n) name=$OPTARG ;;
+    m) mode=$OPTARG ;;
+    *) usage >&2; exit 2 ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+if [ $# -eq 0 ]; then
+  usage >&2
+  exit 2
+fi
+
+case $mode in
+  once|hold|loop|relaunch) ;;
+  *) echo "term-run: unknown mode: $mode" >&2; exit 2 ;;
+esac
+
+# Outer invocation: open the window and run ourselves inside it.
+if [ -z "$TERM_RUN_INNER" ]; then
+  : "${name:=$(basename "$1")}"
+  TERM_RUN_INNER=1 exec alacritty \
+    --title "$name" \
+    --class "$name" \
+    -e "$0" -m "$mode" -- "$@"
+fi
+unset TERM_RUN_INNER
+
+yellow=$(tput setaf 3 2>/dev/null || true)
+red=$(tput setaf 1 2>/dev/null || true)
+green=$(tput setaf 2 2>/dev/null || true)
+reset=$(tput sgr0 2>/dev/null || true)
+
+while :; do
+  echo "${yellow}run: $*${reset}"
+  status=0
+  "$@" || status=$?
+  color=$green
+  [ $status -eq 0 ] || color=$red
+  case $mode in
+    once)
+      exit $status
+      ;;
+    hold)
+      printf "\a\n"
+      read -rp "${color}[exit $status] $* >>> ENTER closes terminal${reset} " _
+      exit $status
+      ;;
+    relaunch)
+      printf "\a\n"
+      read -rp "${color}[exit $status $(date +%T)] $* >>> ENTER relaunches${reset} " _
+      ;;
+    loop)
+      echo "${yellow}relaunching $1...${reset}"
+      sleep 1
+      ;;
+  esac
+done

@@ -5,26 +5,19 @@
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 #
 
-# args: name, cmdstr
+# args: name, cmd [args...]
 launchTerminal(){
     name="${1}"
-    cmd="${2}"
-    cmdArgs="${3}"
-    initial_delay=0.3
-    relaunch_delay=1
-    if [ $(which ${cmd}) ]; then
-        cmdstr="echo starting $cmd...; while :; do sleep $initial_delay; termcolors; $cmd $cmdArgs; echo relaunching $cmd...; sleep $relaunch_delay; done;"
-        alacritty \
-          --title "${name}" \
-          --class "${name}" \
-          -e bash -c "${cmdstr}" &
+    shift
+    if hash "${1}" 2>/dev/null; then
+        term-run -n "${name}" -m loop -- "$@" &
     fi
 }
 
 case $(wsname -s) in
   io)
-    launchTerminal "iotop" "sudo" "iotop"
-    launchTerminal "dstat" "dstat" "-avf"
+    launchTerminal "iotop" sudo iotop
+    launchTerminal "dstat" dstat -avf
     exit 0
   ;;
 esac
