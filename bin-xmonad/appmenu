@@ -12,23 +12,6 @@ ppath() {
  [ -d "${1}" ] && PATH="${1}:${PATH}" || true
 }
 
-interm() {
-  urxvt -e bash -c \
-        "termcolors;
-      echo -n \`tput setaf 3\`
-      echo run: $*;
-      echo -n \`tput sgr0\`
-      $*;
-      echo ;
-      echo \`tput setaf 1\`
-      echo \">>> Newline closes terminal\";
-      echo \`tput sgr0\`
-      read any;
-"
-}
-
-tr=urxvt
-
 input=`dmenu_path | dmenu -p launch -i -l 25`
 
 set -- nil $input
@@ -39,30 +22,14 @@ shift || true
 set -x
 
 case $cmd in
-  go)
-    interm ${cmd} ${@}
+  mpdplay|pipemixer|btop2|alsamixer|pa-mixer|htop|btop|top|nvtop|ncmpcpp|dstat|ping|mtr|lazydocker|ctop|k9s|nmtui|bluetoothctl|sysz)
+    exec term-run -- $cmd $*
     ;;
-  saidar)
-    exec urxvt -e saidar -c
-	;;
-  alsamixer|htop|irssi|weechat-curses|ncmpcpp|pamixer|dstat|ping)
-    exec urxvt -e $cmd $*
-    ;;
-  iptraf-ng|aptitude|iotop)
-    exec urxvt -e sudo $cmd $*
-    ;;
-  # TODO: gksudo removed in ubuntuap
-  # wireshark|synaptic|zenmap|firestarter|nm-connection-editor|gnome-disks|baobab|usb-creator-gtk|gparted)
-  # exec gksudo $cmd $*
-  # ;;
-  dropbox)
-    exec dropboxmenu
+  aptitude|iotop|powertop|iftop|nethogs|bandwhich)
+    exec term-run -n $cmd -- sudo $cmd $*
     ;;
   google-chrome|w)
     exec www $*
-    ;;
-  man)
-    exec emacs -q -eval "(progn (setq Man-notify-method 'bully) (man \"$*\"))"
     ;;
   reboot|shutdown|suspend|hibernate)
     exec a.$cmd

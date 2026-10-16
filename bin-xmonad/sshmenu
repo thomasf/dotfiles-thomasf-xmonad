@@ -28,19 +28,4 @@ args="dmenu -p ${run} -l 30"
 
 cs=`cat ~/.ssh/config | grep ^Host | awk '{ print $2 }' | $args`
 
-urxvt -e sh -c \
-      "while :
-     do
-      termcolors
-      dynamic-colors switch ssh-cursor || true
-      echo -n \`tput setaf 3\`
-      echo Connecting: ${cs};
-      echo -n \`tput sgr0\`
-      ${run} ${cs};
-      echo ;
-      echo \`tput setaf 1\`
-      echo \"Connection to ${cs} lost: \`date\` \";
-      echo \">>> Newline relaunches terminal\";
-      echo \`tput sgr0\`
-      read any;
-     done"
+exec term-run -n "${cs}" -m relaunch -- ${run} "${cs}"
