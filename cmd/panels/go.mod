@@ -3,8 +3,8 @@ module dotfiles/xmonad/cmd/panels
 go 1.27.1
 
 require (
-	github.com/BurntSushi/xgb v0.0.0-20210121224620-deaf085860bc
 	github.com/go-pa/colorlab v0.2.0
+	github.com/jezek/xgb v1.3.1
 	github.com/shirou/gopsutil/v3 v3.24.5
 )
 

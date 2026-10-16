@@ -6,7 +6,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/BurntSushi/xgb/xproto"
+	"github.com/jezek/xgb/xproto"
 )
 
 func TestWindowRows(t *testing.T) {

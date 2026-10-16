@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/BurntSushi/xgb"
-	"github.com/BurntSushi/xgb/xproto"
+	"github.com/jezek/xgb"
+	"github.com/jezek/xgb/xproto"
 )
 
 // A workspace is an xmonad workspace name, <prefix>[.<suffix>], whose

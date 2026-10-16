@@ -3,7 +3,7 @@ module dotfiles/xmonad/cmd/ws
 go 1.27.1
 
 require (
-	github.com/BurntSushi/xgb v0.0.0-20210121224620-deaf085860bc
+	github.com/jezek/xgb v1.3.1
 	golang.org/x/term v0.47.0
 )
 

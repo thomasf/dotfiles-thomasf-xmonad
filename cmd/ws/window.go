@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/BurntSushi/xgb"
-	"github.com/BurntSushi/xgb/xproto"
+	"github.com/jezek/xgb"
+	"github.com/jezek/xgb/xproto"
 )
 
 func runWindow(args []string) error {
