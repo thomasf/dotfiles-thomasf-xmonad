@@ -73,9 +73,16 @@
 // by default the current one, after asking: on the terminal if
 // standard input is one, and else with rofi. It looks for the branch to
 // check out: one named name, else those named name once each "/" is
-// "-" or ending in "/<name>", which the user chooses between, else a new
-// branch name from the HEAD of the main checkout. With -y it does not
-// ask, and takes the first branch found.
+// "-" or ending in "/<name>", else a new branch name. Unless there is a
+// branch named name, the user chooses between the branches found and
+// new branch name from: the default branch of a remote after fetching
+// it; the local default branch; the default branch of a remote as last
+// fetched; or the HEAD of the main checkout. The cursor starts on the
+// first remote fetched, or on the local default branch if it has
+// commits that the remote's, as last fetched, does not. The remote whose default branch the local one tracks comes
+// first, then upstream and origin. With -y it does not ask, and takes
+// the first branch found, else a new branch from the HEAD of the main
+// checkout.
 //
 // Remove removes worktree name, by default the worktree of the current
 // workspace, and the directory stored for its workspace prefix; the

@@ -4,11 +4,16 @@ package main
 
 import (
 	"cmp"
+	"errors"
 	"flag"
 	"fmt"
+	"html"
 	"os"
 	"path/filepath"
+	"slices"
+	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 func runWt(args []string) error {
@@ -191,56 +196,265 @@ func initWorktree(w workspace, yes, pick bool) error {
 	if err != nil {
 		return err
 	}
-	base, err := git(main, "log", "-1", "--format=%D %h")
-	if err != nil {
-		return err
-	}
-	src := branchSource{branch: name, isNew: true, base: describeHead(base)}
 
 	msg := fmt.Sprintf("Worktree %s\n  repository  %s\n  directory   %s", w.prefix(), main, dir)
+	var src branchSource
 	switch {
 	case yes:
+		src = branchSource{branch: name, isNew: true}
 		if len(srcs) > 0 {
 			src = srcs[0]
 		}
-	case len(srcs) > 0 && srcs[0].branch == name, len(srcs) == 0:
-		if len(srcs) > 0 {
-			src = srcs[0]
-		}
+	case len(srcs) > 0 && srcs[0].branch == name:
+		src = srcs[0]
 		if !confirm(msg+"\n  branch      "+src.String(), "create") {
 			return errCancelled
 		}
 	default:
-		// Branches only resemble the name: choosing one is the
-		// confirmation.
-		var options []string
-		for _, s := range srcs {
-			options = append(options, s.String())
-		}
-		i, err := choose(msg+"\nCreate on which branch?", append(options, src.String()))
+		// Branches only resemble the name, or a new branch can start
+		// from several places: choosing one is the confirmation.
+		news, def, err := newBranches(main, name)
 		if err != nil {
 			return err
 		}
-		if i < len(srcs) {
-			src = srcs[i]
+		options := append(srcs, news...)
+		var lines []string
+		for _, s := range options {
+			lines = append(lines, s.String())
 		}
+		i, err := chooseRows(msg+"\nCreate on which branch?", lines, branchRows(options, accentColour()), len(srcs)+def)
+		if err != nil {
+			return err
+		}
+		src = options[i]
 	}
-	return addWorktree(main, name, src)
+
+	var id string // of the notification to replace
+	if src.fetch != "" {
+		id = notify("", false, "fetching "+src.fetch+" for "+w.prefix())
+		src, err = fetchSource(main, msg, src)
+	}
+	if err == nil {
+		err = addWorktree(main, name, src)
+	}
+	if err != nil {
+		if !errors.Is(err, errCancelled) {
+			notify(id, true, "creating worktree "+w.prefix()+" failed: "+err.Error())
+		}
+		return err
+	}
+	src.note = ""
+	notify(id, false, "created "+w.prefix()+": "+src.String())
+	return nil
 }
 
-// describeHead returns the HEAD of a checkout as the user knows it, from
-// the output of git log --format="%D %h": its branch, or its commit when
-// it is detached.
-func describeHead(log string) string {
-	refs, hash, ok := strings.CutLast(log, " ")
+// fetchSource fetches remote src.fetch of the repository of main
+// checkout main and returns src, new branch src.branch, to start from
+// the default branch of the remote as fetched. If src.branch is on the
+// remote now, it offers to check out that instead; if fetching fails,
+// to start from the default branch as last fetched. msg describes the
+// worktree, as initWorktree shows it.
+func fetchSource(main, msg string, src branchSource) (branchSource, error) {
+	r := src.fetch
+	src.fetch = ""
+	if err := fetchRemote(main, r); err != nil {
+		if _, herr := git(main, "rev-parse", "--verify", "--quiet", "refs/remotes/"+r+"/HEAD"); herr != nil {
+			return src, err
+		}
+		if !confirm(msg+"\n"+err.Error(), "create from "+src.from+" as last fetched") {
+			return src, errCancelled
+		}
+		return src, nil
+	}
+	if h, err := git(main, "rev-parse", "--verify", "--quiet", "--short", "refs/remotes/"+r+"/"+src.branch); err == nil {
+		tracked := branchSource{branch: src.branch, remote: r + "/" + src.branch, hash: h}
+		if !confirm(msg+"\nBranch "+src.branch+" is on "+r+" now.", "create on "+tracked.String()) {
+			return src, errCancelled
+		}
+		return tracked, nil
+	}
+	// The default branch may have changed with the fetch.
+	src.from = cmp.Or(remoteHead(main, r), r+"/HEAD")
+	src.hash, _ = git(main, "rev-parse", "--short", src.from)
+	return src, nil
+}
+
+// fetchRemote fetches remote r of the repository of main checkout
+// main, and updates r/HEAD to the default branch of the remote, which
+// may have changed since the clone.
+func fetchRemote(main, r string) error {
+	_, err := git(main, "-c", "remote."+r+".followRemoteHEAD=always", "fetch", "--quiet", r)
+	return err
+}
+
+// newBranches returns the ways to create new branch name in the
+// repository of main checkout main: from the default branch of each
+// remote, fetched first, then from the local default branch, from the
+// default branch of each remote as last fetched, and from the HEAD of
+// main. It leaves out those that do not exist, and the HEAD if it is
+// the local default branch. The remotes are in the order of
+// sortRemotes.
+//
+// def is the index of the way to suggest: the local default branch if
+// it has commits that the default branch of the first remote, as last
+// fetched, does not, which a fetch cannot bring; else the first remote
+// fetched.
+func newBranches(main, name string) (srcs []branchSource, def int, err error) {
+	hash, err := git(main, "rev-parse", "--short", "HEAD")
+	if err != nil {
+		return nil, 0, err
+	}
+	current, _ := git(main, "branch", "--show-current")
+	short := func(ref string) string {
+		h, _ := git(main, "rev-parse", "--short", ref)
+		return h
+	}
+	remotes := sortRemotes(main)
+	for _, r := range remotes {
+		from := cmp.Or(remoteHead(main, r), r+"/HEAD")
+		srcs = append(srcs, branchSource{branch: name, isNew: true, fetch: r, from: from, note: "default branch on " + r})
+	}
+	var remote string
+	if len(remotes) > 0 {
+		remote = remoteHead(main, remotes[0])
+	}
+	local := defaultLocalBranch(main, remote)
+	if local != "" {
+		note := "default branch"
+		if local == current {
+			note += ", checked out"
+		}
+		if remote != "" {
+			ahead, behind := aheadBehind(main, local, remote)
+			switch r := remotes[0]; {
+			case ahead > 0 && behind > 0:
+				// Not "behind": after an amend or a rebase, what
+				// only the remote has is the old version.
+				note += ", " + commits(ahead) + " not on " + r + ", " + r + " has " + strconv.Itoa(behind) + " not here"
+			case ahead > 0:
+				note += ", " + commits(ahead) + " not on " + r
+			case behind > 0:
+				note += ", " + commits(behind) + " behind " + r + " as last fetched"
+			}
+			if ahead > 0 {
+				def = len(srcs)
+			}
+		}
+		srcs = append(srcs, branchSource{branch: name, isNew: true, from: local, hash: short(local), note: note})
+	}
+	for _, r := range remotes {
+		if b := remoteHead(main, r); b != "" {
+			note := "default branch on " + r
+			if age := refAge(main, b); age != "" {
+				note += ", updated " + age
+			}
+			srcs = append(srcs, branchSource{branch: name, isNew: true, from: b, hash: short(b), note: note})
+		}
+	}
+	if current != local || current == "" {
+		// current is "" when the HEAD is detached: the branch then
+		// starts from the HEAD, shown by its hash.
+		srcs = append(srcs, branchSource{branch: name, isNew: true, from: current, hash: hash, note: "checked out"})
+	}
+	return srcs, def, nil
+}
+
+// aheadBehind returns the number of commits that ref a of the
+// repository of main checkout main has and ref b does not, and the
+// other way round. It follows the history, not the dates, so an amended
+// or rebased commit counts on both sides.
+func aheadBehind(main, a, b string) (ahead, behind int) {
+	out, err := git(main, "rev-list", "--left-right", "--count", a+"..."+b)
+	if err != nil {
+		return 0, 0
+	}
+	l, r, _ := strings.Cut(out, "\t")
+	ahead, _ = strconv.Atoi(l)
+	behind, _ = strconv.Atoi(r)
+	return ahead, behind
+}
+
+// commits returns "1 commit" or "<n> commits".
+func commits(n int) string {
+	if n == 1 {
+		return "1 commit"
+	}
+	return strconv.Itoa(n) + " commits"
+}
+
+// sortRemotes returns the remotes of the repository of main checkout
+// main, the one the project follows first: the remote whose default
+// branch a local branch of the same name tracks, else upstream, which
+// a fork names the project it is forked from, else origin. Remotes
+// tie in that order.
+func sortRemotes(main string) []string {
+	out, _ := git(main, "remote")
+	remotes := strings.Fields(out)
+	rank := func(r string) int {
+		switch r {
+		case "upstream":
+			return 0
+		case "origin":
+			return 1
+		}
+		return 2
+	}
+	slices.SortStableFunc(remotes, func(a, b string) int { return cmp.Compare(rank(a), rank(b)) })
+	for i, r := range remotes {
+		b, ok := strings.CutPrefix(remoteHead(main, r), r+"/")
+		if !ok {
+			continue
+		}
+		if tracked, _ := git(main, "config", "branch."+b+".remote"); tracked == r {
+			// Move r to the front.
+			copy(remotes[1:i+1], remotes[:i])
+			remotes[0] = r
+			break
+		}
+	}
+	return remotes
+}
+
+// refAge returns how long ago remote-tracking branch ref, like
+// origin/main, last changed, like "2 days ago", or "" if its reflog
+// does not say. A fetch that brings nothing new does not change it.
+func refAge(main, ref string) string {
+	out, _ := git(main, "log", "-g", "-1", "--date=relative", "--format=%gd", "refs/remotes/"+ref)
+	_, age, ok := strings.Cut(out, "@{")
 	if !ok {
-		return log
+		return ""
 	}
-	if b, ok := strings.CutPrefix(refs, "HEAD -> "); ok {
-		b, _, _ = strings.Cut(b, ",")
-		return b + " (" + hash + ")"
+	return strings.TrimSuffix(age, "}")
+}
+
+// remoteHead returns the default branch of remote r of the repository
+// of main checkout main, like origin/main, as its remote-tracking branch
+// r/HEAD points to it when last fetched, or "" if that is not known.
+func remoteHead(main, r string) string {
+	b, _ := git(main, "symbolic-ref", "--short", "refs/remotes/"+r+"/HEAD")
+	return b
+}
+
+// defaultLocalBranch returns the default local branch of the repository
+// of main checkout main, or "" if there is none: the local branch of
+// remote default branch remote, like origin/main, else the branch
+// init.defaultBranch names, else main or master.
+func defaultLocalBranch(main, remote string) string {
+	var names []string
+	if _, b, ok := strings.Cut(remote, "/"); ok {
+		// A remote name has no "/" when it is the remote of a
+		// branch, as it then is for git config branch.<b>.remote.
+		names = append(names, b)
 	}
-	return hash
+	if b, err := git(main, "config", "init.defaultBranch"); err == nil {
+		names = append(names, b)
+	}
+	for _, b := range append(names, "main", "master") {
+		if _, err := git(main, "rev-parse", "--verify", "--quiet", "refs/heads/"+b); err == nil {
+			return b
+		}
+	}
+	return ""
 }
 
 // worktreeArg returns the project and worktree name in arg,
@@ -336,20 +550,75 @@ func listWorktrees(project, main string) ([]worktree, error) {
 type branchSource struct {
 	branch string // local branch
 	remote string // remote-tracking branch, like origin/x, that a new branch tracks
-	isNew  bool   // whether the branch is created from the HEAD of the main checkout
-	base   string // for a new branch, what HEAD is, as shown to the user
+	isNew  bool   // whether the branch is created
+	from   string // for a new branch, the branch it starts from, or "" for the HEAD of the main checkout
+	fetch  string // for a new branch, the remote to fetch first
+	hash   string // the commit checked out, abbreviated, or "" if not known
+	note   string // shown to the user after the rest, like "default branch"
 }
 
 func (b branchSource) String() string {
+	var s string
 	switch {
-	case b.isNew && b.base != "":
-		return "new branch " + b.branch + " from " + b.base
 	case b.isNew:
-		return "new branch " + b.branch
+		s = "new branch " + b.branch
+		if from := cmp.Or(b.from, b.hash); from != "" {
+			s += " from " + from
+		}
+		if b.fetch != "" {
+			s += " after fetching"
+		}
 	case b.remote != "":
-		return "new branch " + b.branch + " tracking " + b.remote
+		s = "new branch " + b.branch + " tracking " + b.remote
+	default:
+		s = "branch " + b.branch
 	}
-	return "branch " + b.branch
+	if b.hash != "" && (b.from != "" || !b.isNew) {
+		s += " (" + b.hash + ")"
+	}
+	if b.note != "" {
+		s += ", " + b.note
+	}
+	return s
+}
+
+// branchRows returns srcs as rofi rows in Pango markup, of two lines:
+// the branch checked out and how, then its commit, if known, and the
+// note, in colour. The columns line up, as rofi's font is monospace.
+func branchRows(srcs []branchSource, colour string) []string {
+	var branchWidth, hashWidth int
+	for _, s := range srcs {
+		branchWidth = max(branchWidth, utf8.RuneCountInString(s.branch))
+		hashWidth = max(hashWidth, utf8.RuneCountInString(s.hash))
+	}
+	pad := func(s string, w int) string {
+		return strings.Repeat(" ", w-utf8.RuneCountInString(s))
+	}
+	rows := make([]string, len(srcs))
+	for i, s := range srcs {
+		var how string
+		switch {
+		case s.isNew:
+			how = "new from " + cmp.Or(s.from, "HEAD")
+			if s.fetch != "" {
+				how += " after fetching"
+			}
+		case s.remote != "":
+			how = "new, tracking " + s.remote
+		default:
+			how = "existing"
+		}
+		row := "<b>" + html.EscapeString(s.branch) + "</b>" + pad(s.branch, branchWidth) + "   " + html.EscapeString(how) +
+			"\n" + strings.Repeat(" ", branchWidth+3)
+		if s.hash != "" {
+			row += `<span fgalpha="55%">` + html.EscapeString(s.hash) + "</span>" + pad(s.hash, hashWidth) + "   "
+		}
+		if s.note != "" {
+			row += `<i><span foreground="` + colour + `">` + html.EscapeString(s.note) + "</span></i>"
+		}
+		rows[i] = row
+	}
+	return rows
 }
 
 // matchingBranches returns the branches of the repository of main
@@ -358,29 +627,30 @@ func (b branchSource) String() string {
 // that is both local and on a remote is returned once, as local; one
 // on several remotes is returned once for each.
 func matchingBranches(main, name string) ([]branchSource, error) {
-	out, err := git(main, "for-each-ref", "--format=%(refname)", "refs/heads", "refs/remotes")
+	out, err := git(main, "for-each-ref", "--format=%(refname) %(objectname:short)", "refs/heads", "refs/remotes")
 	if err != nil {
 		return nil, err
 	}
 	refs := strings.Fields(out)
 	local := make(map[string]bool)
-	for _, ref := range refs {
-		if b, ok := strings.CutPrefix(ref, "refs/heads/"); ok {
+	for i := 0; i+1 < len(refs); i += 2 {
+		if b, ok := strings.CutPrefix(refs[i], "refs/heads/"); ok {
 			local[b] = true
 		}
 	}
 	var exact, other []branchSource
-	for _, ref := range refs {
+	for i := 0; i+1 < len(refs); i += 2 {
+		ref, hash := refs[i], refs[i+1]
 		var src branchSource
 		if b, ok := strings.CutPrefix(ref, "refs/heads/"); ok {
-			src = branchSource{branch: b}
+			src = branchSource{branch: b, hash: hash}
 		} else {
 			remote := strings.TrimPrefix(ref, "refs/remotes/")
 			_, b, ok := strings.Cut(remote, "/")
 			if !ok || b == "HEAD" || local[b] {
 				continue
 			}
-			src = branchSource{branch: b, remote: remote}
+			src = branchSource{branch: b, remote: remote, hash: hash}
 		}
 		switch {
 		case src.branch == name:
@@ -408,6 +678,8 @@ func addWorktree(main, name string, src branchSource) error {
 	dir := worktreePath(main, name)
 	args := []string{"worktree", "add", "--quiet"}
 	switch {
+	case src.isNew && src.from != "":
+		args = append(args, "--no-track", "-b", src.branch, dir, src.from)
 	case src.isNew:
 		args = append(args, "-b", src.branch, dir)
 	case src.remote != "":

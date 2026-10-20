@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"slices"
+	"strings"
 	"testing"
 )
 
@@ -253,16 +254,17 @@ func TestMatchingBranches(t *testing.T) {
 	gitT(t, repo, "remote", "add", "origin", repo)
 	gitT(t, repo, "fetch", "-q", "origin")
 	gitT(t, repo, "branch", "-D", "feature/foo", "baz")
+	h := gitT(t, repo, "rev-parse", "--short", "HEAD")
 
 	for name, want := range map[string][]branchSource{
-		"existing":    {{branch: "existing"}},
-		"bar":         {{branch: "team/bar"}},
-		"team-bar":    {{branch: "team/bar"}},
-		"feature-foo": {{branch: "feature/foo", remote: "origin/feature/foo"}},
-		"foo":         {{branch: "feature/foo", remote: "origin/feature/foo"}},
-		"baz-x":       {{branch: "other/baz-x"}},
-		"baz":         {{branch: "baz", remote: "origin/baz"}},
-		"test":        {{branch: "test"}},
+		"existing":    {{branch: "existing", hash: h}},
+		"bar":         {{branch: "team/bar", hash: h}},
+		"team-bar":    {{branch: "team/bar", hash: h}},
+		"feature-foo": {{branch: "feature/foo", remote: "origin/feature/foo", hash: h}},
+		"foo":         {{branch: "feature/foo", remote: "origin/feature/foo", hash: h}},
+		"baz-x":       {{branch: "other/baz-x", hash: h}},
+		"baz":         {{branch: "baz", remote: "origin/baz", hash: h}},
+		"test":        {{branch: "test", hash: h}},
 		"none":        nil,
 	} {
 		got, err := matchingBranches(repo, name)
@@ -271,7 +273,7 @@ func TestMatchingBranches(t *testing.T) {
 		}
 	}
 
-	if got, want := exactBranch(repo, "baz"), (branchSource{branch: "baz", remote: "origin/baz"}); got != want {
+	if got, want := exactBranch(repo, "baz"), (branchSource{branch: "baz", remote: "origin/baz", hash: h}); got != want {
 		t.Errorf("exactBranch(baz) = %v, want %v", got, want)
 	}
 	if got, want := exactBranch(repo, "foo"), (branchSource{branch: "foo", isNew: true}); got != want {
@@ -286,15 +288,166 @@ func TestMatchingBranches(t *testing.T) {
 	}
 }
 
-func TestDescribeHead(t *testing.T) {
-	for log, want := range map[string]string{
-		"HEAD -> main, origin/main abc1234": "main (abc1234)",
-		"HEAD -> main abc1234":              "main (abc1234)",
-		"abc1234":                           "abc1234",
-		"tag: v1, origin/x abc1234":         "abc1234",
-	} {
-		if got := describeHead(log); got != want {
-			t.Errorf("describeHead(%q) = %q, want %q", log, got, want)
+func TestNewBranches(t *testing.T) {
+	repo := newRepo(t, "hello")
+	gitT(t, repo, "branch", "-M", "main")
+	for _, r := range []string{"origin", "upstream"} {
+		gitT(t, repo, "remote", "add", r, repo)
+		gitT(t, repo, "fetch", "-q", r)
+		gitT(t, repo, "remote", "set-head", r, "main")
+	}
+	hash := gitT(t, repo, "rev-parse", "--short", "HEAD")
+
+	// The age of the remote-tracking branches depends on the clock.
+	noAge := func(srcs []branchSource) []branchSource {
+		for i := range srcs {
+			srcs[i].note, _, _ = strings.Cut(srcs[i].note, ", updated ")
 		}
+		return srcs
+	}
+	fetched := []branchSource{
+		{branch: "x", isNew: true, fetch: "upstream", from: "upstream/main", note: "default branch on upstream"},
+		{branch: "x", isNew: true, fetch: "origin", from: "origin/main", note: "default branch on origin"},
+	}
+	lastFetched := []branchSource{
+		{branch: "x", isNew: true, from: "upstream/main", hash: hash, note: "default branch on upstream"},
+		{branch: "x", isNew: true, from: "origin/main", hash: hash, note: "default branch on origin"},
+	}
+	got, def, err := newBranches(repo, "x")
+	if def != 0 {
+		t.Errorf("newBranches on main suggests %d, want 0", def)
+	}
+	want := slices.Concat(fetched,
+		[]branchSource{{branch: "x", isNew: true, from: "main", hash: hash, note: "default branch, checked out"}},
+		lastFetched)
+	if err != nil || !slices.Equal(noAge(got), want) {
+		t.Errorf("newBranches on main =\n%v, %v, want\n%v", got, err, want)
+	}
+
+	// The remote that main tracks comes first.
+	gitT(t, repo, "branch", "-q", "--set-upstream-to", "origin/main", "main")
+	got, _, err = newBranches(repo, "x")
+	if err != nil || len(got) < 2 || got[0].fetch != "origin" || got[1].fetch != "upstream" {
+		t.Errorf("newBranches with main tracking origin = %v, %v, want origin first", got, err)
+	}
+	gitT(t, repo, "branch", "-q", "--set-upstream-to", "upstream/main", "main")
+
+	gitT(t, repo, "switch", "-q", "-c", "other")
+	got, _, err = newBranches(repo, "x")
+	want = slices.Concat(fetched,
+		[]branchSource{{branch: "x", isNew: true, from: "main", hash: hash, note: "default branch"}},
+		lastFetched,
+		[]branchSource{{branch: "x", isNew: true, from: "other", hash: hash, note: "checked out"}})
+	if err != nil || !slices.Equal(noAge(got), want) {
+		t.Errorf("newBranches on other =\n%v, %v, want\n%v", got, err, want)
+	}
+
+	if err := addWorktree(repo, "x", want[3]); err != nil {
+		t.Fatal(err)
+	}
+	if got := gitT(t, repo+"@x", "branch", "--show-current"); got != "x" {
+		t.Errorf("worktree x is on %q, want x", got)
+	}
+	if out, err := git(repo+"@x", "rev-parse", "--abbrev-ref", "@{upstream}"); err == nil {
+		t.Errorf("new branch x tracks %q, want no upstream", out)
+	}
+}
+
+func TestNewBranchesAhead(t *testing.T) {
+	repo := newRepo(t, "hello")
+	gitT(t, repo, "branch", "-M", "main")
+	gitT(t, repo, "remote", "add", "origin", repo)
+	commit := func(msg string, args ...string) {
+		gitT(t, repo, append([]string{"-c", "user.name=t", "-c", "user.email=t@example.com", "commit", "-q", "--allow-empty", "-m", msg}, args...)...)
+	}
+	commit("pushed")
+	gitT(t, repo, "fetch", "-q", "origin")
+	gitT(t, repo, "remote", "set-head", "origin", "main")
+
+	// The local default branch is the second way, after fetching origin.
+	for _, tt := range []struct {
+		do   func()
+		note string
+		def  int
+	}{
+		{func() {}, "default branch, checked out", 0},
+		{func() { gitT(t, repo, "reset", "-q", "--hard", "HEAD~1") }, "default branch, checked out, 1 commit behind origin as last fetched", 0},
+		{func() { commit("a"); commit("b") }, "default branch, checked out, 2 commits not on origin, origin has 1 not here", 1},
+		{func() { gitT(t, repo, "reset", "-q", "--hard", "origin/main"); commit("unpushed") }, "default branch, checked out, 1 commit not on origin", 1},
+		// Amending the pushed commit: the remote has the old version.
+		{func() { gitT(t, repo, "reset", "-q", "--hard", "origin/main"); commit("pushed, amended", "--amend") }, "default branch, checked out, 1 commit not on origin, origin has 1 not here", 1},
+	} {
+		tt.do()
+		srcs, def, err := newBranches(repo, "x")
+		if err != nil || len(srcs) < 2 || srcs[1].note != tt.note || def != tt.def {
+			t.Errorf("newBranches = %v, %d, %v, want %q at 1 and suggesting %d", srcs, def, err, tt.note, tt.def)
+		}
+	}
+}
+
+func TestFetchSource(t *testing.T) {
+	repo := newRepo(t, "hello")
+	pub := filepath.Join(t.TempDir(), "pub")
+	gitT(t, repo, "clone", "-q", repo, pub)
+	gitT(t, repo, "remote", "add", "pub", pub)
+	gitT(t, repo, "fetch", "-q", "pub")
+	gitT(t, repo, "remote", "set-head", "pub", "--auto")
+	stale := gitT(t, repo, "symbolic-ref", "--short", "refs/remotes/pub/HEAD")
+
+	// The remote moves on and renames its default branch.
+	gitT(t, pub, "-c", "user.name=t", "-c", "user.email=t@example.com", "commit", "-q", "--allow-empty", "-m", "b")
+	gitT(t, pub, "branch", "-M", "trunk")
+	head := gitT(t, pub, "rev-parse", "HEAD")
+
+	src, err := fetchSource(repo, "", branchSource{branch: "y", isNew: true, fetch: "pub", from: stale})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := (branchSource{branch: "y", isNew: true, from: "pub/trunk", hash: gitT(t, pub, "rev-parse", "--short", "HEAD")}); src != want {
+		t.Errorf("fetchSource = %v, want %v", src, want)
+	}
+	if got := gitT(t, repo, "symbolic-ref", "--short", "refs/remotes/pub/HEAD"); got != "pub/trunk" {
+		t.Errorf("after fetching, pub/HEAD is %s, want pub/trunk", got)
+	}
+	if err := addWorktree(repo, "y", src); err != nil {
+		t.Fatal(err)
+	}
+	if got := gitT(t, repo+"@y", "rev-parse", "HEAD"); got != head {
+		t.Errorf("worktree y is at %s, want %s", got, head)
+	}
+}
+
+func TestBranchSourceText(t *testing.T) {
+	srcs := []branchSource{
+		{branch: "team/x", hash: "abc1234"},
+		{branch: "feature/x", remote: "origin/feature/x", hash: "abc1234"},
+		{branch: "x", isNew: true, from: "main", hash: "abc1234", note: "default branch"},
+		{branch: "x", isNew: true, hash: "abc1234", note: "checked out"},
+		{branch: "x", isNew: true, fetch: "origin", from: "origin/main", note: "default branch on origin"},
+		{branch: "x", isNew: true},
+	}
+	wantStrings := []string{
+		"branch team/x (abc1234)",
+		"new branch feature/x tracking origin/feature/x (abc1234)",
+		"new branch x from main (abc1234), default branch",
+		"new branch x from abc1234, checked out",
+		"new branch x from origin/main after fetching, default branch on origin",
+		"new branch x",
+	}
+	for i, s := range srcs {
+		if got := s.String(); got != wantStrings[i] {
+			t.Errorf("String() = %q, want %q", got, wantStrings[i])
+		}
+	}
+	wantRows := []string{
+		"<b>team/x</b>      existing\n            <span fgalpha=\"55%\">abc1234</span>   ",
+		"<b>feature/x</b>   new, tracking origin/feature/x\n            <span fgalpha=\"55%\">abc1234</span>   ",
+		"<b>x</b>           new from main\n            <span fgalpha=\"55%\">abc1234</span>   <i><span foreground=\"#009c8f\">default branch</span></i>",
+		"<b>x</b>           new from HEAD\n            <span fgalpha=\"55%\">abc1234</span>   <i><span foreground=\"#009c8f\">checked out</span></i>",
+		"<b>x</b>           new from origin/main after fetching\n            <i><span foreground=\"#009c8f\">default branch on origin</span></i>",
+		"<b>x</b>           new from HEAD\n            ",
+	}
+	if got := branchRows(srcs, "#009c8f"); !slices.Equal(got, wantRows) {
+		t.Errorf("branchRows =\n%s\nwant\n%s", strings.Join(got, "\n"), strings.Join(wantRows, "\n"))
 	}
 }

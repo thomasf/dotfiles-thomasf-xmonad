@@ -290,7 +290,7 @@ func (completeRow) Error() string { return "complete row" }
 // workspaces without windows; empty says whether they are shown. Ctrl+Tab returns a completeRow with the
 // name of the selected row. It returns errFalse if the user cancels.
 func rofiPickWorkspace(prompt string, columns, lines int, filter string, worktrees, empty bool, groups []pickGroup) (string, error) {
-	rows, names := pickRows(groups, worktreeColour())
+	rows, names := pickRows(groups, accentColour())
 	theme := fmt.Sprintf("listview { columns: %d; lines: %d; flow: vertical; fixed-columns: true; }", columns, lines)
 	// What Ctrl+s and Ctrl+t do: + shows, - hides.
 	sign := map[bool]string{false: "+", true: "-"}
@@ -342,11 +342,11 @@ func rofiPickWorkspace(prompt string, columns, lines int, filter string, worktre
 	return "", errFalse
 }
 
-// worktreeColour returns the colour of the worktree label: Selenized
+// accentColour returns the colour of labels in rofi rows: Selenized
 // cyan, for the light or dark rofi colours that darkmode links
 // ~/.config/rofi/colors.rasi to. Pango markup cannot use the colours
 // of the rofi theme.
-func worktreeColour() string {
+func accentColour() string {
 	home, err := os.UserHomeDir()
 	if err == nil {
 		t, err := os.Readlink(filepath.Join(home, ".config", "rofi", "colors.rasi"))

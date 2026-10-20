@@ -7,7 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"html"
+	"log"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 
@@ -29,6 +31,17 @@ func isTerminal(f *os.File) bool {
 // terminal if standard input is one, and else with rofi. It returns
 // the index of the option chosen, or errCancelled if none is.
 func choose(msg string, options []string) (int, error) {
+	rows := make([]string, len(options))
+	for i, o := range options {
+		rows[i] = html.EscapeString(o)
+	}
+	return chooseRows(msg, options, rows, 0)
+}
+
+// chooseRows is like choose, but rofi shows rows, the options in Pango
+// markup, instead, with the cursor on row selected. Rows can have
+// several lines.
+func chooseRows(msg string, options, rows []string, selected int) (int, error) {
 	if isTerminal(os.Stdin) {
 		fmt.Fprintln(os.Stderr, msg)
 		for i, o := range options {
@@ -42,11 +55,19 @@ func choose(msg string, options []string) (int, error) {
 		}
 		return i - 1, nil
 	}
-	cmd, err := rofiCommand(50, 0, "", "-dmenu", "-i", "-no-custom", "-format", "i", "-p", "ws", "-mesg", html.EscapeString(msg))
+	// Rows of several lines need another separator, and rofi makes
+	// every row as high as the highest.
+	height := 1
+	for _, r := range rows {
+		height = max(height, strings.Count(r, "\n")+1)
+	}
+	cmd, err := rofiCommand(90, 0, "", "-dmenu", "-i", "-no-custom", "-markup-rows", "-format", "i",
+		"-selected-row", strconv.Itoa(selected), "-sep", "\x1f", "-eh", strconv.Itoa(height),
+		"-p", "ws", "-mesg", html.EscapeString(msg))
 	if err != nil {
 		return 0, errCancelled
 	}
-	cmd.Stdin = strings.NewReader(strings.Join(options, "\n"))
+	cmd.Stdin = strings.NewReader(strings.Join(rows, "\x1f"))
 	out, err := cmd.Output()
 	if err != nil {
 		return 0, errCancelled
@@ -69,4 +90,34 @@ func confirm(msg, action string) bool {
 	}
 	i, err := choose(msg, []string{action, "cancel"})
 	return err == nil && i == 0
+}
+
+// notify tells the user msg in a notification, or on standard error
+// if standard input is a terminal. A notification of failure stays
+// until dismissed, others go after a moment; on a terminal, failures
+// are left to the caller to report. The notification replaces the one
+// whose id is replace, unless that is "". notify returns the id of
+// its notification, or "" if there is none.
+func notify(replace string, failed bool, msg string) string {
+	if isTerminal(os.Stdin) {
+		if !failed {
+			fmt.Fprintln(os.Stderr, msg)
+		}
+		return ""
+	}
+	// The dunst rule for app shorter shows the summary and the body
+	// on one line, for a short time.
+	args := []string{"--print-id", "--app-name", "shorter"}
+	if failed {
+		args = []string{"--print-id", "--app-name", "ws", "--urgency", "critical"}
+	}
+	if replace != "" {
+		args = append(args, "--replace-id", replace)
+	}
+	out, err := exec.Command("notify-send", append(args, "ws", html.EscapeString(msg))...).Output()
+	if err != nil {
+		log.Printf("notify-send: %v", err)
+		return ""
+	}
+	return strings.TrimSpace(string(out))
 }
