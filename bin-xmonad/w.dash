@@ -27,7 +27,7 @@ wsname -s && exit 1
 
 # launchTerminal "pamixer" "pamixer" "-a 2"
 # pavucontrol &
-launchTerminal "htop" "htop"
+
 
 if hash pipmix 2>/dev/null; then
    launchTerminal "pipmix" "pipmix"
@@ -35,7 +35,15 @@ else
   launchTerminal "pipemixer" "pipemixer"
 fi
 
-# launchTerminal "dstat" "dstat" "--time --load --cpu --mem --swap --disk --fs --net --socket --sys 30"
+sleep 0.15
+
+if hash sysbars 2>/dev/null; then
+   launchTerminal "sysbars" "sysbars"
+else
+  launchTerminal "pipemixer" "pipemixer"
+fi
+
+sleep 0.15
 
 if hash mpdplay 2>/dev/null; then
    launchTerminal "mpdplay" "mpdplay"
