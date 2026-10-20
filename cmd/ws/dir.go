@@ -58,7 +58,7 @@ func noPick(name string, dirs []string) (string, error) {
 }
 
 func rofiPick(name string, dirs []string) (string, error) {
-	cmd, err := rofiCommand(60, "", "-dmenu", "-p", name)
+	cmd, err := rofiCommand(60, 0, "", "-dmenu", "-p", name)
 	if err != nil {
 		return "", err
 	}

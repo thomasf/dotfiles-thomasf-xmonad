@@ -117,7 +117,7 @@ func textProperty(r *xproto.GetPropertyReply) string {
 // rofiPickWindow lets the user pick one of wins with rofi and returns
 // its id. It returns errFalse if the user cancels.
 func rofiPickWindow(wins []window) (xproto.Window, error) {
-	cmd, err := rofiCommand(rofiWidth, "",
+	cmd, err := rofiCommand(rofiWidth, 0, "",
 		"-dmenu", "-i", "-markup-rows", "-no-custom", "-format", "i", "-p", "window")
 	if err != nil {
 		return 0, err

@@ -22,7 +22,7 @@ func runPick(args []string) error {
 	goTo := fs.Bool("go", false, "go to the workspace instead of printing its name")
 	withWorktrees := fs.Bool("worktrees", false, "also list worktrees without a workspace")
 	withEmpty := fs.Bool("empty", false, "also list workspaces without windows")
-	columns := fs.Int("columns", 4, "show `n` columns")
+	columns := fs.Int("columns", 3, "show `n` columns")
 	lines := fs.Int("lines", 20, "show `n` rows in each column")
 	fs.Parse(args)
 	if fs.NArg() > 0 {
@@ -305,7 +305,7 @@ func rofiPickWorkspace(prompt string, columns, lines int, filter string, worktre
 	if filter != "" {
 		args = append(args, "-filter", filter)
 	}
-	cmd, err := rofiCommand(min(95, 30+20*columns), theme, args...)
+	cmd, err := rofiCommand(min(95, 35+20*columns), 65, theme, args...)
 	if err != nil {
 		return "", err
 	}

@@ -42,7 +42,7 @@ func choose(msg string, options []string) (int, error) {
 		}
 		return i - 1, nil
 	}
-	cmd, err := rofiCommand(50, "", "-dmenu", "-i", "-no-custom", "-format", "i", "-p", "ws", "-mesg", html.EscapeString(msg))
+	cmd, err := rofiCommand(50, 0, "", "-dmenu", "-i", "-no-custom", "-format", "i", "-p", "ws", "-mesg", html.EscapeString(msg))
 	if err != nil {
 		return 0, errCancelled
 	}

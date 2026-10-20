@@ -25,35 +25,44 @@ func runRofi(args []string) error {
 	if err != nil {
 		return err
 	}
-	argv := append([]string{"rofi"}, rofiPlacement(rofiWidth, "")...)
+	argv := append([]string{"rofi"}, rofiPlacement(rofiWidth, 0, "")...)
 	return syscall.Exec(path, append(argv, args...), os.Environ())
 }
 
 // rofiCommand returns a command running rofi with args, its window
 // centred on the xmonad screen that shows the current workspace and
-// widthPct percent as wide as that screen. theme, if not empty, is
-// further rofi theme for the window.
-func rofiCommand(widthPct int, theme string, args ...string) (*exec.Cmd, error) {
+// widthPct percent as wide as that screen and, unless heightPct is 0,
+// heightPct percent as high; else rofi makes it as high as its lines
+// need. theme, if not empty, is further rofi theme for the window.
+func rofiCommand(widthPct, heightPct int, theme string, args ...string) (*exec.Cmd, error) {
 	path, err := rofiPath()
 	if err != nil {
 		return nil, err
 	}
-	return exec.Command(path, append(rofiPlacement(widthPct, theme), args...)...), nil
+	return exec.Command(path, append(rofiPlacement(widthPct, heightPct, theme), args...)...), nil
 }
 
 // rofiPlacement returns the rofi arguments for rofiCommand. rofi knows
 // only monitors, not the screens xmonad splits them into, so it is told
 // the monitor and the offset of the screen's centre within it. If the
-// screen cannot be found, the width is a percentage of the monitor, and
-// rofi places the window itself.
-func rofiPlacement(widthPct int, theme string) []string {
+// screen cannot be found, the width and height are percentages of the
+// monitor, and rofi places the window itself.
+func rofiPlacement(widthPct, heightPct int, theme string) []string {
 	s, m, err := currentScreen()
 	if err != nil {
-		return []string{"-theme-str", fmt.Sprintf("window { width: %d%%; } %s", widthPct, theme)}
+		height := ""
+		if heightPct > 0 {
+			height = fmt.Sprintf(" height: %d%%;", heightPct)
+		}
+		return []string{"-theme-str", fmt.Sprintf("window { width: %d%%;%s } %s", widthPct, height, theme)}
+	}
+	height := ""
+	if heightPct > 0 {
+		height = fmt.Sprintf(" height: %dpx;", s.h*heightPct/100)
 	}
 	return []string{"-m", m.name, "-theme-str", fmt.Sprintf(
-		"window { location: north west; anchor: center; x-offset: %dpx; y-offset: %dpx; width: %dpx; } %s",
-		s.x-m.x+s.w/2, s.y-m.y+s.h/2, s.w*widthPct/100, theme)}
+		"window { location: north west; anchor: center; x-offset: %dpx; y-offset: %dpx; width: %dpx;%s } %s",
+		s.x-m.x+s.w/2, s.y-m.y+s.h/2, s.w*widthPct/100, height, theme)}
 }
 
 // rofiPath returns the path of the first rofi in $PATH that is not a
