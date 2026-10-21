@@ -5,7 +5,6 @@ package main
 import (
 	"cmp"
 	"errors"
-	"flag"
 	"fmt"
 	"html"
 	"os"
@@ -16,9 +15,26 @@ import (
 	"unicode/utf8"
 )
 
+const wtUsage = `usage: ws wt <command> [arguments]
+
+Wt manages the worktrees of a project, by default the project of the
+current workspace. Worktree name of a repository is the directory
+<repo>@<name> beside its main checkout. A name cannot contain "/", ".",
+"@" or spaces: worktree feat-x is the usual name for branch feat/x.
+
+Commands:
+    list    print the workspace prefixes of the worktrees
+    add     create a worktree on a given branch, without asking
+    init    create a worktree, choosing its branch
+    remove  remove a worktree (or rm)
+
+Run ws wt <command> -h for help on a command.
+`
+
 func runWt(args []string) error {
 	if len(args) == 0 {
-		usage()
+		fmt.Fprint(os.Stderr, wtUsage)
+		os.Exit(2)
 	}
 	switch cmd, args := args[0], args[1:]; cmd {
 	case "list":
@@ -29,17 +45,25 @@ func runWt(args []string) error {
 		return runWtInit(args)
 	case "remove", "rm":
 		return runWtRemove(args)
+	case "-h", "-help", "--help", "help":
+		fmt.Fprint(os.Stderr, wtUsage)
+		os.Exit(0)
 	}
-	usage()
+	fmt.Fprint(os.Stderr, wtUsage)
+	os.Exit(2)
 	return nil
 }
 
 func runWtList(args []string) error {
-	fs := flag.NewFlagSet("wt list", flag.ExitOnError)
+	fs := newFlagSet("wt list", "[-l] [-pick] [workspace]", `
+List prints the workspace prefix of the main checkout of the project of
+a workspace, by default the current one, and of each of its worktrees,
+one per line.
+`)
 	long := fs.Bool("l", false, "also print the directory and branch of each worktree")
 	pick := fs.Bool("pick", false, "choose with rofi between repositories with the same name")
 	fs.Parse(args)
-	w, err := workspaceArg(fs.Args())
+	w, err := workspaceArg(fs)
 	if err != nil {
 		return err
 	}
@@ -62,14 +86,34 @@ func runWtList(args []string) error {
 }
 
 func runWtAdd(args []string) error {
-	fs := flag.NewFlagSet("wt add", flag.ExitOnError)
+	fs := newFlagSet("wt add", "[-branch branch] [-pick] [project@]name", `
+Add creates the worktree <repo>@<name> beside the main checkout <repo>
+of project, by default the project of the current workspace, and prints
+its workspace prefix project@name. It never asks. It checks out branch
+name, or -branch: the local branch, else the branch on a remote,
+tracking it, else a new branch from the HEAD of the main checkout. A
+name with "/" is a branch: feat/x checks out branch feat/x in worktree
+feat-x.
+
+The project must be the name of a ghq repository, or have a directory
+stored with ws dir -set; ws dir project prints the checkout found. The
+directory <repo>@<name> must not exist.
+
+Examples:
+
+    ws wt add fix-y                     # branch fix-y, current project
+    ws wt add repo@spike                # ../repo@spike on branch spike,
+                                        # new from HEAD if there is none
+    ws wt add repo@feat/x               # ../repo@feat-x on branch feat/x
+    ws wt add -branch feat/x repo@x     # ../repo@x on branch feat/x
+`)
 	branch := fs.String("branch", "", "check out `branch` instead of the branch named like the worktree")
 	pick := fs.Bool("pick", false, "choose with rofi between repositories with the same name")
 	fs.Parse(args)
 	if fs.NArg() != 1 {
-		usage()
+		usageError(fs)
 	}
-	project, name, err := worktreeArg(fs.Arg(0))
+	project, name, argBranch, err := worktreeArg(fs.Arg(0))
 	if err != nil {
 		return err
 	}
@@ -77,7 +121,7 @@ func runWtAdd(args []string) error {
 	if err != nil {
 		return err
 	}
-	if err := addWorktree(main, name, exactBranch(main, cmp.Or(*branch, name))); err != nil {
+	if err := addWorktree(main, name, exactBranch(main, cmp.Or(*branch, argBranch))); err != nil {
 		return err
 	}
 	fmt.Println(project + "@" + name)
@@ -85,7 +129,15 @@ func runWtAdd(args []string) error {
 }
 
 func runWtRemove(args []string) error {
-	fs := flag.NewFlagSet("wt remove", flag.ExitOnError)
+	fs := newFlagSet("wt remove", "[-force] [-y] [-pick] [[project@]name]", `
+Remove removes worktree name, by default the worktree of the current
+workspace, and the directory stored for its workspace prefix. The
+branch is kept, and it prints the git command to delete it.
+
+It asks first, where init asks, unless -y is given. If the worktree has
+changes, agreeing discards them; with -y, git refuses to remove it
+unless -force is given.
+`)
 	force := fs.Bool("force", false, "remove the worktree even if it has changes")
 	yes := fs.Bool("y", false, "remove the worktree without asking")
 	pick := fs.Bool("pick", false, "choose with rofi between repositories with the same name")
@@ -103,11 +155,11 @@ func runWtRemove(args []string) error {
 		}
 	case 1:
 		var err error
-		if project, name, err = worktreeArg(fs.Arg(0)); err != nil {
+		if project, name, _, err = worktreeArg(fs.Arg(0)); err != nil {
 			return err
 		}
 	default:
-		usage()
+		usageError(fs)
 	}
 	main, err := projectCheckout(project, *pick)
 	if err != nil {
@@ -159,11 +211,21 @@ func confirmRemove(main, prefix, name string) (ok, discard bool, err error) {
 }
 
 func runWtInit(args []string) error {
-	fs := flag.NewFlagSet("wt init", flag.ExitOnError)
+	fs := newFlagSet("wt init", "[-y] [-pick] [workspace]", `
+Init creates the worktree of a workspace, letting the user choose a
+branch resembling its name, or where a new branch starts.
+
+Examples:
+
+    ws wt init                 # worktree of the current workspace
+    ws wt init repo@feat-x     # offers feat/x, or a new branch feat-x
+    ws wt init repo@x          # offers branches ending in /x, like feat/x
+    ws wt init -y repo@feat-x  # first match, else a new branch from HEAD
+`)
 	yes := fs.Bool("y", false, "create the worktree without asking, on the first branch found")
 	pick := fs.Bool("pick", false, "choose with rofi between repositories with the same name")
 	fs.Parse(args)
-	w, err := workspaceArg(fs.Args())
+	w, err := workspaceArg(fs)
 	if err != nil {
 		return err
 	}
@@ -458,21 +520,23 @@ func defaultLocalBranch(main, remote string) string {
 }
 
 // worktreeArg returns the project and worktree name in arg,
-// [project@]name. Without a project, it is the project of the current
-// workspace.
-func worktreeArg(arg string) (project, name string, err error) {
-	project, name, ok := strings.Cut(arg, "@")
+// [project@]name, and the branch it names. Without a project, it is
+// the project of the current workspace. name can be a branch with "/",
+// such as feat/x, which names worktree feat-x.
+func worktreeArg(arg string) (project, name, branch string, err error) {
+	project, branch, ok := strings.Cut(arg, "@")
 	if !ok {
 		w, err := currentWorkspace()
 		if err != nil {
-			return "", "", err
+			return "", "", "", err
 		}
-		project, name = w.project(), arg
+		project, branch = w.project(), arg
 	}
+	name = strings.ReplaceAll(branch, "/", "-")
 	if !validWorktreeName(name) {
-		return "", "", fmt.Errorf("bad worktree name %q", name)
+		return "", "", "", fmt.Errorf(`bad worktree name %q: it cannot contain ".", "@" or spaces`, name)
 	}
-	return project, name, nil
+	return project, name, branch, nil
 }
 
 // validWorktreeName reports whether name can be the worktree in a

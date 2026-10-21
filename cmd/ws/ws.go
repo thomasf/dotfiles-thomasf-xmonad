@@ -13,7 +13,7 @@
 //	ws wt add [-branch branch] [-pick] [project@]name
 //	ws wt init [-y] [-pick] [workspace]
 //	ws wt remove [-force] [-y] [-pick] [[project@]name]
-//	ws pick [-go] [-p prompt] [-columns n] [-lines n] [-worktrees]
+//	ws pick [-go] [-empty] [-p prompt] [-columns n] [-lines n] [-worktrees]
 //	ws go workspace
 //	ws window
 //	ws rofi [rofi arguments]
@@ -60,29 +60,36 @@
 //
 // Wt manages the worktrees of a project, by default the project of the
 // current workspace. Worktree name of a repository is the directory
-// <repo>@<name> beside its main checkout. List prints the workspace
-// prefix of the main checkout and of each such worktree, one per line;
-// with -l, followed by its directory and branch. Add creates worktree
-// name and prints its workspace prefix. It checks out the branch named
-// like the worktree, or the one given with -branch: the local branch,
-// or else the branch on a remote, or else a new branch from the HEAD of
-// the main checkout. A branch only on a remote is checked out as a new
-// branch tracking it.
+// <repo>@<name> beside its main checkout. A name cannot contain "/",
+// ".", "@" or spaces: worktree feat-x is the usual name for branch
+// feat/x. List prints the workspace prefix of the main checkout and of
+// each such worktree, one per line; with -l, followed by its directory
+// and branch.
+//
+// Add creates worktree name and prints its workspace prefix, without
+// asking, so it suits scripts; init is for choosing a branch. It checks
+// out exactly the branch named like the worktree, or the one given with
+// -branch: the local branch, or else the branch on a remote, or else a
+// new branch from the HEAD of the main checkout. A branch only on a
+// remote is checked out as a new branch tracking it. A name with "/"
+// is a branch: wt add feat/x checks out branch feat/x in worktree
+// feat-x, and wt remove feat/x removes that worktree.
 //
 // Init creates the worktree of a workspace <project>@<name>[.<suffix>],
-// by default the current one, after asking: on the terminal if
-// standard input is one, and else with rofi. It looks for the branch to
-// check out: one named name, else those named name once each "/" is
-// "-" or ending in "/<name>", else a new branch name. Unless there is a
-// branch named name, the user chooses between the branches found and
-// new branch name from: the default branch of a remote after fetching
-// it; the local default branch; the default branch of a remote as last
-// fetched; or the HEAD of the main checkout. The cursor starts on the
-// first remote fetched, or on the local default branch if it has
-// commits that the remote's, as last fetched, does not. The remote whose default branch the local one tracks comes
-// first, then upstream and origin. With -y it does not ask, and takes
-// the first branch found, else a new branch from the HEAD of the main
-// checkout.
+// by default the current one, letting the user choose its branch and
+// where a new branch starts. It asks on the terminal if standard input
+// is one, and else with rofi. It looks for the branch to check out: one
+// named name, else those named name once each "/" is "-" or ending in
+// "/<name>", else a new branch name. Unless there is a branch named
+// name, the user chooses between the branches found and new branch name
+// from: the default branch of a remote after fetching it; the local
+// default branch; the default branch of a remote as last fetched; or
+// the HEAD of the main checkout. The cursor starts on the first remote
+// fetched, or on the local default branch if it has commits that the
+// remote's, as last fetched, does not. The remote whose default branch
+// the local one tracks comes first, then upstream and origin. With -y
+// it does not ask, and takes the first branch found, else a new branch
+// from the HEAD of the main checkout.
 //
 // Remove removes worktree name, by default the worktree of the current
 // workspace, and the directory stored for its workspace prefix; the
@@ -125,9 +132,11 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 // errFalse makes ws exit with status 1 without a message, as a
@@ -160,6 +169,9 @@ func main() {
 		err = runGo(args)
 	case "window":
 		err = runWindow(args)
+	case "-h", "-help", "--help", "help":
+		fmt.Fprint(os.Stderr, usageText)
+		os.Exit(0)
 	default:
 		usage()
 	}
@@ -171,8 +183,7 @@ func main() {
 	}
 }
 
-func usage() {
-	fmt.Fprintln(os.Stderr, `usage: ws name [-p | -s]
+const usageText = `usage: ws name [-p | -s]
        ws dir [-set | -unset] [-pick] [workspace]
        ws env [-file] [workspace]
        ws action [workspace]
@@ -180,23 +191,54 @@ func usage() {
        ws wt add [-branch branch] [-pick] [project@]name
        ws wt init [-y] [-pick] [workspace]
        ws wt remove [-force] [-y] [-pick] [[project@]name]
-       ws pick [-go] [-p prompt] [-columns n] [-lines n] [-worktrees]
+       ws pick [-go] [-empty] [-p prompt] [-columns n] [-lines n] [-worktrees]
        ws go workspace
        ws window
-       ws rofi [rofi arguments]`)
+       ws rofi [rofi arguments]
+
+Run ws <command> -h for help on a command.
+`
+
+func usage() {
+	fmt.Fprint(os.Stderr, usageText)
 	os.Exit(2)
 }
 
-// workspaceArg returns the workspace named by args, or the current
-// workspace if args is empty.
-func workspaceArg(args []string) (workspace, error) {
-	switch len(args) {
+// newFlagSet returns the flag set of command name, taking arguments
+// args. On -h, or by usageError, it prints the usage line, help and
+// flags of the command.
+func newFlagSet(name, args, help string) *flag.FlagSet {
+	fs := flag.NewFlagSet("ws "+name, flag.ExitOnError)
+	fs.Usage = func() {
+		w := fs.Output()
+		fmt.Fprintf(w, "usage: %s\n\n%s\n", strings.TrimSpace(fs.Name()+" "+args), strings.TrimSpace(help))
+		hasFlags := false
+		fs.VisitAll(func(*flag.Flag) { hasFlags = true })
+		if hasFlags {
+			fmt.Fprintln(w, "\nFlags:")
+			fs.PrintDefaults()
+		}
+	}
+	return fs
+}
+
+// usageError prints the usage of the command of fs and exits with
+// status 2.
+func usageError(fs *flag.FlagSet) {
+	fs.Usage()
+	os.Exit(2)
+}
+
+// workspaceArg returns the workspace named by the arguments left in
+// fs, or the current workspace if there are none.
+func workspaceArg(fs *flag.FlagSet) (workspace, error) {
+	switch fs.NArg() {
 	case 0:
 		return currentWorkspace()
 	case 1:
-		return workspace(args[0]), nil
+		return workspace(fs.Arg(0)), nil
 	}
-	usage()
+	usageError(fs)
 	panic("unreachable")
 }
 

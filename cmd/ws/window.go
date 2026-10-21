@@ -13,8 +13,14 @@ import (
 )
 
 func runWindow(args []string) error {
-	if len(args) > 0 {
-		usage()
+	fs := newFlagSet("window", "", `
+Window lets the user choose a window with rofi, listed with its class
+and workspace, and asks xmonad to focus it, switching to its workspace,
+with a WS_FOCUS client message that the xmonad configuration handles.
+`)
+	fs.Parse(args)
+	if fs.NArg() > 0 {
+		usageError(fs)
 	}
 	names, _, err := desktops()
 	if err != nil {

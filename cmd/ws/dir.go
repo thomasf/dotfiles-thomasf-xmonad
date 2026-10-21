@@ -5,7 +5,6 @@ package main
 import (
 	"bytes"
 	"errors"
-	"flag"
 	"fmt"
 	"io/fs"
 	"os"
@@ -18,12 +17,22 @@ import (
 var errNoDir = errors.New("no directory")
 
 func runDir(args []string) error {
-	fs := flag.NewFlagSet("dir", flag.ExitOnError)
+	fs := newFlagSet("dir", "[-set | -unset] [-pick] [workspace]", `
+Dir prints the directory a workspace works in, by default the current
+one. It is the directory stored for the prefix with -set, if there is
+one. Else it is the directory stored for the project, or the ghq
+repository named like the project. For a worktree, the directory is
+the sibling of the project's main checkout named <repo>@<worktree>, at
+the same place within it.
+
+-set stores the working directory for the prefix, in ~/.config/wsdirs,
+and -unset removes it.
+`)
 	set := fs.Bool("set", false, "store the working directory for the workspace prefix")
 	unset := fs.Bool("unset", false, "remove the directory stored for the workspace prefix")
 	pick := fs.Bool("pick", false, "choose with rofi between repositories with the same name")
 	fs.Parse(args)
-	w, err := workspaceArg(fs.Args())
+	w, err := workspaceArg(fs)
 	if err != nil {
 		return err
 	}

@@ -12,7 +12,24 @@ import (
 )
 
 func runAction(args []string) error {
-	w, err := workspaceArg(args)
+	fs := newFlagSet("action", "[workspace]", `
+Action is run by xmonad when it opens an empty workspace, by default
+the current one. For a workspace in a worktree that does not exist
+yet, it first offers to create it, as wt init does. In the directory of
+the workspace, if it has one, it runs the launcher w.<project> from
+$PATH. If there is none, or it fails, it starts what the suffix calls
+for:
+
+    www, doc              www-window
+    term, terminal, bot   term
+    emacs                 e
+    files                 nautilus, in the workspace directory
+
+The launchers find the workspace in the environment variables WS_NAME,
+WS_PREFIX, WS_PROJECT, WS_WORKTREE, WS_SUFFIX and WS_DIR.
+`)
+	fs.Parse(args)
+	w, err := workspaceArg(fs)
 	if err != nil {
 		return err
 	}

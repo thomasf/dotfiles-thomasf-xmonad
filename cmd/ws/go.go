@@ -8,10 +8,15 @@ import (
 )
 
 func runGo(args []string) error {
-	if len(args) != 1 {
-		usage()
+	fs := newFlagSet("go", "workspace", `
+Go asks xmonad to show a workspace, creating it if it is new, with a
+WS_GO client message that the xmonad configuration handles.
+`)
+	fs.Parse(args)
+	if fs.NArg() != 1 {
+		usageError(fs)
 	}
-	return goWorkspace(args[0])
+	return goWorkspace(fs.Arg(0))
 }
 
 // goWorkspace asks xmonad to show workspace name, creating it if it is

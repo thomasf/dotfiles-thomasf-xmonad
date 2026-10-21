@@ -3,7 +3,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"strings"
 
@@ -40,12 +39,20 @@ func (w workspace) worktree() string {
 }
 
 func runName(args []string) error {
-	fs := flag.NewFlagSet("name", flag.ExitOnError)
+	fs := newFlagSet("name", "[-p | -s]", `
+Name prints the name of the current workspace. A workspace name is
+<prefix>[.<suffix>], and the prefix is <project>[@<worktree>]. In
+workspace hello@test.bot, the project is hello, the worktree test and
+the suffix bot.
+
+Output to a terminal ends in a newline; other output does not, so that
+it can be used as it is.
+`)
 	prefix := fs.Bool("p", false, "print the prefix")
 	suffix := fs.Bool("s", false, "print the suffix, or exit with status 1 if there is none")
 	fs.Parse(args)
 	if fs.NArg() > 0 {
-		usage()
+		usageError(fs)
 	}
 	w, err := currentWorkspace()
 	if err != nil {

@@ -4,17 +4,25 @@ package main
 
 import (
 	"errors"
-	"flag"
 	"io/fs"
 	"os"
 	"path/filepath"
 )
 
 func runEnv(args []string) error {
-	fs := flag.NewFlagSet("env", flag.ExitOnError)
+	fs := newFlagSet("env", "[-file] [workspace]", `
+Env prints the environment file of a workspace, by default the current
+one, for a shell to evaluate:
+
+    eval "$(ws env)"
+
+The file is the shell script in ~/.config/wsenv named like the
+directory of the workspace, or like its prefix if it has none. Without
+-file, env exits with status 1 if the file does not exist.
+`)
 	file := fs.Bool("file", false, "print the name of the environment file")
 	fs.Parse(args)
-	w, err := workspaceArg(fs.Args())
+	w, err := workspaceArg(fs)
 	if err != nil {
 		return err
 	}

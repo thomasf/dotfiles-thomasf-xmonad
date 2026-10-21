@@ -170,6 +170,26 @@ func TestValidWorktreeName(t *testing.T) {
 	}
 }
 
+func TestWorktreeArg(t *testing.T) {
+	for _, tt := range []struct {
+		arg, project, name, branch string
+	}{
+		{"repo@x", "repo", "x", "x"},
+		{"repo@feat/x", "repo", "feat-x", "feat/x"},
+		{"repo@a/b/c", "repo", "a-b-c", "a/b/c"},
+	} {
+		project, name, branch, err := worktreeArg(tt.arg)
+		if err != nil || project != tt.project || name != tt.name || branch != tt.branch {
+			t.Errorf("worktreeArg(%q) = %q, %q, %q, %v, want %q, %q, %q", tt.arg, project, name, branch, err, tt.project, tt.name, tt.branch)
+		}
+	}
+	for _, arg := range []string{"repo@", "repo@a.b", "repo@a@b", "repo@-x"} {
+		if _, _, _, err := worktreeArg(arg); err == nil {
+			t.Errorf("worktreeArg(%q): no error", arg)
+		}
+	}
+}
+
 func gitT(t *testing.T, dir string, args ...string) string {
 	t.Helper()
 	out, err := git(dir, args...)

@@ -5,7 +5,6 @@ package main
 import (
 	"cmp"
 	"errors"
-	"flag"
 	"fmt"
 	"html"
 	"os"
@@ -17,7 +16,22 @@ import (
 )
 
 func runPick(args []string) error {
-	fs := flag.NewFlagSet("pick", flag.ExitOnError)
+	fs := newFlagSet("pick", "[-go] [-empty] [-p prompt] [-columns n] [-lines n] [-worktrees]", `
+Pick lets the user choose a workspace with rofi and prints its name. It
+lists the workspaces with windows other than the current one, grouped
+by project. It exits with status 1 if the user cancels.
+
+    Ctrl+Enter  take the name as typed, for a new workspace
+    Ctrl+Tab    type in the name of the selected workspace, to edit it;
+                again on the same name, add a dot if it has none
+    Ctrl+s      show or hide the workspaces without windows
+    Ctrl+t      show or hide the worktrees of their projects that have
+                no workspace yet; listing them takes a moment
+
+With -go, it goes to the workspace instead of printing it, as ws go
+does; this way xmonad can start it with spawn, rather than wait for it
+while rofi runs and lock up input.
+`)
 	prompt := fs.String("p", "workspace", "rofi `prompt`")
 	goTo := fs.Bool("go", false, "go to the workspace instead of printing its name")
 	withWorktrees := fs.Bool("worktrees", false, "also list worktrees without a workspace")
@@ -26,7 +40,7 @@ func runPick(args []string) error {
 	lines := fs.Int("lines", 20, "show `n` rows in each column")
 	fs.Parse(args)
 	if fs.NArg() > 0 {
-		usage()
+		usageError(fs)
 	}
 	names, cur, err := desktops()
 	if err != nil {
