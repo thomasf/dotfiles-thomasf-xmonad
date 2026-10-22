@@ -261,40 +261,45 @@ func initWorktree(w workspace, yes, pick bool) error {
 
 	msg := fmt.Sprintf("Worktree %s\n  repository  %s\n  directory   %s", w.prefix(), main, dir)
 	var src branchSource
-	switch {
-	case yes:
+	if yes {
 		src = branchSource{branch: name, isNew: true}
 		if len(srcs) > 0 {
 			src = srcs[0]
 		}
-	case len(srcs) > 0 && srcs[0].branch == name:
-		src = srcs[0]
-		if !confirm(msg+"\n  branch      "+src.String(), "create") {
-			return errCancelled
+	} else {
+		// Choosing a branch is the confirmation. New branches are
+		// offered too, unless a local branch has the name, as a new
+		// one cannot. The cursor is on the branch named name, if there
+		// is one, else on the suggested start of a new branch.
+		options, selected := srcs, 0
+		if len(srcs) == 0 || srcs[0].branch != name || srcs[0].remote != "" {
+			news, def, err := newBranches(main, name)
+			if err != nil {
+				return err
+			}
+			options = append(srcs, news...)
+			if len(srcs) == 0 || srcs[0].branch != name {
+				selected = len(srcs) + def
+			}
 		}
-	default:
-		// Branches only resemble the name, or a new branch can start
-		// from several places: choosing one is the confirmation.
-		news, def, err := newBranches(main, name)
-		if err != nil {
-			return err
-		}
-		options := append(srcs, news...)
 		var lines []string
 		for _, s := range options {
 			lines = append(lines, s.String())
 		}
-		i, err := chooseRows(msg+"\nCreate on which branch?", lines, branchRows(options, accentColour()), len(srcs)+def)
+		i, err := chooseRows(msg+"\nCreate on which branch?", lines, branchRows(options, accentColour()), selected)
 		if err != nil {
 			return err
 		}
 		src = options[i]
 	}
+	// Whether the user was offered the branch named name on a remote,
+	// and so chose any new branch over it.
+	offered := len(srcs) > 0 && srcs[0].branch == name
 
 	var id string // of the notification to replace
 	if src.fetch != "" {
 		id = notify("", false, "fetching "+src.fetch+" for "+w.prefix())
-		src, err = fetchSource(main, msg, src)
+		src, err = fetchSource(main, msg, src, offered)
 	}
 	if err == nil {
 		err = addWorktree(main, name, src)
@@ -313,10 +318,11 @@ func initWorktree(w workspace, yes, pick bool) error {
 // fetchSource fetches remote src.fetch of the repository of main
 // checkout main and returns src, new branch src.branch, to start from
 // the default branch of the remote as fetched. If src.branch is on the
-// remote now, it offers to check out that instead; if fetching fails,
-// to start from the default branch as last fetched. msg describes the
-// worktree, as initWorktree shows it.
-func fetchSource(main, msg string, src branchSource) (branchSource, error) {
+// remote now, it offers to check out that instead, unless offered says
+// the user has chosen src over it already; if fetching fails, to start
+// from the default branch as last fetched. msg describes the worktree,
+// as initWorktree shows it.
+func fetchSource(main, msg string, src branchSource, offered bool) (branchSource, error) {
 	r := src.fetch
 	src.fetch = ""
 	if err := fetchRemote(main, r); err != nil {
@@ -328,7 +334,7 @@ func fetchSource(main, msg string, src branchSource) (branchSource, error) {
 		}
 		return src, nil
 	}
-	if h, err := git(main, "rev-parse", "--verify", "--quiet", "--short", "refs/remotes/"+r+"/"+src.branch); err == nil {
+	if h, err := git(main, "rev-parse", "--verify", "--quiet", "--short", "refs/remotes/"+r+"/"+src.branch); err == nil && !offered {
 		tracked := branchSource{branch: src.branch, remote: r + "/" + src.branch, hash: h}
 		if !confirm(msg+"\nBranch "+src.branch+" is on "+r+" now.", "create on "+tracked.String()) {
 			return src, errCancelled

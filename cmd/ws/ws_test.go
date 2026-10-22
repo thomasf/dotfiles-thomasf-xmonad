@@ -419,7 +419,7 @@ func TestFetchSource(t *testing.T) {
 	gitT(t, pub, "branch", "-M", "trunk")
 	head := gitT(t, pub, "rev-parse", "HEAD")
 
-	src, err := fetchSource(repo, "", branchSource{branch: "y", isNew: true, fetch: "pub", from: stale})
+	src, err := fetchSource(repo, "", branchSource{branch: "y", isNew: true, fetch: "pub", from: stale}, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -434,6 +434,14 @@ func TestFetchSource(t *testing.T) {
 	}
 	if got := gitT(t, repo+"@y", "rev-parse", "HEAD"); got != head {
 		t.Errorf("worktree y is at %s, want %s", got, head)
+	}
+
+	// Having chosen a new branch over pub/z, the user is not asked
+	// again; without having chosen, confirm would ask.
+	gitT(t, pub, "branch", "z")
+	src, err = fetchSource(repo, "", branchSource{branch: "z", isNew: true, fetch: "pub", from: "pub/trunk"}, true)
+	if err != nil || !src.isNew || src.remote != "" {
+		t.Errorf("fetchSource of new branch z, offered = %v, %v, want a new branch", src, err)
 	}
 }
 
