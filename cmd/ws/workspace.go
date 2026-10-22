@@ -156,3 +156,36 @@ func occupiedDesktops() (map[int]bool, error) {
 	}
 	return occupied, nil
 }
+
+// visibleDesktops returns which workspaces, by index, are shown on
+// screens other than the current one, or nil if it cannot tell. xmonad
+// sets the _NET_DESKTOP_VIEWPORT of a workspace to the corner of the
+// screen showing it, and that of hidden ones to the current screen's.
+func visibleDesktops() map[int]bool {
+	X, err := xgb.NewConn()
+	if err != nil {
+		return nil
+	}
+	defer X.Close()
+	root := xproto.Setup(X).DefaultScreen(X).Root
+
+	c, err := rootProperty(X, root, "_NET_CURRENT_DESKTOP")
+	if err != nil || c.Format != 32 || len(c.Value) < 4 {
+		return nil
+	}
+	cur := int(xgb.Get32(c.Value))
+	vp, err := rootProperty(X, root, "_NET_DESKTOP_VIEWPORT")
+	if err != nil || len(vp.Value) < 8*(cur+1) {
+		return nil
+	}
+	origin := func(i int) point {
+		return point{int(xgb.Get32(vp.Value[8*i:])), int(xgb.Get32(vp.Value[8*i+4:]))}
+	}
+	visible := make(map[int]bool)
+	for i := 0; 8*(i+1) <= len(vp.Value); i++ {
+		if origin(i) != origin(cur) {
+			visible[i] = true
+		}
+	}
+	return visible
+}

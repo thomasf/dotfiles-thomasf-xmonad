@@ -13,14 +13,14 @@ import (
 func TestPickGroups(t *testing.T) {
 	workspaces := []string{"work", "pi.2", "NSP", "hello@test.bot", "hello.10", "hello.bot", "hello", "hello.2", "pi", "hello@a"}
 	worktrees := []string{"hello@test", "hello@new", "pi@x"}
-	got := pickGroups("pi", workspaces, worktrees)
+	got := pickGroups("pi", workspaces, map[string]bool{"hello.2": true}, worktrees)
 	want := []pickGroup{
-		{"pi", []pickEntry{{"pi.2", true}, {"pi@x", false}}},
+		{"pi", []pickEntry{{"pi.2", true, false}, {"pi@x", false, false}}},
 		{"hello", []pickEntry{
-			{"hello", true}, {"hello.2", true}, {"hello.10", true}, {"hello.bot", true},
-			{"hello@a", true}, {"hello@new", false}, {"hello@test.bot", true},
+			{"hello", true, false}, {"hello.2", true, true}, {"hello.10", true, false}, {"hello.bot", true, false},
+			{"hello@a", true, false}, {"hello@new", false, false}, {"hello@test.bot", true, false},
 		}},
-		{"work", []pickEntry{{"work", true}}},
+		{"work", []pickEntry{{"work", true, false}}},
 	}
 	if !slices.EqualFunc(got, want, func(a, b pickGroup) bool {
 		return a.project == b.project && slices.Equal(a.entries, b.entries)
@@ -30,13 +30,14 @@ func TestPickGroups(t *testing.T) {
 }
 
 func TestPickRows(t *testing.T) {
-	rows, names := pickRows([]pickGroup{{"a&b", []pickEntry{{"a&b", true}, {"a&b@x", false}}}}, "#009c8f")
+	rows, names := pickRows([]pickGroup{{"a&b", []pickEntry{{"a&b", true, false}, {"a&b.2", true, true}, {"a&b@x", false, false}}}}, "#009c8f", "#0064e4")
 	wantRows := []string{
 		"<b>a&amp;b</b>",
 		"  a&amp;b",
+		`  <span foreground="#0064e4">a&amp;b.2</span>`,
 		`  a&amp;b@x  <span foreground="#009c8f">worktree</span>`,
 	}
-	if !slices.Equal(rows, wantRows) || !slices.Equal(names, []string{"a&b", "a&b", "a&b@x"}) {
+	if !slices.Equal(rows, wantRows) || !slices.Equal(names, []string{"a&b", "a&b", "a&b.2", "a&b@x"}) {
 		t.Errorf("pickRows = %q, %q", rows, names)
 	}
 }
@@ -53,7 +54,7 @@ func fakeCommand(t *testing.T, name, script string) {
 }
 
 func TestRofiPickWorkspace(t *testing.T) {
-	groups := []pickGroup{{"hello", []pickEntry{{"hello", true}, {"hello.bot", true}}}}
+	groups := []pickGroup{{"hello", []pickEntry{{"hello", true, false}, {"hello.bot", true, false}}}}
 	for _, tt := range []struct {
 		script, want string
 		err          error

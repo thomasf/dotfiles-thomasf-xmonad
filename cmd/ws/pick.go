@@ -18,8 +18,9 @@ import (
 func runPick(args []string) error {
 	fs := newFlagSet("pick", "[-go] [-empty] [-p prompt] [-columns n] [-lines n] [-worktrees]", `
 Pick lets the user choose a workspace with rofi and prints its name. It
-lists the workspaces with windows other than the current one, grouped
-by project. It exits with status 1 if the user cancels.
+lists the workspaces with windows or on another screen, other than the
+current one, grouped by project; those on other screens are in colour.
+It exits with status 1 if the user cancels.
 
     Ctrl+Enter  take the name as typed, for a new workspace
     Ctrl+Tab    type in the name of the selected workspace, to edit it;
@@ -54,11 +55,14 @@ while rofi runs and lock up input.
 	if err != nil {
 		return err
 	}
+	onScreen := visibleDesktops()
 	var busy []string
+	visible := make(map[string]bool)
 	for i, name := range names {
-		if occupied[i] {
+		if occupied[i] || onScreen[i] {
 			busy = append(busy, name)
 		}
+		visible[name] = onScreen[i]
 	}
 	// Listing the worktrees takes a while, so it is done only once
 	// they are asked for, and then only once.
@@ -84,7 +88,7 @@ while rofi runs and lock up input.
 		if *withWorktrees {
 			shownWts = wts
 		}
-		name, err := rofiPickWorkspace(*prompt, *columns, *lines, filter, *withWorktrees, *withEmpty, pickGroups(current, shown, shownWts))
+		name, err := rofiPickWorkspace(*prompt, *columns, *lines, filter, *withWorktrees, *withEmpty, pickGroups(current, shown, visible, shownWts))
 		if t, ok := errors.AsType[toggleWorktrees](err); ok {
 			*withWorktrees = !*withWorktrees
 			filter = t.filter
@@ -130,8 +134,9 @@ type pickGroup struct {
 }
 
 type pickEntry struct {
-	name string
-	open bool // whether the workspace exists; else it is a worktree without one
+	name    string
+	open    bool // whether the workspace exists; else it is a worktree without one
+	visible bool // whether a screen other than the current one shows it
 }
 
 // projectsOf returns the projects of workspaces, each once.
@@ -147,11 +152,11 @@ func projectsOf(workspaces []string) []string {
 
 // pickGroups groups the workspaces, other than current and the
 // scratchpad workspace NSP, and the worktree prefixes that have no
-// workspace by project. The project of current comes first, the others
+// workspace by project. visible holds the workspaces on other screens. The project of current comes first, the others
 // follow by name. Within a project, the main checkout comes before its
 // worktrees, and a workspace without suffix before numbered ones, before
 // other suffixes.
-func pickGroups(current string, workspaces, worktrees []string) []pickGroup {
+func pickGroups(current string, workspaces []string, visible map[string]bool, worktrees []string) []pickGroup {
 	byProject := make(map[string][]pickEntry)
 	prefixes := make(map[string]bool)
 	for _, t := range workspaces {
@@ -160,13 +165,13 @@ func pickGroups(current string, workspaces, worktrees []string) []pickGroup {
 		}
 		w := workspace(t)
 		prefixes[w.prefix()] = true
-		byProject[w.project()] = append(byProject[w.project()], pickEntry{t, true})
+		byProject[w.project()] = append(byProject[w.project()], pickEntry{t, true, visible[t]})
 	}
 	prefixes[workspace(current).prefix()] = true
 	for _, p := range worktrees {
 		if !prefixes[p] {
 			w := workspace(p)
-			byProject[w.project()] = append(byProject[w.project()], pickEntry{p, false})
+			byProject[w.project()] = append(byProject[w.project()], pickEntry{p, false, false})
 		}
 	}
 
@@ -304,7 +309,7 @@ func (completeRow) Error() string { return "complete row" }
 // workspaces without windows; empty says whether they are shown. Ctrl+Tab returns a completeRow with the
 // name of the selected row. It returns errFalse if the user cancels.
 func rofiPickWorkspace(prompt string, columns, lines int, filter string, worktrees, empty bool, groups []pickGroup) (string, error) {
-	rows, names := pickRows(groups, accentColour())
+	rows, names := pickRows(groups, accentColour(), visibleColour())
 	theme := fmt.Sprintf("listview { columns: %d; lines: %d; flow: vertical; fixed-columns: true; }", columns, lines)
 	// What Ctrl+s and Ctrl+t do: + shows, - hides.
 	sign := map[bool]string{false: "+", true: "-"}
@@ -361,14 +366,30 @@ func rofiPickWorkspace(prompt string, columns, lines int, filter string, worktre
 // ~/.config/rofi/colors.rasi to. Pango markup cannot use the colours
 // of the rofi theme.
 func accentColour() string {
-	home, err := os.UserHomeDir()
-	if err == nil {
-		t, err := os.Readlink(filepath.Join(home, ".config", "rofi", "colors.rasi"))
-		if err == nil && filepath.Base(t) == "dark.rasi" {
-			return "#41c7b9"
-		}
+	if darkRofi() {
+		return "#41c7b9"
 	}
 	return "#009c8f"
+}
+
+// visibleColour returns the colour of workspaces on other screens in
+// rofi rows: Selenized blue, as accentColour picks it.
+func visibleColour() string {
+	if darkRofi() {
+		return "#4695f7"
+	}
+	return "#0064e4"
+}
+
+// darkRofi reports whether darkmode links ~/.config/rofi/colors.rasi to
+// the dark rofi colours.
+func darkRofi() bool {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return false
+	}
+	t, err := os.Readlink(filepath.Join(home, ".config", "rofi", "colors.rasi"))
+	return err == nil && filepath.Base(t) == "dark.rasi"
 }
 
 // pickRows returns the rofi rows for groups, and for each row the name
@@ -377,13 +398,16 @@ func accentColour() string {
 // picks that rather than nothing. Headers match only their project when
 // the user filters, so that a filter on the rest of a name leaves the
 // workspaces at the top. Worktrees without a workspace are labelled in
-// colour.
-func pickRows(groups []pickGroup, colour string) (rows, names []string) {
+// colour, and workspaces on other screens are in visible.
+func pickRows(groups []pickGroup, colour, visible string) (rows, names []string) {
 	for _, g := range groups {
 		rows = append(rows, "<b>"+html.EscapeString(g.project)+"</b>")
 		names = append(names, g.entries[0].name)
 		for _, e := range g.entries {
 			row := "  " + html.EscapeString(e.name)
+			if e.visible {
+				row = `  <span foreground="` + visible + `">` + html.EscapeString(e.name) + "</span>"
+			}
 			if !e.open {
 				row += `  <span foreground="` + colour + `">worktree</span>`
 			}
