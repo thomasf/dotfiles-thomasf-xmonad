@@ -40,7 +40,9 @@
 // Env prints the environment file of a workspace, by default the
 // current one, for a shell to evaluate: eval "$(ws env)". The file is
 // the shell script in ~/.config/wsenv named like the directory of the
-// workspace, or like its prefix if it has none. With -file it prints
+// workspace, or like its prefix if it has none. A workspace in a
+// worktree without a file of its own uses that of the main checkout of
+// its project. With -file it prints
 // the name of the file, which need not exist. Without it, it exits
 // with status 1 if the file does not exist.
 //
