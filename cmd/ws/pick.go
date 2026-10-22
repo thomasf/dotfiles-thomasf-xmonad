@@ -7,12 +7,14 @@ import (
 	"errors"
 	"fmt"
 	"html"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"slices"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 func runPick(args []string) error {
@@ -24,7 +26,10 @@ It exits with status 1 if the user cancels.
 
     Ctrl+Enter  take the name as typed, for a new workspace
     Ctrl+Tab    type in the name of the selected workspace, to edit it;
-                again on the same name, add a dot if it has none
+                again on the same name, add a dot if it has none; after
+                <project>@, choose a branch of the project's repository
+                and go to its worktree, created if need be; Ctrl+r
+                there fetches the remotes
     Ctrl+s      show or hide the workspaces without windows
     Ctrl+t      show or hide the worktrees of their projects that have
                 no workspace yet; listing them takes a moment
@@ -98,6 +103,13 @@ while rofi runs and lock up input.
 			*withEmpty = !*withEmpty
 			filter = t.filter
 			continue
+		}
+		if b, ok := errors.AsType[chooseBranch](err); ok {
+			name, err = pickBranchWorktree(b.project, *columns, *lines)
+			if errors.Is(err, errCancelled) {
+				filter = b.project + "@"
+				continue
+			}
 		}
 		if c, ok := errors.AsType[completeRow](err); ok {
 			// Completing the same name again readies it for a
@@ -299,6 +311,12 @@ type completeRow struct{ filter string }
 
 func (completeRow) Error() string { return "complete row" }
 
+// chooseBranch is the error rofiPickWorkspace returns when the user asks
+// to choose a branch of project, having typed <project>@.
+type chooseBranch struct{ project string }
+
+func (chooseBranch) Error() string { return "choose branch" }
+
 // rofiPickWorkspace lets the user pick one of the workspaces in groups
 // with rofi and returns its name. The list has columns of lines rows,
 // filled from top to bottom so that groups read downwards; filter, if
@@ -306,8 +324,10 @@ func (completeRow) Error() string { return "complete row" }
 // their own with Ctrl+Enter, or show or hide the worktrees without a
 // workspace with Ctrl+t, which returns a toggleWorktrees; worktrees says
 // whether they are shown. Likewise Ctrl+s returns a toggleEmpty for the
-// workspaces without windows; empty says whether they are shown. Ctrl+Tab returns a completeRow with the
-// name of the selected row. It returns errFalse if the user cancels.
+// workspaces without windows; empty says whether they are shown.
+// Ctrl+Tab returns a completeRow with the name of the selected row, or
+// a chooseBranch if the user typed <project>@. It returns errFalse if
+// the user cancels.
 func rofiPickWorkspace(prompt string, columns, lines int, filter string, worktrees, empty bool, groups []pickGroup) (string, error) {
 	rows, names := pickRows(groups, accentColour(), visibleColour())
 	theme := fmt.Sprintf("listview { columns: %d; lines: %d; flow: vertical; fixed-columns: true; }", columns, lines)
@@ -324,7 +344,7 @@ func rofiPickWorkspace(prompt string, columns, lines int, filter string, worktre
 	if filter != "" {
 		args = append(args, "-filter", filter)
 	}
-	cmd, err := rofiCommand(min(95, 35+20*columns), 65, theme, args...)
+	cmd, err := rofiCommand(pickWidth(columns), pickHeight, theme, args...)
 	if err != nil {
 		return "", err
 	}
@@ -339,6 +359,9 @@ func rofiPickWorkspace(prompt string, columns, lines int, filter string, worktre
 		case 10:
 			return "", toggleWorktrees{typed}
 		case 11:
+			if p, ok := strings.CutSuffix(typed, "@"); ok && p != "" && !strings.ContainsAny(p, ".@ ") {
+				return "", chooseBranch{p}
+			}
 			if nerr == nil && n >= 0 && n < len(names) {
 				return "", completeRow{names[n]}
 			}
@@ -360,6 +383,12 @@ func rofiPickWorkspace(prompt string, columns, lines int, filter string, worktre
 	}
 	return "", errFalse
 }
+
+// pickWidth is how wide the picker is, in percent of the xmonad screen,
+// with columns columns; pickHeight is how high.
+func pickWidth(columns int) int { return min(95, 35+20*columns) }
+
+const pickHeight = 65
 
 // accentColour returns the colour of labels in rofi rows: Selenized
 // cyan, for the light or dark rofi colours that darkmode links
@@ -416,4 +445,168 @@ func pickRows(groups []pickGroup, colour, visible string) (rows, names []string)
 		}
 	}
 	return rows, names
+}
+
+// pickBranchWorktree lets the user choose a branch of the repository of
+// project with rofi, the last changed first, and returns the workspace
+// prefix of its worktree, which it creates if there is none. The user
+// can fetch the remotes first. rofi is as large as the picker with
+// columns columns of lines rows. It returns errCancelled if the user
+// cancels or the repository is not known.
+func pickBranchWorktree(project string, columns, lines int) (string, error) {
+	main, err := projectCheckout(project, true)
+	if err != nil {
+		log.Print(err)
+		return "", errCancelled
+	}
+	var infos []branchInfo
+	var checkedOut map[string]string // branch to workspace prefix
+	i, filter := 0, ""
+	for {
+		if infos, err = branches(main, "-committerdate"); err != nil {
+			return "", err
+		}
+		wts, err := listWorktrees(project, main)
+		if err != nil {
+			return "", err
+		}
+		checkedOut = make(map[string]string)
+		for _, wt := range wts {
+			checkedOut[wt.branch] = wt.prefix
+		}
+		i, err = rofiPickBranch(project, columns, lines, filter, branchPickRows(infos, checkedOut, accentColour()))
+		if f, ok := errors.AsType[fetchBranches](err); ok {
+			filter = f.filter
+			fetchRemotes(main, project)
+			continue
+		}
+		if err != nil {
+			return "", err
+		}
+		break
+	}
+	src := infos[i].branchSource
+	if src.remote == "" {
+		if prefix, ok := checkedOut[src.branch]; ok {
+			return prefix, nil
+		}
+	}
+	name := strings.ReplaceAll(src.branch, "/", "-")
+	prefix := project + "@" + name
+	dir := worktreePath(main, name)
+	_, statErr := os.Stat(dir)
+	switch {
+	case !validWorktreeName(name):
+		err = fmt.Errorf("branch %s cannot name a worktree", src.branch)
+	case statErr == nil:
+		err = fmt.Errorf("worktree %s exists, on another branch: %s", prefix, dir)
+	default:
+		err = addWorktree(main, name, src)
+	}
+	if err != nil {
+		notify("", true, "creating worktree "+prefix+" failed: "+err.Error())
+		return "", err
+	}
+	notify("", false, "created "+prefix+": "+src.String())
+	return prefix, nil
+}
+
+// branchPickRows returns infos as rofi rows in Pango markup, in columns
+// that line up, as rofi's font is monospace: when the branch last
+// changed and by whom, the branch, with the workspace prefix of the
+// worktree that has it checked out, from checkedOut, or the remote it
+// is only on in colour, and the subject of its last commit.
+func branchPickRows(infos []branchInfo, checkedOut map[string]string, colour string) []string {
+	notes := make([]string, len(infos))
+	var ageWidth, authorWidth, branchWidth int
+	for i, b := range infos {
+		if b.remote != "" {
+			notes[i], _, _ = strings.Cut(b.remote, "/")
+		} else {
+			notes[i] = checkedOut[b.branch]
+		}
+		ageWidth = max(ageWidth, utf8.RuneCountInString(b.age))
+		authorWidth = max(authorWidth, utf8.RuneCountInString(b.author))
+		branchWidth = max(branchWidth, utf8.RuneCountInString(b.branch)+noteWidth(notes[i]))
+	}
+	pad := func(s string, w int) string {
+		return strings.Repeat(" ", w-utf8.RuneCountInString(s))
+	}
+	rows := make([]string, len(infos))
+	for i, b := range infos {
+		row := `<span fgalpha="55%">` + html.EscapeString(b.age) + pad(b.age, ageWidth) + "  " +
+			html.EscapeString(b.author) + "</span>" + pad(b.author, authorWidth) + "  " +
+			"<b>" + html.EscapeString(b.branch) + "</b>"
+		if notes[i] != "" {
+			row += ` <span foreground="` + colour + `">` + html.EscapeString(notes[i]) + "</span>"
+		}
+		row += strings.Repeat(" ", branchWidth-utf8.RuneCountInString(b.branch)-noteWidth(notes[i])) + "  " +
+			`<span fgalpha="55%">` + html.EscapeString(b.subject) + "</span>"
+		rows[i] = row
+	}
+	return rows
+}
+
+// noteWidth returns how wide note is after a branch in branchPickRows.
+func noteWidth(note string) int {
+	if note == "" {
+		return 0
+	}
+	return 1 + utf8.RuneCountInString(note)
+}
+
+// fetchRemotes fetches the remotes of the repository of main checkout
+// main, of project, telling the user in a notification.
+func fetchRemotes(main, project string) {
+	id := notify("", false, "fetching "+project)
+	var errs []string
+	for _, r := range sortRemotes(main) {
+		if err := fetchRemote(main, r); err != nil {
+			errs = append(errs, err.Error())
+		}
+	}
+	if len(errs) > 0 {
+		notify(id, true, "fetching "+project+" failed: "+strings.Join(errs, "; "))
+		return
+	}
+	notify(id, false, "fetched "+project)
+}
+
+// fetchBranches is the error rofiPickBranch returns when the user asks
+// to fetch the remotes. filter is what the user had typed.
+type fetchBranches struct{ filter string }
+
+func (fetchBranches) Error() string { return "fetch" }
+
+// rofiPickBranch lets the user choose one of rows, the branches of
+// project, with rofi as large as the picker with columns columns of
+// lines rows, and returns its index. filter, if not empty, is typed in
+// already. Ctrl+r returns a fetchBranches. It returns errCancelled if
+// the user cancels.
+func rofiPickBranch(project string, columns, lines int, filter string, rows []string) (int, error) {
+	theme := fmt.Sprintf("listview { columns: 1; lines: %d; }", lines)
+	args := []string{"-dmenu", "-i", "-matching", "fuzzy", "-no-custom", "-markup-rows",
+		"-kb-custom-1", "Control+r", "-format", "i f", "-p", project + "@",
+		"-mesg", "Ret go to its worktree, created if need be   C-r fetch   Esc back"}
+	if filter != "" {
+		args = append(args, "-filter", filter)
+	}
+	cmd, err := rofiCommand(pickWidth(columns), pickHeight, theme, args...)
+	if err != nil {
+		return 0, err
+	}
+	cmd.Stdin = strings.NewReader(strings.Join(rows, "\n"))
+	out, err := cmd.Output()
+	i, typed, _ := strings.Cut(strings.TrimSuffix(string(out), "\n"), " ")
+	if ee, ok := errors.AsType[*exec.ExitError](err); ok && ee.ExitCode() == 10 {
+		return 0, fetchBranches{typed}
+	}
+	if err != nil {
+		return 0, errCancelled
+	}
+	n, err := strconv.Atoi(i)
+	if err != nil || n < 0 || n >= len(rows) {
+		return 0, errCancelled
+	}
+	return n, nil
 }

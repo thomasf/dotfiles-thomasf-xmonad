@@ -697,31 +697,13 @@ func branchRows(srcs []branchSource, colour string) []string {
 // that is both local and on a remote is returned once, as local; one
 // on several remotes is returned once for each.
 func matchingBranches(main, name string) ([]branchSource, error) {
-	out, err := git(main, "for-each-ref", "--format=%(refname) %(objectname:short)", "refs/heads", "refs/remotes")
+	infos, err := branches(main, "refname")
 	if err != nil {
 		return nil, err
 	}
-	refs := strings.Fields(out)
-	local := make(map[string]bool)
-	for i := 0; i+1 < len(refs); i += 2 {
-		if b, ok := strings.CutPrefix(refs[i], "refs/heads/"); ok {
-			local[b] = true
-		}
-	}
 	var exact, other []branchSource
-	for i := 0; i+1 < len(refs); i += 2 {
-		ref, hash := refs[i], refs[i+1]
-		var src branchSource
-		if b, ok := strings.CutPrefix(ref, "refs/heads/"); ok {
-			src = branchSource{branch: b, hash: hash}
-		} else {
-			remote := strings.TrimPrefix(ref, "refs/remotes/")
-			_, b, ok := strings.Cut(remote, "/")
-			if !ok || b == "HEAD" || local[b] {
-				continue
-			}
-			src = branchSource{branch: b, remote: remote, hash: hash}
-		}
+	for _, b := range infos {
+		src := b.branchSource
 		switch {
 		case src.branch == name:
 			exact = append(exact, src)
@@ -730,6 +712,54 @@ func matchingBranches(main, name string) ([]branchSource, error) {
 		}
 	}
 	return append(exact, other...), nil
+}
+
+// A branchInfo is a branch with its last commit.
+type branchInfo struct {
+	branchSource
+	age     string // how long ago the commit was made, like "2 days ago"
+	author  string
+	subject string
+}
+
+// branches returns the branches of the repository of main checkout
+// main, sorted by key as git for-each-ref --sort takes it: those local,
+// and those only on a remote, once for each remote.
+func branches(main, key string) ([]branchInfo, error) {
+	out, err := git(main, "for-each-ref", "--sort="+key,
+		"--format=%(refname)%00%(objectname:short)%00%(committerdate:relative)%00%(authorname)%00%(subject)",
+		"refs/heads", "refs/remotes")
+	if err != nil || out == "" {
+		return nil, err
+	}
+	var refs [][]string
+	local := make(map[string]bool)
+	for line := range strings.SplitSeq(out, "\n") {
+		f := strings.SplitN(line, "\x00", 5)
+		if len(f) < 5 {
+			continue
+		}
+		refs = append(refs, f)
+		if b, ok := strings.CutPrefix(f[0], "refs/heads/"); ok {
+			local[b] = true
+		}
+	}
+	var infos []branchInfo
+	for _, f := range refs {
+		info := branchInfo{branchSource{hash: f[1]}, f[2], f[3], f[4]}
+		if b, ok := strings.CutPrefix(f[0], "refs/heads/"); ok {
+			info.branch = b
+		} else {
+			remote := strings.TrimPrefix(f[0], "refs/remotes/")
+			_, b, ok := strings.Cut(remote, "/")
+			if !ok || b == "HEAD" || local[b] {
+				continue
+			}
+			info.branch, info.remote = b, remote
+		}
+		infos = append(infos, info)
+	}
+	return infos, nil
 }
 
 // exactBranch returns the branch named branch, local or else on a
