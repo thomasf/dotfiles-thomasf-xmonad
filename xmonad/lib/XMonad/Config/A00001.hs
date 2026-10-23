@@ -909,7 +909,9 @@ myScratchPads = [ NS "largeTerminal" (term "largeTerminal") (res =? scratch "lar
   where
     scratch sname = "scratchpad_" ++ sname
     -- term sname = " urxvt " ++ " -name " ++ scratch sname
-    term sname = " alacritty " ++ " --class " ++ scratch sname
+    -- WSENV_SKIP keeps the shell from sourcing the environment of the
+    -- workspace the scratchpad happens to be opened on.
+    term sname = " env WSENV_SKIP=1 alacritty " ++ " --class " ++ scratch sname
     termScratch scmd = NS scmd (inTerm' scmd scmd) (res =? scratch scmd)
     inTerm' sname scmd = term sname ++ " -e " ++  scmd
     res = resource
