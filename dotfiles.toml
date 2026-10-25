@@ -79,23 +79,49 @@ condition = "os == 'linux'"
 src = 'config-xmonad/rofi/config.rasi.tmpl'
 dst = '.config/rofi/config.rasi'
 
-[[mount]]
+[[template]]
 condition = "os == 'linux'"
-src = 'config-xmonad/rofi/dark.rasi'
-dst = '.config/rofi/dark.rasi'
+src = 'config-xmonad/rofi/colors.rasi.tmpl'
+dst = '.config/rofi/colors.rasi'
 
-[[mount]]
-condition = "os == 'linux'"
-src = 'config-xmonad/rofi/light.rasi'
-dst = '.config/rofi/light.rasi'
-
-# rofi's colours: darkmode links colors.rasi to dark.rasi or light.rasi.
-# Until it has run, link the one for the current mode.
-# TODO: probably not like this
+# clean up after replacing dark.rasi and light.rasi, which darkmode linked
+# colors.rasi to, with colors.rasi.tmpl: a template does not replace a link
 [[script]]
+phase = 'pre'
+on = ['install', 'theme']
 condition = "os == 'linux'"
 src = '''
-mkdir -p ~/.config/rofi
-[ -e ~/.config/rofi/colors.rasi ] || ln -sf "$([ -e ~/.config/darkmode ] && echo dark || echo light).rasi" ~/.config/rofi/colors.rasi
+for f in colors dark light; do
+  if [ -L ~/.config/rofi/$f.rasi ]; then rm ~/.config/rofi/$f.rasi; fi
+done
 '''
 
+
+# Reload the desktop when dotfiles theme switches the theme, after the files
+# of every repository are written: the root window background, the panels, X
+# resources, the GTK color scheme and xmonad. A theme without a background
+# gets its bg_0. Nothing is reloaded if no X server answers on DISPLAY, as
+# over ssh with a stale DISPLAY: panels, for one, panics without it.
+[[script]]
+on = 'theme'
+phase = 'post'
+condition = "os == 'linux' && env('DISPLAY') != ''"
+src = '''
+if ! xset q >/dev/null 2>&1; then
+  exit 0
+fi
+{{- $bg := or (index .theme.apps "background") ""}}
+{{- if not (lookPath "hsetroot")}}
+xsetroot -solid {{shellQuote .theme.colors.bg_0}}
+{{- else if $bg}}
+hsetroot {{shellQuote (printf "-%s" (or (index .theme.apps "background_mode") "tile"))}} {{shellQuote (printf "%s/%s" .theme.dir $bg)}} >/dev/null
+{{- else}}
+hsetroot -solid {{shellQuote .theme.colors.bg_0}} >/dev/null
+{{- end}}
+panels
+xrdb -merge ~/.Xresources
+{{- if lookPath "gsettings"}}
+gsettings set org.gnome.desktop.interface color-scheme {{shellQuote (or (index .theme.apps "color_scheme") (printf "prefer-%s" .theme.mode))}}
+{{- end}}
+xmonad --restart
+'''

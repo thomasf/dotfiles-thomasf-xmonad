@@ -1,11 +1,12 @@
-// rofi colours for dark mode, the Selenized colours of the XMonad prompts.
-// darkmode links ~/.config/rofi/colors.rasi to this file or its pair.
+// rofi colours, from the theme in use ({{.theme.name}}:{{.theme.variant}}).
+// The window is a raised surface: bg_1 with fg_1 text, and bg_2 for the
+// selected row.
 * {
-  bg:               #103c48;
-  bg-alt:           #184956;
-  fg:               #d5cdb6;
-  fg-dim:           #72898f;
-  accent:           #ca4898;
+  bg:               {{.theme.colors.bg_1}};
+  bg-alt:           {{.theme.colors.bg_2}};
+  fg:               {{.theme.colors.fg_1}};
+  fg-dim:           {{.theme.colors.dim_0}};
+  accent:           {{.theme.colors.magenta}};
 
   // The default theme's colours, used by the entry and other widgets this
   // file does not style.

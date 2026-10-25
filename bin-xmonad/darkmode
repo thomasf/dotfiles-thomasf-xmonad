@@ -1,58 +1,17 @@
 #!/bin/sh
 #
-# Switch between light and dark mode.
-#
-# set -e
+# Switch between light and dark mode. dotfiles theme switches the theme and
+# runs the [[script]] entries with on = "theme", which reload the desktop
+# (see xmonad/dotfiles.toml).
 
-golight() {
-  # dotfiles theme also removes ~/.config/darkmode and installs the files
-  # that depend on the theme, such as the alacritty config.
-  hash dotfiles 2>/dev/null && dotfiles theme set light || rm -f ~/.config/darkmode
-  if [ $(which hsetroot) ]; then
-    hsetroot -tile ~/.config-xmonad/bgbitmap-light.png
-  else
-    xsetroot -bitmap ~/.config-xmonad/bgbitmap -bg '#fdf6e3' -fg '#93a1a1'
-  fi
-  panels
-  xrdb -merge ~/.config-xmonad/xresources/light
-  ln -sf light.rasi ~/.config/rofi/colors.rasi
-  hash gsettings 2>/dev/null && gsettings set org.gnome.desktop.interface color-scheme prefer-light
-  xmonad --restart
-}
-
-godark() {
-  if [ ! $(id -u) -eq 0 ]; then
-    hash dotfiles 2>/dev/null && dotfiles theme set dark || touch ~/.config/darkmode
-  fi
-  if [ $(which hsetroot) ]; then
-    hsetroot -tile ~/.config-xmonad/bgbitmap-dark.png
-  else
-    xsetroot -bitmap ~/.config-xmonad/bgbitmap -bg '#002b36' -fg '#586e75'
-  fi
-  panels
-  xrdb -merge ~/.config-xmonad/xresources/dark
-  ln -sf dark.rasi ~/.config/rofi/colors.rasi
-  hash gsettings 2>/dev/null && gsettings set org.gnome.desktop.interface color-scheme prefer-dark
-  xmonad --restart
-}
-
-cmd=${1}
-case $cmd in
+case ${1} in
   l|light)
-    golight
+    exec dotfiles theme set light
     ;;
   d|dark)
-    godark
+    exec dotfiles theme set dark
     ;;
-  t|toggle|*)
-    if [ -e ~/.config/darkmode ]; then
-      golight
-    else
-      godark
-    fi
+  *)
+    exec dotfiles theme toggle
     ;;
 esac
-
-# Local Variables:
-# eval: (rainbow-mode)
-# End:

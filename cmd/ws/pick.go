@@ -4,6 +4,7 @@ package main
 
 import (
 	"cmp"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"html"
@@ -14,6 +15,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"unicode/utf8"
 )
 
@@ -390,36 +392,42 @@ func pickWidth(columns int) int { return min(95, 35+20*columns) }
 
 const pickHeight = 65
 
-// accentColour returns the colour of labels in rofi rows: Selenized
-// cyan, for the light or dark rofi colours that darkmode links
-// ~/.config/rofi/colors.rasi to. Pango markup cannot use the colours
-// of the rofi theme.
-func accentColour() string {
-	if darkRofi() {
-		return "#41c7b9"
-	}
-	return "#009c8f"
-}
+// accentColour returns the colour of labels in rofi rows: cyan of the
+// theme in use. Pango markup cannot use the colours of the rofi theme.
+func accentColour() string { return paletteColour("cyan", "#009c8f") }
 
 // visibleColour returns the colour of workspaces on other screens in
-// rofi rows: Selenized blue, as accentColour picks it.
-func visibleColour() string {
-	if darkRofi() {
-		return "#4695f7"
+// rofi rows: blue of the theme in use.
+func visibleColour() string { return paletteColour("blue", "#0072d4") }
+
+// paletteColour returns the colour name of the theme in use, from the
+// palette that dotfiles writes to ~/.config/theme/palette.json, or def,
+// Selenized light, if the palette cannot be read.
+func paletteColour(name, def string) string {
+	if c := palette()[name]; c != "" {
+		return c
 	}
-	return "#0064e4"
+	return def
 }
 
-// darkRofi reports whether darkmode links ~/.config/rofi/colors.rasi to
-// the dark rofi colours.
-func darkRofi() bool {
+// palette returns the colours of ~/.config/theme/palette.json, or nil.
+var palette = sync.OnceValue(func() map[string]string {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return false
+		return nil
 	}
-	t, err := os.Readlink(filepath.Join(home, ".config", "rofi", "colors.rasi"))
-	return err == nil && filepath.Base(t) == "dark.rasi"
-}
+	data, err := os.ReadFile(filepath.Join(home, ".config", "theme", "palette.json"))
+	if err != nil {
+		return nil
+	}
+	var p struct {
+		Colors map[string]string `json:"colors"`
+	}
+	if err := json.Unmarshal(data, &p); err != nil {
+		return nil
+	}
+	return p.Colors
+})
 
 // pickRows returns the rofi rows for groups, and for each row the name
 // of its workspace. A group header stands for the first workspace of

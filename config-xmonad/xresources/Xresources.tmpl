@@ -1,3 +1,39 @@
-#include ".config-xmonad/xresources/default"
+#include ".config-xmonad/xresources/common"
+
+! The colors of the theme in use, {{.theme.name}}:{{.theme.variant}}. dotfiles
+! rewrites this file when it switches the theme.
+
+Emacs*.background:            {{.theme.colors.bg_0}}
+Emacs*.foreground:            {{.theme.colors.fg_0}}
+
+Xmessage*background:          {{.theme.colors.bg_0}}
+Xmessage*foreground:          {{.theme.colors.fg_0}}
+
+URxvt*background:             {{.theme.colors.bg_0}}
+URxvt*foreground:             {{.theme.colors.fg_0}}
+URxvt*fadeColor:              {{.theme.colors.bg_0}}
+URxvt*cursorColor:            {{.theme.colors.fg_1}}
+URxvt*pointerColorBackground: {{.theme.colors.dim_0}}
+URxvt*pointerColorForeground: {{.theme.colors.fg_1}}
+URxvt*scrollColor:            {{.theme.colors.dim_0}}
+URxvt*borderColor:            {{.theme.colors.bg_0}}
+URxvt*colorUL:                {{.theme.colors.green}}
+URxvt*colorBD:                {{.theme.colors.blue}}
+URxvt*color0:                 {{.theme.colors.color0}}
+URxvt*color1:                 {{.theme.colors.color1}}
+URxvt*color2:                 {{.theme.colors.color2}}
+URxvt*color3:                 {{.theme.colors.color3}}
+URxvt*color4:                 {{.theme.colors.color4}}
+URxvt*color5:                 {{.theme.colors.color5}}
+URxvt*color6:                 {{.theme.colors.color6}}
+URxvt*color7:                 {{.theme.colors.color7}}
+URxvt*color8:                 {{.theme.colors.color8}}
+URxvt*color9:                 {{.theme.colors.color9}}
+URxvt*color10:                {{.theme.colors.color10}}
+URxvt*color11:                {{.theme.colors.color11}}
+URxvt*color12:                {{.theme.colors.color12}}
+URxvt*color13:                {{.theme.colors.color13}}
+URxvt*color14:                {{.theme.colors.color14}}
+URxvt*color15:                {{.theme.colors.color15}}
 
 Xft.dpi:                              {{.vars.dpi}}
