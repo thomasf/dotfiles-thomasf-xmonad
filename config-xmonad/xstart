@@ -18,7 +18,7 @@ export WINIT_HIDPI_FACTOR=1
 # A first background until dotfiles theme sets the theme's: bg_0 of the
 # palette that dotfiles writes, or grey without one.
 bg=$(sed -n 's/^ *"bg_0": "\(#[0-9a-fA-F]\{6\}\)".*/\1/p' "${HOME}/.config/theme/palette.json" 2>/dev/null)
-[ $(which xsetroot ) ] \
+hash xsetroot 2>/dev/null \
   && xsetroot -solid "${bg:-#808080}" &
 
 if [ -f "${HOME}/.config-private/xstart/$HOSTNAME" ]; then
@@ -63,7 +63,7 @@ sleep 0.3
 
 
 # Devmon udev mounter (part of udevil)
-[ $(which devmon) ] \
+hash devmon 2>/dev/null \
   && devmon &
 
 # unset gnome keyring daemon variables
@@ -74,17 +74,17 @@ unset GNOME_KEYRING_PID
 rm -f ~/.ssh/control:*
 rm -f "${HOME}/.gnupg/S.*"
 unset GPG_AGENT_INFO; unset SSH_AUTH_SOCK; unset SSH_AGENT_PID
-if [ $(which gpg-agent) ]; then
+if hash gpg-agent 2>/dev/null; then
   eval $(gpg-agent --daemon --sh --enable-ssh-support)
   SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
-elif [ $(which ssh-agent) ]; then
+elif hash ssh-agent 2>/dev/null; then
   eval $(ssh-agent -s)
 fi
 export SSH_AUTH_SOCK
 export SSH_AGENT_PID
 
 (
-  if [ $(which dconf) ]; then
+  if hash dconf 2>/dev/null; then
     dconf write /org/gnome/settings-daemon/plugins/media-keys/active false
     dconf write /org/gnome/desktop/background/draw-background false
     dconf write /org/gnome/desktop/background/show-desktop-icons false
@@ -106,13 +106,13 @@ export SSH_AGENT_PID
 
 # Start music player daemon if it's available
 (
-  if [ $(which mpd) ]; then
+  if hash mpd 2>/dev/null; then
     sleep 4
     mkdir -p ~/.mpd/playlists
     nohup mpd 2>/dev/null
     sleep 2
     # Avoid some madness
-    if [ `which mpc` ]; then
+    if hash mpc 2>/dev/null; then
       mpc -q repeat off
       mpc -q single off
       mpc -q consume off
@@ -121,15 +121,15 @@ export SSH_AGENT_PID
 ) &
 
 # Load the keymaps, and again whenever a keyboard is plugged in
-[ $(which kbd) ] \
+hash kbd 2>/dev/null \
   && kbd watch &
 
 # Launch avfs daemon
-[ $(which mountavfs) ] \
+hash mountavfs 2>/dev/null \
   && mountavfs 2>/dev/null &
 
 # dunst
-[ $(which dunst) ] \
+hash dunst 2>/dev/null \
   && dunst &
 
 # Launch the polkit authentication agent (apt install mate-polkit)
@@ -137,15 +137,15 @@ export SSH_AGENT_PID
   && /usr/libexec/polkit-mate-authentication-agent-1 &
 
 # Launch the network manager applet
-[ $(which nm-applet) ] \
+hash nm-applet 2>/dev/null \
   && nm-applet --sm-disable &
 
 # Launch the bluetooth manager applet
-[ $(which blueman-applet) ] \
+hash blueman-applet 2>/dev/null \
   && blueman-applet &
 
 # Launch battery icon
-[ $(which cbatticon) ] \
+hash cbatticon 2>/dev/null \
   && cbatticon &
 
 
@@ -154,15 +154,14 @@ DE='xfce'
 export DE
 
 # Set a default web browser
-[ $(which www) ] \
-  && BROWSER=$(which www) \
-  && export BROWSER
+hash www 2>/dev/null \
+  && export BROWSER=www
 
-if [ $(which miniserv) ]; then
+if hash miniserv 2>/dev/null; then
   miniserv &
 fi
 
-if [ $(which xscreensaver) ]; then
+if hash xscreensaver 2>/dev/null; then
   xscreensaver --no-splash &
 fi
 
@@ -175,7 +174,7 @@ export HOST="$HOSTNAME"
 
 # Set default window manger (xmonad) or try user selection
 WM=""
-if [ $(which xmonad) ]; then
+if hash xmonad 2>/dev/null; then
   rm -f ${HOME}/.xmonad/xmonad.state
   WM="xmonad"
 fi
