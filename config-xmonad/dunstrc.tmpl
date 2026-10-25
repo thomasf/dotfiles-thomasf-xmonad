@@ -1,5 +1,6 @@
 # -*- mode: conf -*-
 {{- $c := .theme.colors}}
+{{- $hidpi := expr "int(vars.dpi) >= 144"}}
 # Colors of the theme in use, {{.theme.name}}:{{.theme.variant}}: each kind of
 # notification has its accent, as a tint of bg_0 behind text that is the
 # accent mixed toward fg_1 (see dotfiles doc mix).
@@ -18,10 +19,14 @@ bounce_freq = 0
 show_age_threshold = 120
 word_wrap = yes
 {{- if eq .hostname "flam"}}
-# wider than the default 300 on the 4K screens of flam
-width = 500
+# wider than the default 300 (at scale 2) on the 4K screens of flam
+width = 430
 {{- end}}
 transparency = 0
+# A whole-number scale. Without it dunst takes Xft.dpi / 96 (1.72 at 165
+# dpi), and a fractional scale leaves one-pixel seams between notifications.
+# The sizes in pixels below are for this scale.
+scale = {{if $hidpi}}2{{else}}1{{end}}
 idle_threshold = 120
 monitor = 0
 {{- if eq .hostname "flam"}}
@@ -31,10 +36,10 @@ follow = none
 follow = keyboard
 {{- end}}
 sticky_history = yes
-line_height = 4
+line_height = {{if $hidpi}}3{{else}}4{{end}}
 separator_height = 0
-padding = 18
-horizontal_padding = 20
+padding = {{if $hidpi}}15{{else}}18{{end}}
+horizontal_padding = {{if $hidpi}}17{{else}}20{{end}}
 separator_color = auto
 dmenu = dmenu -p dunst:
 browser = www
@@ -44,7 +49,7 @@ ellipsize = middle
 stack_duplicates = true
 show_indicators = yes
 history_length = 100
-corner_radius = 8
+corner_radius = {{if $hidpi}}7{{else}}8{{end}}
 mouse_left_click = do_action, close_current
 mouse_middle_click = close_all
 mouse_right_click = close_current
