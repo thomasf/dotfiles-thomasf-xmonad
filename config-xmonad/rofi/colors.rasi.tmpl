@@ -1,11 +1,12 @@
 // rofi colours, from the theme in use ({{.theme.name}}:{{.theme.variant}}).
 // The window is a raised surface: bg_1 with fg_1 text, and bg_2 for the
-// selected row.
+// selected row. Hints are dim_1, a stronger dim than dim_0, which is hard
+// to read on bg_1.
 * {
   bg:               {{.theme.colors.bg_1}};
   bg-alt:           {{.theme.colors.bg_2}};
   fg:               {{.theme.colors.fg_1}};
-  fg-dim:           {{.theme.colors.dim_0}};
+  fg-dim:           {{or (index .theme.colors "dim_1") .theme.colors.dim_0}};
   accent:           {{.theme.colors.magenta}};
 
   // The default theme's colours, used by the entry and other widgets this
