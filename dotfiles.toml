@@ -4,9 +4,8 @@ public = true
 dpi = '{{ expr `{"flam": 165, "yak": 170}[hostname] ?? 170` }}'
 
 [[script]]
-src= '''
-create-alacritty-config
-'''
+# clean up after replacing the command with [[starlark]]
+src='rm -f ~/bin/create-alacritty-config'
 
 [[go]]
 src = 'cmd/batt'
@@ -43,6 +42,19 @@ dst = '.config/gtk-3.0'
 [[mount]]
 src = 'config-xmonad/alacritty'
 dst = '.config/alacritty'
+
+[[starlark]]
+dst = '.config/alacritty/alacritty.toml'
+missing = 'create'
+src = '''
+l = "config-xmonad/alacritty/layers/"
+theme = "selenized-dark" if exists(".config/darkmode") else "selenized-light"
+doc.clear()
+merge(doc, read(l + "common.toml"))
+merge(doc, read(l + "colors." + theme + ".toml"))
+merge(doc, read(l + "os." + os + ".toml", default = {}))
+merge(doc, read(l + "host." + hostname.split(".")[0] + ".toml", default = {}))
+'''
 
 [[mount]]
 src = 'config-xmonad/fontconfig/conf.d'
