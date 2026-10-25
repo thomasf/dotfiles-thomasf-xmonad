@@ -31,8 +31,8 @@ condition = "os == 'linux'"
 src = 'cmd/kbd'
 condition = "os == 'linux'"
 
-[[mount]]
-src = 'config-xmonad/dunstrc'
+[[template]]
+src = 'config-xmonad/dunstrc.tmpl'
 dst = '.config/dunst/dunstrc'
 
 [[mount]]
@@ -90,22 +90,23 @@ condition = "os == 'linux'"
 src = 'config-xmonad/xmonad-palette.tmpl'
 dst = '.config/theme/xmonad-palette'
 
-# clean up after replacing dark.rasi and light.rasi, which darkmode linked
-# colors.rasi to, with colors.rasi.tmpl: a template does not replace a link
+# clean up after replacing links with templates, which do not replace a
+# link: rofi's colors.rasi linked to dark.rasi or light.rasi, and dunstrc was
+# mounted
 [[script]]
 phase = 'pre'
 on = ['install', 'theme']
 condition = "os == 'linux'"
 src = '''
-for f in colors dark light; do
-  if [ -L ~/.config/rofi/$f.rasi ]; then rm ~/.config/rofi/$f.rasi; fi
+for f in ~/.config/rofi/colors.rasi ~/.config/rofi/dark.rasi ~/.config/rofi/light.rasi ~/.config/dunst/dunstrc; do
+  if [ -L "$f" ]; then rm "$f"; fi
 done
 '''
 
 
 # Reload the desktop when dotfiles theme switches the theme, after the files
 # of every repository are written: the root window background, the panels, X
-# resources, the GTK color scheme and xmonad. A theme without a background
+# resources, dunst, the GTK color scheme and xmonad. A theme without a background
 # gets its bg_0. Nothing is reloaded if no X server answers on DISPLAY, as
 # over ssh with a stale DISPLAY: panels, for one, panics without it.
 [[script]]
@@ -126,6 +127,9 @@ hsetroot -solid {{shellQuote .theme.colors.bg_0}} >/dev/null
 {{- end}}
 panels
 xrdb -merge ~/.Xresources
+if pgrep -x dunst >/dev/null; then
+  dunstctl reload
+fi
 {{- if lookPath "gsettings"}}
 gsettings set org.gnome.desktop.interface color-scheme {{shellQuote (or (index .theme.apps "color_scheme") (printf "prefer-%s" .theme.mode))}}
 {{- end}}
