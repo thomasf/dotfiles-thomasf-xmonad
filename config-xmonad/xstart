@@ -15,9 +15,8 @@ export _JAVA_AWT_WM_NONREPARENTING=1
 # DPI differences.
 export WINIT_HIDPI_FACTOR=1
 
-# A first background until dotfiles theme sets the theme's: bg_0 of the
-# palette that dotfiles writes, or grey without one.
-bg=$(sed -n 's/^ *"bg_0": "\(#[0-9a-fA-F]\{6\}\)".*/\1/p' "${HOME}/.config/theme/palette.json" 2>/dev/null)
+# Background from the theme in use, or grey without one.
+bg=$(dotfiles theme color bg_0 2>/dev/null)
 hash xsetroot 2>/dev/null \
   && xsetroot -solid "${bg:-#808080}" &
 
