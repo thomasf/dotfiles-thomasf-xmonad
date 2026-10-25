@@ -166,16 +166,10 @@ if [ $(which xscreensaver) ]; then
   xscreensaver --no-splash &
 fi
 
-(
-  darkmodearg=l
-  if [ $(which zenity) ]; then
-    sleep 1
-    if ! zenity --question --text="Bright?"; then
-      darkmodearg=d
-    fi
-  fi
-  darkmode $darkmodearg
-) &
+# Start status bars and system tray (xmobar and trayer)
+if hash panels 2>/dev/null; then
+  panels &
+fi
 
 export HOST="$HOSTNAME"
 
