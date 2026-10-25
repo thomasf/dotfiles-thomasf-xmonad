@@ -63,6 +63,7 @@ import           XMonad.Layout.TwoPane
 import           XMonad.Layout.ThreeColumns
 import           XMonad.Layout.IM
 import           XMonad.Layout.LayoutCombinators
+import           XMonad.Layout.LayoutModifier
 import qualified XMonad.Layout.LayoutScreens as LS
 import           XMonad.Layout.MultiToggle
 import           XMonad.Layout.MultiToggle.Instances
@@ -90,6 +91,34 @@ import           XMonad.Operations (unGrab)
 import qualified Control.Arrow as Arrow
 import qualified Graphics.Rendering.Pango.Layout as PL
 
+
+-- | Layout modifier that adds spacing only between windows/panes, with 0 outer margin on edges touching screen borders.
+data EdgeSpacing a = EdgeSpacing Int Int Int Int Int deriving (Show, Read)
+
+instance LayoutModifier EdgeSpacing a where
+  pureModifier (EdgeSpacing oTop oBottom oLeft oRight inner) screenRect _mst wrs
+    | null wrs || length wrs <= 1 = (wrs, Nothing)
+    | otherwise                   = (map adjust wrs, Nothing)
+    where
+      Rectangle sx sy sw sh = screenRect
+      sRight  = fromIntegral sx + fromIntegral sw
+      sBottom = fromIntegral sy + fromIntegral sh
+
+      adjust (w, Rectangle wx wy ww wh) =
+        let wRight  = fromIntegral wx + fromIntegral ww
+            wBottom = fromIntegral wy + fromIntegral wh
+
+            t = if wy <= sy          then oTop    else inner
+            b = if wBottom >= sBottom then oBottom else inner
+            l = if wx <= sx          then oLeft   else inner
+            r = if wRight >= sRight   then oRight  else inner
+        in (w, Rectangle (fromIntegral wx + fromIntegral l)
+                         (fromIntegral wy + fromIntegral t)
+                         (max 1 $ fromIntegral ww - fromIntegral (l + r))
+                         (max 1 $ fromIntegral wh - fromIntegral (t + b)))
+
+innerSpacing :: Int -> l a -> ModifiedLayout EdgeSpacing l a
+innerSpacing i = ModifiedLayout (EdgeSpacing 0 0 0 0 i)
 
 -- Keyboard configuration:
 
@@ -219,11 +248,11 @@ myKeys xpc conf=
   , ("M-8",           addName "restore workspace group 3"   $ holdScreenFocus $ viewWSGroup "wsg3")
   ] ++
   subtitle "screen splitting": mkNamedKeymap conf
-  [ ("M-5 2",  addName "Split current screen by 2 panes 0.5"              $ LS.layoutSplitScreen 2 $ smartSpacing 2 (TwoPane 0 0.5))
-  , ("M-5 1",  addName "Split current screen by 2 panes 0.7"              $ LS.layoutSplitScreen 2 $ smartSpacing 2 (TwoPane 0 0.33))
-  , ("M-5 3",  addName "Split current screen by 3 even columns"           $ LS.layoutSplitScreen 3 $ smartSpacing 2 (Mirror (Tall 3 0 0)))
-  -- , ("M-5 e",  addName "Split current screen by 3 larger center"          $ LS.layoutSplitScreen 3 $ smartSpacing 2 $ (ThreeColMid 1 (3/100) (4/10)))
-  , ("M-5 4",  addName "Split current screen by 3 columns + bottom wide"  $ LS.layoutSplitScreen 4 $ smartSpacing 2 $ Mirror (Tall 3 0 (5/6)))
+  [ ("M-5 2",  addName "Split current screen by 2 panes 0.5"              $ LS.layoutSplitScreen 2 $ innerSpacing 1 (TwoPane 0 0.5))
+  , ("M-5 1",  addName "Split current screen by 2 panes 0.7"              $ LS.layoutSplitScreen 2 $ innerSpacing 1 (TwoPane 0 0.33))
+  , ("M-5 3",  addName "Split current screen by 3 even columns"           $ LS.layoutSplitScreen 3 $ innerSpacing 1 (Mirror (Tall 3 0 0)))
+  -- , ("M-5 e",  addName "Split current screen by 3 larger center"          $ LS.layoutSplitScreen 3 $ innerSpacing 1 $ (ThreeColMid 1 (3/100) (4/10)))
+  , ("M-5 4",  addName "Split current screen by 3 columns + bottom wide"  $ LS.layoutSplitScreen 4 $ innerSpacing 1 $ Mirror (Tall 3 0 (5/6)))
   , ("M-5 m",  addName "Merge screens 1 + 2"                              $ LS.layoutScreens 2  Full)
   , ("M-5 r",  addName "Reset screens from xinerama, rescreen"              rescreen)
   ] ++
@@ -594,7 +623,7 @@ myLayoutHook =
     onTall = onHosts ["transwhale", "flam", "yak"]
     -- helpers
     refmin = mkToggle (single REFLECTX)
-    mySpacing i = spacingRaw True (Border i i i i) True (Border i i i i) True
+    mySpacing = innerSpacing
     ss = mySpacing myDefaultSpacerWidth
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
