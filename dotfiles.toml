@@ -119,7 +119,7 @@ if ! xset q >/dev/null 2>&1; then
 fi
 {{- $bg := or (index .theme.apps "background") ""}}
 {{- if not (lookPath "hsetroot")}}
-xsetroot -solid {{shellQuote .theme.colors.bg_0}}
+xsetroot -solid {{shellQuote .theme.colors.bg_1}}
 {{- else if $bg}}
 hsetroot {{shellQuote (printf "-%s" (or (index .theme.apps "background_mode") "tile"))}} {{shellQuote (printf "%s/%s" .theme.dir $bg)}} >/dev/null
 {{- else}}
