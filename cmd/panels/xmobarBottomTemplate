@@ -1,8 +1,8 @@
 Config { font = "PT Sans Narrow Bold 28px"
        , additionalFonts = ["PT Sans Narrow 28px", "Pragmata Pro Bold 18px"]
-       , borderColor = "{{ .Sol.Base02 }}"
-       , bgColor = "{{ .Sol.Base03 }}"
-       , fgColor = "{{ .Sol.Base1 }}"
+       , borderColor = "{{ .C "bg_1" }}"
+       , bgColor = "{{ .C "bg_0" }}"
+       , fgColor = "{{ .C "fg_1" }}"
        , allDesktops = True
        , alpha = 255
        , border = TopB
@@ -23,5 +23,5 @@ Config { font = "PT Sans Narrow Bold 28px"
 
        , sepChar = "%"
        , alignSep = "}{"
-       -- , template = "  <fn=1><fc={{ .Sol.Base1 }}>%kbd%</fc></fn>   <fc={{ .Sol.Yellow }}>%xm%</fc> }{<fn=1><fc={{ .Sol.Green }}>%mpd%</fc></fn>"
-       , template = "  <fn=1><fc={{ .Sol.Base1 }}>%kbd%</fc></fn>   <fc={{ .Sol.Yellow }}>%xm%</fc>"
+       -- , template = "  <fn=1><fc={{ .C "fg_1" }}>%kbd%</fc></fn>   <fc={{ .C "yellow" }}>%xm%</fc> }{<fn=1><fc={{ .C "green" }}>%mpd%</fc></fn>"
+       , template = "  <fn=1><fc={{ .C "fg_1" }}>%kbd%</fc></fn>   <fc={{ .C "yellow" }}>%xm%</fc>"

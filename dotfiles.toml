@@ -84,6 +84,12 @@ condition = "os == 'linux'"
 src = 'config-xmonad/rofi/colors.rasi.tmpl'
 dst = '.config/rofi/colors.rasi'
 
+# The colors of the theme in use for xmonad, which reads them when it starts.
+[[template]]
+condition = "os == 'linux'"
+src = 'config-xmonad/xmonad-palette.tmpl'
+dst = '.config/theme/xmonad-palette'
+
 # clean up after replacing dark.rasi and light.rasi, which darkmode linked
 # colors.rasi to, with colors.rasi.tmpl: a template does not replace a link
 [[script]]

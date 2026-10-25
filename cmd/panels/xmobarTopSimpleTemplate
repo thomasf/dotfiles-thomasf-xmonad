@@ -1,8 +1,8 @@
 Config { font = "Pragmata Pro 27px"
        , additionalFonts = ["Pragmata Pro 17px", "Pragmata Pro Bold 16px"]
-       , borderColor = "{{ .Sol.Base03 }}"
-       , bgColor = "{{ .Sol.Base03 }}"
-       , fgColor = "{{ .Sol.Base0 }}"
+       , borderColor = "{{ .C "bg_0" }}"
+       , bgColor = "{{ .C "bg_0" }}"
+       , fgColor = "{{ .C "fg_0" }}"
        , allDesktops = True
        , alpha = 255
        , border = NoBorder

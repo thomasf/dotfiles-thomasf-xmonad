@@ -5,6 +5,7 @@ package main
 import (
 	"context"
 	_ "embed"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -19,7 +20,6 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/go-pa/colorlab"
 	"github.com/jezek/xgb"
 	"github.com/jezek/xgb/randr"
 	"github.com/jezek/xgb/xproto"
@@ -201,27 +201,31 @@ func getScreens() (Screens, error) {
 	return ss, nil
 }
 
-func IsDarkmode() (bool, error) {
+// readPalette returns the colors of the theme in use, from the palette that
+// dotfiles writes to ~/.config/theme/palette.json.
+func readPalette() (map[string]string, error) {
 	home, err := homedir()
 	if err != nil {
-		return false, err
+		return nil, err
 	}
-	_, err = os.Stat(filepath.Join(home, ".config/darkmode"))
-	if os.IsNotExist(err) {
-		return false, nil
-	}
+	data, err := os.ReadFile(filepath.Join(home, ".config", "theme", "palette.json"))
 	if err != nil {
-		return false, err
+		return nil, err
 	}
-	return true, nil
+	var p struct {
+		Colors map[string]string `json:"colors"`
+	}
+	if err := json.Unmarshal(data, &p); err != nil {
+		return nil, err
+	}
+	return p.Colors, nil
 }
 
 func panels(hostname string) error {
-	dm, err := IsDarkmode()
+	palette, err := readPalette()
 	if err != nil {
-		return err
+		log.Printf("palette: %v; using grey", err)
 	}
-	// log.Println(dm)
 	screens, err := getScreens()
 	if err != nil {
 		return err
@@ -234,10 +238,6 @@ func panels(hostname string) error {
 	daemonLog = openDaemonLog()
 	// spew.Dump(screens)
 
-	sol := colorlab.SelenizedDarkPalette.Solarized
-	if !dm {
-		sol = colorlab.SelenizedLightPalette.Solarized
-	}
 	var xmobarConfigs []string
 	defer func() {
 		for _, v := range xmobarConfigs {
@@ -253,7 +253,7 @@ func panels(hostname string) error {
 
 		if sc.hasTop() {
 			rc := RenderContext{
-				Sol:    sol,
+				Colors: palette,
 				Screen: i,
 				Height: height,
 			}
@@ -273,7 +273,7 @@ func panels(hostname string) error {
 		if sc.Trayer {
 			trayerWidth := height * 8
 			if err := runTrayer(RenderContext{
-				Sol:    sol,
+				Colors: palette,
 				Width:  trayerWidth,
 				Screen: i,
 				Height: height,
@@ -284,7 +284,7 @@ func panels(hostname string) error {
 
 		if sc.Bottom {
 			f, err := runXmobar(xmobarBottomTemplate, RenderContext{
-				Sol:    sol,
+				Colors: palette,
 				Screen: i,
 				Height: height,
 			})
@@ -307,7 +307,7 @@ func runTrayer(rc RenderContext) error {
 		"--widthtype", "pixel",
 		"--width", fmt.Sprint(rc.Width),
 		"--height", fmt.Sprint(rc.Height),
-		"--tint", "0x"+strings.TrimPrefix(rc.Sol.Base03.Color().Hex(), "#"),
+		"--tint", "0x"+strings.TrimPrefix(rc.C("bg_0"), "#"),
 		"--alpha", "0",
 		"--transparent", "true",
 		"--monitor", "primary",
@@ -389,9 +389,9 @@ func main() {
 
 }
 
-// Theme .
+// RenderContext is what the xmobar templates are rendered with.
 type RenderContext struct {
-	Sol    colorlab.Solarized
+	Colors map[string]string // the palette of the theme in use
 	Width  int
 	Xpos   int
 	Ypos   int
@@ -434,4 +434,14 @@ loop:
 		wg.Wait()
 	}
 	return nil
+}
+
+// C returns the color name of the palette, or grey if it does not have it,
+// as before dotfiles has written the palette. Templates use it as
+// {{ .C "bg_0" }}.
+func (rc RenderContext) C(name string) string {
+	if c, ok := rc.Colors[name]; ok {
+		return c
+	}
+	return "#808080"
 }

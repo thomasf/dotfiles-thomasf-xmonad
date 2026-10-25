@@ -20,6 +20,7 @@ module XMonad.Config.A00001
       -- $usage
       a00001Config,
     ) where
+import           Control.Exception (IOException, try)
 import           Control.Monad
 import           Data.Char (isSpace, toLower)
 import           Data.List
@@ -28,8 +29,6 @@ import           Data.Monoid
 import           Data.Ratio ((%))
 import           Data.Ord
 import           Data.Maybe
-import qualified Selenized as Sol
-import           System.Directory
 import           System.Environment (getEnv)
 import           System.Exit ( exitSuccess )
 import           System.IO
@@ -497,7 +496,7 @@ myMouseBindings =
       -- button9 =  9 :: Button
       button10 =  10 :: Button
       gestures = M.fromList
-                 [ ([    ], \_ -> gridselectWorkspace myGsconfig W.greedyView)
+                 [ ([    ], \_ -> io readPalette >>= \pal -> gridselectWorkspace (myGsconfig pal) W.greedyView)
                  , ([R, D], \_ -> sendMessage NextLayout)
                  , ([U   ], \w -> focus w >> Nav2d.windowSwap U False)
                  , ([D   ], \w -> focus w >> Nav2d.windowSwap D False)
@@ -509,16 +508,44 @@ myMouseBindings =
 
 
 -- | Colors
-myFocusedColor = Sol.magenta
-myFocusedColor2 darkmode = if darkmode then Sol.magenta else Sol.magentaL
-myUrgentColor = Sol.blue
-myNormalBorderColor darkmode = if darkmode then Sol.base02 else Sol.base2
-myGsconfig = def
+
+-- | The colors of the theme in use, by name, such as bg_0, fg_1 or magenta,
+-- with the mode as "mode". dotfiles writes them to
+-- ~/.config/theme/xmonad-palette, as a Haskell list of pairs, when it
+-- installs or switches the theme; switching restarts xmonad.
+type Palette = M.Map String String
+
+readPalette :: IO Palette
+readPalette = do
+  home <- getEnv "HOME"
+  s <- try (readFile $ home ++ "/.config/theme/xmonad-palette") :: IO (Either IOException String)
+  return $ case s of
+    Right str | [(ps, rest)] <- reads str, all isSpace rest -> M.fromList ps
+    _ -> M.empty
+
+-- | col p name is the color name of p, or grey if p does not have it, as
+-- before dotfiles has written the palette.
+col :: Palette -> String -> String
+col p name = M.findWithDefault "#808080" name p
+
+myFocusedColor pal = col pal "magenta"
+myUrgentColor pal = col pal "blue"
+myNormalBorderColor pal = col pal "bg_1"
+-- | GridSelect in the colors of the palette, like rofi and the prompts: the
+-- cells are a raised surface, bg_1 with fg_1 text, the selected one magenta
+-- with bg_0 text, and bg_0 separates them instead of white outlines.
+myGsconfig :: Palette -> GSConfig a
+myGsconfig pal = (buildDefaultGSConfig colorizer)
     { gs_cellheight = 70
     , gs_cellwidth = 150
     , gs_cellpadding = 6
     , gs_font = sizedXftFont "13"
+    , gs_bordercolor = col pal "bg_0"
     }
+  where
+    colorizer _ active = return $ if active
+      then (col pal "magenta", col pal "bg_0")
+      else (col pal "bg_1", col pal "fg_1")
 
 myDefaultSpacerWidth = 3
 myDefaultBorderWidth = 4
@@ -705,8 +732,8 @@ wsFocusEventHook _ = return (All True)
 -- See the 'XMonad.Hooks.DynamicLog' extension for examples.
 --
 
-myXmobarTopPP = def
-  { ppCurrent = xmobarColor myFocusedColor "" . wrap " " "" . trim
+myXmobarTopPP pal = def
+  { ppCurrent = xmobarColor (myFocusedColor pal) "" . wrap " " "" . trim
   , ppVisible = wrap " " "" . trim
   , ppHidden  = const ""
   , ppUrgent  = wrap " ◀"  "▶"
@@ -716,20 +743,20 @@ myXmobarTopPP = def
   , ppSort    = mySortByXineramaPhysicalRule
   }
 
-myXmobarBottomPP = def
+myXmobarBottomPP pal = def
   { ppCurrent = const ""
   , ppVisible = const ""
   , ppHidden  = const ""
   , ppUrgent  = const ""
   , ppTitle   = trim
   , ppLayout  = const ""
-  , ppSep     = xmobarColor Sol.cyan "" " + "
+  , ppSep     = xmobarColor (col pal "cyan") "" " + "
   , ppSort    = mySortByXineramaPhysicalRule
   }
 
-myLogHook = do
-  dynamicLogString myXmobarTopPP >>= xmonadPropLog' "_XMONAD_LOG_TOP"
-  dynamicLogString myXmobarBottomPP >>= xmonadPropLog' "_XMONAD_LOG_BOTTOM"
+myLogHook pal = do
+  dynamicLogString (myXmobarTopPP pal) >>= xmonadPropLog' "_XMONAD_LOG_TOP"
+  dynamicLogString (myXmobarBottomPP pal) >>= xmonadPropLog' "_XMONAD_LOG_BOTTOM"
   workspaceHistoryHook
   ewmhDesktopsLogHook
   -- desktopLogHook
@@ -792,9 +819,9 @@ myStartupHook = do
 
 -- Urgency hook
 
-myUrgencyHook =
+myUrgencyHook pal =
   withUrgencyHookC BorderUrgencyHook
-    { urgencyBorderColor = myUrgentColor }
+    { urgencyBorderColor = myUrgentColor pal }
     urgencyConfig
       { suppressWhen = XMonad.Hooks.UrgencyHook.Focused }
 
@@ -848,19 +875,13 @@ instance XP.XPrompt WsPrompt where
   showXPrompt (WsPrompt s) = s
   commandToComplete _ c = c
   nextCompletion _ = XP.getNextCompletion
-myXPConfig darkmode = if darkmode
-  then defXPConfig
- { XP.bgColor = Sol.base02
- , XP.fgColor = Sol.base1
- , XP.bgHLight = Sol.base02
- , XP.fgHLight = Sol.magenta
- , XP.borderColor = Sol.base02
- } else defXPConfig
- { XP.bgColor = Sol.base2
- , XP.fgColor = Sol.base01
- , XP.bgHLight = Sol.base2
- , XP.fgHLight = Sol.magenta
- , XP.borderColor = Sol.base2
+-- | Prompts are a raised surface, like rofi: bg_1 with fg_1 text.
+myXPConfig pal = defXPConfig
+ { XP.bgColor = col pal "bg_1"
+ , XP.fgColor = col pal "fg_1"
+ , XP.bgHLight = col pal "bg_1"
+ , XP.fgHLight = col pal "magenta"
+ , XP.borderColor = col pal "bg_1"
  }
 
 emacsLikeXPKeymap' :: (Char -> Bool) -> M.Map (KeyMask,KeySym) (XP.XP ())
@@ -934,28 +955,22 @@ myNavigation2DConfig = def {
 --  a00001Config
 
 
--- | Whether the darkmode script last switched to dark mode.
-isDarkmode :: IO Bool
-isDarkmode = do
-  home <- getEnv "HOME"
-  doesFileExist $ home ++ "/.config/darkmode"
-
 a00001Config = do
-  darkmode <- io isDarkmode
-  return . docks . Nav2d.withNavigation2DConfig myNavigation2DConfig . myUrgencyHook . addDescrKeys' ((confModMask, xK_F1), showKeybindings) (myKeys $ myXPConfig darkmode) $ def {
+  pal <- io readPalette
+  return . docks . Nav2d.withNavigation2DConfig myNavigation2DConfig . myUrgencyHook pal . addDescrKeys' ((confModMask, xK_F1), showKeybindings) (myKeys $ myXPConfig pal) $ def {
     terminal           = myTerminal
   , focusFollowsMouse  = False
   , borderWidth        = myDefaultBorderWidth
   , modMask            = confModMask
   , workspaces         = myWorkspaces
-  , normalBorderColor  = myNormalBorderColor darkmode
-  , focusedBorderColor = myFocusedColor2 darkmode
+  , normalBorderColor  = myNormalBorderColor pal
+  , focusedBorderColor = myFocusedColor pal
   , keys               = emptyKeys
   , layoutHook         = myLayoutHook
   , manageHook         = myManageHook
   , handleEventHook    = myHandleEventHook
   , startupHook        = myStartupHook
-  , logHook = myLogHook
+  , logHook = myLogHook pal
   } `additionalMouseBindings` myMouseBindings
    where
     --  | An empty keymap
@@ -1042,15 +1057,17 @@ kill' = withFocused $ \win -> do
     | otherwise = bindOn' $ killWindow win
 
 killPrompt :: X ()
-killPrompt = withFocused $ \win ->
-  runSelectedAction myGsconfig
+killPrompt = withFocused $ \win -> do
+  pal <- io readPalette
+  runSelectedAction (myGsconfig pal)
         [ ("Kill active window", killWindow win)
         , ("Cancel", return ())
         ]
 
 killPrompt' :: X ()
-killPrompt' = withFocused $ \w ->
-  runSelectedAction myGsconfig
+killPrompt' = withFocused $ \w -> do
+  pal <- io readPalette
+  runSelectedAction (myGsconfig pal)
         [ ("Cancel", return ())
         , ("Kill active window", killWindow w)
         , ("Run xkill", spawn "xkill")
@@ -1097,22 +1114,22 @@ showStatusSingleMessageDuration = 0.7
 showStatusMultipleMessagesDuration = 0.7
 
 -- | Show active workspace name slow
-showWorkspaceName = showWorkspaceName' showStatusMultipleMessagesDuration (Sol.yellow, Sol.yellowD)
+showWorkspaceName = showWorkspaceName' showStatusMultipleMessagesDuration ("bg_0", "yellow")
 -- | Show inactve workspace name slow
-showWorkspaceNameOld = showWorkspaceName' showStatusMultipleMessagesDuration (Sol.base1, Sol.base00)
+showWorkspaceNameOld = showWorkspaceName' showStatusMultipleMessagesDuration ("fg_1", "bg_2")
 -- | Show active workspace name fast
-showWorkspaceNameFast = showWorkspaceName' showStatusSingleMessageDuration (Sol.magenta, Sol.magentaD)
+showWorkspaceNameFast = showWorkspaceName' showStatusSingleMessageDuration ("bg_0", "magenta")
 
-showAppName = showMessage 1 (Sol.cyan, Sol.cyanD)
+showAppName = showMessage 1 ("bg_0", "cyan")
 
 getScreenRect :: X Rectangle
 getScreenRect = screenRect . W.screenDetail . W.current <$> gets windowset
 
--- | Show msg in a dzen popup in the middle of the screen, on the light or dark
--- background colour depending on the darkmode script.
-showMessage timeout (lightBg, darkBg) msg = do
-  darkmode <- io isDarkmode
-  let (fg, bg) = if darkmode then (Sol.base3, darkBg) else (Sol.base03, lightBg)
+-- | Show msg in a dzen popup in the middle of the screen, in the colors
+-- (fg, bg) of the palette: bg_0 text on an accent reads in both modes.
+showMessage timeout (fgName, bgName) msg = do
+  pal <- io readPalette
+  let (fg, bg) = (col pal fgName, col pal bgName)
   sr <-  getScreenRect
   let rx p = fromIntegral $ p sr
       sw = rx rect_width
@@ -1135,15 +1152,15 @@ showMessage timeout (lightBg, darkBg) msg = do
 
 
 -- | Show workspace name
-showWorkspaceName' timeout bgs = do
+showWorkspaceName' timeout colors = do
   wsn <- gets (W.currentTag . windowset)
-  showMessage timeout bgs wsn
+  showMessage timeout colors wsn
 
 -- | Show current layout name
 showLayoutName = do
   winset <- gets windowset
   let ld = description . W.layout . W.workspace . W.current $ winset
-  showMessage 2 (Sol.green, Sol.greenD) ld
+  showMessage 2 ("bg_0", "green") ld
 
 
 -- | Enforce recaluclation of docks gaps. After updating a ~5month old xmonad master today docks were not being avoided by avoudStruts on new desktop.
