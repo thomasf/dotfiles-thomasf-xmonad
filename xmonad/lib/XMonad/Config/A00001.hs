@@ -117,7 +117,7 @@ myKeys xpc conf=
   , ("M-o w", spawnhm "www")
   , ("M-o d", spawnhm "www-dev")
   , ("M-o t", spawnh "term")
-  , ("M-o e", spawnhm "e")
+  , ("M-o e", spawnhmw "e")
   , ("M-o n", spawnhm "nautilus")
   , ("M-o a", addName "Run default workspace launcer script" $ bindOnProtectedWorkspace workspaceAction maybeWorkspaceAction)
   ] ++
@@ -293,6 +293,9 @@ myKeys xpc conf=
     spawnh' cmd' = addName cmd'           $ spawn cmd'
     spawnh  cmd' = addName cmd' $ bindOn' $ spawn cmd'
     spawnhm cmd' = addName cmd' $ bindOn' $ showAppName cmd' >> spawn cmd'
+    -- | Like spawnhm, with WS_LAUNCH set so that emacs starts in the
+    -- workspace directory with its environment.
+    spawnhmw cmd' = addName cmd' $ bindOn' $ showAppName cmd' >> spawn ("env WS_LAUNCH=1 " ++ cmd')
 
     -- | Remove current workpace if empty
     rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept keptWorkspaces
