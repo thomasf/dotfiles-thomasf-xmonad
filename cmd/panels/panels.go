@@ -7,6 +7,7 @@ import (
 	_ "embed"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -108,10 +109,14 @@ func getComputerConfig(hostname string) ComputerConfig {
 
 func getScreens() (Screens, error) {
 
-	X, _ := xgb.NewConn()
+	X, err := xgb.NewConn()
+	if err != nil {
+		return nil, fmt.Errorf("connect to the X server: %w", err)
+	}
+	defer X.Close()
 
 	// Every extension must be initialized before it can be used.
-	err := randr.Init(X)
+	err = randr.Init(X)
 	if err != nil {
 		return nil, err
 	}
@@ -221,6 +226,12 @@ func panels(hostname string) error {
 	if err != nil {
 		return err
 	}
+	// The running panels are only replaced once the screens are known, so
+	// that they are kept without an X server to start new ones on.
+	if err := KillAll(context.Background(), "xmobar", "trayer"); err != nil {
+		return err
+	}
+	daemonLog = openDaemonLog()
 	// spew.Dump(screens)
 
 	sol := colorlab.SelenizedDarkPalette.Solarized
@@ -301,8 +312,8 @@ func runTrayer(rc RenderContext) error {
 		"--transparent", "true",
 		"--monitor", "primary",
 	)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	cmd.Stdout = daemonLog
+	cmd.Stderr = daemonLog
 	cmd.Start()
 	return nil
 
@@ -320,10 +331,33 @@ func runXmobar(templ string, rc RenderContext) (string, error) {
 	}
 	defer tmpfile.Close()
 	cmd := exec.Command("xmobar", tmpfile.Name(), "-x", fmt.Sprint(rc.Screen))
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	cmd.Stdout = daemonLog
+	cmd.Stderr = daemonLog
 	cmd.Start()
 	return tmpfile.Name(), nil
+}
+
+// daemonLog is where trayer and xmobar write their output, or nil for
+// /dev/null. They outlive panels, so they must not keep its output open: a
+// caller that waits for it to close, such as a dotfiles script, would wait
+// for them.
+var daemonLog io.Writer
+
+// openDaemonLog truncates and returns panels.log in the user's cache
+// directory, or nil if it cannot be opened. The file is given to trayer
+// and xmobar as it is, not through a pipe.
+func openDaemonLog() io.Writer {
+	dir, err := os.UserCacheDir()
+	if err != nil {
+		log.Printf("daemon log: %v", err)
+		return nil
+	}
+	f, err := os.Create(filepath.Join(dir, "panels.log"))
+	if err != nil {
+		log.Printf("daemon log: %v", err)
+		return nil
+	}
+	return f
 }
 
 func homedir() (string, error) {
@@ -345,10 +379,6 @@ func main() {
 			log.Printf("hostname: %v", err)
 		}
 		hostname = hn
-	}
-
-	if err := KillAll(context.Background(), "xmobar", "trayer"); err != nil {
-		log.Fatal(err)
 	}
 
 	err := panels(hostname)
