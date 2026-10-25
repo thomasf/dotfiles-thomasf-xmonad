@@ -5,16 +5,17 @@
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 
 
-if [ -e ~/.config/darkmode ]; then
-  bg="#002b36"
-  fg="#839496"
-  border="#284b54"
-else
-  bg="#fdf6e3"
-  fg="#657b83"
-  border="#cccec4"
-fi
-color="#b58900"
+# palette name default prints the color name of the palette that dotfiles
+# writes for the theme in use, or default without it.
+palette() {
+  c=$(sed -n "s/^ *\"$1\": \"\(#[0-9a-fA-F]\{6\}\)\".*/\1/p" "${HOME}/.config/theme/palette.json" 2>/dev/null)
+  echo "${c:-$2}"
+}
+
+# The colors of dmenu; rofi has its own (see config-xmonad/rofi).
+bg=$(palette bg_0 "#808080")
+fg=$(palette fg_0 "#000000")
+color=$(palette yellow "#ffffff")
 
 if [ -x ${HOME}/bin/rofi ]; then
   cmd="${HOME}/bin/rofi"
