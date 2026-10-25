@@ -1,0 +1,134 @@
+#!/bin/bash
+#
+# Rofi-based dotfiles theme switcher.
+#
+# Lists available theme variants from dotfiles theme list, preselects the
+# active theme, and allows switching themes or toggling dark/light mode.
+# dotfiles theme switches the theme and runs the [[script]] entries with
+# on = "theme", which reload the desktop (see xmonad/dotfiles.toml).
+
+set -u
+
+if [ $# -gt 0 ]; then
+  case "$1" in
+    -h|--help)
+      echo "Usage: $(basename "$0") [theme:variant | dark | light | toggle | show | list | preview]"
+      echo
+      echo "Rofi-based theme switcher for dotfiles."
+      echo
+      echo "Commands:"
+      echo "  (no args)             Open rofi theme selection menu"
+      echo "  toggle, t             Toggle between dark and light mode"
+      echo "  dark, d               Switch to default dark theme"
+      echo "  light, l              Switch to default light theme"
+      echo "  <theme:variant>       Switch to specific theme variant (e.g. everforest:dark)"
+      echo "  show, list, preview   Run dotfiles theme subcommand"
+      exit 0
+      ;;
+    t|toggle)
+      output=$(dotfiles theme toggle)
+      ;;
+    l|light)
+      output=$(dotfiles theme set light)
+      ;;
+    d|dark)
+      output=$(dotfiles theme set dark)
+      ;;
+    show|list|preview)
+      exec dotfiles theme "$@"
+      ;;
+    *)
+      output=$(dotfiles theme set "$@")
+      ;;
+  esac
+
+  if [ -n "${output:-}" ]; then
+    echo "$output"
+    if command -v notify-send >/dev/null 2>&1 && [ -n "${DISPLAY:-}" ]; then
+      notify-send -a shorter "Theme" "$output"
+    fi
+  fi
+  exit 0
+fi
+
+if ! command -v dotfiles >/dev/null 2>&1; then
+  echo "theme: dotfiles command not found in PATH" >&2
+  exit 1
+fi
+
+if [ -z "${DISPLAY:-}" ]; then
+  echo "theme: DISPLAY not set, cannot launch rofi" >&2
+  exit 1
+fi
+
+if ! command -v rofi >/dev/null 2>&1; then
+  echo "theme: rofi not found in PATH" >&2
+  exit 1
+fi
+
+current=$(dotfiles theme show 2>/dev/null || true)
+
+rows=()
+refs=()
+
+# First entry: quick toggle
+rows+=("Toggle mode (dark ↔ light)")
+refs+=("toggle")
+
+idx=1
+active_index=""
+
+while IFS= read -r line; do
+  [ -z "$line" ] && continue
+  mark=$(echo "$line" | cut -c 1)
+  rest=$(echo "$line" | cut -c 3-)
+  ref=$(echo "$rest" | awk '{print $1}')
+  mode=$(echo "$rest" | awk '{print $2}')
+  note=$(echo "$rest" | awk '{$1=""; $2=""; print $0}' | sed -e 's/^[ \t]*//')
+
+  refs+=("$ref")
+  if [ "$mark" = "*" ]; then
+    active_index=$idx
+  fi
+
+  if [ -n "$note" ]; then
+    rows+=("$(printf "%-32s %-6s  %s" "$ref" "$mode" "$note")")
+  else
+    rows+=("$(printf "%-32s %-6s" "$ref" "$mode")")
+  fi
+  idx=$((idx + 1))
+done < <(dotfiles theme list 2>/dev/null)
+
+rofi_args=(-dmenu -i -p "theme" -no-custom -format i)
+
+if [ -n "$current" ]; then
+  rofi_args+=(-mesg "Current: $current")
+fi
+
+if [ -n "$active_index" ]; then
+  rofi_args+=(-a "$active_index" -selected-row "$active_index")
+fi
+
+choice=$(printf "%s\n" "${rows[@]}" | rofi "${rofi_args[@]}" 2>/dev/null) || true
+
+if [ -z "$choice" ]; then
+  exit 0
+fi
+
+if ! [[ "$choice" =~ ^[0-9]+$ ]] || [ "$choice" -ge "${#refs[@]}" ]; then
+  exit 0
+fi
+
+target="${refs[$choice]}"
+if [ "$target" = "toggle" ]; then
+  output=$(dotfiles theme toggle)
+else
+  output=$(dotfiles theme set "$target")
+fi
+
+if [ -n "${output:-}" ]; then
+  echo "$output"
+  if command -v notify-send >/dev/null 2>&1 && [ -n "${DISPLAY:-}" ]; then
+    notify-send -a shorter "Theme" "$output"
+  fi
+fi

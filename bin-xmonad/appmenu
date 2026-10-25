@@ -12,7 +12,7 @@ ppath() {
  [ -d "${1}" ] && PATH="${1}:${PATH}" || true
 }
 
-input=`dmenu_path | dmenu -p launch -i -l 25`
+input=$(dmenu_path | grep -vFx "rofi-theme-selector" | dmenu -p launch -i -l 25)
 
 set -- nil $input
 shift
@@ -22,7 +22,7 @@ shift || true
 set -x
 
 case $cmd in
-  mpdplay|pipemixer|btop2|alsamixer|pa-mixer|htop|btop|top|nvtop|ncmpcpp|dstat|ping|mtr|lazydocker|ctop|k9s|nmtui|bluetoothctl|sysz)
+  mpdplay|pipemixer|alsamixer|pa-mixer|htop|btop|top|nvtop|ncmpcpp|dstat|ping|mtr|lazydocker|ctop|k9s|nmtui|bluetoothctl|sysz)
     exec term-run -- $cmd $*
     ;;
   aptitude|iotop|powertop|iftop|nethogs|bandwhich)
