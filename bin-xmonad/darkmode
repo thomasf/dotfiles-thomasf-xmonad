@@ -5,7 +5,9 @@
 # set -e
 
 golight() {
-  rm -f ~/.config/darkmode
+  # dotfiles theme also removes ~/.config/darkmode and installs the files
+  # that depend on the theme, such as the alacritty config.
+  hash dotfiles 2>/dev/null && dotfiles theme set light || rm -f ~/.config/darkmode
   if [ $(which hsetroot) ]; then
     hsetroot -tile ~/.config-xmonad/bgbitmap-light.png
   else
@@ -13,14 +15,15 @@ golight() {
   fi
   panels
   xrdb -merge ~/.config-xmonad/xresources/light
-  hash dotfiles 2>/dev/null && dotfiles install ~/.config/alacritty/alacritty.toml
   ln -sf light.rasi ~/.config/rofi/colors.rasi
   hash gsettings 2>/dev/null && gsettings set org.gnome.desktop.interface color-scheme prefer-light
   xmonad --restart
 }
 
 godark() {
-  [ ! $(id -u) -eq 0 ] && touch ~/.config/darkmode
+  if [ ! $(id -u) -eq 0 ]; then
+    hash dotfiles 2>/dev/null && dotfiles theme set dark || touch ~/.config/darkmode
+  fi
   if [ $(which hsetroot) ]; then
     hsetroot -tile ~/.config-xmonad/bgbitmap-dark.png
   else
@@ -28,7 +31,6 @@ godark() {
   fi
   panels
   xrdb -merge ~/.config-xmonad/xresources/dark
-  hash dotfiles 2>/dev/null && dotfiles install ~/.config/alacritty/alacritty.toml
   ln -sf dark.rasi ~/.config/rofi/colors.rasi
   hash gsettings 2>/dev/null && gsettings set org.gnome.desktop.interface color-scheme prefer-dark
   xmonad --restart
