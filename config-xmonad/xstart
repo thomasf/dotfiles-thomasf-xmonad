@@ -15,11 +15,6 @@ export _JAVA_AWT_WM_NONREPARENTING=1
 # DPI differences.
 export WINIT_HIDPI_FACTOR=1
 
-# Background from the theme in use, or grey without one.
-bg=$(dotfiles theme color bg_0 2>/dev/null)
-hash xsetroot 2>/dev/null \
-  && xsetroot -solid "${bg:-#808080}" &
-
 if [ -f "${HOME}/.config-private/xstart/$HOSTNAME" ]; then
   source "${HOME}/.config-private/xstart/$HOSTNAME"
 fi
@@ -164,10 +159,7 @@ if hash xscreensaver 2>/dev/null; then
   xscreensaver --no-splash &
 fi
 
-# Start status bars and system tray (xmobar and trayer)
-if hash panels 2>/dev/null; then
-  panels &
-fi
+dotfiles theme apply
 
 export HOST="$HOSTNAME"
 
