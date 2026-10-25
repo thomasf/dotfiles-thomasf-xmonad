@@ -48,10 +48,19 @@ dst = '.config/alacritty/alacritty.toml'
 missing = 'create'
 src = '''
 l = "config-xmonad/alacritty/layers/"
-theme = "selenized-dark" if exists(".config/darkmode") else "selenized-light"
+c = theme["colors"]
+names = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"]
 doc.clear()
 merge(doc, read(l + "common.toml"))
-merge(doc, read(l + "colors." + theme + ".toml"))
+merge(doc, {"colors": {
+    "primary": {"background": c["bg_0"], "foreground": c["fg_0"]},
+    "cursor": {"text": c["bg_0"], "cursor": c["fg_0"]},
+    "normal": {n: c["color%d" % i] for i, n in enumerate(names)},
+    "bright": {n: c["color%d" % (i + 8)] for i, n in enumerate(names)},
+    "selection": {"text": c["bg_0"], "background": c["orange"]},
+    "search": {"matches": {"foreground": c["bg_0"], "background": c["violet"]}},
+    "footer_bar": {"foreground": c["bg_0"], "background": c["blue"]},
+}})
 merge(doc, read(l + "os." + os + ".toml", default = {}))
 merge(doc, read(l + "host." + hostname.split(".")[0] + ".toml", default = {}))
 '''
