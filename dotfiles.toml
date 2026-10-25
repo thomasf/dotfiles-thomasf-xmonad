@@ -123,7 +123,7 @@ xsetroot -solid {{shellQuote .theme.colors.bg_0}}
 {{- else if $bg}}
 hsetroot {{shellQuote (printf "-%s" (or (index .theme.apps "background_mode") "tile"))}} {{shellQuote (printf "%s/%s" .theme.dir $bg)}} >/dev/null
 {{- else}}
-hsetroot -solid {{shellQuote .theme.colors.bg_0}} >/dev/null
+hsetroot -solid {{shellQuote .theme.colors.bg_1}} >/dev/null
 {{- end}}
 panels
 xrdb -merge ~/.Xresources
