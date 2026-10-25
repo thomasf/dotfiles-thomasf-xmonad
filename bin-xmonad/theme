@@ -42,12 +42,6 @@ if [ $# -gt 0 ]; then
       ;;
   esac
 
-  if [ -n "${output:-}" ]; then
-    echo "$output"
-    if command -v notify-send >/dev/null 2>&1 && [ -n "${DISPLAY:-}" ]; then
-      notify-send -a shorter "Theme" "$output"
-    fi
-  fi
   exit 0
 fi
 
@@ -124,11 +118,4 @@ if [ "$target" = "toggle" ]; then
   output=$(dotfiles theme toggle)
 else
   output=$(dotfiles theme set "$target")
-fi
-
-if [ -n "${output:-}" ]; then
-  echo "$output"
-  if command -v notify-send >/dev/null 2>&1 && [ -n "${DISPLAY:-}" ]; then
-    notify-send -a shorter "Theme" "$output"
-  fi
 fi
