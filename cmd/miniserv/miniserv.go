@@ -6,13 +6,18 @@ import (
 	"encoding/json"
 	"errors"
 	"flag"
+	"fmt"
 	"io"
+	"maps"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"runtime"
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -97,34 +102,80 @@ func (s *Server) HandleIndex() http.Handler {
 	})
 }
 
+// HandleStyleCSS serves theme.css, after the colors of the theme in use as
+// CSS variables (see paletteCSS), or grey if they cannot be read.
 func (s *Server) HandleStyleCSS() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		logger := log.Ctx(r.Context())
-		filename := "static/solarized-light.css"
-		homeDir, err := os.UserHomeDir()
-		if err != nil {
-			log.Error().Err(err).Msg("")
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		if fileExists(filepath.Join(homeDir, ".config", "darkmode")) {
-			filename = "static/solarized-dark.css"
-		}
-		f, err := assets.Static.Open(filename)
+		css, err := assets.Static.ReadFile("static/theme.css")
 		if err != nil {
 			logger.Error().Err(err).Msg("")
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		defer f.Close()
+		vars, err := paletteCSS()
+		if err != nil {
+			logger.Warn().Err(err).Msg("no theme colors, using grey")
+			vars = greyCSS(css)
+		}
 		w.Header().Set("Content-Type", "text/css")
 		w.WriteHeader(http.StatusOK)
-		if _, err := io.Copy(w, f); err != nil {
+		if _, err := io.WriteString(w, vars); err != nil {
 			logger.Error().Err(err).Msg("")
 			return
-
+		}
+		if _, err := w.Write(css); err != nil {
+			logger.Error().Err(err).Msg("")
 		}
 	})
+}
+
+// paletteCSS returns the colors of the theme in use as CSS variables on
+// :root, such as --bg_0, from the palette that dotfiles writes to
+// ~/.config/theme/palette.json.
+func paletteCSS() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	data, err := os.ReadFile(filepath.Join(home, ".config", "theme", "palette.json"))
+	if err != nil {
+		return "", err
+	}
+	var p struct {
+		Colors map[string]string `json:"colors"`
+	}
+	if err := json.Unmarshal(data, &p); err != nil {
+		return "", err
+	}
+	if len(p.Colors) == 0 {
+		return "", errors.New("palette.json has no colors")
+	}
+	return rootCSS(p.Colors), nil
+}
+
+// cssVarRe matches the uses of CSS variables, such as var(--bg_0).
+var cssVarRe = regexp.MustCompile(`var\(--([a-z0-9_]+)\)`)
+
+// greyCSS returns the variables that css uses, all grey, for when the
+// palette cannot be read.
+func greyCSS(css []byte) string {
+	colors := map[string]string{}
+	for _, m := range cssVarRe.FindAllSubmatch(css, -1) {
+		colors[string(m[1])] = "#808080"
+	}
+	return rootCSS(colors)
+}
+
+// rootCSS returns colors as CSS variables on :root.
+func rootCSS(colors map[string]string) string {
+	var b strings.Builder
+	b.WriteString(":root {\n")
+	for _, name := range slices.Sorted(maps.Keys(colors)) {
+		fmt.Fprintf(&b, "  --%s: %s;\n", name, colors[name])
+	}
+	b.WriteString("}\n")
+	return b.String()
 }
 
 func (s *Server) HandleDisplayOff() http.Handler {
@@ -216,14 +267,6 @@ func MaxBytesReaderMiddleware(maxSize int64) func(h http.Handler) http.Handler {
 		return maxBytesReaderMiddleware{h: h, N: maxSize}
 	}
 	return fn
-}
-
-func fileExists(filename string) bool {
-	info, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return !info.IsDir()
 }
 
 func displayOff(ctx context.Context) error {
