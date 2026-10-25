@@ -250,9 +250,8 @@ myKeys xpc conf=
   subtitle "screen splitting": mkNamedKeymap conf
   [ ("M-5 2",  addName "Split current screen by 2 panes 0.5"              $ LS.layoutSplitScreen 2 $ innerSpacing 1 (TwoPane 0 0.5))
   , ("M-5 1",  addName "Split current screen by 2 panes 0.7"              $ LS.layoutSplitScreen 2 $ innerSpacing 1 (TwoPane 0 0.33))
-  , ("M-5 3",  addName "Split current screen by 3 even columns"           $ LS.layoutSplitScreen 3 $ innerSpacing 1 (Mirror (Tall 3 0 0)))
-  -- , ("M-5 e",  addName "Split current screen by 3 larger center"          $ LS.layoutSplitScreen 3 $ innerSpacing 1 $ (ThreeColMid 1 (3/100) (4/10)))
-  , ("M-5 4",  addName "Split current screen by 3 columns + bottom wide"  $ LS.layoutSplitScreen 4 $ innerSpacing 1 $ Mirror (Tall 3 0 (5/6)))
+  , ("M-5 3",  addName "Split current screen by 3 even columns"           $ LS.layoutSplitScreen 3 $ innerSpacing 1 (Mirror (Tall 3 0 (1/2))))
+  , ("M-5 4",  addName "Split current screen by 3 larger center"          $ LS.layoutSplitScreen 3 $ innerSpacing 1 $ (ThreeColMid 1 (3/100) (4/10)))
   , ("M-5 m",  addName "Merge screens 1 + 2"                              $ LS.layoutScreens 2  Full)
   , ("M-5 r",  addName "Reset screens from xinerama, rescreen"              rescreen)
   ] ++
