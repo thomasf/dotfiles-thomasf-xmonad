@@ -246,7 +246,7 @@ myKeys xpc conf=
   , ("M-8",           addName "restore workspace group 3"   $ holdScreenFocus $ viewWSGroup "wsg3")
   ] ++
   subtitle "screen splitting": mkNamedKeymap conf
-  [ ("M-5 5",  addName "Standard screen arrangement for host"             $ PF.resetPhysicalFullscreen >> SA.standardScreenArrangement >> movePointer)
+  [ ("M-5 5",  addName "Standard screen arrangement for host"             $ standardScreenArrangement >> movePointer)
   , ("M-5 2",  addName "Split current screen by 2 panes 0.5"              $ LS.layoutSplitScreen 2 $ innerSpacing 1 (TwoPane 0 0.5))
   , ("M-5 1",  addName "Split current screen by 2 panes 0.7"              $ LS.layoutSplitScreen 2 $ innerSpacing 1 (TwoPane 0 0.33))
   , ("M-5 3",  addName "Split current screen by 3 even columns"           $ LS.layoutSplitScreen 3 $ innerSpacing 1 (Mirror (Tall 3 0 (1/2))))
@@ -1006,6 +1006,18 @@ _windowRotateAllUp = rotAllUp >> movePointer
 
 -- | Move mouse pointer to bottom right of the current window
 movePointer = updatePointer (0.99, 0.99) (0, 0)
+
+-- | Standard screen splitting arrangement per host.
+-- For "flam": leftmost screen split with 0.33 ratio (M-5 1), center screen split with 0.50 ratio (M-5 2).
+-- For "yak": single screen split in two with 0.50 ratio (M-5 2).
+standardScreenArrangement :: X ()
+standardScreenArrangement = do
+  PF.resetPhysicalFullscreen
+  SA.arrangeScreens $ \host -> case host of
+    "flam" -> SA.splitScreenWhere (\r -> rect_x r == 0) 0.33
+            . SA.splitScreenWhere (\r -> rect_x r == 3840 && rect_y r >= 1000) 0.50
+    "yak"  -> SA.splitSingleScreen 0.50
+    _      -> SA.splitSingleScreen 0.50
 
 
 

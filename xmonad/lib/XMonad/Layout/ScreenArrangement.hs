@@ -2,18 +2,20 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  XMonad.Layout.ScreenArrangement
--- Description :  Per-host screen splitting and layout arrangement
+-- Description :  Per-host screen splitting and layout arrangement engine
 -- Maintainer  :  thomasf@jossystem.se
 -- Stability   :  unstable
 -- Portability :  unportable
 --
--- Manages standard multi-pane screen arrangements per host (e.g. splitting
--- physical monitors into virtual panes with LayoutScreens) while preserving
--- workspace-to-monitor spatial affinity and avoiding unnecessary re-splits.
+-- Provides reusable tools to define and apply per-host screen arrangements
+-- (e.g. splitting physical monitors into virtual panes) while preserving
+-- workspace-to-monitor spatial affinity and avoiding redundant re-splits.
 -----------------------------------------------------------------------------
 module XMonad.Layout.ScreenArrangement
-    ( standardScreenArrangement
+    ( arrangeScreens
     , applyScreenRectangles
+    , splitScreenWhere
+    , splitSingleScreen
     , splitPane2
     , getHost
     ) where
@@ -21,7 +23,6 @@ module XMonad.Layout.ScreenArrangement
 import           Control.Exception (IOException, try)
 import           Control.Monad
 import           Data.List (deleteBy, find, sortOn)
-import           Data.Maybe (catMaybes)
 import           System.Environment (lookupEnv)
 
 import           XMonad
@@ -37,6 +38,23 @@ splitPane2 ratio (Rectangle vx vy vw vh) =
   in [ Rectangle vx vy w1 vh
      , Rectangle (vx + fromIntegral (w1 + gap)) vy w2 vh
      ]
+
+-- | Transform any rectangle in the list matching a predicate into 2 split panes.
+splitScreenWhere :: (Rectangle -> Bool) -> Rational -> [Rectangle] -> [Rectangle]
+splitScreenWhere p ratio = concatMap $ \r ->
+  if p r then splitPane2 ratio r else [r]
+
+-- | If there is only a single screen, split it into 2 panes; otherwise leave screens as-is.
+splitSingleScreen :: Rational -> [Rectangle] -> [Rectangle]
+splitSingleScreen ratio [r] = splitPane2 ratio r
+splitSingleScreen _ rs      = rs
+
+-- | Run a host-based screen arrangement plan.
+arrangeScreens :: (String -> [Rectangle] -> [Rectangle]) -> X ()
+arrangeScreens plan = do
+  host <- getHost
+  physScreens <- withDisplay getCleanedScreenInfo
+  applyScreenRectangles (plan host physScreens)
 
 -- | Apply target screen rectangles preserving workspace locations and avoiding redundant reshuffling.
 applyScreenRectangles :: [Rectangle] -> X ()
@@ -90,33 +108,6 @@ applyScreenRectangles targetRects = do
            , W.visible = newVis
            , W.hidden  = remainingWs
            }
-
--- | Standard screen splitting arrangement per host.
--- For "flam": leftmost screen split with 0.33 ratio (M-5 1), center screen split with 0.50 ratio (M-5 2).
--- For "yak": single screen split in two with 0.50 ratio (M-5 2).
-standardScreenArrangement :: X ()
-standardScreenArrangement = do
-  host <- getHost
-  physScreens <- withDisplay getCleanedScreenInfo
-  let targetRects = case host of
-        "flam" | length physScreens >= 4 ->
-          let mLeft   = find (\(Rectangle x _ _ _) -> x == 0) physScreens
-              mCenter = find (\(Rectangle x y _ _) -> x == 3840 && y >= 1000) physScreens
-              mTop    = find (\(Rectangle x y _ _) -> x == 3840 && y < 1000) physScreens
-              mRight  = find (\(Rectangle x _ _ _) -> x > 4000) physScreens
-              leftPanes   = maybe [] (splitPane2 0.33) mLeft
-              centerPanes = maybe [] (splitPane2 0.50) mCenter
-              otherPanes  = catMaybes [mTop, mRight]
-          in leftPanes ++ centerPanes ++ otherPanes
-        "yak" ->
-          case physScreens of
-            (r:_) -> splitPane2 0.50 r
-            []    -> []
-        _ ->
-          case physScreens of
-            [r] -> splitPane2 0.50 r
-            _   -> physScreens
-  applyScreenRectangles targetRects
 
 -- | Get the current machine's hostname (short form).
 getHost :: X String
