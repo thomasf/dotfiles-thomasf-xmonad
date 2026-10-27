@@ -20,22 +20,16 @@ module XMonad.Config.A00001
       -- $usage
       a00001Config,
     ) where
-import           Control.Exception (IOException, try)
 import           Control.Monad
-import           Data.Char (isSpace, toLower)
-import           Data.IORef
+import           Data.Char (isSpace)
 import           Data.List
 import qualified Data.Map as M
 import           Data.Monoid
 import           Data.Ord
-import           Data.Maybe
-import           System.Environment (getEnv)
 import           System.Exit ( exitSuccess )
 import           System.IO
-import           System.IO.Unsafe (unsafePerformIO)
 import           XMonad hiding ( (|||) )
 import           XMonad.Actions.CycleRecentWSAddons
-import           XMonad.Actions.CycleWS hiding (toggleWS, Not)
 import           XMonad.Actions.DwmPromote
 import           XMonad.Actions.DynamicWorkspaceGroups
 import qualified XMonad.Actions.DynamicWorkspaces as DW
@@ -64,7 +58,6 @@ import           XMonad.Layout.Grid
 import           XMonad.Layout.TwoPane
 import           XMonad.Layout.ThreeColumns
 import           XMonad.Layout.LayoutCombinators
-import           XMonad.Layout.LayoutModifier
 import qualified XMonad.Layout.LayoutScreens as LS
 import           XMonad.Layout.MultiToggle
 import           XMonad.Layout.MultiToggle.Instances
@@ -90,9 +83,6 @@ import           XMonad.Util.Paste
 import           XMonad.Util.Run
 import           XMonad.Util.WorkspaceCompare
 import qualified XMonad.Util.ThemePalette as TP
-import           Text.Printf
-import qualified Control.Arrow as Arrow
-
 
 -- Keyboard configuration:
 
