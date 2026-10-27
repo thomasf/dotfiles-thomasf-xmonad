@@ -467,28 +467,6 @@ myKeys xpc conf=
     -- | Sort workspaces by tag name, exclude hidden scrachpad workspace.
     getSortByTagNoSP = filterSomeWorkspaces getSortByTag
 
-    -- The window search M-o <Space>, replaced by ws window:
-    -- -- | Returns the window name as will be listed in dmenu.
-    -- --   Tagged with the workspace ID, to guarantee uniqueness, and to let the user
-    -- --   know where he's going.
-    -- decorateName ws w = do
-    --   wName <- show <$> getName w
-    --   cName <- getClass w
-    --   let wm = PL.escapeMarkup wName
-    --       cn = PL.escapeMarkup cName
-    --       tn = PL.escapeMarkup (W.tag ws)
-    --   return $ printf "%s<span font_family='Consolas'> — %s</span> ❨%s❩" wm cn tn
-    --
-    -- getClass w = do
-    --   classHint <- withDisplay $ \d -> io $ getClassHint d w
-    --   return $ resClass classHint
-    --
-    -- gotoWindow = WB.gotoMenuConfig def {
-    --   WB.menuCommand="rofi",
-    --   WB.menuArgs=["-markup-rows", "-dmenu", "-i", "-no-custom"],
-    --   windowTitler=decorateName }
-
-
 
 
 -- | Mouse bindings
