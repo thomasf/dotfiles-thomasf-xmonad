@@ -218,8 +218,8 @@ myKeys xpc conf=
   ] ++
   subtitle "Multi media keys": mkNamedKeymap conf
   [ ("<XF86AudioPlay>",         spawnh' "mpc toggle")
-  , ("s-<XF86AudioPrev>",       spawnh' "mpc prev")
-  , ("s-<XF86AudioNext>",       spawnh' "mpc next")
+  , ("S-<XF86AudioPrev>",       spawnh' "mpc prev")
+  , ("S-<XF86AudioNext>",       spawnh' "mpc next")
   , ("<XF86AudioPrev>",         spawnh' "mpc seek -00:00:10")
   , ("<XF86AudioNext>",         spawnh' "mpc seek +00:00:10")
   , ("C-<XF86AudioPrev>",       spawnh' "mpc seek -3%")
