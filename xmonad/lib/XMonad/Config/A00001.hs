@@ -45,6 +45,8 @@ import qualified XMonad.Actions.Navigation2D as Nav2d
 import           XMonad.Actions.PerWorkspaceKeys
 import           XMonad.Actions.RotSlaves
 import           XMonad.Actions.UpdatePointer
+import qualified XMonad.Actions.Warp as Warp
+import qualified XMonad.Actions.AdjacentScreens as AdjSc
 import           XMonad.Actions.WithAll
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
@@ -163,22 +165,22 @@ myKeys xpc conf=
   , ("M-S-d", addName "Move window to previous screen"     $ Nav2d.windowToScreen L True  >> showWorkspaceNameOld >> PF.physicalScreenGo L True >> showWorkspaceNameFast)
   ] ++
   subtitle "2D Navigation": mkNamedKeymap conf
-  [ ("M-<Up>",      addName "Focus window above" $ Nav2d.windowGo U False)
-  , ("M-<Down>",    addName "Focus window below" $ Nav2d.windowGo D False)
-  , ("M-<Left>",    addName "Focus window left"  $ Nav2d.windowGo L False)
-  , ("M-<Right>",   addName "Focus window right" $ Nav2d.windowGo R False)
-  , ("M-C-<Up>",    addName "Swap screen above"  $ Nav2d.screenSwap U False >> showWorkspaceNameOld >> Nav2d.screenGo U False >> showWorkspaceNameFast)
-  , ("M-C-<Down>",  addName "Swap screen below"  $ Nav2d.screenSwap D False >> showWorkspaceNameOld >> Nav2d.screenGo D False >> showWorkspaceNameFast)
-  , ("M-C-<Left>",  addName "Swap screen left"   $ Nav2d.screenSwap L False >> showWorkspaceNameOld >> Nav2d.screenGo L False >> showWorkspaceNameFast)
-  , ("M-C-<Right>", addName "Swap screen right"  $ Nav2d.screenSwap R False >> showWorkspaceNameOld >> Nav2d.screenGo R False >> showWorkspaceNameFast)
-  , ("M-S-<Up>",    addName "Swap window above"  $ Nav2d.windowSwap U False)
-  , ("M-S-<Down>",  addName "Swap window below"  $ Nav2d.windowSwap D False)
-  , ("M-S-<Left>",  addName "Swap window left"   $ Nav2d.windowSwap L False)
-  , ("M-S-<Right>", addName "Swap window right"  $ Nav2d.windowSwap R False)
-  , ("M-S-C-<Up>",    addName "Drag window to screen above"  $ Nav2d.windowToScreen U False >> showWorkspaceNameOld >> Nav2d.screenGo U False >> showWorkspaceNameFast)
-  , ("M-S-C-<Down>",  addName "Drag window to screen below"  $ Nav2d.windowToScreen D False >> showWorkspaceNameOld >> Nav2d.screenGo D False >> showWorkspaceNameFast)
-  , ("M-S-C-<Left>",  addName "Drag window to screen left"   $ Nav2d.windowToScreen L False >> showWorkspaceNameOld >> Nav2d.screenGo L False >> showWorkspaceNameFast)
-  , ("M-S-C-<Right>", addName "Drag window to screen right"  $ Nav2d.windowToScreen R False >> showWorkspaceNameOld >> Nav2d.screenGo R False >> showWorkspaceNameFast)
+  [ ("M-<Up>",      addName "Focus window above" $ AdjSc.focusUp myNavConfig)
+  , ("M-<Down>",    addName "Focus window below" $ AdjSc.focusDown myNavConfig)
+  , ("M-<Left>",    addName "Focus window left"  $ AdjSc.focusLeft myNavConfig)
+  , ("M-<Right>",   addName "Focus window right" $ AdjSc.focusRight myNavConfig)
+  , ("M-C-<Up>",    addName "Swap workspace above"  $ AdjSc.screenSwapUp myNavConfig)
+  , ("M-C-<Down>",  addName "Swap workspace below"  $ AdjSc.screenSwapDown myNavConfig)
+  , ("M-C-<Left>",  addName "Swap workspace left"   $ AdjSc.screenSwapLeft myNavConfig)
+  , ("M-C-<Right>", addName "Swap workspace right"  $ AdjSc.screenSwapRight myNavConfig)
+  , ("M-S-<Up>",    addName "Drag window to screen above"  $ AdjSc.windowToScreenUp myNavConfig)
+  , ("M-S-<Down>",  addName "Drag window to screen below"  $ AdjSc.windowToScreenDown myNavConfig)
+  , ("M-S-<Left>",  addName "Drag window to screen left"   $ AdjSc.windowToScreenLeft myNavConfig)
+  , ("M-S-<Right>", addName "Drag window to screen right"  $ AdjSc.windowToScreenRight myNavConfig)
+  , ("M-S-C-<Up>",    addName "Swap window above"  $ AdjSc.windowSwapUp myNavConfig)
+  , ("M-S-C-<Down>",  addName "Swap window below"  $ AdjSc.windowSwapDown myNavConfig)
+  , ("M-S-C-<Left>",  addName "Swap window left"   $ AdjSc.windowSwapLeft myNavConfig)
+  , ("M-S-C-<Right>", addName "Swap window right"  $ AdjSc.windowSwapRight myNavConfig)
   ] ++
   subtitle "Workspace actions (E/R) [mod=select from prefix] [mod+control=select from all]": mkNamedKeymap conf
   [ ("M-e",         addName "Next workspace (prefix)"     $ rmEmptyWs $ nextWsPrefix >> movePointer >> showWorkspaceNameFast)
@@ -978,6 +980,22 @@ _windowRotateAllUp = rotAllUp >> movePointer
 
 -- | Move mouse pointer to bottom right of the current window
 movePointer = updatePointer (0.99, 0.99) (0, 0)
+
+-- | Move pointer to focused window, or to the center of the current screen if no window exists.
+focusPointer :: X ()
+focusPointer = do
+  ws <- gets windowset
+  case W.peek ws of
+    Just _  -> movePointer
+    Nothing -> Warp.warpToScreen (W.screen (W.current ws)) (1/2) (1/2)
+
+-- | 2D screen and window navigation configuration.
+myNavConfig :: AdjSc.ScreenNavConfig
+myNavConfig = AdjSc.defaultScreenNavConfig
+  { AdjSc.navBeforeScreenChange = showWorkspaceNameOld
+  , AdjSc.navAfterScreenChange  = showWorkspaceNameFast
+  , AdjSc.navFocusPointer       = focusPointer
+  }
 
 -- | Standard screen splitting arrangement per host.
 -- For "flam": leftmost screen split with 0.33 ratio (M-5 1), center screen split with 0.50 ratio (M-5 2).
