@@ -111,10 +111,10 @@ instance LayoutModifier EdgeSpacing a where
         let wRight  = fromIntegral wx + fromIntegral ww
             wBottom = fromIntegral wy + fromIntegral wh
 
-            t = if wy <= sy          then oTop    else inner
-            b = if wBottom >= sBottom then oBottom else inner
-            l = if wx <= sx          then oLeft   else inner
-            r = if wRight >= sRight   then oRight  else inner
+            t = if wy <= sy + 1           then oTop    else inner
+            b = if wBottom >= sBottom - 1 then oBottom else inner
+            l = if wx <= sx + 1           then oLeft   else inner
+            r = if wRight >= sRight - 1   then oRight  else inner
         in (w, Rectangle (fromIntegral wx + fromIntegral l)
                          (fromIntegral wy + fromIntegral t)
                          (max 1 $ fromIntegral ww - fromIntegral (l + r))
