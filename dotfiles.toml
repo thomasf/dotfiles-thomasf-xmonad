@@ -49,14 +49,14 @@ missing = 'create'
 src = '''
 l = "config-xmonad/alacritty/layers/"
 c = theme["colors"]
-names = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"]
+term = theme["terminal"]
 doc.clear()
 merge(doc, read(l + "common.toml"))
 merge(doc, {"colors": {
     "primary": {"background": c["bg_0"], "foreground": c["fg_0"]},
     "cursor": {"text": c["bg_0"], "cursor": c["fg_0"]},
-    "normal": {n: c["color%d" % i] for i, n in enumerate(names)},
-    "bright": {n: c["color%d" % (i + 8)] for i, n in enumerate(names)},
+    "normal": term["normal"],
+    "bright": term["bright"],
     "selection": {"text": c["bg_0"], "background": c["orange"]},
     "search": {"matches": {"foreground": c["bg_0"], "background": c["violet"]}},
     "footer_bar": {"foreground": c["bg_0"], "background": c["blue"]},
