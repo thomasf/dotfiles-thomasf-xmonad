@@ -23,6 +23,7 @@ module XMonad.Config.A00001
 import           Control.Exception (IOException, try)
 import           Control.Monad
 import           Data.Char (isSpace, toLower)
+import           Data.IORef
 import           Data.List
 import qualified Data.Map as M
 import           Data.Monoid
@@ -32,6 +33,7 @@ import           Data.Maybe
 import           System.Environment (getEnv)
 import           System.Exit ( exitSuccess )
 import           System.IO
+import           System.IO.Unsafe (unsafePerformIO)
 import           XMonad hiding ( (|||) )
 import           XMonad.Actions.CycleRecentWSAddons
 import           XMonad.Actions.CycleWS hiding (toggleWS, Not)
@@ -545,8 +547,22 @@ myMouseBindings =
 -- installs or switches the theme; switching restarts xmonad.
 type Palette = M.Map String String
 
+{-# NOINLINE paletteRef #-}
+paletteRef :: IORef (Maybe Palette)
+paletteRef = unsafePerformIO (newIORef Nothing)
+
 readPalette :: IO Palette
 readPalette = do
+  cached <- readIORef paletteRef
+  case cached of
+    Just pal -> return pal
+    Nothing  -> do
+      pal <- readPaletteFromFile
+      writeIORef paletteRef (Just pal)
+      return pal
+
+readPaletteFromFile :: IO Palette
+readPaletteFromFile = do
   home <- getEnv "HOME"
   s <- try (readFile $ home ++ "/.config/theme/xmonad-palette") :: IO (Either IOException String)
   return $ case s of
