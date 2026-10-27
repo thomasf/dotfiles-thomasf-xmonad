@@ -937,7 +937,6 @@ emacsLikeXPKeymap' p = M.fromList $
 -- Scratch pads:
 
 myScratchPads = [ NS "largeTerminal" (term "largeTerminal") (res =? scratch "largeTerminal") $ myCenterFloat 0.95 0.8
-                , termScratch "pamixer" $ myCenterFloat 0.7 0.2
                 , termScratch "htop" $ myCenterFloat 0.95 0.9
                 ]
   where
