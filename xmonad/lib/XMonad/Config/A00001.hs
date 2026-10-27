@@ -1078,7 +1078,7 @@ kill' = withFocused $ \win -> do
   -- unkillable appn titl res = appn `elem` ["ssh_tmux"] || titl == "XMonad" || res == "floating-center-large"
   unkillable appn titl res = appn == "emacs" || appn == "ssh_tmux" || titl == "XMonad" || res == "floating-center-large"
   scratchTerm appn = appn == "scratchpad_largeTerminal"
-  askToKill appn role = appn == "google-chrome" && role == "browser" || appn=="urxvt" || appn=="Alacitty"
+  askToKill appn role = appn == "google-chrome" && role == "browser" || appn == "urxvt" || appn == "Alacritty" || appn == "alacritty"
   killOrElse win appn titl res role
     | alwayskillable titl = killWindow win
     | unkillable appn titl res = return ()
