@@ -16,6 +16,8 @@ module XMonad.Layout.PhysicalFullscreen
     , PhysicalFullscreenState(..)
     , toggleFullPhysicalScreen
     , resetPhysicalFullscreen
+    , resetPhysicalFullscreenWindow
+    , resetAllPhysicalFullscreen
     , resetPhysicalFullscreenIfOther
     , checkPhysicalFullscreenReset
     , fullscreenConfigureHook
@@ -46,79 +48,120 @@ data PhysicalFullscreenInfo = PhysicalFullscreenInfo
   , pfiLayoutDesc :: !String
   } deriving (Show, Read)
 
-newtype PhysicalFullscreenState = PhysicalFullscreenState (Maybe PhysicalFullscreenInfo)
+newtype PhysicalFullscreenState = PhysicalFullscreenState (M.Map Window PhysicalFullscreenInfo)
   deriving (Show, Read)
 
 instance ExtensionClass PhysicalFullscreenState where
-  initialValue = PhysicalFullscreenState Nothing
+  initialValue = PhysicalFullscreenState M.empty
 
--- | Reset any active physical fullscreen window back to its original location (tiled in its pane).
+-- | Helper to restore window borders, remove fullscreen EWMH atom, and sink to tiled layer.
+restoreWindow :: Window -> X ()
+restoreWindow w = do
+  setFullscreen w False
+  bw <- asks (borderWidth . config)
+  withDisplay $ \d -> io $ setWindowBorderWidth d w (fromIntegral bw)
+  isStillFlt <- gets (M.member w . W.floating . windowset)
+  when isStillFlt $ windows (W.sink w)
+
+-- | Reset a specific physical fullscreen window.
+resetPhysicalFullscreenWindow :: Window -> X ()
+resetPhysicalFullscreenWindow w = do
+  PhysicalFullscreenState m <- XS.get
+  when (M.member w m) $ XS.put (PhysicalFullscreenState $ M.delete w m)
+  restoreWindow w
+
+-- | Reset all active physical fullscreen windows across all physical monitors.
+resetAllPhysicalFullscreen :: X ()
+resetAllPhysicalFullscreen = do
+  PhysicalFullscreenState m <- XS.get
+  XS.put (PhysicalFullscreenState M.empty)
+  mapM_ restoreWindow (M.keys m)
+
+-- | Reset physical fullscreen window on the current physical screen, or all if none on current screen.
 resetPhysicalFullscreen :: X ()
-resetPhysicalFullscreen = do
-  PhysicalFullscreenState mInfo <- XS.get
-  whenJust mInfo $ \info -> do
-    XS.put (PhysicalFullscreenState Nothing)
-    let w = pfiWindow info
-    setFullscreen w False
-    bw <- asks (borderWidth . config)
-    withDisplay $ \d -> io $ setWindowBorderWidth d w (fromIntegral bw)
-    isStillFlt <- gets (M.member w . W.floating . windowset)
-    when isStillFlt $ windows (W.sink w)
+resetPhysicalFullscreen = withDisplay $ \dpy -> do
+  PhysicalFullscreenState m <- XS.get
+  unless (M.null m) $ do
+    ws <- gets windowset
+    let curScreen = W.current ws
+        vRect@(Rectangle vx vy vw vh) = screenRect . W.screenDetail $ curScreen
+        cx = fromIntegral vx + fromIntegral vw `div` 2
+        cy = fromIntegral vy + fromIntegral vh `div` 2
+    physScreens <- io $ getCleanedScreenInfo dpy
+    let curPhysRect = fromMaybe vRect $ find (pointWithin cx cy) physScreens
+        onCurPhys = [w | (w, info) <- M.toList m, pfiPhysRect info == curPhysRect]
+    if not (null onCurPhys)
+      then mapM_ resetPhysicalFullscreenWindow onCurPhys
+      else resetAllPhysicalFullscreen
 
--- | Reset physical fullscreen if the given window is not the currently fullscreen window.
+-- | Reset physical fullscreen if the given window is not the currently fullscreen window
+-- on that window's physical screen.
 resetPhysicalFullscreenIfOther :: Window -> X ()
 resetPhysicalFullscreenIfOther w = do
-  PhysicalFullscreenState mInfo <- XS.get
-  when (Just w /= fmap pfiWindow mInfo) resetPhysicalFullscreen
+  PhysicalFullscreenState m <- XS.get
+  unless (M.null m || M.member w m) $ withDisplay $ \dpy -> do
+    ws <- gets windowset
+    case find (\s -> w `elem` (W.integrate' . W.stack . W.workspace $ s)) (W.screens ws) of
+      Nothing -> return ()
+      Just sc -> do
+        let vRect@(Rectangle vx vy vw vh) = screenRect (W.screenDetail sc)
+            cx = fromIntegral vx + fromIntegral vw `div` 2
+            cy = fromIntegral vy + fromIntegral vh `div` 2
+        physScreens <- io $ getCleanedScreenInfo dpy
+        let physRect = fromMaybe vRect $ find (pointWithin cx cy) physScreens
+            onSamePhys = [pw | (pw, pinfo) <- M.toList m, pfiPhysRect pinfo == physRect]
+        mapM_ resetPhysicalFullscreenWindow onSamePhys
 
 -- | Reset physical fullscreen if active window on the workspace changes,
 -- or the workspace is hidden, moved, or modified.
 checkPhysicalFullscreenReset :: X ()
 checkPhysicalFullscreenReset = do
-  PhysicalFullscreenState mInfo <- XS.get
-  whenJust mInfo $ \info -> do
+  PhysicalFullscreenState m <- XS.get
+  unless (M.null m) $ do
     ws <- gets windowset
-    let w           = pfiWindow info
-        tag         = pfiWorkspace info
-        mScreen     = find ((== tag) . W.tag . W.workspace) (W.screens ws)
-        isStillFlt  = M.member w (W.floating ws)
-        isStillWin  = w `W.member` ws
+    let shouldReset info =
+          let w           = pfiWindow info
+              tag         = pfiWorkspace info
+              mScreen     = find ((== tag) . W.tag . W.workspace) (W.screens ws)
+              isStillFlt  = M.member w (W.floating ws)
+              isStillWin  = w `W.member` ws
+          in case mScreen of
+            Nothing -> True  -- workspace hidden
+            Just sc ->
+              let wsp         = W.workspace sc
+                  activeWin   = fmap W.focus (W.stack wsp)
+                  curPaneRect = screenRect (W.screenDetail sc)
+                  curLayout   = description (W.layout wsp)
+              in not isStillWin
+                 || not isStillFlt
+                 || activeWin /= Just w                   -- active window in same workspace changed
+                 || W.screen sc /= pfiScreen info          -- workspace moved to another screen
+                 || curPaneRect /= pfiPaneRect info        -- pane split / geometry changed
+                 || curLayout /= pfiLayoutDesc info        -- layout changed
 
-        shouldReset = case mScreen of
-          Nothing -> True  -- workspace hidden
-          Just sc ->
-            let wsp         = W.workspace sc
-                activeWin   = fmap W.focus (W.stack wsp)
-                curPaneRect = screenRect (W.screenDetail sc)
-                curLayout   = description (W.layout wsp)
-            in not isStillWin
-               || not isStillFlt
-               || activeWin /= Just w                   -- active window in same workspace changed
-               || W.screen sc /= pfiScreen info          -- workspace moved to another screen
-               || curPaneRect /= pfiPaneRect info        -- pane split / geometry changed
-               || curLayout /= pfiLayoutDesc info        -- layout changed
-
-    when shouldReset resetPhysicalFullscreen
+        toReset = [w | (w, info) <- M.toList m, shouldReset info]
+    mapM_ resetPhysicalFullscreenWindow toReset
 
 -- | Navigate screens, skipping any virtual panes that are covered by an active physical fullscreen window,
 -- and ensuring that navigating onto a physical fullscreen monitor focuses the fullscreen window.
 physicalScreenGo :: Nav2d.Direction2D -> Bool -> X ()
 physicalScreenGo dir wrap = do
-  PhysicalFullscreenState mInfo <- XS.get
-  case mInfo of
-    Nothing -> Nav2d.screenGo dir wrap
-    Just info -> do
+  PhysicalFullscreenState m <- XS.get
+  let activeInfos = M.elems m
+  if null activeInfos
+    then Nav2d.screenGo dir wrap
+    else do
       ws <- gets windowset
       let curScreen = W.current ws
           curPane   = screenRect (W.screenDetail curScreen)
           Rectangle cx cy _ _ = curPane
-          startedOnPhys = pointWithin (cx + 1) (cy + 1) (pfiPhysRect info)
+          mCurrentPhysInfo = find (\info -> pointWithin (cx + 1) (cy + 1) (pfiPhysRect info)) activeInfos
 
       -- Navigate one screen
       Nav2d.screenGo dir wrap
 
       -- If we started on the physical fullscreen monitor, skip past any other panes on this same monitor
-      when startedOnPhys $ do
+      whenJust mCurrentPhysInfo $ \info -> do
         let loop n = when (n > (0 :: Int)) $ do
               ws' <- gets windowset
               let s' = W.current ws'
@@ -136,8 +179,8 @@ physicalScreenGo dir wrap = do
       let sFinal = W.current wsFinal
           rFinal = screenRect (W.screenDetail sFinal)
           Rectangle xF yF _ _ = rFinal
-          landedOnPhys = pointWithin (xF + 1) (yF + 1) (pfiPhysRect info)
-      when landedOnPhys $ do
+          mLandedPhysInfo = find (\info -> pointWithin (xF + 1) (yF + 1) (pfiPhysRect info)) activeInfos
+      whenJust mLandedPhysInfo $ \info -> do
         windows (W.view (pfiWorkspace info) . W.focusWindow (pfiWindow info))
         withDisplay $ \d -> io $ raiseWindow d (pfiWindow info)
 
@@ -190,21 +233,31 @@ toggleFullPhysicalScreen = withFocused $ \w -> do
       rh = toRational ph / toRational vh
       targetRRect = W.RationalRect rx ry rw rh
 
-      isFull = case M.lookup w (W.floating ws) of
+  PhysicalFullscreenState m <- XS.get
+  let isTracked = M.member w m
+      isFull = isTracked || case M.lookup w (W.floating ws) of
         Just r  -> r == targetRRect
         Nothing -> False
 
   if isFull
-    then resetPhysicalFullscreen
+    then do
+      if isTracked
+        then resetPhysicalFullscreenWindow w
+        else restoreWindow w
     else do
-      XS.put (PhysicalFullscreenState $ Just PhysicalFullscreenInfo
-        { pfiWindow     = w
-        , pfiWorkspace  = curTag
-        , pfiScreen     = curScId
-        , pfiPaneRect   = vRect
-        , pfiPhysRect   = physRect
-        , pfiLayoutDesc = curLayout
-        })
+      -- If there is already another window fullscreened on this same physical screen, reset that window first
+      let onSamePhys = [pw | (pw, pinfo) <- M.toList m, pfiPhysRect pinfo == physRect]
+      mapM_ resetPhysicalFullscreenWindow onSamePhys
+
+      XS.modify $ \(PhysicalFullscreenState st) ->
+        PhysicalFullscreenState $ M.insert w PhysicalFullscreenInfo
+          { pfiWindow     = w
+          , pfiWorkspace  = curTag
+          , pfiScreen     = curScId
+          , pfiPaneRect   = vRect
+          , pfiPhysRect   = physRect
+          , pfiLayoutDesc = curLayout
+          } st
       setFullscreen w True
       withDisplay $ \d -> io $ do
         setWindowBorderWidth d w 0
