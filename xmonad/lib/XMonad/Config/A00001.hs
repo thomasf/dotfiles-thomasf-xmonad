@@ -834,14 +834,12 @@ myXineramaWsCompare' phy = do
         (True, False)  -> LT
         (False, True)  -> GT
   where
-    onScreen w =  W.current w : W.visible w
-    isOnScreen a w  = a `elem` map (W.tag . W.workspace) (onScreen w)
-    tagToSid s x = W.screen $ fromJust $ find ((== x) . W.tag . W.workspace) s
-    cmpPosition False w a b = comparing (tagToSid $ onScreen w) a b
-    cmpPosition True w a b = comparing (rect . tagToSid (onScreen w)) a b
-      -- where rect i = let (Rectangle x y _ _) = screens !! fromIntegral i in (y,x)
-      where rect i = let (Rectangle x y _ _) = screens !! fromIntegral i in (x,y)
-            screens = map (screenRect . W.screenDetail) $ sortOn W.screen $ W.current w : W.visible w
+    onScreen w = W.current w : W.visible w
+    isOnScreen a w = a `elem` map (W.tag . W.workspace) (onScreen w)
+    findScreen s x = find ((== x) . W.tag . W.workspace) s
+    cmpPosition False w = comparing (fmap W.screen . findScreen (onScreen w))
+    cmpPosition True  w = comparing (fmap (screenPos . W.screenDetail) . findScreen (onScreen w))
+      where screenPos sd = let Rectangle x y _ _ = screenRect sd in (x, y)
 
 
 physicalScreenOrder= horizontalScreenOrderer
