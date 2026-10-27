@@ -27,7 +27,6 @@ import           Data.IORef
 import           Data.List
 import qualified Data.Map as M
 import           Data.Monoid
-import           Data.Ratio ((%))
 import           Data.Ord
 import           Data.Maybe
 import           System.Environment (getEnv)
@@ -44,12 +43,9 @@ import           XMonad.Actions.GridSelect
 import           XMonad.Actions.MouseGestures
 import qualified XMonad.Actions.Navigation2D as Nav2d
 import           XMonad.Actions.PerWorkspaceKeys
-import           XMonad.Actions.PhysicalScreens hiding (rescreen)
 import           XMonad.Actions.RotSlaves
 import           XMonad.Actions.UpdatePointer
-import           XMonad.Actions.WindowBringer as WB
 import           XMonad.Actions.WithAll
-import           XMonad.Hooks.Focus
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
 import           XMonad.Hooks.ManageDocks (docks, avoidStruts, ToggleStruts(..), docksStartupHook)
@@ -63,7 +59,6 @@ import           XMonad.Layout.Fullscreen
 import           XMonad.Layout.Grid
 import           XMonad.Layout.TwoPane
 import           XMonad.Layout.ThreeColumns
-import           XMonad.Layout.IM
 import           XMonad.Layout.LayoutCombinators
 import           XMonad.Layout.LayoutModifier
 import qualified XMonad.Layout.LayoutScreens as LS
@@ -75,7 +70,6 @@ import           XMonad.Layout.OneBig
 import           XMonad.Layout.PerWorkspace (onWorkspace, onWorkspaces)
 import           XMonad.Layout.Reflect
 import           XMonad.Layout.Renamed
-import           XMonad.Layout.Spacing
 import           XMonad.Layout.SimpleFloat (simpleFloat)
 import qualified XMonad.Layout.Spiral as Spiral
 import qualified XMonad.Prompt as XP
@@ -87,11 +81,8 @@ import           XMonad.Util.NamedScratchpad
 import           XMonad.Util.Paste
 import           XMonad.Util.Run
 import           XMonad.Util.WorkspaceCompare
-import           XMonad.Util.NamedWindows (getName)
 import           Text.Printf
-import           XMonad.Operations (unGrab)
 import qualified Control.Arrow as Arrow
-import qualified Graphics.Rendering.Pango.Layout as PL
 
 
 -- | Layout modifier that adds spacing only between windows/panes, with 0 outer margin on edges touching screen borders.
@@ -151,14 +142,14 @@ myKeys xpc conf=
   , ("M-o S-t", spawnh "env WSENV_SKIP=1 term")
   , ("M-o e", spawnhmw "e")
   , ("M-o n", spawnhm "nautilus")
-  , ("M-o a", addName "Run default workspace launcer script" $ bindOnProtectedWorkspace workspaceAction maybeWorkspaceAction)
+  , ("M-o a", addName "Run default workspace launcher script" $ bindOnProtectedWorkspace workspaceAction maybeWorkspaceAction)
   ] ++
   subtitle "Other window actions": mkNamedKeymap conf
   [ ("M-<Return>", addName "Swap the focused window and the master window" $ dwmpromote >> movePointer)
   , ("M-t",        addName "Push the window into tiling mode"              $ withFocused (windows . W.sink) >> movePointer)
   , ("M-C-c",      addName "kill"                                          kill')
   , ("M-S-C-c",    addName "run xkill or kill all windows on special workspaces" killPrompt')
-  , ("M-u",        addName "Focus urgent winow"                            $ focusUrgent >> movePointer )
+  , ("M-u",        addName "Focus urgent window"                           $ focusUrgent >> movePointer )
   , ("M-C-u",      addName "Clear all urgent window statuses"              $ clearUrgents >> focusUrgent)
   ] ++
   -- subtitle "Screen actions": mkNamedKeymap conf
@@ -172,8 +163,8 @@ myKeys xpc conf=
   subtitle "Horizontal screen actions": mkNamedKeymap conf
   [ ("M-f",   addName "Next screen"                        $ showWorkspaceNameOld >> Nav2d.screenGo R True >> movePointer >> showWorkspaceNameFast)
   , ("M-d",   addName "Previous screen"                    $ showWorkspaceNameOld >> Nav2d.screenGo L True >> movePointer >> showWorkspaceNameFast)
-  , ("M-C-f", addName "Swap current display witn next"     $ Nav2d.screenGo R True >> showWorkspaceNameOld >> Nav2d.screenGo L True >> Nav2d.screenSwap R True >> showWorkspaceNameFast)
-  , ("M-C-d", addName "Swap current display witn previous" $ Nav2d.screenGo L True >> showWorkspaceNameOld >> Nav2d.screenGo R True >> Nav2d.screenSwap L True >> showWorkspaceNameFast)
+  , ("M-C-f", addName "Swap current display with next"     $ Nav2d.screenGo R True >> showWorkspaceNameOld >> Nav2d.screenGo L True >> Nav2d.screenSwap R True >> showWorkspaceNameFast)
+  , ("M-C-d", addName "Swap current display with previous" $ Nav2d.screenGo L True >> showWorkspaceNameOld >> Nav2d.screenGo R True >> Nav2d.screenSwap L True >> showWorkspaceNameFast)
   , ("M-S-f", addName "Move window to next screen"         $ Nav2d.windowToScreen R True  >> showWorkspaceNameOld >> Nav2d.screenGo R True >> showWorkspaceNameFast)
   , ("M-S-d", addName "Move window to previous screen"     $ Nav2d.windowToScreen L True  >> showWorkspaceNameOld >> Nav2d.screenGo L True >> showWorkspaceNameFast)
   ] ++
@@ -196,7 +187,7 @@ myKeys xpc conf=
   , ("M-S-<Right>", addName "Swap window right"  $ Nav2d.windowSwap R False)
   , ("M-S-C-<Up>",    addName "Drag window to screen above"  $ Nav2d.windowToScreen U False >> showWorkspaceNameOld >> Nav2d.screenGo U False >> showWorkspaceNameFast)
   , ("M-S-C-<Down>",  addName "Drag window to screen below"  $ Nav2d.windowToScreen D False >> showWorkspaceNameOld >> Nav2d.screenGo D False >> showWorkspaceNameFast)
-  , ("M-S-C-<Left>",  addName "Drag window to to screen left"   $ Nav2d.windowToScreen L False >> showWorkspaceNameOld >> Nav2d.screenGo L False >> showWorkspaceNameFast)
+  , ("M-S-C-<Left>",  addName "Drag window to screen left"   $ Nav2d.windowToScreen L False >> showWorkspaceNameOld >> Nav2d.screenGo L False >> showWorkspaceNameFast)
   , ("M-S-C-<Right>", addName "Drag window to screen right"  $ Nav2d.windowToScreen R False >> showWorkspaceNameOld >> Nav2d.screenGo R False >> showWorkspaceNameFast)
   ] ++
   subtitle "Workspace actions (E/R) [mod=select from prefix] [mod+control=select from all]": mkNamedKeymap conf
@@ -338,7 +329,7 @@ myKeys xpc conf=
       movePointer
     wsPrompt wsp = wsp xpc afterWSPrompt
 
-    -- | Select workspae prompt
+    -- | Select workspace prompt
     selectWorkspacePrompt = wsPrompt workspacePromptAll
 
     -- | Prompt for any workspace, sorted by index
@@ -452,20 +443,6 @@ myKeys xpc conf=
         where readMaybe s = case reads s of
                        [(r,_)] -> Just r
                        _       -> Nothing
-
-   -- | Create a new prefixed sub workspace
-    -- newPrefixWSName wsid
-    newPrefixWSName wsid = withWindowSet $ \w -> do
-    -- newPrefixWSName wsid = do
-      let wss = W.workspaces w
-          currentTagPrefix = takeWhile (/='.') wsid
-          cws = map W.tag $ filter (\ws -> (currentTagPrefix ++ ".") `isPrefixOf` W.tag ws && isJust (W.stack ws)) wss
-          num = head $ [0..] \\ mapMaybe (readMaybe . drop (length currentTagPrefix +1 )) cws :: Integer
-          new = printf "%s%c%i" currentTagPrefix wsSeparator num
-      return new
-        where readMaybe s = case reads s of
-                [(r,_)] -> Just r
-                _       -> Nothing
 
 
     -- | filter some workspaces
@@ -712,8 +689,6 @@ myManageHook =
     skipTaskbar = isInProperty "_NET_WM_STATE" "_NET_WM_STATE_SKIP_TASKBAR"
     -- isAbove = isInProperty "_NET_WM_STATE" "_NET_WM_STATE_ABOVE"
     isTooltip = stringProperty "_NET_WM_WINDOW_TYPE" =? "_NET_WM_WINDOW_TYPE_TOOLTIP"
-    startsWith' :: Eq a => Query [a] -> [a] -> Query Bool
-    startsWith' q prefix = fmap (isPrefixOf prefix) q
 
 
 
@@ -841,15 +816,6 @@ myXineramaWsCompare' phy = do
     cmpPosition True  w = comparing (fmap (screenPos . W.screenDetail) . findScreen (onScreen w))
       where screenPos sd = let Rectangle x y _ _ = screenRect sd in (x, y)
 
-
-physicalScreenOrder= horizontalScreenOrderer
-
-nextScreen' = onNextNeighbour  physicalScreenOrder W.view
-prevScreen' = onPrevNeighbour physicalScreenOrder W.view
-swapNextScreen' = onNextNeighbour physicalScreenOrder W.greedyView
-swapPrevScreen' = onPrevNeighbour physicalScreenOrder W.greedyView
-shiftNextScreen' = onNextNeighbour physicalScreenOrder W.shift
-shiftPrevScreen' = onPrevNeighbour physicalScreenOrder W.shift
 
 
 -- Startup hook
@@ -1157,8 +1123,6 @@ onEmptyWorkspace action = do
 showStatusSingleMessageDuration = 0.7
 showStatusMultipleMessagesDuration = 0.7
 
--- | Show active workspace name slow
-showWorkspaceName = showWorkspaceName' showStatusMultipleMessagesDuration ("bg_0", "yellow")
 -- | Show inactve workspace name slow
 showWorkspaceNameOld = showWorkspaceName' showStatusMultipleMessagesDuration ("fg_1", "bg_2")
 -- | Show active workspace name fast

@@ -3,8 +3,6 @@
 module Main (main) where
 import XMonad
 import XMonad.Config.A00001 (a00001Config)
-import XMonad.Util.Replace (replace)
-import Control.Monad (when, liftM)
 import System.Environment (getArgs, withArgs)
 
 main :: IO ()
