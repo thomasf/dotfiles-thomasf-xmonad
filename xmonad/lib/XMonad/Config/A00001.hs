@@ -154,14 +154,6 @@ myKeys xpc conf=
   , ("M-u",        addName "Focus urgent window"                           $ focusUrgent >> movePointer )
   , ("M-C-u",      addName "Clear all urgent window statuses"              $ clearUrgents >> focusUrgent)
   ] ++
-  -- subtitle "Screen actions": mkNamedKeymap conf
-  -- [ ("M-f",   addName "Next screen"                        $ showWorkspaceNameOld >> nextScreen' >> movePointer >> showWorkspaceNameFast)
-  -- , ("M-d",   addName "Previous screen"                    $ showWorkspaceNameOld >> prevScreen' >> movePointer >> showWorkspaceNameFast)
-  -- , ("M-C-f", addName "Swap current display witn next"     $ swapNextScreen' >> nextScreen' >> showWorkspaceNameOld >> prevScreen' >> showWorkspaceName >> movePointer )
-  -- , ("M-C-d", addName "Swap current display witn previous" $ swapPrevScreen' >> prevScreen' >> showWorkspaceNameOld >> nextScreen' >> showWorkspaceName >> movePointer )
-  -- , ("M-S-f", addName "Move window to next screen"         $ shiftNextScreen' >> nextScreen' >> movePointer )
-  -- , ("M-S-d", addName "Move window to previous screen"     $ shiftPrevScreen' >> prevScreen' >> movePointer )
-  -- ] ++
   subtitle "Horizontal screen actions": mkNamedKeymap conf
   [ ("M-f",   addName "Next screen"                        $ showWorkspaceNameOld >> PF.physicalScreenGo R True >> movePointer >> showWorkspaceNameFast)
   , ("M-d",   addName "Previous screen"                    $ showWorkspaceNameOld >> PF.physicalScreenGo L True >> movePointer >> showWorkspaceNameFast)
@@ -175,10 +167,6 @@ myKeys xpc conf=
   , ("M-<Down>",    addName "Focus window below" $ Nav2d.windowGo D False)
   , ("M-<Left>",    addName "Focus window left"  $ Nav2d.windowGo L False)
   , ("M-<Right>",   addName "Focus window right" $ Nav2d.windowGo R False)
-  -- , ("M-<Alt_L>-<Up>",      addName "Focus screen above" $ Nav2d.screenGo U False)
-  -- , ("M-<Down>",    addName "Focus window below" $ Nav2d.windowGo D False)
-  -- , ("M-<Left>",    addName "Focus window left"  $ Nav2d.windowGo L False)
-  -- , ("M-<Right>",   addName "Focus window right" $ Nav2d.windowGo R False)
   , ("M-C-<Up>",    addName "Swap screen above"  $ Nav2d.screenSwap U False >> showWorkspaceNameOld >> Nav2d.screenGo U False >> showWorkspaceNameFast)
   , ("M-C-<Down>",  addName "Swap screen below"  $ Nav2d.screenSwap D False >> showWorkspaceNameOld >> Nav2d.screenGo D False >> showWorkspaceNameFast)
   , ("M-C-<Left>",  addName "Swap screen left"   $ Nav2d.screenSwap L False >> showWorkspaceNameOld >> Nav2d.screenGo L False >> showWorkspaceNameFast)
@@ -348,22 +336,6 @@ myKeys xpc conf=
       exists <- gets (W.tagMember t . windowset)
       unless exists $ DW.addHiddenWorkspace t
       job t
-
-    -- The XPrompt M-i i, replaced by ws pick:
-    -- -- | Select workspace prompt
-    -- selectWorkspacePromptHidden = wsPrompt workspacePromptHidden
-    -- -- selectWorkspacePromptHidden = workspacePrompt'
-    --
-    -- -- | Select workspace promt only showing non visible workspaces
-    -- workspacePromptHidden :: XP.XPConfig -> (String -> X ()) -> X ()
-    -- workspacePromptHidden c job = do ws <- gets (W.hidden . windowset)
-    --                                  s <- getSortByIndex
-    --                                  -- thisWS <- gets (W.currentTag . windowset)
-    --                                  let ts = map W.tag $ s ws
-    --                                      -- prefix = takeWhile (/= wsSeparator) thisWS
-    --                                      prefix = ""
-    --                                  XP.mkXPrompt (WsPrompt "") c {XP.defaultText=prefix} (XP.mkComplFunFromList' c ts ) job
-
 
     -- | Toggle scratch pad
     toggleScratch cmd' = addName("Toggle " ++ cmd' ++ " scratchpad ") $ namedScratchpadAction myScratchPads cmd'
