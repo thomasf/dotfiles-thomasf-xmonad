@@ -1083,7 +1083,7 @@ afterWSPrompt w = do
 -- | Run script with same name as "w.workspacename"
 workspaceAction = do
   ws <- gets (W.currentTag . windowset)
-  safeSpawn "workspace-action" [ws]
+  safeSpawn "ws" ["action", ws]
 
 -- | Run script with same name as "w.workspacename" if the workspace is empty
 maybeWorkspaceAction = onEmptyWorkspace workspaceAction
