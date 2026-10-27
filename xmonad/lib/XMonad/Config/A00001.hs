@@ -1,5 +1,5 @@
-{-# LANGUAGE FlexibleContexts, FlexibleInstances, MultiParamTypeClasses, NoMonomorphismRestriction, ScopedTypeVariables, UndecidableInstances, PostfixOperators #-}
-{-# OPTIONS_GHC -W -fno-warn-missing-signatures -fwarn-unused-imports -freduction-depth=99 -Wno-deprecations #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
+{-# OPTIONS_GHC -Wall -Wno-missing-signatures -Wno-deprecations #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  XMonad.Config.A00001
