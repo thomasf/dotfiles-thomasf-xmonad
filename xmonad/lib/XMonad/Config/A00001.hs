@@ -96,6 +96,7 @@ import qualified Graphics.Rendering.Pango.Layout as PL
 data EdgeSpacing a = EdgeSpacing Int Int Int Int Int deriving (Show, Read)
 
 instance LayoutModifier EdgeSpacing a where
+  pureModifier (EdgeSpacing 0 0 0 0 0) _ _ wrs = (wrs, Nothing)
   pureModifier (EdgeSpacing oTop oBottom oLeft oRight inner) screenRect _mst wrs
     | null wrs || length wrs <= 1 = (wrs, Nothing)
     | otherwise                   = (map adjust wrs, Nothing)
