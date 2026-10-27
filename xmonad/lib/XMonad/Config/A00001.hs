@@ -68,6 +68,7 @@ import           XMonad.Layout.NoBorders
 import           XMonad.Layout.OnHost
 import           XMonad.Layout.OneBig
 import           XMonad.Layout.PerWorkspace (onWorkspace, onWorkspaces)
+import qualified XMonad.Layout.PhysicalFullscreen as PF
 import           XMonad.Layout.Reflect
 import           XMonad.Layout.Renamed
 import           XMonad.Layout.SimpleFloat (simpleFloat)
@@ -161,12 +162,12 @@ myKeys xpc conf=
   -- , ("M-S-d", addName "Move window to previous screen"     $ shiftPrevScreen' >> prevScreen' >> movePointer )
   -- ] ++
   subtitle "Horizontal screen actions": mkNamedKeymap conf
-  [ ("M-f",   addName "Next screen"                        $ showWorkspaceNameOld >> Nav2d.screenGo R True >> movePointer >> showWorkspaceNameFast)
-  , ("M-d",   addName "Previous screen"                    $ showWorkspaceNameOld >> Nav2d.screenGo L True >> movePointer >> showWorkspaceNameFast)
-  , ("M-C-f", addName "Swap current display with next"     $ Nav2d.screenGo R True >> showWorkspaceNameOld >> Nav2d.screenGo L True >> Nav2d.screenSwap R True >> showWorkspaceNameFast)
-  , ("M-C-d", addName "Swap current display with previous" $ Nav2d.screenGo L True >> showWorkspaceNameOld >> Nav2d.screenGo R True >> Nav2d.screenSwap L True >> showWorkspaceNameFast)
-  , ("M-S-f", addName "Move window to next screen"         $ Nav2d.windowToScreen R True  >> showWorkspaceNameOld >> Nav2d.screenGo R True >> showWorkspaceNameFast)
-  , ("M-S-d", addName "Move window to previous screen"     $ Nav2d.windowToScreen L True  >> showWorkspaceNameOld >> Nav2d.screenGo L True >> showWorkspaceNameFast)
+  [ ("M-f",   addName "Next screen"                        $ showWorkspaceNameOld >> PF.physicalScreenGo R True >> movePointer >> showWorkspaceNameFast)
+  , ("M-d",   addName "Previous screen"                    $ showWorkspaceNameOld >> PF.physicalScreenGo L True >> movePointer >> showWorkspaceNameFast)
+  , ("M-C-f", addName "Swap current display with next"     $ PF.physicalScreenGo R True >> showWorkspaceNameOld >> PF.physicalScreenGo L True >> Nav2d.screenSwap R True >> showWorkspaceNameFast)
+  , ("M-C-d", addName "Swap current display with previous" $ PF.physicalScreenGo L True >> showWorkspaceNameOld >> PF.physicalScreenGo R True >> Nav2d.screenSwap L True >> showWorkspaceNameFast)
+  , ("M-S-f", addName "Move window to next screen"         $ Nav2d.windowToScreen R True  >> showWorkspaceNameOld >> PF.physicalScreenGo R True >> showWorkspaceNameFast)
+  , ("M-S-d", addName "Move window to previous screen"     $ Nav2d.windowToScreen L True  >> showWorkspaceNameOld >> PF.physicalScreenGo L True >> showWorkspaceNameFast)
   ] ++
   subtitle "2D Navigation": mkNamedKeymap conf
   [ ("M-<Up>",      addName "Focus window above" $ Nav2d.windowGo U False)
@@ -200,6 +201,7 @@ myKeys xpc conf=
   subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]": mkNamedKeymap conf
   [ ("M-C-<Space>", addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
   , ("M-m",         addName "Toggle fullscreen"                                    $ sendMessage (Toggle NBFULL) >> movePointer >> showLayoutName)
+  , ("M-S-m",       addName "Toggle fullscreen across physical screen"             $ PF.toggleFullPhysicalScreen >> movePointer)
   , ("M-n",         addName "Toggle visibiltiy of panels"                          $ sendMessage ToggleStruts >> movePointer)
   , ("M-M1-s",      addName "Toggle visibiltiy of panels"                          $ sendMessage ToggleStruts >> movePointer)
   , ("M-M1-r",      addName "Toggle reflect layout direction"                      $ sendMessage (Toggle REFLECTX) >> movePointer)
@@ -266,7 +268,7 @@ myKeys xpc conf=
   , ("M-i j",               myViewWS' "work")
   , ("M-i k",               myViewWS' "work-client")
   , ("M-i q",               myViewWS' "hass")
-  , ("M-i M-i",             addName "cycle ws"                              $ rmEmptyWs $ myCycleRecentWs xK_i xK_o)
+  , ("M-i M-i",             addName "cycle ws"                              $ rmEmptyWs $ PF.resetPhysicalFullscreen >> myCycleRecentWs xK_i xK_o)
   , ("M-i i",               addName "Create or change workspace (ws pick)"  $ spawn "ws pick -go")
   -- , ("M-i i",               addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePromptHidden >> maybeWorkspaceAction >> movePointer)
   -- , ("M-C-i M-C-i",         addName "cycle ws on next screen"               $ holdScreenFocus $ nextScreen' >> myCycleRecentWs xK_i xK_o)
@@ -368,6 +370,7 @@ myKeys xpc conf=
 
     gotoBaseWS :: X ()
     gotoBaseWS = withWindowSet $ \w -> do
+      PF.resetPhysicalFullscreen
       thisWS <- gets (W.currentTag . windowset)
       let wss = W.workspaces w
           currentTagPrefix = takeWhile (/= wsSeparator) thisWS
@@ -377,6 +380,7 @@ myKeys xpc conf=
 
     gotoPrefixWS :: String -> X ()
     gotoPrefixWS suffix = withWindowSet $ \w -> do
+      PF.resetPhysicalFullscreen
       thisWS <- gets (W.currentTag . windowset)
       let wss = W.workspaces w
           currentTagPrefix = takeWhile (/= wsSeparator) thisWS
@@ -676,7 +680,7 @@ myManageHook =
 -- return (All True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
 --
-myHandleEventHook = noRescreenEventHook <+> ewmhDesktopsEventHook <+> fullscreenEventHook <+> serverModeEventHook <+> wsGoEventHook <+> wsFocusEventHook
+myHandleEventHook = PF.fullscreenConfigureHook <+> noRescreenEventHook <+> ewmhDesktopsEventHook <+> fullscreenEventHook <+> serverModeEventHook <+> wsGoEventHook <+> wsFocusEventHook
 
 
 noRescreenEventHook ConfigureEvent {ev_window = w} = do
@@ -700,7 +704,8 @@ wsGoEventHook ClientMessageEvent {ev_message_type = mt, ev_data = dt} = do
     wsGo <- io $ internAtom d "WS_GO" False
     when (mt == wsGo) $ forM_ (take 1 dt) $ \a -> do
       name <- io $ getAtomName d (fromIntegral a)
-      forM_ (mfilter (not . null) name) $ \n ->
+      forM_ (mfilter (not . null) name) $ \n -> do
+        PF.resetPhysicalFullscreen
         DW.removeEmptyWorkspaceAfterExcept keptWorkspaces $ do
           exists <- gets (W.tagMember n . windowset)
           if exists
@@ -720,7 +725,9 @@ wsFocusEventHook ClientMessageEvent {ev_message_type = mt, ev_data = dt} = do
     when (mt == wsFocus) $ forM_ (take 1 dt) $ \a -> do
       let w = fromIntegral a
       managed <- gets (W.member w . windowset)
-      when managed $ windows (W.focusWindow w) >> movePointer
+      when managed $ do
+        PF.resetPhysicalFullscreenIfOther w
+        windows (W.focusWindow w) >> movePointer
     return (All True)
 wsFocusEventHook _ = return (All True)
 
@@ -758,6 +765,7 @@ myLogHook pal = do
   dynamicLogString (myXmobarBottomPP pal) >>= xmonadPropLog' "_XMONAD_LOG_BOTTOM"
   workspaceHistoryHook
   ewmhDesktopsLogHook
+  PF.checkPhysicalFullscreenReset
   -- desktopLogHook
   -- fadeInactiveLogHook 0.86
 
@@ -1066,6 +1074,7 @@ killPrompt' = withFocused $ \w -> do
 
 -- | View a workspace by name and maybe run workspace action
 myViewWS wsid = do
+  PF.resetPhysicalFullscreen
   showWorkspaceNameOld
   DW.addHiddenWorkspace wsid
   windows (W.view wsid)
@@ -1073,12 +1082,14 @@ myViewWS wsid = do
   updateStruts
   showWorkspaceNameFast
 
-afterWSPrompt w = do s <- gets windowset
-                     showWorkspaceNameOld
-                     if W.tagMember w s
-                       then windows $ W.view w
-                       else DW.addWorkspace w >> updateStruts
-                     showWorkspaceNameFast
+afterWSPrompt w = do
+  PF.resetPhysicalFullscreen
+  s <- gets windowset
+  showWorkspaceNameOld
+  if W.tagMember w s
+    then windows $ W.view w
+    else DW.addWorkspace w >> updateStruts
+  showWorkspaceNameFast
 
 
 
