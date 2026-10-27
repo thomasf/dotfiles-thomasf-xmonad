@@ -69,6 +69,7 @@ import           XMonad.Layout.OnHost
 import           XMonad.Layout.OneBig
 import           XMonad.Layout.PerWorkspace (onWorkspace, onWorkspaces)
 import qualified XMonad.Layout.PhysicalFullscreen as PF
+import qualified XMonad.Layout.ScreenArrangement as SA
 import           XMonad.Layout.Reflect
 import           XMonad.Layout.Renamed
 import           XMonad.Layout.SimpleFloat (simpleFloat)
@@ -245,7 +246,8 @@ myKeys xpc conf=
   , ("M-8",           addName "restore workspace group 3"   $ holdScreenFocus $ viewWSGroup "wsg3")
   ] ++
   subtitle "screen splitting": mkNamedKeymap conf
-  [ ("M-5 2",  addName "Split current screen by 2 panes 0.5"              $ LS.layoutSplitScreen 2 $ innerSpacing 1 (TwoPane 0 0.5))
+  [ ("M-5 5",  addName "Standard screen arrangement for host"             $ PF.resetPhysicalFullscreen >> SA.standardScreenArrangement >> movePointer)
+  , ("M-5 2",  addName "Split current screen by 2 panes 0.5"              $ LS.layoutSplitScreen 2 $ innerSpacing 1 (TwoPane 0 0.5))
   , ("M-5 1",  addName "Split current screen by 2 panes 0.7"              $ LS.layoutSplitScreen 2 $ innerSpacing 1 (TwoPane 0 0.33))
   , ("M-5 3",  addName "Split current screen by 3 even columns"           $ LS.layoutSplitScreen 3 $ innerSpacing 1 (Mirror (Tall 3 0 (1/2))))
   , ("M-5 4",  addName "Split current screen by 3 larger center"          $ LS.layoutSplitScreen 3 $ innerSpacing 1 $ (ThreeColMid 1 (3/100) (4/10)))
