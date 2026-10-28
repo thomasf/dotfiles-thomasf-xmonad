@@ -491,7 +491,7 @@ myManageHook =
     -- doSink = ask >>= doF . W.sink
     skipTaskbar = isInProperty "_NET_WM_STATE" "_NET_WM_STATE_SKIP_TASKBAR"
     -- isAbove = isInProperty "_NET_WM_STATE" "_NET_WM_STATE_ABOVE"
-    isTooltip = stringProperty "_NET_WM_WINDOW_TYPE" =? "_NET_WM_WINDOW_TYPE_TOOLTIP"
+    isTooltip = isInProperty "_NET_WM_WINDOW_TYPE" "_NET_WM_WINDOW_TYPE_TOOLTIP"
 
 
 
