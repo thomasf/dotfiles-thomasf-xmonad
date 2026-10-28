@@ -74,7 +74,6 @@ import qualified XMonad.Layout.Spiral as Spiral
 import qualified XMonad.Prompt as XP
 import qualified XMonad.Prompt.Subsequence as Subseq
 import qualified XMonad.StackSet as W hiding (swapUp, swapDown)
-import qualified XMonad.Util.Dzen as DZ
 import           XMonad.Util.EZConfig
 import qualified XMonad.Util.ExtensibleState as XS
 import           XMonad.Util.NamedActions
@@ -365,7 +364,7 @@ myMouseBindings =
       -- button9 =  9 :: Button
       button10 =  10 :: Button
       gestures = M.fromList
-                 [ ([    ], \_ -> io TP.readPalette >>= \pal -> gridselectWorkspace (TP.myGsconfig pal) W.greedyView)
+                 [ ([    ], \_ -> io TP.readPalette >>= \pal -> gridselectWorkspace (myGsconfig pal) W.greedyView)
                  , ([R, D], \_ -> sendMessage NextLayout)
                  , ([U   ], \w -> focus w >> Nav2d.windowSwap U False)
                  , ([D   ], \w -> focus w >> Nav2d.windowSwap D False)
@@ -645,20 +644,34 @@ myUrgencyHook pal =
 
 
 
+-- Font configuration:
+
+myFont :: String
+myFont = "PragmataPro"
+
+sizedXftFontScaled :: TP.Palette -> Double -> String
+sizedXftFontScaled pal px = TP.sizedXftFontScaled pal myFont px
+
+myGsconfig :: TP.Palette -> GSConfig a
+myGsconfig = TP.myGsconfigWithFont myFont
+
+showMessage :: (Real a) => a -> (String, String) -> String -> X ()
+showMessage = TP.showMessageWithFont myFont
+
 -- XMonad Prompt configuration
 
-defXPConfig = def
+defXPConfig pal = def
  { XP.position = XP.CenteredAt 0.4 0.5
- , XP.promptBorderWidth = 1
- , XP.font = TP.sizedXftFont "20"
- , XP.height = 24
+ , XP.promptBorderWidth = fromIntegral (max 1 (TP.scaleDpi pal 1))
+ , XP.font = sizedXftFontScaled pal 20
+ , XP.height = fromIntegral (TP.scaleDpi pal 24)
  , XP.promptKeymap = Subseq.emacsLikeXPKeymap' (\c -> isSpace c || c == '.')
  , XP.searchPredicate = Subseq.subsequenceMatch
  , XP.sorter = Subseq.subsequenceSort
  }
 
 -- | Prompts are a raised surface, like rofi: bg_1 with fg_1 text.
-myXPConfig pal = defXPConfig
+myXPConfig pal = (defXPConfig pal)
  { XP.bgColor = TP.col pal "bg_1"
  , XP.fgColor = TP.col pal "fg_1"
  , XP.bgHLight = TP.col pal "bg_1"
@@ -830,7 +843,7 @@ kill' = withFocused $ \win -> do
 killPrompt :: X ()
 killPrompt = withFocused $ \win -> do
   pal <- io TP.readPalette
-  runSelectedAction (TP.myGsconfig pal)
+  runSelectedAction (myGsconfig pal)
         [ ("Kill active window", killWindow win)
         , ("Cancel", return ())
         ]
@@ -838,7 +851,7 @@ killPrompt = withFocused $ \win -> do
 killPrompt' :: X ()
 killPrompt' = withFocused $ \w -> do
   pal <- io TP.readPalette
-  runSelectedAction (TP.myGsconfig pal)
+  runSelectedAction (myGsconfig pal)
         [ ("Cancel", return ())
         , ("Kill active window", killWindow w)
         , ("Run xkill", spawn "xkill")
@@ -893,33 +906,6 @@ showWorkspaceNameOld = showWorkspaceName' showStatusMultipleMessagesDuration ("f
 showWorkspaceNameFast = showWorkspaceName' showStatusSingleMessageDuration ("bg_0", "magenta")
 
 showAppName = showMessage 1 ("bg_0", "cyan")
-
-getScreenRect :: X Rectangle
-getScreenRect = screenRect . W.screenDetail . W.current <$> gets windowset
-
--- | Show msg in a dzen popup in the middle of the screen, in the colors
--- (fg, bg) of the palette: bg_0 text on an accent reads in both modes.
-showMessage timeout (fgName, bgName) msg = do
-  pal <- io TP.readPalette
-  let (fg, bg) = (TP.col pal fgName, TP.col pal bgName)
-  sr <-  getScreenRect
-  let rx p = fromIntegral $ p sr
-      sw = rx rect_width
-      sh = rx rect_height
-      sx = rx rect_x
-      sy = rx rect_y
-      w = max (sw/3) (min sw 400) :: Double
-      x = sx + sw/2 - w/2
-      h = min sh 100 :: Double
-      y = sy + sh/2 - h/2
-  DZ.dzenConfig
-    (DZ.timeout timeout
-     >=> DZ.addArgs ["-x", show x, "-w", show w]
-     >=> DZ.addArgs ["-y", show y, "-h", show h]
-     >=> DZ.font TP.largeFont
-     >=> DZ.addArgs ["-fg", fg]
-     >=> DZ.addArgs ["-bg", bg]
-    ) msg
 
 
 -- | Show workspace name

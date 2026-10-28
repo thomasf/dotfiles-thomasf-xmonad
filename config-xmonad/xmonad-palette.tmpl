@@ -1,4 +1,5 @@
 [ {{- range $name, $color := .theme.colors}}
   ({{printf "%q" $name}}, {{printf "%q" $color}}),{{end}}
-  ("mode", {{printf "%q" .theme.mode}})
+  ("mode", {{printf "%q" .theme.mode}}),
+  ("dpi", {{printf "%q" (print .vars.dpi)}})
 ]
