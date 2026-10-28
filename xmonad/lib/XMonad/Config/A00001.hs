@@ -78,6 +78,7 @@ import           XMonad.Util.EZConfig
 import qualified XMonad.Util.ExtensibleState as XS
 import           XMonad.Util.NamedActions
 import           XMonad.Util.NamedScratchpad
+import           XMonad.Util.NamedWindows (getName)
 import           XMonad.Util.Paste
 import           XMonad.Util.Run
 import           XMonad.Util.WorkspaceCompare
@@ -582,17 +583,12 @@ myXmobarTopPP pal = def
   , ppSort    = mySortByXineramaPhysicalRule
   }
 
-myXmobarBottomPP pal = def
-  { ppCurrent = const ""
-  , ppVisible = const ""
-  , ppHidden  = const ""
-  , ppUrgent  = const ""
-  , ppTitle   = trim
-  , ppLayout  = const ""
-  , ppSep     = xmobarColor (TP.col pal "cyan") "" " + "
-  , ppSort    = pure id
-  , ppOrder   = take 1 . drop 2
-  }
+-- | The bottom bar shows only the focused window's title, sanitized as
+-- dynamicLogString would.
+myXmobarBottomTitle :: X String
+myXmobarBottomTitle = withWindowSet $ \ws -> case W.peek ws of
+  Nothing -> return ""
+  Just w  -> trim . ppTitleSanitize def . show <$> getName w
 
 newtype PropLogCache = PropLogCache (M.Map String String)
   deriving (Show, Read)
@@ -613,7 +609,7 @@ xmonadPropLogDedupe prop msg = do
 
 myLogHook pal = do
   dynamicLogString (myXmobarTopPP pal) >>= xmonadPropLogDedupe "_XMONAD_LOG_TOP"
-  dynamicLogString (myXmobarBottomPP pal) >>= xmonadPropLogDedupe "_XMONAD_LOG_BOTTOM"
+  myXmobarBottomTitle >>= xmonadPropLogDedupe "_XMONAD_LOG_BOTTOM"
   workspaceHistoryHook
   ewmhDesktopsLogHook
   PF.checkPhysicalFullscreenReset
