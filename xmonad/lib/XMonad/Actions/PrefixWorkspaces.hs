@@ -27,7 +27,6 @@ import           Control.Monad (unless)
 import           Data.List (delete, nub, sort, isPrefixOf, (\\))
 import           Data.Maybe (mapMaybe, isJust)
 import           Text.Read (readMaybe)
-import           Text.Printf (printf)
 import           XMonad
 import qualified XMonad.StackSet as W
 import           XMonad.Actions.CycleWS (WSType(..), Direction1D(..), findWorkspace)
@@ -72,39 +71,32 @@ prevWsPrefixWith :: Char -> X WorkspaceSort -> X ()
 prevWsPrefixWith sep sorter =
   windows . W.greedyView =<< findWorkspace sorter Prev (wsiWith sep) 1
 
+-- | View the workspace if it exists, otherwise call 'viewWs' to create and show it.
+viewOrCreate :: (WorkspaceId -> X ()) -> WorkspaceId -> X ()
+viewOrCreate viewWs t = do
+  exists <- gets (W.tagMember t . windowset)
+  if exists then windows (W.view t) else viewWs t
+
 -- | Create a new prefixed sub-workspace with the lowest available numeric index.
--- If the workspace is new, 'viewWs' is called to initialize it.
+-- If the workspace is new, 'viewWs' is called to create and show it.
 newPrefixWSWith :: Char -> (WorkspaceId -> X ()) -> X ()
 newPrefixWSWith sep viewWs = withWindowSet $ \w -> do
-  thisWS <- gets (W.currentTag . windowset)
-  let wss = W.workspaces w
-      currentTagPrefix = workspacePrefix sep thisWS
+  let currentTagPrefix = workspacePrefix sep (W.currentTag w)
       prefixWithSep = currentTagPrefix ++ [sep]
 
-      cws = map W.tag $ filter (\ws -> prefixWithSep `isPrefixOf` W.tag ws && isJust (W.stack ws)) wss
+      cws = map W.tag $ filter (\ws -> prefixWithSep `isPrefixOf` W.tag ws && isJust (W.stack ws)) (W.workspaces w)
       num = head $ [0..] \\ mapMaybe (readMaybe . drop (length prefixWithSep)) cws :: Integer
-      new = printf "%s%c%i" currentTagPrefix sep num
-  unless (new `elem` map W.tag wss) $ viewWs new
-  windows $ W.view new
+  viewOrCreate viewWs (prefixWithSep ++ show num)
 
 -- | Switch to a sub-workspace with the given suffix under the current prefix.
 gotoPrefixWSWith :: Char -> (WorkspaceId -> X ()) -> String -> X ()
-gotoPrefixWSWith sep viewWs suffix = withWindowSet $ \w -> do
-  thisWS <- gets (W.currentTag . windowset)
-  let wss = W.workspaces w
-      currentTagPrefix = workspacePrefix sep thisWS
-      new = currentTagPrefix ++ [sep] ++ suffix
-  unless (new `elem` map W.tag wss) $ viewWs new
-  windows $ W.view new
+gotoPrefixWSWith sep viewWs suffix = withWindowSet $ \w ->
+  viewOrCreate viewWs (workspacePrefix sep (W.currentTag w) ++ [sep] ++ suffix)
 
 -- | Switch to the base prefix workspace (without any suffix).
 gotoBaseWSWith :: Char -> (WorkspaceId -> X ()) -> X ()
-gotoBaseWSWith sep viewWs = withWindowSet $ \w -> do
-  thisWS <- gets (W.currentTag . windowset)
-  let wss = W.workspaces w
-      new = workspacePrefix sep thisWS
-  unless (new `elem` map W.tag wss) $ viewWs new
-  windows $ W.view new
+gotoBaseWSWith sep viewWs = withWindowSet $ \w ->
+  viewOrCreate viewWs (workspacePrefix sep (W.currentTag w))
 
 -- | Prompt for a worktree of the project and go to the same workspace (same suffix) in it.
 -- Completes on "ws wt list" and existing workspaces of the project.
@@ -122,7 +114,5 @@ worktreePromptWith sep xpc viewWs = do
       go input = do
         let p = workspacePrefix sep input
             target = (if '@' `elem` p || p == project then p else project ++ "@" ++ p) ++ suffix
-        unless (null p || target == thisWS) $ do
-          unless (target `elem` map W.tag wss) $ viewWs target
-          windows $ W.view target
+        unless (null p || target == thisWS) $ viewOrCreate viewWs target
   XP.mkXPrompt (WsPrompt ("worktree" ++ suffix ++ ": ")) xpc (XP.mkComplFunFromList' xpc prefixes) go
