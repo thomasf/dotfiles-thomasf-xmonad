@@ -154,16 +154,14 @@ myKeys host xpc conf=
   , ("M-C-e",       addName "New workspace in prefix.sequence" $ newPrefixWS >> movePointer >> showWorkspaceNameFast)
   , ("M-S-<Space>", addName "reset layout"                $ setLayout (XMonad.layoutHook conf) >> movePointer)
   ] ++
-  subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]": mkNamedKeymap conf
+  subtitle "Modify current workspace layout... (H/L=size ,.=)": mkNamedKeymap conf
   [ ("M-C-<Space>", addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
   , ("M-m",         addName "Toggle fullscreen"                                    $ sendMessage (Toggle NBFULL) >> movePointer >> showLayoutName)
   , ("M-S-m",       addName "Toggle fullscreen across physical screen"             $ PF.toggleFullPhysicalScreen >> movePointer)
-  , ("M-n",         addName "Toggle visibiltiy of panels"                          $ sendMessage ToggleStruts >> movePointer)
-  , ("M-M1-s",      addName "Toggle visibiltiy of panels"                          $ sendMessage ToggleStruts >> movePointer)
-  , ("M-M1-r",      addName "Toggle reflect layout direction"                      $ sendMessage (Toggle REFLECTX) >> movePointer)
+  , ("M-n",         addName "Toggle visibility of panels"                          $ sendMessage ToggleStruts >> movePointer)
   , ("C-M-r",       addName "Toggle reflect layout direction"                      $ sendMessage (Toggle REFLECTX) >> movePointer)
   , ("M-,",         addName "Increment the number of windows in the master area"   $ sendMessage (IncMasterN 1) >> movePointer)
-  , ("M-.",         addName "Deincrement the number of windows in the master area" $ sendMessage (IncMasterN (-1)) >> movePointer)
+  , ("M-.",         addName "Decrement the number of windows in the master area"   $ sendMessage (IncMasterN (-1)) >> movePointer)
   , ("M-h",         addName "Expand the master area"                               $ sendMessage Expand >> movePointer)
   , ("M-l",         addName "Shrink the master area"                               $ sendMessage Shrink >> movePointer)
   ] ++
@@ -184,11 +182,11 @@ myKeys host xpc conf=
   ] ++
   subtitle "screenshot": mkNamedKeymap conf
   [ ("M-<Print>",     addName "sshot selected to clipboard" $ unGrab >> spawn "sshot")
-  , ("M-C-<Print>",   addName "shhot focused window"        $ unGrab >> spawn "sshot focused")
-  , ("M-S-<Print>",   addName "shhot full"                  $ unGrab >> spawn "sshot full")
+  , ("M-C-<Print>",   addName "sshot focused window"        $ unGrab >> spawn "sshot focused")
+  , ("M-S-<Print>",   addName "sshot full"                  $ unGrab >> spawn "sshot full")
   ] ++
   subtitle "macbook": mkNamedKeymap conf
-  [ ("<XF86Eject>",   addName "print "                      $ spawn "xdotool click -clearmodifiers 2")
+  [ ("<XF86Eject>",   addName "middle click"                $ spawn "xdotool click -clearmodifiers 2")
   , ("M-<XF86Eject>", addName "print screen"                $ sendKey controlMask xK_Print)
   ] ++
   subtitle "named workspace group": mkNamedKeymap conf
@@ -203,7 +201,7 @@ myKeys host xpc conf=
   subtitle "screen splitting": mkNamedKeymap conf
   [ ("M-5 5",  addName "Standard screen arrangement for host"             $ standardScreenArrangement host >> movePointer)
   , ("M-5 2",  addName "Split current screen by 2 panes 0.5"              $ LS.layoutSplitScreen 2 $ ES.innerSpacing 1 (TwoPane 0 0.5))
-  , ("M-5 1",  addName "Split current screen by 2 panes 0.7"              $ LS.layoutSplitScreen 2 $ ES.innerSpacing 1 (TwoPane 0 0.33))
+  , ("M-5 1",  addName "Split current screen by 2 panes 0.33"             $ LS.layoutSplitScreen 2 $ ES.innerSpacing 1 (TwoPane 0 0.33))
   , ("M-5 3",  addName "Split current screen by 3 even columns"           $ LS.layoutSplitScreen 3 $ ES.innerSpacing 1 (Mirror (Tall 3 0 (1/2))))
   , ("M-5 4",  addName "Split current screen by 3 larger center"          $ LS.layoutSplitScreen 3 $ ES.innerSpacing 1 $ (ThreeColMid 1 (3/100) (4/10)))
   , ("M-5 m",  addName "Merge screens 1 + 2"                              $ LS.layoutScreens 2  Full)
@@ -265,8 +263,8 @@ myKeys host xpc conf=
  , ("M-q x x x",         addName "restart xmonad without keeping state" $ restart "xmonad" False)
  , ("M-q k k k",         addName "KILL xmonad"                          $ io exitSuccess)
  , ("M-q <Space>",       addName "xmenu"                                $ spawn "xmenu")
- , ("M-q d",             addName "display off"                          $ spawn "a.display-off")
- , ("M-q q",             addName "display off"                          $ spawn "a.display-off -nowait")
+ , ("M-q d",             addName "display off after 5 seconds"          $ spawn "a.display-off")
+ , ("M-q q",             addName "display off now"                      $ spawn "a.display-off -nowait")
  , ("M-q l",             addName "leave"                                $ spawn "a.leave")
  , ("M-q p",             addName "restart panels"                       $ spawn "panels")
  ]
