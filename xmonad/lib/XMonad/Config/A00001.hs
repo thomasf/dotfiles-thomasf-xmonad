@@ -1,5 +1,5 @@
 {-# LANGUAGE NoMonomorphismRestriction #-}
-{-# OPTIONS_GHC -Wall -Wno-missing-signatures -Wno-deprecations #-}
+{-# OPTIONS_GHC -Wall -Wno-missing-signatures #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  XMonad.Config.A00001
@@ -43,7 +43,7 @@ import qualified XMonad.Actions.AdjacentScreens as AdjSc
 import qualified XMonad.Actions.PrefixWorkspaces as PW
 import           XMonad.Actions.WithAll
 import           XMonad.Hooks.DynamicLog
-import           XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
+import           XMonad.Hooks.EwmhDesktops (ewmh)
 import           XMonad.Hooks.ManageDocks (docks, avoidStruts, ToggleStruts(..))
 import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.ServerMode
@@ -327,11 +327,7 @@ myKeys host xpc conf=
 
 
     -- | filter some workspaces
-    filterSomeWorkspaces = fmap (.namedScratchpadFilterOutWorkspace
-                                 .myFilterOutWorkspace "chat"
-                                 .myFilterOutWorkspace "dash")
-    myFilterOutWorkspace :: String -> [WindowSpace] -> [WindowSpace]
-    myFilterOutWorkspace wsname = filter (\(W.Workspace tag _ _) -> tag /= wsname)
+    filterSomeWorkspaces = fmap (. filterOutWs [scratchpadWorkspaceTag, "chat", "dash"])
 
     cycleRecentWS' = cycleWindowSets' options
      where options w = map (`W.view` w) (recentTags w)
@@ -506,7 +502,7 @@ myManageHook =
 -- return (All True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
 --
-myHandleEventHook = PF.fullscreenConfigureHook <+> noRescreenEventHook <+> ewmhDesktopsEventHook <+> fullscreenEventHook <+> serverModeEventHook <+> wsIPCEventHook
+myHandleEventHook = PF.fullscreenConfigureHook <+> noRescreenEventHook <+> fullscreenEventHook <+> serverModeEventHook <+> wsIPCEventHook
 
 
 noRescreenEventHook ConfigureEvent {ev_window = w} = do
@@ -611,7 +607,6 @@ myLogHook pal = do
   dynamicLogString (myXmobarTopPP pal) >>= xmonadPropLogDedupe "_XMONAD_LOG_TOP"
   myXmobarBottomTitle >>= xmonadPropLogDedupe "_XMONAD_LOG_BOTTOM"
   workspaceHistoryHook
-  ewmhDesktopsLogHook
   PF.checkPhysicalFullscreenReset
   -- desktopLogHook
   -- fadeInactiveLogHook 0.86
@@ -649,10 +644,9 @@ myXineramaWsCompare' phy = do
 
 -- Startup hook
 
-myStartupHook = do
-  ewmhDesktopsStartup
-  setWMName "LG3D"
-  return ()
+-- | ewmh runs its startup hook, which sets the WM name to "xmonad", before
+-- this one, so LG3D (for Java GUI apps) wins.
+myStartupHook = setWMName "LG3D"
 
 
 
@@ -661,7 +655,7 @@ myStartupHook = do
 myUrgencyHook pal =
   withUrgencyHookC BorderUrgencyHook
     { urgencyBorderColor = TP.myUrgentColor pal }
-    urgencyConfig
+    def
       { suppressWhen = XMonad.Hooks.UrgencyHook.Focused }
 
 
@@ -736,7 +730,7 @@ myNavigation2DConfig = def {
 a00001Config = do
   pal <- io TP.readPalette
   host <- SA.getHost
-  return . docks . Nav2d.withNavigation2DConfig myNavigation2DConfig . myUrgencyHook pal . addDescrKeys' ((confModMask, xK_F1), showKeybindings) (myKeys host $ myXPConfig pal) $ def {
+  return . docks . ewmh . Nav2d.withNavigation2DConfig myNavigation2DConfig . myUrgencyHook pal . addDescrKeys' ((confModMask, xK_F1), showKeybindings) (myKeys host $ myXPConfig pal) $ def {
     terminal           = myTerminal
   , focusFollowsMouse  = False
   , borderWidth        = myDefaultBorderWidth
