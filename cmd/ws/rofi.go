@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"syscall"
 )
 
@@ -21,12 +22,45 @@ const rofiWidth = 75
 // runRofi runs rofi with args, placed on the current xmonad screen. It
 // replaces ws with rofi.
 func runRofi(args []string) error {
+	widthPct, heightPct, args, err := rofiSizeArgs(args)
+	if err != nil {
+		return err
+	}
 	path, err := rofiPath()
 	if err != nil {
 		return err
 	}
-	argv := append([]string{"rofi"}, rofiPlacement(rofiWidth, 0, "")...)
+	argv := append([]string{"rofi"}, rofiPlacement(widthPct, heightPct, "")...)
 	return syscall.Exec(path, append(argv, args...), os.Environ())
+}
+
+// rofiSizeArgs returns the width and height of ws rofi [-width pct]
+// [-height pct], and the rofi arguments after them. The width is rofiWidth
+// and the height 0 unless args start with -width or -height, in either
+// order.
+func rofiSizeArgs(args []string) (widthPct, heightPct int, rest []string, err error) {
+	widthPct = rofiWidth
+	for len(args) > 0 {
+		var pct *int
+		switch args[0] {
+		case "-width":
+			pct = &widthPct
+		case "-height":
+			pct = &heightPct
+		default:
+			return widthPct, heightPct, args, nil
+		}
+		if len(args) < 2 {
+			return 0, 0, nil, fmt.Errorf("rofi: %s needs a percentage", args[0])
+		}
+		n, err := strconv.Atoi(args[1])
+		if err != nil || n < 1 || n > 100 {
+			return 0, 0, nil, fmt.Errorf("rofi: %s %q is not a percentage from 1 to 100", args[0], args[1])
+		}
+		*pct = n
+		args = args[2:]
+	}
+	return widthPct, heightPct, args, nil
 }
 
 // rofiCommand returns a command running rofi with args, its window

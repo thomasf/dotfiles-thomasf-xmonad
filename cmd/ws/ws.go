@@ -18,7 +18,7 @@
 //	ws shift [workspace]
 //	ws rename [name]
 //	ws window
-//	ws rofi [rofi arguments]
+//	ws rofi [-width pct] [-height pct] [rofi arguments]
 //
 // A workspace name is <prefix>[.<suffix>], and the prefix is
 // <project>[@<worktree>]. In workspace hello@test.bot, the project is
@@ -133,7 +133,9 @@
 // Like pick -go, it lets xmonad start the window search with spawn.
 //
 // Rofi runs rofi with the given arguments, its window centred on the
-// xmonad screen that shows the current workspace and 75% as wide as it.
+// xmonad screen that shows the current workspace and 75% as wide as it, or
+// with -width pct before them pct percent, and with -height pct pct percent
+// as high as it.
 // rofi itself knows only monitors, not the screens xmonad splits them
 // into. Arguments can override the placement: rofi takes the last of
 // each option and theme property. A wrapper script named rofi, before
@@ -212,7 +214,7 @@ const usageText = `usage: ws name [-p | -s]
        ws shift [workspace]
        ws rename [name]
        ws window
-       ws rofi [rofi arguments]
+       ws rofi [-width pct] [-height pct] [rofi arguments]
 
 Run ws <command> -h for help on a command.
 `

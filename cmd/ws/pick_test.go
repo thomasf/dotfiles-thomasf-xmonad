@@ -235,3 +235,31 @@ func TestRofiPath(t *testing.T) {
 		t.Error("rofiPath() found only the wrapper and succeeded")
 	}
 }
+
+func TestRofiSizeArgs(t *testing.T) {
+	for _, tt := range []struct {
+		args          []string
+		width, height int
+		rest          []string
+		wantErr       bool
+	}{
+		{nil, rofiWidth, 0, nil, false},
+		{[]string{"-dmenu", "-p", "x"}, rofiWidth, 0, []string{"-dmenu", "-p", "x"}, false},
+		{[]string{"-height", "90", "-dmenu"}, rofiWidth, 90, []string{"-dmenu"}, false},
+		{[]string{"-width", "50", "-dmenu"}, 50, 0, []string{"-dmenu"}, false},
+		{[]string{"-width", "50", "-height", "90", "-dmenu"}, 50, 90, []string{"-dmenu"}, false},
+		{[]string{"-height", "90", "-width", "100"}, 100, 90, []string{}, false},
+		{[]string{"-dmenu", "-height", "90"}, rofiWidth, 0, []string{"-dmenu", "-height", "90"}, false},
+		{[]string{"-height"}, 0, 0, nil, true},
+		{[]string{"-width", "0"}, 0, 0, nil, true},
+		{[]string{"-height", "101"}, 0, 0, nil, true},
+		{[]string{"-width", "90%"}, 0, 0, nil, true},
+		{[]string{"-height", "90", "-width"}, 0, 0, nil, true},
+	} {
+		width, height, rest, err := rofiSizeArgs(tt.args)
+		if width != tt.width || height != tt.height || !slices.Equal(rest, tt.rest) || (err != nil) != tt.wantErr {
+			t.Errorf("rofiSizeArgs(%q) = %d, %d, %q, %v, want %d, %d, %q, error %v",
+				tt.args, width, height, rest, err, tt.width, tt.height, tt.rest, tt.wantErr)
+		}
+	}
+}
