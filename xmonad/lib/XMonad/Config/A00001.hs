@@ -1,5 +1,5 @@
-{-# LANGUAGE NoMonomorphismRestriction #-}
-{-# OPTIONS_GHC -Wall -Wno-missing-signatures #-}
+{-# LANGUAGE PartialTypeSignatures #-}
+{-# OPTIONS_GHC -Wall -Wno-partial-type-signatures #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  XMonad.Config.A00001
@@ -87,8 +87,10 @@ import qualified XMonad.Util.ThemePalette as TP
 -- Keyboard configuration:
 
 -- simply for convenience and readability
+confModMask :: KeyMask
 confModMask = mod4Mask
 
+myKeys :: String -> XP.XPConfig -> XConfig Layout -> [((KeyMask, KeySym), NamedAction)]
 myKeys host xpc conf=
   subtitle "Cyclic window actions (J/K) [+=focus] [+control=cycle+keep focus] [+shift=move]": mkNamedKeymap conf
   [ ("M-j",             addName "Focus next window on workspace"          _windowFocusDown)
@@ -325,6 +327,7 @@ myKeys host xpc conf=
 
 
     -- | filter some workspaces
+    filterSomeWorkspaces :: Functor f => f ([WindowSpace] -> b) -> f ([WindowSpace] -> b)
     filterSomeWorkspaces = fmap (. filterOutWs cycleSkippedWorkspaces)
 
     cycleRecentWS' = cycleWindowSets' options
@@ -345,6 +348,7 @@ myKeys host xpc conf=
 
 
 -- | Mouse bindings
+myMouseBindings :: [((KeyMask, Button), Window -> X ())]
 myMouseBindings =
     [ ((0, button10), mouseGesture gestures)
     , ((confModMask, button4), \_ -> windows W.focusUp)
@@ -373,13 +377,17 @@ myMouseBindings =
 
 -- | Colors and theme configuration are provided by XMonad.Util.ThemePalette
 
+myDefaultSpacerWidth :: Int
 myDefaultSpacerWidth = 3
+myDefaultBorderWidth :: Dimension
 myDefaultBorderWidth = 4
 
 
 
 -- | Workspaces
+myWorkspaces :: [WorkspaceId]
 myWorkspaces = "s" : baseWorkspaces
+myTerminal :: String
 myTerminal = "term"
 
 -- | The numbered workspaces there from the start
@@ -403,6 +411,7 @@ tallHosts :: [String]
 tallHosts = ["transwhale", "flam", "yak"]
 
 -- | Layout hook
+myLayoutHook :: String -> _
 myLayoutHook host =
   onWorkspace "video" (renameStar full) .
   onWorkspace "vbox" (renameStar full) .
@@ -434,7 +443,7 @@ myLayoutHook host =
                (first ||| tall ||| tabs ||| gridWide ||| spiral ||| oneBig)
     onTall = ifLayout (host `elem` tallHosts)
     -- helpers
-    refmin = mkToggle (single REFLECTX)
+    refmin l = mkToggle (single REFLECTX) l
     mySpacing = ES.innerSpacing
     ss = mySpacing myDefaultSpacerWidth
     rename name' = renamed [Replace name']
@@ -516,9 +525,11 @@ myManageHook =
 -- return (All True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
 --
+myHandleEventHook :: Event -> X All
 myHandleEventHook = PF.fullscreenConfigureHook <+> noRescreenEventHook <+> fullscreenEventHook <+> serverModeEventHook <+> wsIPCEventHook
 
 
+noRescreenEventHook :: Event -> X All
 noRescreenEventHook ConfigureEvent {ev_window = w} = do
     r <- asks theRoot
     return $ All $ w /= r
@@ -578,6 +589,7 @@ wsRename n = do
 -- See the 'XMonad.Hooks.DynamicLog' extension for examples.
 --
 
+myXmobarTopPP :: TP.Palette -> PP
 myXmobarTopPP pal = def
   { ppCurrent = xmobarColor (TP.myFocusedColor pal) "" . wrap " " "" . trim
   , ppVisible = wrap " " "" . trim
@@ -613,6 +625,7 @@ xmonadPropLogDedupe prop msg = do
       XS.put (PropLogCache (M.insert prop msg cache))
       xmonadPropLog' prop msg
 
+myLogHook :: TP.Palette -> X ()
 myLogHook pal = do
   dynamicLogString (myXmobarTopPP pal) >>= xmonadPropLogDedupe "_XMONAD_LOG_TOP"
   myXmobarBottomTitle >>= xmonadPropLogDedupe "_XMONAD_LOG_BOTTOM"
@@ -649,12 +662,14 @@ mySortByXineramaPhysicalRule = mkWsSort $ do
 
 -- | ewmh runs its startup hook, which sets the WM name to "xmonad", before
 -- this one, so LG3D (for Java GUI apps) wins.
+myStartupHook :: X ()
 myStartupHook = setWMName "LG3D"
 
 
 
 -- Urgency hook
 
+myUrgencyHook :: LayoutClass l Window => TP.Palette -> XConfig l -> XConfig l
 myUrgencyHook pal =
   withUrgencyHookC BorderUrgencyHook
     { urgencyBorderColor = TP.myUrgentColor pal }
@@ -674,11 +689,12 @@ sizedXftFontScaled pal px = TP.sizedXftFontScaled pal myFont px
 myGsconfig :: TP.Palette -> GSConfig a
 myGsconfig = TP.myGsconfigWithFont myFont
 
-showMessage :: (Real a) => a -> (String, String) -> String -> X ()
+showMessage :: Double -> (String, String) -> String -> X ()
 showMessage = TP.showMessageWithFont myFont
 
 -- XMonad Prompt configuration
 
+defXPConfig :: TP.Palette -> XP.XPConfig
 defXPConfig pal = def
  { XP.position = XP.CenteredAt 0.4 0.5
  , XP.promptBorderWidth = fromIntegral (max 1 (TP.scaleDpi pal 1))
@@ -690,6 +706,7 @@ defXPConfig pal = def
  }
 
 -- | Prompts are a raised surface, like rofi: bg_1 with fg_1 text.
+myXPConfig :: TP.Palette -> XP.XPConfig
 myXPConfig pal = (defXPConfig pal)
  { XP.bgColor = TP.col pal "bg_1"
  , XP.fgColor = TP.col pal "fg_1"
@@ -702,6 +719,7 @@ myXPConfig pal = (defXPConfig pal)
 
 -- Scratch pads:
 
+myScratchPads :: [NamedScratchpad]
 myScratchPads = [ NS "largeTerminal" (term "largeTerminal") (res =? scratch "largeTerminal") $ myCenterFloat 0.95 0.8
                 , termScratch "htop" $ myCenterFloat 0.95 0.9
                 ]
@@ -716,6 +734,7 @@ myScratchPads = [ NS "largeTerminal" (term "largeTerminal") (res =? scratch "lar
     res = resource
 
 
+myCenterFloat :: Rational -> Rational -> ManageHook
 myCenterFloat w h = customFloating $ W.RationalRect left top width height
   where
     width = w
@@ -723,6 +742,7 @@ myCenterFloat w h = customFloating $ W.RationalRect left top width height
     left = (1 - w) / 2
     top = (1 - h) / 2
 
+myNavigation2DConfig :: Nav2d.Navigation2DConfig
 myNavigation2DConfig = def {
   Nav2d.defaultTiledNavigation =  Nav2d.centerNavigation }
 
@@ -730,6 +750,7 @@ myNavigation2DConfig = def {
 --  a00001Config
 
 
+a00001Config :: IO (XConfig _)
 a00001Config = do
   pal <- io TP.readPalette
   host <- SA.getHost
@@ -762,28 +783,41 @@ a00001Config = do
 
 
 -- | Working versions of swapup/swapdown
+swapUp' :: W.Stack a -> W.Stack a
 swapUp'  (W.Stack t (l:ls) rs) = W.Stack t ls (l:rs)
 swapUp'  (W.Stack t []     rs) = W.Stack t (rot $ reverse rs) []
     where rot (x:xs) = xs ++ [x]
           rot _ = []
 
+swapUp :: W.StackSet i l a s sd -> W.StackSet i l a s sd
 swapUp = W.modify' swapUp'
 
+reverseStack :: W.Stack a -> W.Stack a
 reverseStack (W.Stack t ls rs) = W.Stack t rs ls
 
+swapDown :: W.StackSet i l a s sd -> W.StackSet i l a s sd
 swapDown = W.modify' (reverseStack . swapUp' . reverseStack)
 
 -- | main window management functions
+_windowFocusDown :: X ()
 _windowFocusDown = windows W.focusDown >> movePointer
+_windowFocusUp :: X ()
 _windowFocusUp = windows W.focusUp >> movePointer
+_windowSwapDownKeepFocus :: X ()
 _windowSwapDownKeepFocus = windows swapDown >> windows W.focusUp >> movePointer
+_windowSwapUpKeepFocus :: X ()
 _windowSwapUpKeepFocus = windows swapUp >> windows W.focusDown >> movePointer
+_windowSwapDown :: X ()
 _windowSwapDown = windows swapDown >> movePointer
+_windowSwapUp :: X ()
 _windowSwapUp = windows swapUp >> movePointer
+_windowRotateAllDown :: X ()
 _windowRotateAllDown = rotAllDown >> movePointer
+_windowRotateAllUp :: X ()
 _windowRotateAllUp = rotAllUp >> movePointer
 
 -- | Move mouse pointer to bottom right of the current window
+movePointer :: X ()
 movePointer = updatePointer (0.99, 0.99) (0, 0)
 
 -- | Move pointer to focused window, or to the center of the current screen if no window exists.
@@ -821,13 +855,16 @@ standardScreenArrangement host = do
 
 
 -- | bind keys but not for some protected workspaces
+bindOnProtectedWorkspace :: X () -> X () -> X ()
 bindOnProtectedWorkspace cmd' altCmd  = bindOn $
     [ (w, altCmd) | w <- protectedWorkspaces ] ++ [ ("", cmd') ]
 
 
+bindOn' :: X () -> X ()
 bindOn' x  = bindOnProtectedWorkspace x showWorkspaceNameFast
 
 
+holdScreenFocus :: X a -> X a
 holdScreenFocus a = do
    s <- gets (W.screen . W.current . windowset)
    r <- a
@@ -878,6 +915,7 @@ killPrompt' = withFocused $ \w -> do
 
 
 -- | View a workspace by name and maybe run workspace action
+myViewWS :: WorkspaceId -> X ()
 myViewWS wsid = do
   PF.resetPhysicalFullscreen
   showWorkspaceNameOld
@@ -886,6 +924,7 @@ myViewWS wsid = do
   maybeWorkspaceAction
   showWorkspaceNameFast
 
+afterWSPrompt :: WorkspaceId -> X ()
 afterWSPrompt w = do
   PF.resetPhysicalFullscreen
   s <- gets windowset
@@ -899,36 +938,45 @@ afterWSPrompt w = do
 
 
 -- | Run script with same name as "w.workspacename"
+workspaceAction :: X ()
 workspaceAction = do
   ws <- gets (W.currentTag . windowset)
   safeSpawn "ws" ["action", ws]
 
 -- | Run script with same name as "w.workspacename" if the workspace is empty
+maybeWorkspaceAction :: X ()
 maybeWorkspaceAction = onEmptyWorkspace workspaceAction
 
 -- | run something on an empty workspace
+onEmptyWorkspace :: X () -> X ()
 onEmptyWorkspace action = do
   wins <- gets (W.integrate' . W.stack . W.workspace . W.current . windowset)
   when (null wins) action
 
--- | durations
+-- | How long the workspace name popups show, in seconds
+showStatusSingleMessageDuration, showStatusMultipleMessagesDuration :: Double
 showStatusSingleMessageDuration = 0.7
 showStatusMultipleMessagesDuration = 0.7
 
--- | Show inactve workspace name slow
+-- | Show the name of the workspace being left, in muted colors
+showWorkspaceNameOld :: X ()
 showWorkspaceNameOld = showWorkspaceName' showStatusMultipleMessagesDuration ("fg_1", "bg_2")
--- | Show active workspace name fast
+-- | Show the name of the current workspace, highlighted
+showWorkspaceNameFast :: X ()
 showWorkspaceNameFast = showWorkspaceName' showStatusSingleMessageDuration ("bg_0", "magenta")
 
+showAppName :: String -> X ()
 showAppName = showMessage 1 ("bg_0", "cyan")
 
 
 -- | Show workspace name
+showWorkspaceName' :: Double -> (String, String) -> X ()
 showWorkspaceName' timeout colors = do
   wsn <- gets (W.currentTag . windowset)
   showMessage timeout colors wsn
 
 -- | Show current layout name
+showLayoutName :: X ()
 showLayoutName = do
   winset <- gets windowset
   let ld = description . W.layout . W.workspace . W.current $ winset
