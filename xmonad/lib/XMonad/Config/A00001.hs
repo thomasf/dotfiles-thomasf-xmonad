@@ -25,7 +25,6 @@ import           Data.Char (isSpace)
 import           Data.List
 import qualified Data.Map as M
 import           Data.Monoid
-import           Data.Ord
 import           System.Exit ( exitSuccess )
 import           System.IO
 import           XMonad hiding ( (|||) )
@@ -77,6 +76,7 @@ import qualified XMonad.Prompt.Subsequence as Subseq
 import qualified XMonad.StackSet as W hiding (swapUp, swapDown)
 import qualified XMonad.Util.Dzen as DZ
 import           XMonad.Util.EZConfig
+import qualified XMonad.Util.ExtensibleState as XS
 import           XMonad.Util.NamedActions
 import           XMonad.Util.NamedScratchpad
 import           XMonad.Util.Paste
@@ -565,12 +565,30 @@ myXmobarBottomPP pal = def
   , ppTitle   = trim
   , ppLayout  = const ""
   , ppSep     = xmobarColor (TP.col pal "cyan") "" " + "
-  , ppSort    = mySortByXineramaPhysicalRule
+  , ppSort    = pure id
+  , ppOrder   = take 1 . drop 2
   }
 
+newtype PropLogCache = PropLogCache (M.Map String String)
+  deriving (Show, Read)
+
+instance ExtensionClass PropLogCache where
+  initialValue = PropLogCache M.empty
+
+-- | Emit property log only when the formatted message has changed, preventing
+-- unnecessary X11 root PropertyNotify events and redundant xmobar repainting.
+xmonadPropLogDedupe :: String -> String -> X ()
+xmonadPropLogDedupe prop msg = do
+  PropLogCache cache <- XS.get
+  case M.lookup prop cache of
+    Just prev | prev == msg -> return ()
+    _ -> do
+      XS.put (PropLogCache (M.insert prop msg cache))
+      xmonadPropLog' prop msg
+
 myLogHook pal = do
-  dynamicLogString (myXmobarTopPP pal) >>= xmonadPropLog' "_XMONAD_LOG_TOP"
-  dynamicLogString (myXmobarBottomPP pal) >>= xmonadPropLog' "_XMONAD_LOG_BOTTOM"
+  dynamicLogString (myXmobarTopPP pal) >>= xmonadPropLogDedupe "_XMONAD_LOG_TOP"
+  dynamicLogString (myXmobarBottomPP pal) >>= xmonadPropLogDedupe "_XMONAD_LOG_BOTTOM"
   workspaceHistoryHook
   ewmhDesktopsLogHook
   PF.checkPhysicalFullscreenReset
