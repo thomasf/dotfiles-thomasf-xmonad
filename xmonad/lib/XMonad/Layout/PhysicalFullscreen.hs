@@ -77,7 +77,7 @@ resetAllPhysicalFullscreen = do
   XS.put (PhysicalFullscreenState M.empty)
   mapM_ restoreWindow (M.keys m)
 
--- | Reset physical fullscreen window on the current physical screen, or all if none on current screen.
+-- | Reset physical fullscreen window on the current physical screen (if any).
 resetPhysicalFullscreen :: X ()
 resetPhysicalFullscreen = withDisplay $ \dpy -> do
   PhysicalFullscreenState m <- XS.get
@@ -90,9 +90,7 @@ resetPhysicalFullscreen = withDisplay $ \dpy -> do
     physScreens <- io $ getCleanedScreenInfo dpy
     let curPhysRect = fromMaybe vRect $ find (pointWithin cx cy) physScreens
         onCurPhys = [w | (w, info) <- M.toList m, pfiPhysRect info == curPhysRect]
-    if not (null onCurPhys)
-      then mapM_ resetPhysicalFullscreenWindow onCurPhys
-      else resetAllPhysicalFullscreen
+    mapM_ resetPhysicalFullscreenWindow onCurPhys
 
 -- | Reset physical fullscreen if the given window is not the currently fullscreen window
 -- on that window's physical screen.
