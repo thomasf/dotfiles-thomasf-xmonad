@@ -52,7 +52,22 @@ newtype PhysicalFullscreenState = PhysicalFullscreenState (M.Map Window Physical
   deriving (Show, Read)
 
 instance ExtensionClass PhysicalFullscreenState where
-  initialValue = PhysicalFullscreenState M.empty
+  initialValue  = PhysicalFullscreenState M.empty
+  extensionType = PersistentExtension
+
+-- | The center of a rectangle.
+rectCenter :: Rectangle -> (Position, Position)
+rectCenter (Rectangle x y w h) = (x + fromIntegral w `div` 2, y + fromIntegral h `div` 2)
+
+-- | Reset the physical fullscreen windows on the physical screen holding the
+-- center of the given pane. The tracked physical rectangles tell which
+-- screen that is, without asking Xinerama.
+resetPhysicalFullscreenAt :: Rectangle -> X ()
+resetPhysicalFullscreenAt pane = do
+  PhysicalFullscreenState m <- XS.get
+  let (cx, cy) = rectCenter pane
+  mapM_ resetPhysicalFullscreenWindow
+    [w | (w, info) <- M.toList m, pointWithin cx cy (pfiPhysRect info)]
 
 -- | Helper to restore window borders, remove fullscreen EWMH atom, and sink to tiled layer.
 restoreWindow :: Window -> X ()
@@ -79,36 +94,18 @@ resetAllPhysicalFullscreen = do
 
 -- | Reset physical fullscreen window on the current physical screen (if any).
 resetPhysicalFullscreen :: X ()
-resetPhysicalFullscreen = withDisplay $ \dpy -> do
-  PhysicalFullscreenState m <- XS.get
-  unless (M.null m) $ do
-    ws <- gets windowset
-    let curScreen = W.current ws
-        vRect@(Rectangle vx vy vw vh) = screenRect . W.screenDetail $ curScreen
-        cx = fromIntegral vx + fromIntegral vw `div` 2
-        cy = fromIntegral vy + fromIntegral vh `div` 2
-    physScreens <- io $ getCleanedScreenInfo dpy
-    let curPhysRect = fromMaybe vRect $ find (pointWithin cx cy) physScreens
-        onCurPhys = [w | (w, info) <- M.toList m, pfiPhysRect info == curPhysRect]
-    mapM_ resetPhysicalFullscreenWindow onCurPhys
+resetPhysicalFullscreen =
+  resetPhysicalFullscreenAt . screenRect . W.screenDetail . W.current =<< gets windowset
 
 -- | Reset physical fullscreen if the given window is not the currently fullscreen window
 -- on that window's physical screen.
 resetPhysicalFullscreenIfOther :: Window -> X ()
 resetPhysicalFullscreenIfOther w = do
   PhysicalFullscreenState m <- XS.get
-  unless (M.null m || M.member w m) $ withDisplay $ \dpy -> do
+  unless (M.null m || M.member w m) $ do
     ws <- gets windowset
-    case find (\s -> w `elem` (W.integrate' . W.stack . W.workspace $ s)) (W.screens ws) of
-      Nothing -> return ()
-      Just sc -> do
-        let vRect@(Rectangle vx vy vw vh) = screenRect (W.screenDetail sc)
-            cx = fromIntegral vx + fromIntegral vw `div` 2
-            cy = fromIntegral vy + fromIntegral vh `div` 2
-        physScreens <- io $ getCleanedScreenInfo dpy
-        let physRect = fromMaybe vRect $ find (pointWithin cx cy) physScreens
-            onSamePhys = [pw | (pw, pinfo) <- M.toList m, pfiPhysRect pinfo == physRect]
-        mapM_ resetPhysicalFullscreenWindow onSamePhys
+    whenJust (find (\s -> w `elem` (W.integrate' . W.stack . W.workspace $ s)) (W.screens ws)) $
+      resetPhysicalFullscreenAt . screenRect . W.screenDetail
 
 -- | Reset physical fullscreen if active window on the workspace changes,
 -- or the workspace is hidden, moved, or modified.
@@ -225,8 +222,7 @@ toggleFullPhysicalScreen = withFocused $ \w -> do
       curLayout = description (W.layout curWsp)
 
   physScreens <- withDisplay getCleanedScreenInfo
-  let cx = fromIntegral vx + fromIntegral vw `div` 2
-      cy = fromIntegral vy + fromIntegral vh `div` 2
+  let (cx, cy) = rectCenter vRect
       physRect@(Rectangle px py pw ph) = fromMaybe vRect $ find (pointWithin cx cy) physScreens
 
       rx = toRational (px - vx) / toRational vw
