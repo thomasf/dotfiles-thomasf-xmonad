@@ -803,6 +803,10 @@ myNavConfig = AdjSc.defaultScreenNavConfig
   { AdjSc.navBeforeScreenChange = showWorkspaceNameOld
   , AdjSc.navAfterScreenChange  = showWorkspaceNameFast
   , AdjSc.navFocusPointer       = focusPointer
+    -- Upper row monitors are above y 1000; on flam the center monitor below
+    -- them starts at x 3840, as in standardScreenArrangement.
+  , AdjSc.navIsUpperScreen      = \r -> rect_y r < 1000
+  , AdjSc.navSingleWindowDown   = Just (\r -> rect_x r >= 3840)
   }
 
 -- | Standard screen splitting arrangement per host.

@@ -49,7 +49,10 @@ data ScreenNavConfig = ScreenNavConfig
   { navBeforeScreenChange :: X ()                  -- ^ Action run before switching to another screen (e.g. showWorkspaceNameOld)
   , navAfterScreenChange  :: X ()                  -- ^ Action run after switching to another screen (e.g. showWorkspaceNameFast)
   , navFocusPointer       :: X ()                  -- ^ Action to focus/warp pointer to current window or screen center
-  , navIsUpperScreen      :: ScreenDetail -> Bool  -- ^ Predicate identifying upper row screens
+  , navIsUpperScreen      :: Rectangle -> Bool     -- ^ Predicate identifying upper row screens
+  , navSingleWindowDown   :: Maybe (Rectangle -> Bool)
+    -- ^ Moving down from a workspace with at most one window goes to the leftmost
+    -- screen below matching this, instead of the closest one
   }
 
 -- | Default navigation configuration.
@@ -58,14 +61,11 @@ defaultScreenNavConfig = ScreenNavConfig
   { navBeforeScreenChange = return ()
   , navAfterScreenChange  = return ()
   , navFocusPointer       = return ()
-  , navIsUpperScreen      = isUpperScreen
+  , navIsUpperScreen      = (== 0) . rect_y
+  , navSingleWindowDown   = Nothing
   }
 
 type NavScreen = W.Screen WorkspaceId (Layout Window) Window ScreenId ScreenDetail
-
--- | Default check if a screen is on the upper row (y < 1000).
-isUpperScreen :: ScreenDetail -> Bool
-isUpperScreen sd = rect_y (screenRect sd) < 1000
 
 -- | Move focus: within the workspace first, then to the adjacent screen.
 focusUp, focusDown, focusLeft, focusRight :: ScreenNavConfig -> X ()
@@ -98,21 +98,17 @@ windowToScreenRight = toScreenDir R (\_ t -> W.view t . W.shift t)
 
 -- | The screen adjacent to the current one in the direction. Up goes to
 -- the upper row screen horizontally closest to the focused window. Down
--- only leaves the upper row: to the leftmost pane of the center screen
--- if the workspace has at most one window, otherwise to the closest
--- pane below.
+-- only leaves the upper row, to the closest screen below, or the one
+-- navSingleWindowDown picks.
 findScreen :: ScreenNavConfig -> Direction2D -> WindowSet -> X (Maybe NavScreen)
 findScreen cfg dir ws = case dir of
   U -> closestTo <$> getRefX ws <*> pure (filter (\s -> y s < curY && isUpper s) (W.screens ws))
   D | isUpper cur -> do
         refX <- getRefX ws
         let below = filter (\s -> y s > curY && not (isUpper s)) (W.screens ws)
-            centerPanes = sortOn x [s | s <- below, x s >= 3840]
-        return $ if isSingleWindow (W.workspace cur)
-          then case find (\s -> x s == 3840 && y s >= 1000) below of
-                 Just s  -> Just s
-                 Nothing -> listToMaybe centerPanes
-          else closestTo refX below
+        return $ case navSingleWindowDown cfg of
+          Just p | isSingleWindow (W.workspace cur) -> listToMaybe (sortOn x (filter (p . rect) below))
+          _ -> closestTo refX below
     | otherwise -> return Nothing
   L -> return (findLeftScreen ws)
   R -> return (findRightScreen ws)
@@ -122,7 +118,7 @@ findScreen cfg dir ws = case dir of
     rect = screenRect . W.screenDetail
     x = rect_x . rect
     y = rect_y . rect
-    isUpper = navIsUpperScreen cfg . W.screenDetail
+    isUpper = navIsUpperScreen cfg . rect
     closestTo refX = listToMaybe . sortOn (\s -> let Rectangle sx _ sw _ = rect s
                                                  in abs (sx + fromIntegral sw `div` 2 - refX))
 
