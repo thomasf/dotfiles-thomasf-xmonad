@@ -29,7 +29,7 @@ import           Data.Maybe (mapMaybe, isJust)
 import           Text.Read (readMaybe)
 import           XMonad
 import qualified XMonad.StackSet as W
-import           XMonad.Actions.CycleWS (WSType(..), Direction1D(..), findWorkspace)
+import           XMonad.Actions.CycleWS (WSType(..), Direction1D(..), findWorkspace, hiddenWS, wsTagGroup)
 import           XMonad.Util.WorkspaceCompare (WorkspaceSort)
 import           XMonad.Util.Run (runProcessWithInput)
 import qualified XMonad.Prompt as XP
@@ -45,21 +45,7 @@ workspacePrefix sep = takeWhile (/= sep)
 
 -- | WSType matching hidden workspaces with the same prefix as the current workspace.
 wsiWith :: Char -> WSType
-wsiWith sep = WSIs wsPred
-  where
-    wsPredHidden = do
-      hs <- gets (map W.tag . W.hidden . windowset)
-      return (\w -> W.tag w `elem` hs)
-
-    wsPredGroup = do
-      cur <- (groupName . W.workspace . W.current) `fmap` gets windowset
-      return $ (cur ==) . groupName
-      where groupName = workspacePrefix sep . W.tag
-
-    wsPred = do
-      tg <- wsPredGroup
-      hi <- wsPredHidden
-      return (\w -> tg w && hi w)
+wsiWith sep = hiddenWS :&: wsTagGroup sep
 
 -- | Select next workspace with same prefix using the specified sort.
 nextWsPrefixWith :: Char -> X WorkspaceSort -> X ()
