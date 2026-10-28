@@ -44,7 +44,7 @@ import qualified XMonad.Actions.PrefixWorkspaces as PW
 import           XMonad.Actions.WithAll
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
-import           XMonad.Hooks.ManageDocks (docks, avoidStruts, ToggleStruts(..), docksStartupHook)
+import           XMonad.Hooks.ManageDocks (docks, avoidStruts, ToggleStruts(..))
 import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.ServerMode
 import           XMonad.Hooks.SetWMName
@@ -151,7 +151,7 @@ myKeys xpc conf=
   [ ("M-e",         addName "Next workspace (prefix)"     $ rmEmptyWs $ nextWsPrefix >> movePointer >> showWorkspaceNameFast)
   , ("M-r",         addName "Previous workspace (prefix)" $ rmEmptyWs $ prevWsPrefix >> movePointer >> showWorkspaceNameFast)
   , ("M-C-e",       addName "New workspace in prefix.sequence" $ newPrefixWS >> movePointer >> showWorkspaceNameFast)
-  , ("M-S-<Space>", addName "reset layout"                $ setLayout (XMonad.layoutHook conf) >> updateStruts >> movePointer)
+  , ("M-S-<Space>", addName "reset layout"                $ setLayout (XMonad.layoutHook conf) >> movePointer)
   ] ++
   subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]": mkNamedKeymap conf
   [ ("M-C-<Space>", addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
@@ -552,7 +552,6 @@ wsShift n = do
   unless exists $ DW.addHiddenWorkspace n
   windows (W.shift n)
   movePointer
-  updateStruts
 
 -- | Rename the current workspace to the name "ws rename" gives.
 wsRename :: WorkspaceId -> X ()
@@ -891,7 +890,6 @@ myViewWS wsid = do
   DW.addHiddenWorkspace wsid
   windows (W.view wsid)
   maybeWorkspaceAction
-  updateStruts
   showWorkspaceNameFast
 
 afterWSPrompt w = do
@@ -900,7 +898,7 @@ afterWSPrompt w = do
   showWorkspaceNameOld
   if W.tagMember w s
     then windows $ W.view w
-    else DW.addWorkspace w >> updateStruts
+    else DW.addWorkspace w
   showWorkspaceNameFast
 
 
@@ -942,9 +940,6 @@ showLayoutName = do
   let ld = description . W.layout . W.workspace . W.current $ winset
   showMessage 2 ("bg_0", "green") ld
 
-
--- | Enforce recaluclation of docks gaps. After updating a ~5month old xmonad master today docks were not being avoided by avoudStruts on new desktop.
-updateStruts = docksStartupHook
 
 -- Local Variables:
 -- fill-column: 165
