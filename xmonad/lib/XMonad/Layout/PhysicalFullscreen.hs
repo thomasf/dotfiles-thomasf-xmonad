@@ -199,15 +199,19 @@ setFullscreen w full = withDisplay $ \dpy -> do
 -- fullscreen geometry or regaining borders when they request character-cell or GTK sizing.
 fullscreenConfigureHook :: Event -> X All
 fullscreenConfigureHook ConfigureRequestEvent { ev_window = w } = do
-    isFull <- runQuery isFullscreen w
-    if isFull
-      then do
-        withDisplay $ \dpy -> withWindowAttributes dpy w $ \wa -> io $ allocaXEvent $ \ev -> do
-          setEventType ev configureNotify
-          setConfigureEvent ev w w (wa_x wa) (wa_y wa) (wa_width wa) (wa_height wa) 0 none (wa_override_redirect wa)
-          sendEvent dpy w False 0 ev
-        return (All False)
-      else mempty
+    PhysicalFullscreenState m <- XS.get
+    if M.member w m
+      then notifyConfigure
+      else do
+        isFull <- runQuery isFullscreen w
+        if isFull then notifyConfigure else mempty
+  where
+    notifyConfigure = do
+      withDisplay $ \dpy -> withWindowAttributes dpy w $ \wa -> io $ allocaXEvent $ \ev -> do
+        setEventType ev configureNotify
+        setConfigureEvent ev w w (wa_x wa) (wa_y wa) (wa_width wa) (wa_height wa) 0 none (wa_override_redirect wa)
+        sendEvent dpy w False 0 ev
+      return (All False)
 
 fullscreenConfigureHook _ = mempty
 
