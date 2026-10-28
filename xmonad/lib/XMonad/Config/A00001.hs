@@ -281,7 +281,6 @@ myKeys host xpc conf=
     -- | Remove current workpace if empty
     rmEmptyWs = DW.removeEmptyWorkspaceAfterExcept keptWorkspaces
 
-
     -- | View a workspace by name, remove left over empty workspace and move pointer
     myViewWS' wsid = addName("Show " ++ wsid ++ " workspace ") $ do
       rmEmptyWs $ myViewWS wsid
@@ -325,7 +324,6 @@ myKeys host xpc conf=
     newPrefixWS :: X ()
     newPrefixWS = PW.newPrefixWSWith wsSeparator myViewWS
 
-
     -- | filter some workspaces
     filterSomeWorkspaces :: Functor f => f ([WindowSpace] -> b) -> f ([WindowSpace] -> b)
     filterSomeWorkspaces = fmap (. filterOutWs cycleSkippedWorkspaces)
@@ -344,8 +342,6 @@ myKeys host xpc conf=
 
     -- | Sort workspaces by tag name, exclude hidden scrachpad workspace.
     getSortByTagNoSP = filterSomeWorkspaces getSortByTag
-
-
 
 -- | Mouse bindings
 myMouseBindings :: [((KeyMask, Button), Window -> X ())]
@@ -370,9 +366,6 @@ myMouseBindings =
                  , ([R   ], \w -> focus w >> Nav2d.windowSwap R False)
                  ]
 
-
-
-
 -- | Colors
 
 -- | Colors and theme configuration are provided by XMonad.Util.ThemePalette
@@ -381,8 +374,6 @@ myDefaultSpacerWidth :: Int
 myDefaultSpacerWidth = 3
 myDefaultBorderWidth :: Dimension
 myDefaultBorderWidth = 4
-
-
 
 -- | Workspaces
 myWorkspaces :: [WorkspaceId]
@@ -464,7 +455,6 @@ myLayoutHook host =
     gridWide = rename "gridw" . ss . refmin $ GridRatio (16/9)
     grid = rename "grid" . ss . refmin $ GridRatio (4/3)
 
-
 -- Window rules:
 --
 -- To find the property name associated with a program, use
@@ -517,8 +507,6 @@ myManageHook =
     -- isAbove = isInProperty "_NET_WM_STATE" "_NET_WM_STATE_ABOVE"
     isTooltip = isInProperty "_NET_WM_WINDOW_TYPE" "_NET_WM_WINDOW_TYPE_TOOLTIP"
 
-
-
 -- Event handling
 
 -- Defines a <custom handler function for X Events. The function should
@@ -527,7 +515,6 @@ myManageHook =
 --
 myHandleEventHook :: Event -> X All
 myHandleEventHook = PF.fullscreenConfigureHook <+> noRescreenEventHook <+> fullscreenEventHook <+> serverModeEventHook <+> wsIPCEventHook
-
 
 noRescreenEventHook :: Event -> X All
 noRescreenEventHook ConfigureEvent {ev_window = w} = do
@@ -582,7 +569,6 @@ wsRename n = do
   movePointer
   showWorkspaceNameFast
 
-
 -- Status bars and logging
 
 -- Perform an arbitrary action on each internal state change or X event.
@@ -634,12 +620,10 @@ myLogHook pal = do
   -- desktopLogHook
   -- fadeInactiveLogHook 0.86
 
-
 -- | 'logHook' preserving old 'ewmh' behavior to switch workspace and focus to
 -- activated window.
 -- desktopLogHook :: X ()
 -- -- desktopLogHook      = activateLogHook (reader W.focusWindow >>= doF)
-
 
 -- | Visible workspaces first, ordered by the (x, y) of their screens, then
 -- the others by tag. Like getSortByXineramaPhysicalRule, but the screen
@@ -656,16 +640,12 @@ mySortByXineramaPhysicalRule = mkWsSort $ do
         (Just _,    Nothing)   -> LT
         (Nothing,   Just _)    -> GT
 
-
-
 -- Startup hook
 
 -- | ewmh runs its startup hook, which sets the WM name to "xmonad", before
 -- this one, so LG3D (for Java GUI apps) wins.
 myStartupHook :: X ()
 myStartupHook = setWMName "LG3D"
-
-
 
 -- Urgency hook
 
@@ -675,8 +655,6 @@ myUrgencyHook pal =
     { urgencyBorderColor = TP.myUrgentColor pal }
     def
       { suppressWhen = XMonad.Hooks.UrgencyHook.Focused }
-
-
 
 -- Font configuration:
 
@@ -715,8 +693,6 @@ myXPConfig pal = (defXPConfig pal)
  , XP.borderColor = TP.col pal "bg_1"
  }
 
-
-
 -- Scratch pads:
 
 myScratchPads :: [NamedScratchpad]
@@ -733,7 +709,6 @@ myScratchPads = [ NS "largeTerminal" (term "largeTerminal") (res =? scratch "lar
     inTerm' sname scmd = term sname ++ " -e " ++  scmd
     res = resource
 
-
 myCenterFloat :: Rational -> Rational -> ManageHook
 myCenterFloat w h = customFloating $ W.RationalRect left top width height
   where
@@ -746,9 +721,7 @@ myNavigation2DConfig :: Nav2d.Navigation2DConfig
 myNavigation2DConfig = def {
   Nav2d.defaultTiledNavigation =  Nav2d.centerNavigation }
 
-
 --  a00001Config
-
 
 a00001Config :: IO (XConfig _)
 a00001Config = do
@@ -780,7 +753,6 @@ a00001Config = do
       hPutStr h (unlines $ showKm x)
       hClose h
       return ()
-
 
 -- | Working versions of swapup/swapdown
 swapUp' :: W.Stack a -> W.Stack a
@@ -852,17 +824,13 @@ standardScreenArrangement host = do
     "yak"  -> SA.splitSingleScreen 0.50
     _      -> SA.splitSingleScreen 0.50
 
-
-
 -- | bind keys but not for some protected workspaces
 bindOnProtectedWorkspace :: X () -> X () -> X ()
 bindOnProtectedWorkspace cmd' altCmd  = bindOn $
     [ (w, altCmd) | w <- protectedWorkspaces ] ++ [ ("", cmd') ]
 
-
 bindOn' :: X () -> X ()
 bindOn' x  = bindOnProtectedWorkspace x showWorkspaceNameFast
-
 
 holdScreenFocus :: X a -> X a
 holdScreenFocus a = do
@@ -870,7 +838,6 @@ holdScreenFocus a = do
    r <- a
    screenWorkspace s >>= maybe (return ()) (windows . W.view)
    return r
-
 
 -- | kill window with some exceptions
 kill' :: X ()
@@ -911,9 +878,6 @@ killPrompt' = withFocused $ \w -> do
         , ("Kill ALL workspace windows", killAll)
         ]
 
-
-
-
 -- | View a workspace by name and maybe run workspace action
 myViewWS :: WorkspaceId -> X ()
 myViewWS wsid = do
@@ -933,9 +897,6 @@ afterWSPrompt w = do
     then windows $ W.view w
     else DW.addWorkspace w
   showWorkspaceNameFast
-
-
-
 
 -- | Run script with same name as "w.workspacename"
 workspaceAction :: X ()
@@ -968,7 +929,6 @@ showWorkspaceNameFast = showWorkspaceName' showStatusSingleMessageDuration ("bg_
 showAppName :: String -> X ()
 showAppName = showMessage 1 ("bg_0", "cyan")
 
-
 -- | Show workspace name
 showWorkspaceName' :: Double -> (String, String) -> X ()
 showWorkspaceName' timeout colors = do
@@ -981,7 +941,6 @@ showLayoutName = do
   winset <- gets windowset
   let ld = description . W.layout . W.workspace . W.current $ winset
   showMessage 2 ("bg_0", "green") ld
-
 
 -- Local Variables:
 -- fill-column: 165

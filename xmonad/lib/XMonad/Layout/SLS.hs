@@ -15,7 +15,7 @@
 -- Stability    : unstable
 -- Portability  : unportable
 --
--- This module provides a screen-width-based layout selector: that is, it 
+-- This module provides a screen-width-based layout selector: that is, it
 -- is a LayoutModifier which Chooses automatically based on the width of a
 -- screen which layout to use.
 --
@@ -42,7 +42,7 @@ findScreenByTag :: WorkspaceId
                 -> X (Maybe
                        (S.Screen WorkspaceId (Layout Window)
                                  Window ScreenId ScreenDetail))
-findScreenByTag i = gets (S.screens . windowset) 
+findScreenByTag i = gets (S.screens . windowset)
                   >>= return . find ((== i) . (S.tag . S.workspace))
 
 ----------------------------------------------------------------------- }}}

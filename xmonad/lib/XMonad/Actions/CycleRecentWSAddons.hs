@@ -9,10 +9,8 @@ import XMonad hiding (workspaces)
 import XMonad.StackSet
 import XMonad.Actions.CycleRecentWS
 
-
 cycref :: [a] -> Int -> a
 cycref l i = l !! (i `mod` length l)
-
 
 -- | Cycle through a finite list of WindowSets with repeated presses of a key, while
 --   a modifier key is held down. For best effects use the same modkey+key combination
