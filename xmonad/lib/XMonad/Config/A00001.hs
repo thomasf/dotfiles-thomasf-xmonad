@@ -327,7 +327,7 @@ myKeys host xpc conf=
 
 
     -- | filter some workspaces
-    filterSomeWorkspaces = fmap (. filterOutWs [scratchpadWorkspaceTag, "chat", "dash"])
+    filterSomeWorkspaces = fmap (. filterOutWs cycleSkippedWorkspaces)
 
     cycleRecentWS' = cycleWindowSets' options
      where options w = map (`W.view` w) (recentTags w)
@@ -381,8 +381,24 @@ myDefaultBorderWidth = 4
 
 
 -- | Workspaces
-myWorkspaces = [ "s", "s.0", "s.1", "s.2", "s.3", "s.4"]
+myWorkspaces = "s" : baseWorkspaces
 myTerminal = "term"
+
+-- | The numbered workspaces there from the start
+baseWorkspaces :: [WorkspaceId]
+baseWorkspaces = [ "s.0", "s.1", "s.2", "s.3", "s.4" ]
+
+-- | Workspaces kept when they are left empty
+keptWorkspaces :: [WorkspaceId]
+keptWorkspaces = scratchpadWorkspaceTag : "" : baseWorkspaces
+
+-- | Workspaces where the launcher keys only show the workspace name
+protectedWorkspaces :: [WorkspaceId]
+protectedWorkspaces = [ "work", "work-client", "dash", "chat", "mail", "home", scratchpadWorkspaceTag, "nodes" ]
+
+-- | Workspaces that recent and prefix workspace cycling skip
+cycleSkippedWorkspaces :: [WorkspaceId]
+cycleSkippedWorkspaces = [ scratchpadWorkspaceTag, "chat", "dash" ]
 
 -- | Hosts with a tall layout default
 tallHosts :: [String]
@@ -510,10 +526,6 @@ noRescreenEventHook ConfigureEvent {ev_window = w} = do
     return $ All $ w /= r
 
 noRescreenEventHook _ = mempty
-
--- | Workspaces kept when they are left empty
-keptWorkspaces :: [WorkspaceId]
-keptWorkspaces = [ "NSP", "", "s.0", "s.1", "s.2", "s.3", "s.4" ]
 
 -- | Client messages from the "ws" command.
 wsIPCEventHook :: Event -> X All
@@ -811,16 +823,8 @@ standardScreenArrangement host = do
 
 
 -- | bind keys but not for some protected workspaces
-bindOnProtectedWorkspace cmd' altCmd  = bindOn
-    [ ("work", altCmd)
-    , ("work-client", altCmd)
-    , ("dash", altCmd)
-    , ("chat", altCmd)
-    , ("mail", altCmd)
-    , ("home", altCmd)
-    , ("NSP", altCmd)
-    , ("nodes", altCmd)
-    , ("", cmd')]
+bindOnProtectedWorkspace cmd' altCmd  = bindOn $
+    [ (w, altCmd) | w <- protectedWorkspaces ] ++ [ ("", cmd') ]
 
 
 bindOn' x  = bindOnProtectedWorkspace x showWorkspaceNameFast
