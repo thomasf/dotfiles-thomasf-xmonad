@@ -205,6 +205,14 @@ swapTwoWindows w1 w2 winset =
             , W.floating = swapFlt (W.floating winset)
             }
 
+-- | Undo a Navigation2D attempt that left the current workspace or moved its
+-- focus. Nothing is refreshed when the attempt changed nothing.
+restoreIfMoved :: WindowSet -> X ()
+restoreIfMoved wsBefore = do
+  wsAfter <- gets windowset
+  when (W.currentTag wsAfter /= W.currentTag wsBefore || W.peek wsAfter /= W.peek wsBefore) $
+    windows (const wsBefore)
+
 -- | Move focus up: within workspace first, then jump up wherever there is something on upper row.
 focusUp :: ScreenNavConfig -> X ()
 focusUp cfg = do
@@ -218,7 +226,7 @@ focusUp cfg = do
   if curTagAfter == curTagBefore && curWinAfter /= curWinBefore
     then navFocusPointer cfg
     else do
-      windows (const wsBefore)
+      restoreIfMoved wsBefore
       refX <- getRefX wsBefore
       case findUpperScreenWith (navIsUpperScreen cfg) wsBefore refX of
         Just upperSc -> selectScreen cfg upperSc
@@ -239,7 +247,7 @@ focusDown cfg = do
   if curTagAfter == curTagBefore && curWinAfter /= curWinBefore
     then navFocusPointer cfg
     else do
-      windows (const wsBefore)
+      restoreIfMoved wsBefore
       if navIsUpperScreen cfg (W.screenDetail curScreenBefore)
         then do
           refX <- getRefX wsBefore
@@ -262,7 +270,7 @@ focusLeft cfg = do
   if curTagAfter == curTagBefore && curWinAfter /= curWinBefore
     then navFocusPointer cfg
     else do
-      windows (const wsBefore)
+      restoreIfMoved wsBefore
       case findLeftScreen wsBefore of
         Just leftSc -> selectScreen cfg leftSc
         Nothing     -> navFocusPointer cfg
@@ -280,7 +288,7 @@ focusRight cfg = do
   if curTagAfter == curTagBefore && curWinAfter /= curWinBefore
     then navFocusPointer cfg
     else do
-      windows (const wsBefore)
+      restoreIfMoved wsBefore
       case findRightScreen wsBefore of
         Just rightSc -> selectScreen cfg rightSc
         Nothing      -> navFocusPointer cfg
@@ -298,7 +306,7 @@ windowSwapUp cfg = do
   if stackBefore /= stackAfter
     then navFocusPointer cfg
     else do
-      windows (const wsBefore)
+      restoreIfMoved wsBefore
       case W.peek wsBefore of
         Nothing -> return ()
         Just curWin -> do
@@ -331,7 +339,7 @@ windowSwapDown cfg = do
   if stackBefore /= stackAfter
     then navFocusPointer cfg
     else do
-      windows (const wsBefore)
+      restoreIfMoved wsBefore
       if navIsUpperScreen cfg (W.screenDetail curScreenBefore)
         then case W.peek wsBefore of
           Nothing -> return ()
@@ -367,7 +375,7 @@ windowSwapLeft cfg = do
   if stackBefore /= stackAfter
     then navFocusPointer cfg
     else do
-      windows (const wsBefore)
+      restoreIfMoved wsBefore
       case W.peek wsBefore of
         Nothing -> return ()
         Just curWin -> case findLeftScreen wsBefore of
@@ -398,7 +406,7 @@ windowSwapRight cfg = do
   if stackBefore /= stackAfter
     then navFocusPointer cfg
     else do
-      windows (const wsBefore)
+      restoreIfMoved wsBefore
       case W.peek wsBefore of
         Nothing -> return ()
         Just curWin -> case findRightScreen wsBefore of
