@@ -596,19 +596,15 @@ myXineramaPhysicalWsCompare = myXineramaWsCompare' True
 myXineramaWsCompare' :: Bool -> X WorkspaceCompare
 myXineramaWsCompare' phy = do
     w <- gets windowset
-    return $ \ a b -> case (isOnScreen a w, isOnScreen b w) of
-        -- (True, True)   -> cmpPosition phy w a b
-        (True, True)   -> cmpPosition phy w a b
-        (False, False) -> compare a b
-        (True, False)  -> LT
-        (False, True)  -> GT
-  where
-    onScreen w = W.current w : W.visible w
-    isOnScreen a w = a `elem` map (W.tag . W.workspace) (onScreen w)
-    findScreen s x = find ((== x) . W.tag . W.workspace) s
-    cmpPosition False w = comparing (fmap W.screen . findScreen (onScreen w))
-    cmpPosition True  w = comparing (fmap (screenPos . W.screenDetail) . findScreen (onScreen w))
-      where screenPos sd = let Rectangle x y _ _ = screenRect sd in (x, y)
+    let onScreens = W.current w : W.visible w
+        posMap = if phy
+          then M.fromList [ (W.tag (W.workspace s), let Rectangle x y _ _ = screenRect (W.screenDetail s) in (x, y)) | s <- onScreens ]
+          else M.fromList [ (W.tag (W.workspace s), (fromIntegral (W.screen s), 0)) | s <- onScreens ]
+    return $ \ a b -> case (M.lookup a posMap, M.lookup b posMap) of
+        (Just posA, Just posB) -> compare posA posB
+        (Nothing,   Nothing)   -> compare a b
+        (Just _,    Nothing)   -> LT
+        (Nothing,   Just _)    -> GT
 
 
 
