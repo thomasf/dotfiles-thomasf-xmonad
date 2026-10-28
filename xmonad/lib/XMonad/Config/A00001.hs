@@ -501,7 +501,7 @@ myManageHook =
 -- return (All True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
 --
-myHandleEventHook = PF.fullscreenConfigureHook <+> noRescreenEventHook <+> ewmhDesktopsEventHook <+> fullscreenEventHook <+> serverModeEventHook <+> wsGoEventHook <+> wsFocusEventHook <+> wsShiftEventHook <+> wsRenameEventHook
+myHandleEventHook = PF.fullscreenConfigureHook <+> noRescreenEventHook <+> ewmhDesktopsEventHook <+> fullscreenEventHook <+> serverModeEventHook <+> wsIPCEventHook
 
 
 noRescreenEventHook ConfigureEvent {ev_window = w} = do
@@ -514,13 +514,21 @@ noRescreenEventHook _ = mempty
 keptWorkspaces :: [WorkspaceId]
 keptWorkspaces = [ "NSP", "", "s.0", "s.1", "s.2", "s.3", "s.4" ]
 
--- | Go to the workspace "ws go" names, as the workspace prompt did: a
--- WS_GO client message whose first datum is an atom with the workspace
--- name. A new workspace is created, an empty one gets its workspace
--- action, and the workspace left is removed if empty. EWMH can only
--- switch to existing workspaces.
-wsGoEventHook :: Event -> X All
-wsGoEventHook = WsIPC.wsGoServerModeHook' $ \n -> do
+-- | Client messages from the "ws" command.
+wsIPCEventHook :: Event -> X All
+wsIPCEventHook = WsIPC.wsIPCEventHook WsIPC.WsIPCConfig
+  { WsIPC.wsIPCGo     = wsGo
+  , WsIPC.wsIPCShift  = wsShift
+  , WsIPC.wsIPCRename = wsRename
+  , WsIPC.wsIPCFocus  = wsFocus
+  }
+
+-- | Go to the workspace "ws go" names, as the workspace prompt did. A
+-- new workspace is created, an empty one gets its workspace action, and
+-- the workspace left is removed if empty. EWMH can only switch to
+-- existing workspaces.
+wsGo :: WorkspaceId -> X ()
+wsGo n = do
   PF.resetPhysicalFullscreen
   DW.removeEmptyWorkspaceAfterExcept keptWorkspaces $ do
     exists <- gets (W.tagMember n . windowset)
@@ -529,29 +537,26 @@ wsGoEventHook = WsIPC.wsGoServerModeHook' $ \n -> do
       else myViewWS n
     movePointer
 
--- | Focus the window "ws window" names, as the window search did: a
--- WS_FOCUS client message whose first datum is the window. Its
+-- | Focus the window "ws window" names, as the window search did. Its
 -- workspace is shown if need be.
-wsFocusEventHook :: Event -> X All
-wsFocusEventHook = WsIPC.wsFocusServerModeHook' $ \w -> do
+wsFocus :: Window -> X ()
+wsFocus w = do
   PF.resetPhysicalFullscreenIfOther w
   windows (W.focusWindow w) >> movePointer
 
--- | Move the focused window to the workspace "ws shift" / "ws pick -shift" names:
--- a WS_SHIFT client message whose first datum is an atom with the workspace name.
+-- | Move the focused window to the workspace "ws shift" / "ws pick -shift" names.
 -- Creates the workspace hidden if it is new.
-wsShiftEventHook :: Event -> X All
-wsShiftEventHook = WsIPC.wsShiftServerModeHook' $ \n -> do
+wsShift :: WorkspaceId -> X ()
+wsShift n = do
   exists <- gets (W.tagMember n . windowset)
   unless exists $ DW.addHiddenWorkspace n
   windows (W.shift n)
   movePointer
   updateStruts
 
--- | Rename the current workspace to the name "ws rename" gives:
--- a WS_RENAME client message whose first datum is an atom with the new name.
-wsRenameEventHook :: Event -> X All
-wsRenameEventHook = WsIPC.wsRenameServerModeHook' $ \n -> do
+-- | Rename the current workspace to the name "ws rename" gives.
+wsRename :: WorkspaceId -> X ()
+wsRename n = do
   DW.renameWorkspaceByName n
   movePointer
   showWorkspaceNameFast

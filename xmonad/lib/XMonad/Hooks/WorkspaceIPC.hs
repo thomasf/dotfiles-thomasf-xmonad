@@ -1,7 +1,8 @@
+{-# LANGUAGE MultiWayIf #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  XMonad.Hooks.WorkspaceIPC
--- Description :  ServerMode-style event hooks for external workspace/window switching via client messages
+-- Description :  ServerMode-style event hook for external workspace/window switching via client messages
 -- Maintainer  :  thomasf@jossystem.se
 -- Stability   :  unstable
 -- Portability :  unportable
@@ -13,75 +14,73 @@
 -----------------------------------------------------------------------------
 
 module XMonad.Hooks.WorkspaceIPC
-    ( wsAtomServerModeHook'
-    , wsGoServerModeHook'
-    , wsGoServerModeHook
-    , wsFocusServerModeHook'
-    , wsFocusServerModeHook
-    , wsShiftServerModeHook'
-    , wsShiftServerModeHook
-    , wsRenameServerModeHook'
-    , wsRenameServerModeHook
+    ( WsIPCConfig(..)
+    , defaultWsIPCConfig
+    , wsIPCEventHook
     ) where
 
-import           Control.Monad (when, forM_, mfilter)
+import           Control.Monad (forM_, mfilter, when)
 import           Data.Monoid (All(..))
 import           XMonad
 import qualified XMonad.Actions.DynamicWorkspaces as DW
 import qualified XMonad.StackSet as W
+import qualified XMonad.Util.ExtensibleState as XS
 
--- | Listens for ClientMessageEvent with the given atom name, extracts the
--- payload atom as a string, and runs the given workspace action.
-wsAtomServerModeHook' :: String -> (WorkspaceId -> X ()) -> Event -> X All
-wsAtomServerModeHook' atomName handleWs ClientMessageEvent {ev_message_type = mt, ev_data = dt} = do
-    atom <- getAtom atomName
-    when (mt == atom) $ do
-      d <- asks display
-      forM_ (take 1 dt) $ \a -> do
+-- | What to do for each message. The workspace handlers get the name in
+-- the atom of the first datum, the focus handler the managed window
+-- in the first datum.
+data WsIPCConfig = WsIPCConfig
+  { wsIPCGo     :: WorkspaceId -> X ()
+  , wsIPCShift  :: WorkspaceId -> X ()
+  , wsIPCRename :: WorkspaceId -> X ()
+  , wsIPCFocus  :: Window -> X ()
+  }
+
+-- | View, shift to, rename to the workspace and focus the window.
+defaultWsIPCConfig :: WsIPCConfig
+defaultWsIPCConfig = WsIPCConfig
+  { wsIPCGo     = windows . W.view
+  , wsIPCShift  = windows . W.shift
+  , wsIPCRename = DW.renameWorkspaceByName
+  , wsIPCFocus  = windows . W.focusWindow
+  }
+
+data WsIPCAtoms = WsIPCAtoms
+  { atomGo, atomShift, atomRename, atomFocus :: !Atom }
+
+-- | The atoms, interned on the first message: interning is a round trip
+-- to the X server, and client messages are frequent.
+newtype WsIPCAtomCache = WsIPCAtomCache (Maybe WsIPCAtoms)
+
+instance ExtensionClass WsIPCAtomCache where
+  initialValue = WsIPCAtomCache Nothing
+
+wsIPCAtoms :: X WsIPCAtoms
+wsIPCAtoms = do
+  WsIPCAtomCache cached <- XS.get
+  case cached of
+    Just atoms -> return atoms
+    Nothing -> do
+      atoms <- WsIPCAtoms <$> getAtom "WS_GO" <*> getAtom "WS_SHIFT"
+                       <*> getAtom "WS_RENAME" <*> getAtom "WS_FOCUS"
+      XS.put (WsIPCAtomCache (Just atoms))
+      return atoms
+
+-- | Handles WS_GO, WS_SHIFT, WS_RENAME and WS_FOCUS client messages.
+wsIPCEventHook :: WsIPCConfig -> Event -> X All
+wsIPCEventHook cfg ClientMessageEvent {ev_message_type = mt, ev_data = a : _} = do
+  atoms <- wsIPCAtoms
+  let byName handle = do
+        d <- asks display
         name <- io $ getAtomName d (fromIntegral a)
-        forM_ (mfilter (not . null) name) handleWs
-    return (All True)
-wsAtomServerModeHook' _ _ _ = return (All True)
-
--- | Listens for "WS_GO" ClientMessageEvent, extracts the atom name, and runs
--- the given workspace action.
-wsGoServerModeHook' :: (WorkspaceId -> X ()) -> Event -> X All
-wsGoServerModeHook' = wsAtomServerModeHook' "WS_GO"
-
--- | Default 'wsGoServerModeHook' which simply views the target workspace.
-wsGoServerModeHook :: Event -> X All
-wsGoServerModeHook = wsGoServerModeHook' (windows . W.view)
-
--- | Listens for "WS_SHIFT" ClientMessageEvent, extracts the atom name, and runs
--- the given workspace action.
-wsShiftServerModeHook' :: (WorkspaceId -> X ()) -> Event -> X All
-wsShiftServerModeHook' = wsAtomServerModeHook' "WS_SHIFT"
-
--- | Default 'wsShiftServerModeHook' which simply shifts the focused window to the target workspace.
-wsShiftServerModeHook :: Event -> X All
-wsShiftServerModeHook = wsShiftServerModeHook' (windows . W.shift)
-
--- | Listens for "WS_RENAME" ClientMessageEvent, extracts the atom name, and runs
--- the given workspace action.
-wsRenameServerModeHook' :: (WorkspaceId -> X ()) -> Event -> X All
-wsRenameServerModeHook' = wsAtomServerModeHook' "WS_RENAME"
-
--- | Default 'wsRenameServerModeHook' which simply renames the current workspace.
-wsRenameServerModeHook :: Event -> X All
-wsRenameServerModeHook = wsRenameServerModeHook' DW.renameWorkspaceByName
-
--- | Listens for "WS_FOCUS" ClientMessageEvent, extracts the window ID,
--- verifies it is managed, and runs the given window action.
-wsFocusServerModeHook' :: (Window -> X ()) -> Event -> X All
-wsFocusServerModeHook' handleWin ClientMessageEvent {ev_message_type = mt, ev_data = dt} = do
-    wsFocus <- getAtom "WS_FOCUS"
-    when (mt == wsFocus) $ forM_ (take 1 dt) $ \a -> do
-      let w = fromIntegral a
-      managed <- gets (W.member w . windowset)
-      when managed $ handleWin w
-    return (All True)
-wsFocusServerModeHook' _ _ = return (All True)
-
--- | Default 'wsFocusServerModeHook' which simply focuses the target window.
-wsFocusServerModeHook :: Event -> X All
-wsFocusServerModeHook = wsFocusServerModeHook' (windows . W.focusWindow)
+        forM_ (mfilter (not . null) name) handle
+      w = fromIntegral a
+  if | mt == atomGo atoms     -> byName (wsIPCGo cfg)
+     | mt == atomShift atoms  -> byName (wsIPCShift cfg)
+     | mt == atomRename atoms -> byName (wsIPCRename cfg)
+     | mt == atomFocus atoms  -> do
+         managed <- gets (W.member w . windowset)
+         when managed $ wsIPCFocus cfg w
+     | otherwise              -> return ()
+  return (All True)
+wsIPCEventHook _ _ = return (All True)
