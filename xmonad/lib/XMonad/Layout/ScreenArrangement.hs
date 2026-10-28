@@ -116,7 +116,11 @@ getHost = io $ do
   case mHost of
     Just h | not (null h) -> return (takeWhile (/= '.') h)
     _ -> do
-      res <- try (runProcessWithInput "hostname" [] "") :: IO (Either IOException String)
-      case res of
-        Right out -> return (takeWhile (\c -> c /= '.' && c /= '\n') out)
-        Left _    -> return ""
+      mHost2 <- lookupEnv "HOSTNAME"
+      case mHost2 of
+        Just h | not (null h) -> return (takeWhile (/= '.') h)
+        _ -> do
+          res <- try (runProcessWithInput "hostname" [] "") :: IO (Either IOException String)
+          case res of
+            Right out -> return (takeWhile (\c -> c /= '.' && c /= '\n') out)
+            Left _    -> return ""
