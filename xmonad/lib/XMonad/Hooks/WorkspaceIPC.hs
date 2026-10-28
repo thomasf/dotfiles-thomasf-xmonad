@@ -27,11 +27,12 @@ import qualified XMonad.StackSet as W
 -- the given workspace action.
 wsGoServerModeHook' :: (WorkspaceId -> X ()) -> Event -> X All
 wsGoServerModeHook' handleWs ClientMessageEvent {ev_message_type = mt, ev_data = dt} = do
-    d <- asks display
-    wsGo <- io $ internAtom d "WS_GO" False
-    when (mt == wsGo) $ forM_ (take 1 dt) $ \a -> do
-      name <- io $ getAtomName d (fromIntegral a)
-      forM_ (mfilter (not . null) name) handleWs
+    wsGo <- getAtom "WS_GO"
+    when (mt == wsGo) $ do
+      d <- asks display
+      forM_ (take 1 dt) $ \a -> do
+        name <- io $ getAtomName d (fromIntegral a)
+        forM_ (mfilter (not . null) name) handleWs
     return (All True)
 wsGoServerModeHook' _ _ = return (All True)
 
@@ -43,8 +44,7 @@ wsGoServerModeHook = wsGoServerModeHook' (windows . W.view)
 -- verifies it is managed, and runs the given window action.
 wsFocusServerModeHook' :: (Window -> X ()) -> Event -> X All
 wsFocusServerModeHook' handleWin ClientMessageEvent {ev_message_type = mt, ev_data = dt} = do
-    d <- asks display
-    wsFocus <- io $ internAtom d "WS_FOCUS" False
+    wsFocus <- getAtom "WS_FOCUS"
     when (mt == wsFocus) $ forM_ (take 1 dt) $ \a -> do
       let w = fromIntegral a
       managed <- gets (W.member w . windowset)
