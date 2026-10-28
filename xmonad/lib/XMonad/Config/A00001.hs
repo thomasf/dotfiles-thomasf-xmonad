@@ -618,22 +618,15 @@ myLogHook pal = do
 -- -- desktopLogHook      = activateLogHook (reader W.focusWindow >>= doF)
 
 
--- | Like 'getSortByXineramaRule', but uses physical locations for screens.
+-- | Visible workspaces first, ordered by the (x, y) of their screens, then
+-- the others by tag. Like getSortByXineramaPhysicalRule, but the screen
+-- positions are looked up once per sort, not on every comparison.
 mySortByXineramaPhysicalRule :: X WorkspaceSort
-mySortByXineramaPhysicalRule = mkWsSort myXineramaPhysicalWsCompare
--- | A comparison function like 'getXineramaWsCompare', but uses physical locations for screens.
-
-myXineramaPhysicalWsCompare :: X WorkspaceCompare
-myXineramaPhysicalWsCompare = myXineramaWsCompare' True
-
--- | Modified to sort (x,y) instead of (y,x)
-myXineramaWsCompare' :: Bool -> X WorkspaceCompare
-myXineramaWsCompare' phy = do
+mySortByXineramaPhysicalRule = mkWsSort $ do
     w <- gets windowset
-    let onScreens = W.current w : W.visible w
-        posMap = if phy
-          then M.fromList [ (W.tag (W.workspace s), let Rectangle x y _ _ = screenRect (W.screenDetail s) in (x, y)) | s <- onScreens ]
-          else M.fromList [ (W.tag (W.workspace s), (fromIntegral (W.screen s), 0)) | s <- onScreens ]
+    let posMap = M.fromList [ (W.tag (W.workspace s), (rect_x r, rect_y r))
+                            | s <- W.current w : W.visible w
+                            , let r = screenRect (W.screenDetail s) ]
     return $ \ a b -> case (M.lookup a posMap, M.lookup b posMap) of
         (Just posA, Just posB) -> compare posA posB
         (Nothing,   Nothing)   -> compare a b
