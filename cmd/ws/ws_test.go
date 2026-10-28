@@ -502,3 +502,13 @@ func TestBranchSourceText(t *testing.T) {
 		t.Errorf("branchRows =\n%s\nwant\n%s", strings.Join(got, "\n"), strings.Join(wantRows, "\n"))
 	}
 }
+
+func TestRenameCandidates(t *testing.T) {
+	candidates := renameCandidates("disco")
+	if len(candidates) == 0 {
+		t.Fatal("expected non-empty candidates")
+	}
+	if candidates[0] != "disco" {
+		t.Errorf("expected current workspace at index 0, got %q", candidates[0])
+	}
+}

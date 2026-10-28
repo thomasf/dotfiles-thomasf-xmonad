@@ -6,6 +6,7 @@ import (
 	"cmp"
 	"encoding/json"
 	"errors"
+	"flag"
 	"fmt"
 	"html"
 	"log"
@@ -20,7 +21,7 @@ import (
 )
 
 func runPick(args []string) error {
-	fs := newFlagSet("pick", "[-go] [-empty] [-p prompt] [-columns n] [-lines n] [-worktrees]", `
+	fs := newFlagSet("pick", "[-go] [-shift] [-empty] [-p prompt] [-columns n] [-lines n] [-worktrees]", `
 Pick lets the user choose a workspace with rofi and prints its name. It
 lists the workspaces with windows or on another screen, other than the
 current one, grouped by project; those on other screens are in colour.
@@ -37,11 +38,13 @@ It exits with status 1 if the user cancels.
                 no workspace yet; listing them takes a moment
 
 With -go, it goes to the workspace instead of printing it, as ws go
-does; this way xmonad can start it with spawn, rather than wait for it
-while rofi runs and lock up input.
+does. With -shift, it moves the focused window to the workspace instead
+of printing its name, as ws shift does; this way xmonad can start it
+with spawn, rather than wait for it while rofi runs and lock up input.
 `)
 	prompt := fs.String("p", "workspace", "rofi `prompt`")
 	goTo := fs.Bool("go", false, "go to the workspace instead of printing its name")
+	shiftTo := fs.Bool("shift", false, "move the focused window to the workspace instead of printing its name")
 	withWorktrees := fs.Bool("worktrees", false, "also list worktrees without a workspace")
 	withEmpty := fs.Bool("empty", false, "also list workspaces without windows")
 	columns := fs.Int("columns", 3, "show `n` columns")
@@ -49,6 +52,15 @@ while rofi runs and lock up input.
 	fs.Parse(args)
 	if fs.NArg() > 0 {
 		usageError(fs)
+	}
+	hasPrompt := false
+	fs.Visit(func(f *flag.Flag) {
+		if f.Name == "p" {
+			hasPrompt = true
+		}
+	})
+	if *shiftTo && !hasPrompt {
+		*prompt = "move to"
 	}
 	names, cur, err := desktops()
 	if err != nil {
@@ -135,6 +147,9 @@ while rofi runs and lock up input.
 		}
 		if *goTo {
 			return goWorkspace(name)
+		}
+		if *shiftTo {
+			return shiftWorkspace(name)
 		}
 		fmt.Println(name)
 		return nil

@@ -19,6 +19,25 @@ WS_GO client message that the xmonad configuration handles.
 	return goWorkspace(fs.Arg(0))
 }
 
+func runShift(args []string) error {
+	fs := newFlagSet("shift", "[workspace]", `
+Shift moves the focused window to workspace, creating it if it is new,
+with a WS_SHIFT client message that the xmonad configuration handles.
+Without a workspace, it lets the user choose one with rofi, as ws pick -shift
+does.
+`)
+	fs.Parse(args)
+	switch fs.NArg() {
+	case 0:
+		return runPick([]string{"-shift"})
+	case 1:
+		return shiftWorkspace(fs.Arg(0))
+	default:
+		usageError(fs)
+		return nil
+	}
+}
+
 // goWorkspace asks xmonad to show workspace name, creating it if it is
 // new, with a WS_GO client message carrying an atom that names the
 // workspace. wsGoEventHook in the xmonad configuration handles it as the
@@ -37,6 +56,37 @@ func goWorkspace(name string) error {
 		return err
 	}
 	return sendXmonad(X, "WS_GO", uint32(a))
+}
+
+// shiftWorkspace asks xmonad to move the focused window to workspace name,
+// creating it if it is new, with a WS_SHIFT client message carrying an atom
+// that names the workspace.
+func shiftWorkspace(name string) error {
+	X, err := xgb.NewConn()
+	if err != nil {
+		return err
+	}
+	defer X.Close()
+	a, err := internAtom(X, name)
+	if err != nil {
+		return err
+	}
+	return sendXmonad(X, "WS_SHIFT", uint32(a))
+}
+
+// renameWorkspace asks xmonad to rename the current workspace to name
+// with a WS_RENAME client message carrying an atom that names the new workspace.
+func renameWorkspace(name string) error {
+	X, err := xgb.NewConn()
+	if err != nil {
+		return err
+	}
+	defer X.Close()
+	a, err := internAtom(X, name)
+	if err != nil {
+		return err
+	}
+	return sendXmonad(X, "WS_RENAME", uint32(a))
 }
 
 // sendXmonad sends xmonad a client message of type typ on the root

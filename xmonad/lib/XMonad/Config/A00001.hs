@@ -151,7 +151,6 @@ myKeys xpc conf=
   [ ("M-e",         addName "Next workspace (prefix)"     $ rmEmptyWs $ nextWsPrefix >> movePointer >> showWorkspaceNameFast)
   , ("M-r",         addName "Previous workspace (prefix)" $ rmEmptyWs $ prevWsPrefix >> movePointer >> showWorkspaceNameFast)
   , ("M-C-e",       addName "New workspace in prefix.sequence" $ newPrefixWS >> movePointer >> showWorkspaceNameFast)
-  , ("M-S-e",       addName "Same workspace in another worktree prompt" $ rmEmptyWs $ worktreePrompt >> movePointer)
   , ("M-S-<Space>", addName "reset layout"                $ setLayout (XMonad.layoutHook conf) >> updateStruts >> movePointer)
   ] ++
   subtitle "Modify current workspace layout... (H/L=size ,.=) [+alt=toggle]": mkNamedKeymap conf
@@ -231,8 +230,8 @@ myKeys xpc conf=
   -- , ("M-C-i M-C-i",         addName "cycle ws on next screen"               $ holdScreenFocus $ nextScreen' >> myCycleRecentWs xK_i xK_o)
   -- , ("M-C-u M-C-u",         addName "cycle ws on prev screen"               $ holdScreenFocus $ prevScreen' >> myCycleRecentWs xK_o xK_i)
   , ("M-i <Space> <Space>", addName "Create or change workspace prompt"     $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
-  , ("M-S-i",               addName "Move window to other workspace prompt" $ withWorkspacePrompt xpc (windows . W.shift) >> movePointer >> updateStruts)
-  , ("M-i <Space> r",       addName "Rename current workspace"              $ DW.renameWorkspace xpc >> movePointer)
+  , ("M-S-i",               addName "Move window to other workspace (ws pick -shift)" $ spawn "ws pick -shift")
+  , ("M-i <Space> r",       addName "Rename current workspace (ws rename)"  $ spawn "ws rename")
   , ("M-i <Backspace>",     addName "Delete current workspace"              $ DW.removeWorkspace >> movePointer)
   , ("M-p w",               addName ".www"                                  $ gotoPrefixWS "www" >> movePointer)
   , ("M-p d",               addName ".doc"                                  $ gotoPrefixWS "doc" >> movePointer)
@@ -502,7 +501,7 @@ myManageHook =
 -- return (All True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
 --
-myHandleEventHook = PF.fullscreenConfigureHook <+> noRescreenEventHook <+> ewmhDesktopsEventHook <+> fullscreenEventHook <+> serverModeEventHook <+> wsGoEventHook <+> wsFocusEventHook
+myHandleEventHook = PF.fullscreenConfigureHook <+> noRescreenEventHook <+> ewmhDesktopsEventHook <+> fullscreenEventHook <+> serverModeEventHook <+> wsGoEventHook <+> wsFocusEventHook <+> wsShiftEventHook <+> wsRenameEventHook
 
 
 noRescreenEventHook ConfigureEvent {ev_window = w} = do
@@ -537,6 +536,25 @@ wsFocusEventHook :: Event -> X All
 wsFocusEventHook = WsIPC.wsFocusServerModeHook' $ \w -> do
   PF.resetPhysicalFullscreenIfOther w
   windows (W.focusWindow w) >> movePointer
+
+-- | Move the focused window to the workspace "ws shift" / "ws pick -shift" names:
+-- a WS_SHIFT client message whose first datum is an atom with the workspace name.
+-- Creates the workspace hidden if it is new.
+wsShiftEventHook :: Event -> X All
+wsShiftEventHook = WsIPC.wsShiftServerModeHook' $ \n -> do
+  exists <- gets (W.tagMember n . windowset)
+  unless exists $ DW.addHiddenWorkspace n
+  windows (W.shift n)
+  movePointer
+  updateStruts
+
+-- | Rename the current workspace to the name "ws rename" gives:
+-- a WS_RENAME client message whose first datum is an atom with the new name.
+wsRenameEventHook :: Event -> X All
+wsRenameEventHook = WsIPC.wsRenameServerModeHook' $ \n -> do
+  DW.renameWorkspaceByName n
+  movePointer
+  showWorkspaceNameFast
 
 
 -- Status bars and logging

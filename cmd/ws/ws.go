@@ -13,8 +13,10 @@
 //	ws wt add [-branch branch] [-pick] [project@]name
 //	ws wt init [-y] [-pick] [workspace]
 //	ws wt remove [-force] [-y] [-pick] [[project@]name]
-//	ws pick [-go] [-empty] [-p prompt] [-columns n] [-lines n] [-worktrees]
+//	ws pick [-go] [-shift] [-empty] [-p prompt] [-columns n] [-lines n] [-worktrees]
 //	ws go workspace
+//	ws shift [workspace]
+//	ws rename [name]
 //	ws window
 //	ws rofi [rofi arguments]
 //
@@ -111,11 +113,19 @@
 // workspace yet; -worktrees shows them from the start. Listing them takes a
 // moment, so they are hidden by default. It exits with status 1 if the user
 // cancels. With -go, it goes to the workspace instead of printing it, as ws
-// go does; this way xmonad can start it with spawn, rather than wait for it
+// go does; with -shift, it moves the focused window to the workspace, as ws
+// shift does; this way xmonad can start it with spawn, rather than wait for it
 // while rofi runs and lock up input.
 //
 // Go asks xmonad to show a workspace, creating it if it is new, with a
 // WS_GO client message that the xmonad configuration handles.
+//
+// Shift moves the focused window to workspace, creating it if it is new,
+// with a WS_SHIFT client message that the xmonad configuration handles.
+//
+// Rename renames the current workspace, asking with rofi if name is not
+// given, with a WS_RENAME client message that the xmonad configuration
+// handles.
 //
 // Window lets the user choose a window with rofi, listed with its class
 // and workspace, and asks xmonad to focus it, switching to its workspace,
@@ -169,6 +179,10 @@ func main() {
 		err = runRofi(args)
 	case "go":
 		err = runGo(args)
+	case "shift", "move":
+		err = runShift(args)
+	case "rename":
+		err = runRename(args)
 	case "window":
 		err = runWindow(args)
 	case "-h", "-help", "--help", "help":
@@ -193,8 +207,10 @@ const usageText = `usage: ws name [-p | -s]
        ws wt add [-branch branch] [-pick] [project@]name
        ws wt init [-y] [-pick] [workspace]
        ws wt remove [-force] [-y] [-pick] [[project@]name]
-       ws pick [-go] [-empty] [-p prompt] [-columns n] [-lines n] [-worktrees]
+       ws pick [-go] [-shift] [-empty] [-p prompt] [-columns n] [-lines n] [-worktrees]
        ws go workspace
+       ws shift [workspace]
+       ws rename [name]
        ws window
        ws rofi [rofi arguments]
 
