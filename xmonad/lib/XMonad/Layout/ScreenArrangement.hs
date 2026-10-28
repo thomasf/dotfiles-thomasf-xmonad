@@ -20,14 +20,13 @@ module XMonad.Layout.ScreenArrangement
     , getHost
     ) where
 
-import           Control.Exception (IOException, try)
 import           Control.Monad
 import           Data.List (deleteBy, find, sortOn)
 import           System.Environment (lookupEnv)
+import           System.Posix.Unistd (getSystemID, nodeName)
 
 import           XMonad
 import qualified XMonad.StackSet as W
-import           XMonad.Util.Run (runProcessWithInput)
 
 -- | Split a rectangle horizontally into 2 panes with a 1px gap, using the given ratio for the left pane.
 splitPane2 :: Rational -> Rectangle -> [Rectangle]
@@ -49,12 +48,11 @@ splitSingleScreen :: Rational -> [Rectangle] -> [Rectangle]
 splitSingleScreen ratio [r] = splitPane2 ratio r
 splitSingleScreen _ rs      = rs
 
--- | Run a host-based screen arrangement plan.
-arrangeScreens :: (String -> [Rectangle] -> [Rectangle]) -> X ()
+-- | Run a screen arrangement plan on the physical screens.
+arrangeScreens :: ([Rectangle] -> [Rectangle]) -> X ()
 arrangeScreens plan = do
-  host <- getHost
   physScreens <- withDisplay getCleanedScreenInfo
-  applyScreenRectangles (plan host physScreens)
+  applyScreenRectangles (plan physScreens)
 
 -- | Apply target screen rectangles preserving workspace locations and avoiding redundant reshuffling.
 applyScreenRectangles :: [Rectangle] -> X ()
@@ -109,18 +107,11 @@ applyScreenRectangles targetRects = do
            , W.hidden  = remainingWs
            }
 
--- | Get the current machine's hostname (short form).
-getHost :: X String
-getHost = io $ do
-  mHost <- lookupEnv "HOST"
-  case mHost of
-    Just h | not (null h) -> return (takeWhile (/= '.') h)
-    _ -> do
-      mHost2 <- lookupEnv "HOSTNAME"
-      case mHost2 of
-        Just h | not (null h) -> return (takeWhile (/= '.') h)
-        _ -> do
-          res <- try (runProcessWithInput "hostname" [] "") :: IO (Either IOException String)
-          case res of
-            Right out -> return (takeWhile (\c -> c /= '.' && c /= '\n') out)
-            Left _    -> return ""
+-- | The current machine's hostname (short form): $HOST, $HOSTNAME or uname.
+getHost :: IO String
+getHost = do
+  env <- mapM lookupEnv ["HOST", "HOSTNAME"]
+  h <- case [v | Just v <- env, not (null v)] of
+    h : _ -> return h
+    []    -> nodeName <$> getSystemID
+  return (takeWhile (/= '.') h)

@@ -62,7 +62,7 @@ import           XMonad.Layout.MultiToggle
 import           XMonad.Layout.MultiToggle.Instances
 import           XMonad.Layout.NoBorders
 import qualified XMonad.Layout.EdgeSpacing as ES
-import           XMonad.Layout.OnHost
+import           XMonad.Layout.IfLayout (ifLayout)
 import           XMonad.Layout.OneBig
 import           XMonad.Layout.PerWorkspace (onWorkspace, onWorkspaces)
 import qualified XMonad.Layout.PhysicalFullscreen as PF
@@ -88,7 +88,7 @@ import qualified XMonad.Util.ThemePalette as TP
 -- simply for convenience and readability
 confModMask = mod4Mask
 
-myKeys xpc conf=
+myKeys host xpc conf=
   subtitle "Cyclic window actions (J/K) [+=focus] [+control=cycle+keep focus] [+shift=move]": mkNamedKeymap conf
   [ ("M-j",             addName "Focus next window on workspace"          _windowFocusDown)
   , ("M-k",             addName "Focus previous window on workspace"      _windowFocusUp)
@@ -200,7 +200,7 @@ myKeys xpc conf=
   , ("M-8",           addName "restore workspace group 3"   $ holdScreenFocus $ viewWSGroup "wsg3")
   ] ++
   subtitle "screen splitting": mkNamedKeymap conf
-  [ ("M-5 5",  addName "Standard screen arrangement for host"             $ standardScreenArrangement >> movePointer)
+  [ ("M-5 5",  addName "Standard screen arrangement for host"             $ standardScreenArrangement host >> movePointer)
   , ("M-5 2",  addName "Split current screen by 2 panes 0.5"              $ LS.layoutSplitScreen 2 $ ES.innerSpacing 1 (TwoPane 0 0.5))
   , ("M-5 1",  addName "Split current screen by 2 panes 0.7"              $ LS.layoutSplitScreen 2 $ ES.innerSpacing 1 (TwoPane 0 0.33))
   , ("M-5 3",  addName "Split current screen by 3 even columns"           $ LS.layoutSplitScreen 3 $ ES.innerSpacing 1 (Mirror (Tall 3 0 (1/2))))
@@ -387,8 +387,12 @@ myDefaultBorderWidth = 4
 myWorkspaces = [ "s", "s.0", "s.1", "s.2", "s.3", "s.4"]
 myTerminal = "term"
 
+-- | Hosts with a tall layout default
+tallHosts :: [String]
+tallHosts = ["transwhale", "flam", "yak"]
+
 -- | Layout hook
-myLayoutHook =
+myLayoutHook host =
   onWorkspace "video" (renameStar full) .
   onWorkspace "vbox" (renameStar full) .
   onWorkspace "android" (renameStar simpleFloat) .
@@ -417,7 +421,7 @@ myLayoutHook =
     alternative = onTall
                (tcol ||| first ||| grid)
                (first ||| tall ||| tabs ||| gridWide ||| spiral ||| oneBig)
-    onTall = onHosts ["transwhale", "flam", "yak"]
+    onTall = ifLayout (host `elem` tallHosts)
     -- helpers
     refmin = mkToggle (single REFLECTX)
     mySpacing = ES.innerSpacing
@@ -735,7 +739,8 @@ myNavigation2DConfig = def {
 
 a00001Config = do
   pal <- io TP.readPalette
-  return . docks . Nav2d.withNavigation2DConfig myNavigation2DConfig . myUrgencyHook pal . addDescrKeys' ((confModMask, xK_F1), showKeybindings) (myKeys $ myXPConfig pal) $ def {
+  host <- SA.getHost
+  return . docks . Nav2d.withNavigation2DConfig myNavigation2DConfig . myUrgencyHook pal . addDescrKeys' ((confModMask, xK_F1), showKeybindings) (myKeys host $ myXPConfig pal) $ def {
     terminal           = myTerminal
   , focusFollowsMouse  = False
   , borderWidth        = myDefaultBorderWidth
@@ -744,7 +749,7 @@ a00001Config = do
   , normalBorderColor  = TP.myNormalBorderColor pal
   , focusedBorderColor = TP.myFocusedColor pal
   , keys               = emptyKeys
-  , layoutHook         = myLayoutHook
+  , layoutHook         = myLayoutHook host
   , manageHook         = myManageHook
   , handleEventHook    = myHandleEventHook
   , startupHook        = myStartupHook
@@ -807,10 +812,10 @@ myNavConfig = AdjSc.defaultScreenNavConfig
 -- | Standard screen splitting arrangement per host.
 -- For "flam": leftmost screen split with 0.33 ratio (M-5 1), center screen split with 0.50 ratio (M-5 2).
 -- For "yak": single screen split in two with 0.50 ratio (M-5 2).
-standardScreenArrangement :: X ()
-standardScreenArrangement = do
+standardScreenArrangement :: String -> X ()
+standardScreenArrangement host = do
   PF.resetPhysicalFullscreen
-  SA.arrangeScreens $ \host -> case host of
+  SA.arrangeScreens $ case host of
     "flam" -> SA.splitScreenWhere (\r -> rect_x r == 0) 0.33
             . SA.splitScreenWhere (\r -> rect_x r == 3840 && rect_y r >= 1000) 0.50
     "yak"  -> SA.splitSingleScreen 0.50
