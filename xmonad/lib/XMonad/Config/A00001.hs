@@ -84,6 +84,7 @@ import           XMonad.Util.Run
 import           XMonad.Util.WorkspaceCompare
 import qualified XMonad.Util.Host as Host
 import qualified XMonad.Util.ThemePalette as TP
+import qualified XMonad.Util.ShowMessage as SM
 
 -- Keyboard configuration:
 
@@ -673,7 +674,7 @@ myGsconfig :: TP.Palette -> GSConfig a
 myGsconfig = TP.myGsconfigWithFont myFont
 
 showMessage :: Double -> (String, String) -> String -> X ()
-showMessage = TP.showMessageWithFont myFont
+showMessage = SM.showMessageWithFont myFont
 
 -- XMonad Prompt configuration
 

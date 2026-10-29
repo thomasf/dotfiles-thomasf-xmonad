@@ -31,12 +31,9 @@ module XMonad.Util.ThemePalette
     , dpiFromPalette
     , dpiScale
     , scaleDpi
-    , showMessage
-    , showMessageWithFont
     ) where
 
 import           Control.Exception (try, IOException, SomeException)
-import           Control.Monad ((>=>))
 import           Data.Char (isSpace)
 import           Data.IORef
 import qualified Data.Map as M
@@ -46,8 +43,6 @@ import           System.IO.Unsafe (unsafePerformIO)
 import           Text.Read (readMaybe)
 import           XMonad
 import           XMonad.Actions.GridSelect
-import qualified XMonad.StackSet as W
-import qualified XMonad.Util.Dzen as DZ
 
 -- | The palette has the colors of the base16-tomorrow theme, plus "bg_0"
 -- with the mode as "mode" and "dpi". dotfiles writes them to
@@ -192,48 +187,3 @@ largeFontSize pal = scaleDpi pal 22
 -- | Scaled large font for dzen status popups (scaled with DPI, 39px at 170 DPI)
 largeFont :: Palette -> String -> String
 largeFont pal font = dzenFontScaled pal font 22
-
--- | Get the rectangle of the currently focused screen.
-getScreenRect :: X Rectangle
-getScreenRect = screenRect . W.screenDetail . W.current <$> gets windowset
-
--- | Show msg in a dzen popup in the middle of the screen, in the colors
--- (fg, bg) of the palette with the specified font: bg_0 text on an accent reads in both modes.
-showMessageWithFont :: (Real a) => String -> a -> (String, String) -> String -> X ()
-showMessageWithFont font timeout (fgName, bgName) msg = do
-  pal <- io readPalette
-  let (fg, bg) = (col pal fgName, col pal bgName)
-  sr <- getScreenRect
-  let rx p = fromIntegral $ p sr
-      sw = rx rect_width
-      sh = rx rect_height
-      sx = rx rect_x
-      sy = rx rect_y
-      fontSize = fromIntegral (largeFontSize pal) :: Double
-      charW = fontSize * 0.52
-      msgLines = lines msg
-      maxLineLen = case msgLines of
-        [] -> 0
-        ls -> maximum (map length ls)
-      hPadding = fromIntegral (scaleDpi pal 50)
-      textW = fromIntegral maxLineLen * charW + hPadding
-      minW = fromIntegral (scaleDpi pal 400)
-      defaultW = max (sw/3) (min sw minW)
-      maxW = max 0 (sw - hPadding)
-      w = min maxW (max defaultW textW) :: Double
-      x = sx + sw/2 - w/2
-      baseH = fromIntegral (scaleDpi pal 65)
-      h = min sh baseH :: Double
-      y = sy + sh/2 - h/2
-  DZ.dzenConfig
-    (DZ.timeout (toRational timeout)
-     >=> DZ.addArgs ["-x", show x, "-w", show w]
-     >=> DZ.addArgs ["-y", show y, "-h", show h]
-     >=> DZ.font (largeFont pal font)
-     >=> DZ.addArgs ["-fg", fg]
-     >=> DZ.addArgs ["-bg", bg]
-    ) msg
-
--- | Default showMessage using "PragmataPro"
-showMessage :: (Real a) => a -> (String, String) -> String -> X ()
-showMessage = showMessageWithFont "PragmataPro"
