@@ -28,25 +28,25 @@ import           System.Posix.Unistd (getSystemID, nodeName)
 import           XMonad
 import qualified XMonad.StackSet as W
 
--- | Split a rectangle horizontally into 2 panes with a 1px gap, using the given ratio for the left pane.
-splitPane2 :: Rational -> Rectangle -> [Rectangle]
-splitPane2 ratio (Rectangle vx vy vw vh) =
-  let w1  = round (fromIntegral vw * ratio)
-      gap = 1
-      w2  = max 1 (vw - w1 - fromIntegral gap)
+-- | Split a rectangle horizontally into 2 panes with a gap, using the given ratio for the left pane.
+splitPane2 :: Int -> Rational -> Rectangle -> [Rectangle]
+splitPane2 gap ratio (Rectangle vx vy vw vh) =
+  let w1   = round (fromIntegral vw * ratio)
+      gap' = fromIntegral (max 0 gap)
+      w2   = if vw > w1 + gap' then vw - w1 - gap' else 1
   in [ Rectangle vx vy w1 vh
-     , Rectangle (vx + fromIntegral (w1 + gap)) vy w2 vh
+     , Rectangle (vx + fromIntegral (w1 + gap')) vy w2 vh
      ]
 
 -- | Transform any rectangle in the list matching a predicate into 2 split panes.
-splitScreenWhere :: (Rectangle -> Bool) -> Rational -> [Rectangle] -> [Rectangle]
-splitScreenWhere p ratio = concatMap $ \r ->
-  if p r then splitPane2 ratio r else [r]
+splitScreenWhere :: Int -> (Rectangle -> Bool) -> Rational -> [Rectangle] -> [Rectangle]
+splitScreenWhere gap p ratio = concatMap $ \r ->
+  if p r then splitPane2 gap ratio r else [r]
 
 -- | If there is only a single screen, split it into 2 panes; otherwise leave screens as-is.
-splitSingleScreen :: Rational -> [Rectangle] -> [Rectangle]
-splitSingleScreen ratio [r] = splitPane2 ratio r
-splitSingleScreen _ rs      = rs
+splitSingleScreen :: Int -> Rational -> [Rectangle] -> [Rectangle]
+splitSingleScreen gap ratio [r] = splitPane2 gap ratio r
+splitSingleScreen _   _     rs  = rs
 
 -- | Run a screen arrangement plan on the physical screens.
 arrangeScreens :: ([Rectangle] -> [Rectangle]) -> X ()

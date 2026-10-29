@@ -202,10 +202,10 @@ myKeys host xpc conf=
   ] ++
   subtitle "screen splitting": mkNamedKeymap conf
   [ ("M-5 5",  addName "Standard screen arrangement for host"    $ standardScreenArrangement host >> movePointer)
-  , ("M-5 2",  addName "Split current screen by 2 panes 0.5"     $ LS.layoutSplitScreen 2 $ ES.innerSpacing 1 (TwoPane 0 0.5))
-  , ("M-5 1",  addName "Split current screen by 2 panes 0.33"    $ LS.layoutSplitScreen 2 $ ES.innerSpacing 1 (TwoPane 0 0.33))
-  , ("M-5 3",  addName "Split current screen by 3 even columns"  $ LS.layoutSplitScreen 3 $ ES.innerSpacing 1 (Mirror (Tall 3 0 (1/2))))
-  , ("M-5 4",  addName "Split current screen by 3 larger center" $ LS.layoutSplitScreen 3 $ ES.innerSpacing 1 $ (ThreeColMid 1 (3/100) (4/10)))
+  , ("M-5 2",  addName "Split current screen by 2 panes 0.5"     $ LS.layoutSplitScreen 2 $ splitSpacing (TwoPane 0 0.5))
+  , ("M-5 1",  addName "Split current screen by 2 panes 0.33"    $ LS.layoutSplitScreen 2 $ splitSpacing (TwoPane 0 0.33))
+  , ("M-5 3",  addName "Split current screen by 3 even columns"  $ LS.layoutSplitScreen 3 $ splitSpacing (Mirror (Tall 3 0 (1/2))))
+  , ("M-5 4",  addName "Split current screen by 3 larger center" $ LS.layoutSplitScreen 3 $ splitSpacing (ThreeColMid 1 (3/100) (4/10)))
   , ("M-5 m",  addName "Merge screens 1 + 2"                     $ LS.layoutScreens 2  Full)
   , ("M-5 r",  addName "Reset screens from xinerama, rescreen"     rescreen)
   ] ++
@@ -271,6 +271,7 @@ myKeys host xpc conf=
  , ("M-q p",             addName "restart panels"                       $ spawn "panels")
  ]
   where
+    splitSpacing = ES.innerSpacing myScreenSplitGap
     spawnh' cmd' = addName cmd'           $ spawn cmd'
     spawnh  cmd' = addName cmd' $ bindOn' $ spawn cmd'
     spawnhm cmd' = addName cmd' $ bindOn' $ showAppName cmd' >> spawn cmd'
@@ -374,6 +375,9 @@ myDefaultSpacerWidth :: Int
 myDefaultSpacerWidth = 3
 myDefaultBorderWidth :: Dimension
 myDefaultBorderWidth = 4
+-- | Gap in pixels between split virtual screens
+myScreenSplitGap :: Int
+myScreenSplitGap = 5
 
 -- | Workspaces
 myWorkspaces :: [WorkspaceId]
@@ -819,10 +823,10 @@ standardScreenArrangement :: String -> X ()
 standardScreenArrangement host = do
   PF.resetPhysicalFullscreen
   SA.arrangeScreens $ case host of
-    "flam" -> SA.splitScreenWhere (\r -> rect_x r == 0) 0.33
-            . SA.splitScreenWhere (\r -> rect_x r == 3840 && rect_y r >= 1000) 0.50
-    "yak"  -> SA.splitSingleScreen 0.50
-    _      -> SA.splitSingleScreen 0.50
+    "flam" -> SA.splitScreenWhere myScreenSplitGap (\r -> rect_x r == 0) 0.33
+            . SA.splitScreenWhere myScreenSplitGap (\r -> rect_x r == 3840 && rect_y r >= 1000) 0.50
+    "yak"  -> SA.splitSingleScreen myScreenSplitGap 0.50
+    _      -> SA.splitSingleScreen myScreenSplitGap 0.50
 
 -- | bind keys but not for some protected workspaces
 bindOnProtectedWorkspace :: X () -> X () -> X ()
