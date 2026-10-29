@@ -17,13 +17,10 @@ module XMonad.Layout.ScreenArrangement
     , splitScreenWhere
     , splitSingleScreen
     , splitPane2
-    , getHost
     ) where
 
 import           Control.Monad
 import           Data.List (deleteBy, find, sortOn)
-import           System.Environment (lookupEnv)
-import           System.Posix.Unistd (getSystemID, nodeName)
 
 import           XMonad
 import qualified XMonad.StackSet as W
@@ -106,12 +103,3 @@ applyScreenRectangles targetRects = do
            , W.visible = newVis
            , W.hidden  = remainingWs
            }
-
--- | The current machine's hostname (short form): $HOST, $HOSTNAME or uname.
-getHost :: IO String
-getHost = do
-  env <- mapM lookupEnv ["HOST", "HOSTNAME"]
-  h <- case [v | Just v <- env, not (null v)] of
-    h : _ -> return h
-    []    -> nodeName <$> getSystemID
-  return (takeWhile (/= '.') h)

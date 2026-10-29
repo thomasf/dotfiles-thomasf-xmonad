@@ -82,6 +82,7 @@ import           XMonad.Util.NamedWindows (getName)
 import           XMonad.Util.Paste
 import           XMonad.Util.Run
 import           XMonad.Util.WorkspaceCompare
+import qualified XMonad.Util.Host as Host
 import qualified XMonad.Util.ThemePalette as TP
 
 -- Keyboard configuration:
@@ -730,7 +731,7 @@ myNavigation2DConfig = def {
 a00001Config :: IO (XConfig _)
 a00001Config = do
   pal <- io TP.readPalette
-  host <- SA.getHost
+  host <- Host.getHostname
   return . docks . ewmh . Nav2d.withNavigation2DConfig myNavigation2DConfig . myUrgencyHook pal . addDescrKeys' ((confModMask, xK_F1), showKeybindings) (myKeys host $ myXPConfig pal) $ def {
     terminal           = myTerminal
   , focusFollowsMouse  = False
