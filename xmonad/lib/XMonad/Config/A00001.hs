@@ -732,7 +732,7 @@ a00001Config :: IO (XConfig _)
 a00001Config = do
   pal <- io TP.readPalette
   host <- Host.getHostname
-  return . docks . ewmh . Nav2d.withNavigation2DConfig myNavigation2DConfig . myUrgencyHook pal . addDescrKeys' ((confModMask, xK_F1), showKeybindings) (myKeys host $ myXPConfig pal) $ def {
+  return . docks . ewmh . Nav2d.withNavigation2DConfig myNavigation2DConfig . myUrgencyHook pal . addDescrKeys' ((confModMask, xK_F1), showKeybindings pal) (myKeys host $ myXPConfig pal) $ def {
     terminal           = myTerminal
   , focusFollowsMouse  = False
   , borderWidth        = myDefaultBorderWidth
@@ -751,11 +751,28 @@ a00001Config = do
     --  | An empty keymap
     emptyKeys c = mkKeymap c [ ]
 
-    -- | Display keyboard mappings using zenity
-    showKeybindings :: [((KeyMask, KeySym), NamedAction)] -> NamedAction
-    showKeybindings x = addName "Show Keybindings" $ io $ do
-      h <- spawnPipe "zenity --text-info --font='Ubuntu Mono'"
-      hPutStr h (unlines $ showKm x)
+    -- | Display keyboard mappings using rofi
+    showKeybindings :: TP.Palette -> [((KeyMask, KeySym), NamedAction)] -> NamedAction
+    showKeybindings pal x = addName "Show Keybindings" $ io $ do
+      let rofiCmd = unwords
+            [ "rofi -width 95 -height 95 -dmenu -i -markup-rows"
+            , "-kb-element-next '' -kb-element-prev ''"
+            , "-kb-page-next 'Tab' -kb-page-prev 'ISO_Left_Tab'"
+            , "-p 'keybindings'"
+            ]
+          headColor = TP.myFocusedColor pal
+          escapePango [] = []
+          escapePango ('&':cs) = "&amp;" ++ escapePango cs
+          escapePango ('<':cs) = "&lt;"  ++ escapePango cs
+          escapePango ('>':cs) = "&gt;"  ++ escapePango cs
+          escapePango (c:cs)   = c : escapePango cs
+          formatKmLine l
+            | ">> " `isPrefixOf` l =
+                "<b><span foreground='" ++ headColor ++ "'>─── [ " ++ escapePango (drop 3 l) ++ " ] ───</span></b>\0nonselectable\x1ftrue"
+            | otherwise = escapePango l
+          kmLines = map formatKmLine . filter (not . all isSpace) . lines . unlines $ showKm x
+      h <- spawnPipe rofiCmd
+      hPutStr h (unlines kmLines)
       hClose h
       return ()
 
