@@ -120,7 +120,7 @@ fi
 {{- if not (lookPath "hsetroot")}}
 xsetroot -solid {{shellQuote .theme.colors.bg_0}}
 {{- else}}
-hsetroot {{shellQuote (printf "-%s" (or (index .theme.apps "background_mode") "tile"))}} "$(dotfiles theme background-image)" >/dev/null
+hsetroot -root {{shellQuote (printf "-%s" (or (index .theme.apps "background_mode") "tile"))}} "$(dotfiles theme background-image)" >/dev/null
 {{- end}}
 panels
 xrdb -merge ~/.Xresources
