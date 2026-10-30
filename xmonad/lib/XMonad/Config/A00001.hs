@@ -24,6 +24,7 @@ import           Control.Monad
 import           Data.Char (isSpace)
 import           Data.List
 import qualified Data.Map as M
+import           Data.Maybe (fromMaybe)
 import           Data.Monoid
 import           System.Exit ( exitSuccess )
 import           System.IO
@@ -83,6 +84,7 @@ import           XMonad.Util.Paste
 import           XMonad.Util.Run
 import           XMonad.Util.WorkspaceCompare
 import qualified XMonad.Util.Host as Host
+import qualified XMonad.Util.SessionStart as SessionStart
 import qualified XMonad.Util.ThemePalette as TP
 import qualified XMonad.Util.ShowMessage as SM
 
@@ -650,8 +652,13 @@ mySortByXineramaPhysicalRule = mkWsSort $ do
 
 -- | ewmh runs its startup hook, which sets the WM name to "xmonad", before
 -- this one, so LG3D (for Java GUI apps) wins.
-myStartupHook :: X ()
-myStartupHook = setWMName "LG3D"
+myStartupHook :: String -> X ()
+myStartupHook host = do
+  setWMName "LG3D"
+  SessionStart.doOnce $
+    whenJust (defaultScreenArrangementPlan host) $ \_ ->
+      standardScreenArrangement host
+  SessionStart.setSessionStarted
 
 -- Urgency hook
 
@@ -745,7 +752,7 @@ a00001Config = do
   , layoutHook         = myLayoutHook host
   , manageHook         = myManageHook
   , handleEventHook    = myHandleEventHook
-  , startupHook        = myStartupHook
+  , startupHook        = myStartupHook host
   , logHook = myLogHook pal
   } `additionalMouseBindings` myMouseBindings
    where
@@ -835,17 +842,22 @@ myNavConfig = AdjSc.defaultScreenNavConfig
   , AdjSc.navSingleWindowDown   = Just (\r -> rect_x r >= 3840)
   }
 
--- | Standard screen splitting arrangement per host.
+-- | Default screen splitting arrangement per host, if one is configured.
 -- For "flam": leftmost screen split with 0.33 ratio (M-5 1), center screen split with 0.50 ratio (M-5 2).
 -- For "yak": single screen split in two with 0.50 ratio (M-5 2).
+defaultScreenArrangementPlan :: String -> Maybe ([Rectangle] -> [Rectangle])
+defaultScreenArrangementPlan host = case host of
+  "flam" -> Just $ SA.splitScreenWhere myScreenSplitGap (\r -> rect_x r == 0) 0.33
+                 . SA.splitScreenWhere myScreenSplitGap (\r -> rect_x r == 3840 && rect_y r >= 1000) 0.50
+  "yak"  -> Just $ SA.splitSingleScreen myScreenSplitGap 0.50
+  _      -> Nothing
+
+-- | Standard screen splitting arrangement per host.
+-- Applies host-specific screen splitting if configured, otherwise unsplit screens.
 standardScreenArrangement :: String -> X ()
 standardScreenArrangement host = do
   PF.resetPhysicalFullscreen
-  SA.arrangeScreens $ case host of
-    "flam" -> SA.splitScreenWhere myScreenSplitGap (\r -> rect_x r == 0) 0.33
-            . SA.splitScreenWhere myScreenSplitGap (\r -> rect_x r == 3840 && rect_y r >= 1000) 0.50
-    "yak"  -> SA.splitSingleScreen myScreenSplitGap 0.50
-    _      -> SA.splitSingleScreen myScreenSplitGap 0.50
+  SA.arrangeScreens $ fromMaybe id (defaultScreenArrangementPlan host)
 
 -- | bind keys but not for some protected workspaces
 bindOnProtectedWorkspace :: X () -> X () -> X ()
