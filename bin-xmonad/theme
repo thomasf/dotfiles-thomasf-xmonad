@@ -74,11 +74,9 @@ active_index=""
 
 while IFS= read -r line; do
   [ -z "$line" ] && continue
-  mark=$(echo "$line" | cut -c 1)
-  rest=$(echo "$line" | cut -c 3-)
-  ref=$(echo "$rest" | awk '{print $1}')
-  mode=$(echo "$rest" | awk '{print $2}')
-  note=$(echo "$rest" | awk '{$1=""; $2=""; print $0}' | sed -e 's/^[ \t]*//')
+  mark="${line:0:1}"
+  rest="${line:2}"
+  read -r ref mode note <<< "$rest"
 
   refs+=("$ref")
   if [ "$mark" = "*" ]; then
@@ -86,10 +84,11 @@ while IFS= read -r line; do
   fi
 
   if [ -n "$note" ]; then
-    rows+=("$(printf "%-32s %-6s  %s" "$ref" "$mode" "$note")")
+    printf -v row "%-32s %-6s  %s" "$ref" "$mode" "$note"
   else
-    rows+=("$(printf "%-32s %-6s" "$ref" "$mode")")
+    printf -v row "%-32s %-6s" "$ref" "$mode"
   fi
+  rows+=("$row")
   idx=$((idx + 1))
 done < <(dotfiles theme list 2>/dev/null)
 
