@@ -21,6 +21,7 @@ module XMonad.Config.A00001
       a00001Config,
     ) where
 import           Control.Monad
+import qualified Control.Exception as E
 import           Data.Char (isSpace)
 import           Data.List
 import qualified Data.Map as M
@@ -780,8 +781,9 @@ a00001Config = do
             | otherwise = escapePango l
           kmLines = map formatKmLine . filter (not . all isSpace) . lines . unlines $ showKm x
       h <- spawnPipe rofiCmd
-      hPutStr h (unlines kmLines)
-      hClose h
+      let ignoreBrokenPipe :: E.IOException -> IO ()
+          ignoreBrokenPipe = const (return ())
+      E.catch (hPutStr h (unlines kmLines) >> hClose h) ignoreBrokenPipe
       return ()
 
 -- | Working versions of swapup/swapdown
