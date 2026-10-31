@@ -650,11 +650,9 @@ mySortByXineramaPhysicalRule = mkWsSort $ do
 
 -- Startup hook
 
--- | ewmh runs its startup hook, which sets the WM name to "xmonad", before
--- this one, so LG3D (for Java GUI apps) wins.
 myStartupHook :: String -> X ()
 myStartupHook host = do
-  setWMName "LG3D"
+  setWMName "xmonad"
   SessionStart.doOnce $
     whenJust (defaultScreenArrangementPlan host) $ \_ ->
       standardScreenArrangement host
