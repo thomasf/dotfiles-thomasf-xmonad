@@ -84,10 +84,10 @@ windowSwapRight = windowSwapDir R
 
 -- | Swap the workspace with the one on the adjacent screen.
 screenSwapUp, screenSwapDown, screenSwapLeft, screenSwapRight :: ScreenNavConfig -> X ()
-screenSwapUp    = toScreenDir U (\cur t -> W.view cur . W.greedyView t)
-screenSwapDown  = toScreenDir D (\cur t -> W.view cur . W.greedyView t)
-screenSwapLeft  = toScreenDir L (\cur t -> W.view cur . W.greedyView t)
-screenSwapRight = toScreenDir R (\cur t -> W.view cur . W.greedyView t)
+screenSwapUp    = screenSwapDir U
+screenSwapDown  = screenSwapDir D
+screenSwapLeft  = screenSwapDir L
+screenSwapRight = screenSwapDir R
 
 -- | Drag the focused window to the adjacent screen and follow it.
 windowToScreenUp, windowToScreenDown, windowToScreenLeft, windowToScreenRight :: ScreenNavConfig -> X ()
@@ -253,6 +253,23 @@ windowSwapDir dir cfg = do
                 Nothing -> W.view t . W.shift t
               navFocusPointer cfg
               navAfterScreenChange cfg
+
+-- | Swap the current workspace with the one on the adjacent screen and follow focus.
+-- Shows the swapped workspace in dimmed colors on the origin screen, and the active workspace in bright colors on the target screen.
+screenSwapDir :: Direction2D -> ScreenNavConfig -> X ()
+screenSwapDir dir cfg = do
+  ws <- gets windowset
+  let curTag = W.currentTag ws
+  findScreen cfg dir ws >>= \target -> case target of
+    Nothing -> navFocusPointer cfg
+    Just sc -> do
+      let t = W.tag (W.workspace sc)
+      when (t /= curTag) $ do
+        windows (W.greedyView t)
+        navBeforeScreenChange cfg
+        windows (W.view curTag)
+        navFocusPointer cfg
+        navAfterScreenChange cfg
 
 -- | Change the windowset with f, given the current and the adjacent screen's
 -- workspace tags.
