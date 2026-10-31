@@ -22,7 +22,7 @@ module XMonad.Config.A00001
     ) where
 import           Control.Monad
 import qualified Control.Exception as E
-import           Data.Char (isSpace)
+import           Data.Char (isSpace, toLower)
 import           Data.List
 import qualified Data.Map as M
 import           Data.Maybe (fromMaybe)
@@ -477,25 +477,20 @@ myManageHook :: ManageHook
 
 myManageHook =
   fullscreenManageHook <+> namedScratchpadManageHook myScratchPads <+> (composeOne . concat $
-  [ [resource  =? r -?>                                        doIgnore           | r <- ["desktop_window", "kdesktop", "Panel"]]
-  , [className =? c -?>                                        doIgnore           | c <- ["Ediff", "Unity-2d-panel", "Xfce4-notifyd", "Xfdesktop"]]
-  -- , [className =? c -?>                                        doSink             | c <- ["emulator64-mips", "emulator-arm", "emulator-x86"
-  --                                                                                        ,"emulator64-arm", "emulator64-x86", "emulator-mips"]]
+  [ [resource  =? r -?>                                        doIgnore           | r <- ["desktop_window", "Panel"]]
+  , [className =? c -?>                                        doIgnore           | c <- ["Ediff", "Xfdesktop"]]
   , [wmName    =? "Emulator" -?> doFloat]
   , [isTooltip -?>                                             doIgnore]
   , [className =? c <&&> skipTaskbar  -?>                      doIgnore           | c <- ["UE4Editor", "com-eteks-sweethome3d-SweetHome3D"]]
+  , [isPiP -?>                                                 doSideFloat SE]
   , [isDialog  <&&> className =? "org.gnome.Nautilus" -?>      myCenterFloat 0.5 0.3]
   , [resource  =? r -?>                                        doFloat            | r <- ["floating"]]
-  , [className =? c -?>                                        doFloat            | c <- ["Unity-2d-launcher", "Orage", "feh"]]
-  -- NOTE chrome does note set title early enough for this
-  -- , [role      =? "pop-up" <&&> appName =? "google-chrome" <&&> startsWith' title "Developer Tools - "  -?> doSink]
+  , [className =? "feh" -?>                                    doFloat]
   , [role      =? "pop-up" <&&> appName =? "google-chrome" -?> doCenterFloatLarge]
   , [role      =? "GtkFileChooserDialog" -?> doCenterFloatLarge]
   , [role      =? "bubble" -?>                                 doIgnore]
-  , [className =? "Zenity" <&&> title =? "Question" -?>        doCenterFloat]
-  , [className =? "Zenity" -?>                                 doCenterFloatLarge]
-  , [className =? "zenity" <&&> title =? "Question" -?>        doCenterFloat]
-  , [className =? "zenity" -?>                                 doCenterFloatLarge]
+  , [isZenity <&&> title =? "Question" -?>                     doCenterFloat]
+  , [isZenity -?>                                              doCenterFloatLarge]
   , [className =? c -?>                                        doCenterFloat      | c <- ["Xfce4-settings-manager", "Pinentry", "connected-app"]]
   , [className =? c -?>                                        doCenterFloatLarge | c <-  ["Xfce4-appfinder"]]
   , [resource  =? c -?>                                        doCenterFloatLarge | c <-  ["floating-center-large"]]
@@ -511,7 +506,11 @@ myManageHook =
     wmName = stringProperty "WM_WINDOW_NAME"
     doCenterFloatLarge = myCenterFloat 0.95 0.8
 
-    -- doSink = ask >>= doF . W.sink
+    isPiP = title =? "Picture-in-Picture"
+        <||> title =? "Picture in picture"
+        <||> (role =? "pop-up" <&&> fmap ("Meet " `isPrefixOf`) title)
+    isZenity = fmap (map toLower) className =? "zenity"
+
     skipTaskbar = isInProperty "_NET_WM_STATE" "_NET_WM_STATE_SKIP_TASKBAR"
     -- isAbove = isInProperty "_NET_WM_STATE" "_NET_WM_STATE_ABOVE"
     isTooltip = isInProperty "_NET_WM_WINDOW_TYPE" "_NET_WM_WINDOW_TYPE_TOOLTIP"
