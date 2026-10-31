@@ -95,8 +95,8 @@ import qualified XMonad.Util.ShowMessage as SM
 confModMask :: KeyMask
 confModMask = mod4Mask
 
-myKeys :: String -> XP.XPConfig -> XConfig Layout -> [((KeyMask, KeySym), NamedAction)]
-myKeys host xpc conf=
+myKeys :: String -> TP.Palette -> XP.XPConfig -> XConfig Layout -> [((KeyMask, KeySym), NamedAction)]
+myKeys host pal xpc conf=
   subtitle "Cyclic window actions (J/K) [+=focus] [+control=cycle+keep focus] [+shift=move]": mkNamedKeymap conf
   [ ("M-j",             addName "Focus next window on workspace"          _windowFocusDown)
   , ("M-k",             addName "Focus previous window on workspace"      _windowFocusUp)
@@ -276,7 +276,7 @@ myKeys host xpc conf=
  , ("M-q p",             addName "restart panels"                       $ spawn "panels")
  ]
   where
-    splitSpacing = ES.innerSpacing myScreenSplitGap
+    splitSpacing = ES.innerSpacing (myScreenSplitGap pal)
     spawnh' cmd' = addName cmd'           $ spawn cmd'
     spawnh  cmd' = addName cmd' $ bindOn' $ spawn cmd'
     spawnhm cmd' = addName cmd' $ bindOn' $ showAppName cmd' >> spawn cmd'
@@ -377,12 +377,20 @@ myMouseBindings =
 -- | Colors and theme configuration are provided by XMonad.Util.ThemePalette
 
 myDefaultSpacerWidth :: Int
-myDefaultSpacerWidth = 3
+myDefaultSpacerWidth = 2
+mySpacerWidth :: TP.Palette -> Int
+mySpacerWidth pal = max 1 (TP.scaleDpi pal (fromIntegral myDefaultSpacerWidth))
+
 myDefaultBorderWidth :: Dimension
-myDefaultBorderWidth = 4
+myDefaultBorderWidth = 2
+myBorderWidth :: TP.Palette -> Dimension
+myBorderWidth pal = fromIntegral (max 1 (TP.scaleDpi pal (fromIntegral myDefaultBorderWidth)))
+
 -- | Gap in pixels between split virtual screens
-myScreenSplitGap :: Int
-myScreenSplitGap = 5
+myDefaultScreenSplitGap :: Int
+myDefaultScreenSplitGap = 4
+myScreenSplitGap :: TP.Palette -> Int
+myScreenSplitGap pal = max 1 (TP.scaleDpi pal (fromIntegral myDefaultScreenSplitGap))
 
 -- | Workspaces
 myWorkspaces :: [WorkspaceId]
@@ -411,8 +419,8 @@ tallHosts :: [String]
 tallHosts = ["transwhale", "flam", "yak"]
 
 -- | Layout hook
-myLayoutHook :: String -> _
-myLayoutHook host =
+myLayoutHook :: TP.Palette -> String -> _
+myLayoutHook pal host =
   onWorkspace "video" (renameStar full) .
   onWorkspace "vbox" (renameStar full) .
   onWorkspace "android" (renameStar simpleFloat) .
@@ -445,7 +453,7 @@ myLayoutHook host =
     -- helpers
     refmin l = mkToggle (single REFLECTX) l
     mySpacing = ES.innerSpacing
-    ss = mySpacing myDefaultSpacerWidth
+    ss = mySpacing (mySpacerWidth pal)
     rename name' = renamed [Replace name']
     renameStar = renamed [Replace "*"]
 
@@ -653,8 +661,9 @@ mySortByXineramaPhysicalRule = mkWsSort $ do
 myStartupHook :: String -> X ()
 myStartupHook host = do
   setWMName "xmonad"
+  pal <- io TP.readPalette
   SessionStart.doOnce $
-    whenJust (defaultScreenArrangementPlan host) $ \_ ->
+    whenJust (defaultScreenArrangementPlan pal host) $ \_ ->
       standardScreenArrangement host
   SessionStart.setSessionStarted
 
@@ -738,16 +747,16 @@ a00001Config :: IO (XConfig _)
 a00001Config = do
   pal <- io TP.readPalette
   host <- Host.getHostname
-  return . docks . ewmh . Nav2d.withNavigation2DConfig myNavigation2DConfig . myUrgencyHook pal . addDescrKeys' ((confModMask, xK_F1), showKeybindings pal) (myKeys host $ myXPConfig pal) $ def {
+  return . docks . ewmh . Nav2d.withNavigation2DConfig myNavigation2DConfig . myUrgencyHook pal . addDescrKeys' ((confModMask, xK_F1), showKeybindings pal) (myKeys host pal $ myXPConfig pal) $ def {
     terminal           = myTerminal
   , focusFollowsMouse  = False
-  , borderWidth        = myDefaultBorderWidth
+  , borderWidth        = myBorderWidth pal
   , modMask            = confModMask
   , workspaces         = myWorkspaces
   , normalBorderColor  = TP.myNormalBorderColor pal
   , focusedBorderColor = TP.myFocusedColor pal
   , keys               = emptyKeys
-  , layoutHook         = myLayoutHook host
+  , layoutHook         = myLayoutHook pal host
   , manageHook         = myManageHook
   , handleEventHook    = myHandleEventHook
   , startupHook        = myStartupHook host
@@ -844,19 +853,22 @@ myNavConfig = AdjSc.defaultScreenNavConfig
 -- | Default screen splitting arrangement per host, if one is configured.
 -- For "flam": leftmost screen split with 0.33 ratio (M-5 1), center screen split with 0.50 ratio (M-5 2).
 -- For "yak": single screen split in two with 0.50 ratio (M-5 2).
-defaultScreenArrangementPlan :: String -> Maybe ([Rectangle] -> [Rectangle])
-defaultScreenArrangementPlan host = case host of
-  "flam" -> Just $ SA.splitScreenWhere myScreenSplitGap (\r -> rect_x r == 0) 0.33
-                 . SA.splitScreenWhere myScreenSplitGap (\r -> rect_x r == 3840 && rect_y r >= 1000) 0.50
-  "yak"  -> Just $ SA.splitSingleScreen myScreenSplitGap 0.50
+defaultScreenArrangementPlan :: TP.Palette -> String -> Maybe ([Rectangle] -> [Rectangle])
+defaultScreenArrangementPlan pal host = case host of
+  "flam" -> Just $ SA.splitScreenWhere gap (\r -> rect_x r == 0) 0.33
+                 . SA.splitScreenWhere gap (\r -> rect_x r == 3840 && rect_y r >= 1000) 0.50
+  "yak"  -> Just $ SA.splitSingleScreen gap 0.50
   _      -> Nothing
+  where
+    gap = myScreenSplitGap pal
 
 -- | Standard screen splitting arrangement per host.
 -- Applies host-specific screen splitting if configured, otherwise unsplit screens.
 standardScreenArrangement :: String -> X ()
 standardScreenArrangement host = do
   PF.resetPhysicalFullscreen
-  SA.arrangeScreens $ fromMaybe id (defaultScreenArrangementPlan host)
+  pal <- io TP.readPalette
+  SA.arrangeScreens $ fromMaybe id (defaultScreenArrangementPlan pal host)
 
 -- | bind keys but not for some protected workspaces
 bindOnProtectedWorkspace :: X () -> X () -> X ()
