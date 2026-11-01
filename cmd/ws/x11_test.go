@@ -11,7 +11,7 @@ import (
 )
 
 func TestWindowRows(t *testing.T) {
-	wins := []window{
+	wins := []Window{
 		{
 			id:           1,
 			title:        "a <b>\nc",
@@ -103,8 +103,8 @@ func TestWindowRows(t *testing.T) {
 			optMap[opts[i]] = opts[i+1]
 		}
 		display := optMap["display"]
-		blue := paletteColour("blue", "#0072d4")
-		bg0 := paletteColour("bg_0", "#ffffff")
+		blue := paletteColor("blue")
+		bg0 := paletteColor("bg_0")
 		if !strings.Contains(display, "<b>!</b>") || !strings.Contains(display, blue) || !strings.Contains(display, bg0) {
 			t.Errorf("urgent display %q missing inverted bold ! badge (blue: %s, bg0: %s)", display, blue, bg0)
 		}
@@ -137,7 +137,7 @@ func TestWindowRows(t *testing.T) {
 		if !strings.Contains(display, ">here-ws</span>") {
 			t.Errorf("current desktop display %q missing 'here-ws' workspace name", display)
 		}
-		green := paletteColour("green", "#859900")
+		green := paletteColor("green")
 		if !strings.Contains(display, green) {
 			t.Errorf("current desktop display %q missing green color %q", display, green)
 		}
@@ -157,7 +157,7 @@ func TestWindowRows(t *testing.T) {
 }
 
 func TestSortWindows(t *testing.T) {
-	wins := []window{
+	wins := []Window{
 		{id: 1, title: "active window", active: true, stackRank: 10},
 		{id: 2, title: "oldest window", stackRank: 1},
 		{id: 3, title: "urgent window", urgent: true, stackRank: 5},
@@ -180,14 +180,14 @@ func TestSortWindows(t *testing.T) {
 }
 
 func TestProcessTree(t *testing.T) {
-	tree := &procTree{
+	tree := &ProcTree{
 		children: map[int][]int{
 			100: {101},
 			101: {102, 103},
 			102: {104}, // claude spawns gopls in another dir
 			200: {201}, // emacs spawns gopls in another dir
 		},
-		nodes: map[int]*procNode{
+		nodes: map[int]*ProcNode{
 			100: {pid: 100, ppid: 1, comm: "alacritty", cwd: "/home/t"},
 			101: {pid: 101, ppid: 100, comm: "bash", cmdline: []string{"bash"}, cwd: "/home/t/src/dotfiles/xmonad"},
 			102: {pid: 102, ppid: 101, comm: "node", cmdline: []string{"node", "/usr/bin/claude", "--resume"}, cwd: "/home/t/src/dotfiles/xmonad"},
@@ -204,8 +204,8 @@ func TestProcessTree(t *testing.T) {
 	if len(desc) != 4 {
 		t.Fatalf("descendants count = %d, want 4", len(desc))
 	}
-	terms, activeCmd, cwd := tree.processInfo(100)
-	termsStr := strings.Join(terms, " ")
+	d := tree.details(100)
+	termsStr := strings.Join(d.searchTerms, " ")
 	for _, want := range []string{"alacritty", "bash", "node", "claude", "git", "status", "xmonad", "dotfiles"} {
 		if !strings.Contains(termsStr, want) {
 			t.Errorf("terms %q does not contain %q", termsStr, want)
@@ -214,15 +214,15 @@ func TestProcessTree(t *testing.T) {
 	if strings.Contains(termsStr, "/tmp/other/module") || strings.Contains(termsStr, "other") {
 		t.Errorf("terms %q should not contain child daemon cwd", termsStr)
 	}
-	if activeCmd == "" {
+	if d.activeCmd == "" {
 		t.Errorf("activeCmd should not be empty")
 	}
-	if cwd != "/home/t/src/dotfiles/xmonad" {
-		t.Errorf("terminal cwd = %q, want %q", cwd, "/home/t/src/dotfiles/xmonad")
+	if d.cwd != "/home/t/src/dotfiles/xmonad" {
+		t.Errorf("terminal cwd = %q, want %q", d.cwd, "/home/t/src/dotfiles/xmonad")
 	}
 
 	// 2. Emacs (GUI app) should use root cwd (/home/t/src/dotfiles/xmonad), NOT gopls (/tmp/other/module)
-	_, _, emacsCwd := tree.processInfo(200)
+	emacsCwd := tree.details(200).cwd
 	if emacsCwd != "/home/t/src/dotfiles/xmonad" {
 		t.Errorf("emacs cwd = %q, want %q", emacsCwd, "/home/t/src/dotfiles/xmonad")
 	}
@@ -248,5 +248,34 @@ func TestTextProperty(t *testing.T) {
 	latin1 := &xproto.GetPropertyReply{Type: xproto.AtomString, Value: []byte("caf\xe9")}
 	if got := textProperty(latin1); got != "café" {
 		t.Errorf("textProperty(STRING) = %q, want %q", got, "café")
+	}
+}
+
+func TestScreenAt(t *testing.T) {
+	mons := []Monitor{
+		{"HDMI-0", Rect{0, 2160, 3840, 2160}},
+		{"DP-0", Rect{3840, 2160, 3840, 2160}},
+		{"DP-2", Rect{3840, 0, 3840, 2160}},
+	}
+	// DP-0 is split into two screens side by side, DP-2 into two stacked.
+	origins := []Point{{0, 2160}, {3842, 2162}, {5762, 2162}, {3840, 0}, {3840, 1080}, {3842, 2162}}
+	for _, tt := range []struct {
+		o    Point
+		want Rect
+		mon  string
+	}{
+		{Point{0, 2160}, Rect{0, 2160, 3840, 2160}, "HDMI-0"},
+		{Point{3842, 2162}, Rect{3842, 2162, 1920, 2158}, "DP-0"},
+		{Point{5762, 2162}, Rect{5762, 2162, 1918, 2158}, "DP-0"},
+		{Point{3840, 0}, Rect{3840, 0, 3840, 1080}, "DP-2"},
+		{Point{3840, 1080}, Rect{3840, 1080, 3840, 1080}, "DP-2"},
+	} {
+		got, m, err := screenAt(tt.o, origins, mons)
+		if err != nil || got != tt.want || m.name != tt.mon {
+			t.Errorf("screenAt(%v) = %v, %s, %v, want %v, %s", tt.o, got, m.name, err, tt.want, tt.mon)
+		}
+	}
+	if _, _, err := screenAt(Point{99999, 0}, origins, mons); err == nil {
+		t.Error("screenAt outside every monitor succeeded")
 	}
 }

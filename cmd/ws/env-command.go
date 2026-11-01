@@ -48,12 +48,12 @@ if the file does not exist.
 // file named like the directory w works in, or like its prefix if it
 // has none. If w is in a worktree and that file does not exist, it is
 // the file of the main checkout of the project, if that one exists.
-func envFile(w workspace) (string, error) {
+func envFile(w Workspace) (string, error) {
 	name, err := ownEnvFile(w)
-	if err != nil || w.worktree() == "" || exists(name) {
+	if err != nil || w.worktree() == "" || fileExists(name) {
 		return name, err
 	}
-	if main, err := ownEnvFile(workspace(w.project())); err == nil && exists(main) {
+	if main, err := ownEnvFile(Workspace(w.project())); err == nil && fileExists(main) {
 		return main, nil
 	}
 	return name, nil
@@ -61,7 +61,7 @@ func envFile(w workspace) (string, error) {
 
 // ownEnvFile returns the environment file of w, without looking at the
 // main checkout for a worktree.
-func ownEnvFile(w workspace) (string, error) {
+func ownEnvFile(w Workspace) (string, error) {
 	name := w.prefix()
 	dir, err := workspaceDir(w, noPick)
 	switch {
@@ -71,11 +71,6 @@ func ownEnvFile(w workspace) (string, error) {
 		return "", err
 	}
 	return configFile("wsenv", name)
-}
-
-func exists(name string) bool {
-	_, err := os.Stat(name)
-	return err == nil
 }
 
 // readEnv returns the contents of the environment file name. It

@@ -10,58 +10,6 @@ import (
 	"time"
 )
 
-func TestSplitCommand(t *testing.T) {
-	tests := []struct {
-		input   string
-		want    []string
-		wantErr bool
-	}{
-		{
-			input: "htop",
-			want:  []string{"htop"},
-		},
-		{
-			input: "  ping   8.8.8.8  ",
-			want:  []string{"ping", "8.8.8.8"},
-		},
-		{
-			input: `echo "hello world"`,
-			want:  []string{"echo", "hello world"},
-		},
-		{
-			input: `echo 'foo bar' baz`,
-			want:  []string{"echo", "foo bar", "baz"},
-		},
-		{
-			input: `git commit -m "commit message"`,
-			want:  []string{"git", "commit", "-m", "commit message"},
-		},
-		{
-			input:   `echo "unclosed`,
-			wantErr: true,
-		},
-		{
-			input: "",
-			want:  nil,
-		},
-		{
-			input: "   ",
-			want:  nil,
-		},
-	}
-
-	for _, tc := range tests {
-		got, err := splitCommand(tc.input)
-		if (err != nil) != tc.wantErr {
-			t.Errorf("splitCommand(%q) err = %v, wantErr = %v", tc.input, err, tc.wantErr)
-			continue
-		}
-		if !slices.Equal(got, tc.want) {
-			t.Errorf("splitCommand(%q) = %v, want %v", tc.input, got, tc.want)
-		}
-	}
-}
-
 func TestPathBinaries(t *testing.T) {
 	tmpDir := t.TempDir()
 	binDir1 := filepath.Join(tmpDir, "bin1")
@@ -143,49 +91,3 @@ func mustWriteExec(t *testing.T, path string, executable bool) {
 		t.Fatal(err)
 	}
 }
-
-func TestFrecencyScore(t *testing.T) {
-	now := time.Now()
-	eRecent := frecencyEntry{count: 2, last: now.Add(-1 * time.Hour)}
-	eDay := frecencyEntry{count: 2, last: now.Add(-10 * time.Hour)}
-	eWeek := frecencyEntry{count: 2, last: now.Add(-3 * 24 * time.Hour)}
-	eMonth := frecencyEntry{count: 2, last: now.Add(-15 * 24 * time.Hour)}
-	eOld := frecencyEntry{count: 2, last: now.Add(-40 * 24 * time.Hour)}
-
-	if s := frecencyScore(eRecent, now); s != 200 {
-		t.Errorf("eRecent score = %v, want 200", s)
-	}
-	if s := frecencyScore(eDay, now); s != 160 {
-		t.Errorf("eDay score = %v, want 160", s)
-	}
-	if s := frecencyScore(eWeek, now); s != 120 {
-		t.Errorf("eWeek score = %v, want 120", s)
-	}
-	if s := frecencyScore(eMonth, now); s != 80 {
-		t.Errorf("eMonth score = %v, want 80", s)
-	}
-	if s := frecencyScore(eOld, now); s != 40 {
-		t.Errorf("eOld score = %v, want 40", s)
-	}
-}
-
-func TestSortByFrecency(t *testing.T) {
-	tmpDir := t.TempDir()
-	historyPath := filepath.Join(tmpDir, "run_history")
-
-	bins := []string{"alacritty", "cat", "echo", "firefox", "htop", "ls", "vi", "zsh"}
-
-	// Record some launches
-	recordFrecency("htop", historyPath)
-	recordFrecency("htop", historyPath)
-	recordFrecency("firefox", historyPath)
-
-	sortByFrecency(bins, historyPath)
-
-	// htop (score 200), firefox (score 100), then remaining in alphabetical order
-	want := []string{"htop", "firefox", "alacritty", "cat", "echo", "ls", "vi", "zsh"}
-	if !slices.Equal(bins, want) {
-		t.Errorf("sortByFrecency = %v, want %v", bins, want)
-	}
-}
-

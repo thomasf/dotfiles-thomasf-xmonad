@@ -7,11 +7,10 @@ import (
 	"errors"
 	"fmt"
 	"html"
-	"log"
 	"os"
-	"os/exec"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	"golang.org/x/term"
 )
@@ -19,6 +18,15 @@ import (
 var errCancelled = errors.New("cancelled")
 
 var stdin = bufio.NewReader(os.Stdin)
+
+// readPromptLine prints prompt to stderr and reads a trimmed line from stdin.
+func readPromptLine(prompt string) (string, error) {
+	if prompt != "" {
+		fmt.Fprint(os.Stderr, prompt)
+	}
+	line, err := stdin.ReadString('\n')
+	return strings.TrimSpace(line), err
+}
 
 // isTerminal reports whether f is a terminal. Unlike checking for a
 // character device, it is false for /dev/null, which xmonad gives the
@@ -47,9 +55,8 @@ func chooseRows(msg string, options, rows []string, selected int) (int, error) {
 		for i, o := range options {
 			fmt.Fprintf(os.Stderr, "%3d  %s\n", i+1, o)
 		}
-		fmt.Fprint(os.Stderr, "choice: ")
-		line, _ := stdin.ReadString('\n')
-		i, err := strconv.Atoi(strings.TrimSpace(line))
+		line, _ := readPromptLine("choice: ")
+		i, err := strconv.Atoi(line)
 		if err != nil || i < 1 || i > len(options) {
 			return 0, errCancelled
 		}
@@ -72,7 +79,7 @@ func chooseRows(msg string, options, rows []string, selected int) (int, error) {
 	if err != nil {
 		return 0, errCancelled
 	}
-	i, err := strconv.Atoi(strings.TrimSpace(string(out)))
+	i, _, err := parseRofiIndex(out)
 	if err != nil || i < 0 || i >= len(options) {
 		return 0, errCancelled
 	}
@@ -83,41 +90,34 @@ func chooseRows(msg string, options, rows []string, selected int) (int, error) {
 // "create", where choose asks.
 func confirm(msg, action string) bool {
 	if isTerminal(os.Stdin) {
-		fmt.Fprintf(os.Stderr, "%s\n%s%s? [y/N] ", msg, strings.ToUpper(action[:1]), action[1:])
-		line, _ := stdin.ReadString('\n')
-		a := strings.ToLower(strings.TrimSpace(line))
+		actionTitle := action
+		if len(action) > 0 {
+			actionTitle = strings.ToUpper(action[:1]) + action[1:]
+		}
+		p := fmt.Sprintf("%s\n%s? [y/N] ", msg, actionTitle)
+		line, _ := readPromptLine(p)
+		a := strings.ToLower(line)
 		return a == "y" || a == "yes"
 	}
 	i, err := choose(msg, []string{action, "cancel"})
 	return err == nil && i == 0
 }
 
-// notify tells the user msg in a notification, or on standard error
-// if standard input is a terminal. A notification of failure stays
-// until dismissed, others go after a moment; on a terminal, failures
-// are left to the caller to report. The notification replaces the one
-// whose id is replace, unless that is "". notify returns the id of
-// its notification, or "" if there is none.
-func notify(replace string, failed bool, msg string) string {
-	if isTerminal(os.Stdin) {
-		if !failed {
-			fmt.Fprintln(os.Stderr, msg)
-		}
-		return ""
-	}
-	// The dunst rule for app shorter shows the summary and the body
-	// on one line, for a short time.
-	args := []string{"--print-id", "--app-name", "shorter"}
-	if failed {
-		args = []string{"--print-id", "--app-name", "ws", "--urgency", "critical"}
-	}
-	if replace != "" {
-		args = append(args, "--replace-id", replace)
-	}
-	out, err := exec.Command("notify-send", append(args, "ws", html.EscapeString(msg))...).Output()
-	if err != nil {
-		log.Printf("notify-send: %v", err)
-		return ""
-	}
-	return strings.TrimSpace(string(out))
+// padRight returns spaces to pad string s to width w runes.
+func padRight(s string, w int) string {
+	return strings.Repeat(" ", max(0, w-utf8.RuneCountInString(s)))
+}
+
+// --- Pango Markup Helpers ---
+
+func pangoColor(text, color string) string {
+	return fmt.Sprintf(`<span foreground="%s">%s</span>`, color, html.EscapeString(text))
+}
+
+func pangoDim(text string, alphaPct int) string {
+	return fmt.Sprintf(`<span fgalpha="%d%%">%s</span>`, alphaPct, html.EscapeString(text))
+}
+
+func pangoBold(text string) string {
+	return "<b>" + html.EscapeString(text) + "</b>"
 }

@@ -6,12 +6,10 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"slices"
 	"strconv"
 	"strings"
-	"time"
 )
 
 var runBlacklist = map[string]bool{
@@ -62,10 +60,10 @@ var powerCommands = map[string]bool{
 	"suspend":   true,
 }
 
-type launchMode int
+type LaunchMode int
 
 const (
-	modeDefault launchMode = iota
+	modeDefault LaunchMode = iota
 	modeTerm
 	modeSudoTerm
 	modeHoldTerm
@@ -82,8 +80,7 @@ listing executables found in $PATH with fast directory caching.
     Alt+h     run in a terminal window in hold mode
 
 Terminal tools and sudo utilities are automatically run in a terminal window.
-Run starts commands in the directory and environment of the current workspace
-if it has one.
+Run starts commands in the directory of the current workspace if it has one.
 `)
 	prompt := fs.String("p", "launch", "rofi `prompt`")
 	lines := fs.Int("lines", 25, "rofi `lines`")
@@ -92,6 +89,16 @@ if it has one.
 	flagSudo := fs.Bool("sudo", false, "force run in a terminal window with sudo")
 	flagHold := fs.Bool("hold", false, "force run in a terminal window in hold mode")
 	fs.Parse(args)
+
+	nFlags := 0
+	for _, b := range []*bool{flagTerm, flagSudo, flagHold} {
+		if *b {
+			nFlags++
+		}
+	}
+	if nFlags > 1 {
+		return errors.New("cannot specify more than one of -term, -sudo, -hold")
+	}
 
 	mode := modeDefault
 	switch {
@@ -111,7 +118,7 @@ if it has one.
 	if err != nil {
 		return err
 	}
-	sortByFrecency(bins, runHistoryPath())
+	loadFrecency(runHistoryPath()).sort(bins)
 
 	rofiArgs := []string{
 		"-dmenu",
@@ -130,13 +137,13 @@ if it has one.
 	cmd.Stdin = strings.NewReader(strings.Join(bins, "\n"))
 	out, err := cmd.Output()
 
-	if ee, ok := errors.AsType[*exec.ExitError](err); ok {
-		switch ee.ExitCode() {
-		case 10:
+	if key, ok := rofiCustomKey(err); ok {
+		switch key {
+		case 1:
 			mode = modeTerm
-		case 11:
+		case 2:
 			mode = modeSudoTerm
-		case 12:
+		case 3:
 			mode = modeHoldTerm
 		default:
 			return errFalse
@@ -152,7 +159,7 @@ if it has one.
 
 	parts, err := splitCommand(line)
 	if err != nil {
-		notify("", true, err.Error())
+		notifyError("", err.Error())
 		return err
 	}
 	if len(parts) == 0 {
@@ -162,9 +169,9 @@ if it has one.
 	return execTarget(parts[0], parts[1:], mode)
 }
 
-func execTarget(cmd string, args []string, mode launchMode) error {
-	recordFrecency(cmd, runHistoryPath())
-	setupWorkspaceEnv()
+func execTarget(cmd string, args []string, mode LaunchMode) error {
+	loadFrecency(runHistoryPath()).record(cmd)
+	chdirWorkspaceDir()
 
 	var target string
 	var targetArgs []string
@@ -200,13 +207,13 @@ func execTarget(cmd string, args []string, mode launchMode) error {
 	}
 
 	if err := execLauncher(target, targetArgs...); err != nil {
-		notify("", true, fmt.Sprintf("%s: %v", target, err))
+		notifyError("", fmt.Sprintf("%s: %v", target, err))
 		return err
 	}
 	return nil
 }
 
-func setupWorkspaceEnv() {
+func chdirWorkspaceDir() {
 	w, err := currentWorkspace()
 	if err != nil {
 		return
@@ -214,30 +221,11 @@ func setupWorkspaceEnv() {
 	dir, err := workspaceDir(w, noPick)
 	if err == nil && dir != "" {
 		_ = os.Chdir(dir)
-		os.Setenv("WS_DIR", dir)
-	}
-	suffix, _ := w.suffix()
-	for k, v := range map[string]string{
-		"WS_NAME":     string(w),
-		"WS_PREFIX":   w.prefix(),
-		"WS_PROJECT":  w.project(),
-		"WS_WORKTREE": w.worktree(),
-		"WS_SUFFIX":   suffix,
-	} {
-		os.Setenv(k, v)
 	}
 }
 
 func runCachePath() string {
-	cacheDir := os.Getenv("XDG_CACHE_HOME")
-	if cacheDir == "" {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return ""
-		}
-		cacheDir = filepath.Join(home, ".cache")
-	}
-	return filepath.Join(cacheDir, "ws", "run_cache")
+	return xdgCacheFile("run_cache")
 }
 
 func pathBinaries() ([]string, error) {
@@ -329,182 +317,5 @@ func scanPathBinaries(pathEnv string) []string {
 }
 
 func writeCachedBinaries(cachePath string, bins []string) {
-	if err := os.MkdirAll(filepath.Dir(cachePath), 0o755); err != nil {
-		return
-	}
-	tmp := cachePath + ".tmp"
-	data := strings.Join(bins, "\n")
-	if err := os.WriteFile(tmp, []byte(data), 0o644); err != nil {
-		return
-	}
-	_ = os.Rename(tmp, cachePath)
-}
-
-func splitCommand(s string) ([]string, error) {
-	var args []string
-	var cur strings.Builder
-	var inQuote rune
-	var escaped bool
-
-	for _, r := range s {
-		if escaped {
-			cur.WriteRune(r)
-			escaped = false
-			continue
-		}
-		if r == '\\' && inQuote != '\'' {
-			escaped = true
-			continue
-		}
-		if inQuote != 0 {
-			if r == inQuote {
-				inQuote = 0
-			} else {
-				cur.WriteRune(r)
-			}
-			continue
-		}
-		if r == '\'' || r == '"' {
-			inQuote = r
-			continue
-		}
-		if r == ' ' || r == '\t' || r == '\n' {
-			if cur.Len() > 0 {
-				args = append(args, cur.String())
-				cur.Reset()
-			}
-			continue
-		}
-		cur.WriteRune(r)
-	}
-	if inQuote != 0 {
-		return nil, fmt.Errorf("unclosed quote in %q", s)
-	}
-	if escaped {
-		cur.WriteRune('\\')
-	}
-	if cur.Len() > 0 {
-		args = append(args, cur.String())
-	}
-	return args, nil
-}
-
-func runHistoryPath() string {
-	cacheDir := os.Getenv("XDG_CACHE_HOME")
-	if cacheDir == "" {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return ""
-		}
-		cacheDir = filepath.Join(home, ".cache")
-	}
-	return filepath.Join(cacheDir, "ws", "run_history")
-}
-
-type frecencyEntry struct {
-	count int
-	last  time.Time
-}
-
-func frecencyScore(e frecencyEntry, now time.Time) float64 {
-	if e.count <= 0 {
-		return 0
-	}
-	age := now.Sub(e.last)
-	var weight float64
-	switch {
-	case age < 4*time.Hour:
-		weight = 100
-	case age < 24*time.Hour:
-		weight = 80
-	case age < 7*24*time.Hour:
-		weight = 60
-	case age < 30*24*time.Hour:
-		weight = 40
-	default:
-		weight = 20
-	}
-	return float64(e.count) * weight
-}
-
-func loadFrecencyHistory(path string) map[string]frecencyEntry {
-	hist := make(map[string]frecencyEntry)
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return hist
-	}
-	for line := range strings.SplitSeq(string(data), "\n") {
-		fields := strings.Split(line, "\t")
-		if len(fields) < 3 {
-			continue
-		}
-		name := fields[0]
-		count, err := strconv.Atoi(fields[1])
-		if err != nil {
-			continue
-		}
-		ts, err := strconv.ParseInt(fields[2], 10, 64)
-		if err != nil {
-			continue
-		}
-		hist[name] = frecencyEntry{
-			count: count,
-			last:  time.Unix(ts, 0),
-		}
-	}
-	return hist
-}
-
-func saveFrecencyHistory(path string, hist map[string]frecencyEntry) {
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-		return
-	}
-	var b strings.Builder
-	for name, entry := range hist {
-		fmt.Fprintf(&b, "%s\t%d\t%d\n", name, entry.count, entry.last.Unix())
-	}
-	tmp := path + ".tmp"
-	if err := os.WriteFile(tmp, []byte(b.String()), 0o644); err != nil {
-		return
-	}
-	_ = os.Rename(tmp, path)
-}
-
-func recordFrecency(cmd, historyPath string) {
-	if historyPath == "" || cmd == "" {
-		return
-	}
-	hist := loadFrecencyHistory(historyPath)
-	entry := hist[cmd]
-	entry.count++
-	entry.last = time.Now()
-	hist[cmd] = entry
-	saveFrecencyHistory(historyPath, hist)
-}
-
-func sortByFrecency(bins []string, historyPath string) {
-	if historyPath == "" {
-		return
-	}
-	hist := loadFrecencyHistory(historyPath)
-	if len(hist) == 0 {
-		return
-	}
-	now := time.Now()
-	scores := make(map[string]float64, len(hist))
-	for name, entry := range hist {
-		scores[name] = frecencyScore(entry, now)
-	}
-
-	slices.SortStableFunc(bins, func(a, b string) int {
-		sa := scores[a]
-		sb := scores[b]
-		if sa != sb {
-			if sb > sa {
-				return 1
-			}
-			return -1
-		}
-		return strings.Compare(a, b)
-	})
+	_ = writeAtomic(cachePath, []byte(strings.Join(bins, "\n")), 0o644)
 }

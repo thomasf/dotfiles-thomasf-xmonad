@@ -8,7 +8,6 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"syscall"
 )
 
 func runAction(args []string) error {
@@ -24,9 +23,6 @@ for:
     term, terminal, bot   term
     emacs                 e
     files                 nautilus, in the workspace directory
-
-The launchers find the workspace in the environment variables WS_NAME,
-WS_PREFIX, WS_PROJECT, WS_WORKTREE, WS_SUFFIX and WS_DIR.
 `)
 	fs.Parse(args)
 	w, err := workspaceArg(fs)
@@ -40,7 +36,7 @@ WS_PREFIX, WS_PROJECT, WS_WORKTREE, WS_SUFFIX and WS_DIR.
 // a workspace in a worktree that does not exist, it first offers to
 // create the worktree. On success, it does not return if it starts a
 // launcher for the suffix.
-func action(w workspace) error {
+func action(w Workspace) error {
 	dir, err := workspaceDir(w, rofiPick)
 	if errors.Is(err, errNoDir) && w.worktree() != "" {
 		// A new worktree workspace: offer to create the worktree.
@@ -63,16 +59,6 @@ func action(w workspace) error {
 		log.Print(err)
 	}
 	suffix, _ := w.suffix()
-	for k, v := range map[string]string{
-		"WS_NAME":     string(w),
-		"WS_PREFIX":   w.prefix(),
-		"WS_PROJECT":  w.project(),
-		"WS_WORKTREE": w.worktree(),
-		"WS_SUFFIX":   suffix,
-		"WS_DIR":      dir,
-	} {
-		os.Setenv(k, v)
-	}
 
 	if path, err := exec.LookPath("w." + w.project()); err == nil {
 		cmd := exec.Command(path)
@@ -94,13 +80,4 @@ func action(w workspace) error {
 		return execLauncher("nautilus", "--new-window", "--no-default-window", "--no-desktop", cmp.Or(dir, home))
 	}
 	return nil
-}
-
-// execLauncher replaces ws with the program name from $PATH.
-func execLauncher(name string, args ...string) error {
-	path, err := exec.LookPath(name)
-	if err != nil {
-		return err
-	}
-	return syscall.Exec(path, append([]string{name}, args...), os.Environ())
 }

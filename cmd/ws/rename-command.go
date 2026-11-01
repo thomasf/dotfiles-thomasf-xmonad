@@ -17,9 +17,7 @@ Rename renames the current workspace, asking with rofi if name is not given,
 with a WS_RENAME client message that the xmonad configuration handles.
 `)
 	fs.Parse(args)
-	if fs.NArg() > 1 {
-		usageError(fs)
-	}
+	checkArgs(fs, 0, 1)
 	if fs.NArg() == 1 {
 		return renameWorkspace(fs.Arg(0))
 	}
@@ -28,9 +26,7 @@ with a WS_RENAME client message that the xmonad configuration handles.
 		return err
 	}
 	if isTerminal(os.Stdin) {
-		fmt.Fprintf(os.Stderr, "Rename workspace %s to: ", cur)
-		line, _ := stdin.ReadString('\n')
-		name := strings.TrimSpace(line)
+		name, _ := readPromptLine(fmt.Sprintf("Rename workspace %s to: ", cur))
 		if name == "" || name == string(cur) {
 			return nil
 		}
@@ -49,6 +45,12 @@ with a WS_RENAME client message that the xmonad configuration handles.
 		return nil
 	}
 	return renameWorkspace(name)
+}
+
+// renameWorkspace asks xmonad to rename the current workspace to name
+// with a WS_RENAME client message carrying an atom that names the new workspace.
+func renameWorkspace(name string) error {
+	return sendWorkspaceMessage("WS_RENAME", name)
 }
 
 // renameCandidates returns workspace names and stems suitable for renaming
@@ -76,7 +78,7 @@ func renameCandidates(current string) []string {
 
 	for _, n := range names {
 		addOther(n)
-		w := workspace(n)
+		w := Workspace(n)
 		if p := w.prefix(); p != "" {
 			addOther(p)
 		}

@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-type procNode struct {
+type ProcNode struct {
 	pid     int
 	ppid    int
 	comm    string
@@ -19,23 +19,23 @@ type procNode struct {
 	cwd     string
 }
 
-type procTree struct {
+type ProcTree struct {
 	children map[int][]int
-	nodes    map[int]*procNode
+	nodes    map[int]*ProcNode
 }
 
 // readProcTree scans /proc to build a snapshot of running processes and parent-child links.
-func readProcTree() *procTree {
+func readProcTree() *ProcTree {
 	entries, err := os.ReadDir("/proc")
 	if err != nil {
-		return &procTree{
+		return &ProcTree{
 			children: make(map[int][]int),
-			nodes:    make(map[int]*procNode),
+			nodes:    make(map[int]*ProcNode),
 		}
 	}
-	tree := &procTree{
+	tree := &ProcTree{
 		children: make(map[int][]int, len(entries)),
-		nodes:    make(map[int]*procNode, len(entries)),
+		nodes:    make(map[int]*ProcNode, len(entries)),
 	}
 	for _, entry := range entries {
 		if !entry.IsDir() {
@@ -69,7 +69,7 @@ func readProcTree() *procTree {
 		if err != nil {
 			continue
 		}
-		node := &procNode{
+		node := &ProcNode{
 			pid:  pid,
 			ppid: ppid,
 			comm: comm,
@@ -81,11 +81,11 @@ func readProcTree() *procTree {
 }
 
 // descendants returns all descendant nodes of rootPid in the process tree.
-func (t *procTree) descendants(rootPid int) []*procNode {
+func (t *ProcTree) descendants(rootPid int) []*ProcNode {
 	if rootPid <= 0 {
 		return nil
 	}
-	var result []*procNode
+	var result []*ProcNode
 	queue := []int{rootPid}
 	visited := make(map[int]bool)
 	visited[rootPid] = true
@@ -106,7 +106,7 @@ func (t *procTree) descendants(rootPid int) []*procNode {
 	return result
 }
 
-func (n *procNode) loadDetails() {
+func (n *ProcNode) loadDetails() {
 	if n.cmdline != nil {
 		return
 	}
@@ -158,14 +158,26 @@ var terminalComms = map[string]bool{
 	"ghostty":         true,
 	"term":            true,
 	"scratchpad":      true,
+	"ptyxis":          true,
 }
 
-// processInfo extracts all process names, binaries, arguments from rootPid and all
-// its descendants, and identifies the active foreground command and cwd.
-func (t *procTree) processInfo(rootPid int) (searchTerms []string, activeCmd string, cwd string) {
+// ProcessDetails holds metadata extracted from a process tree for a window.
+type ProcessDetails struct {
+	searchTerms []string
+	activeCmd   string
+	cwd         string
+}
+
+// details extracts ProcessDetails from rootPid and all its descendants.
+func (t *ProcTree) details(rootPid int) ProcessDetails {
 	if rootPid <= 0 {
-		return nil, "", ""
+		return ProcessDetails{}
 	}
+	var (
+		searchTerms []string
+		activeCmd   string
+		cwd         string
+	)
 	desc := t.descendants(rootPid)
 	seen := make(map[string]bool)
 	addTerm := func(s string) {
@@ -200,7 +212,7 @@ func (t *procTree) processInfo(rootPid int) (searchTerms []string, activeCmd str
 	if isTerminal {
 		// For terminals, find the interactive shell child (or subshell chain).
 		// Never let background daemons, language servers, or MCP workers overwrite the shell cwd.
-		var shellNode *procNode
+		var shellNode *ProcNode
 		for _, childPid := range t.children[rootPid] {
 			if child, ok := t.nodes[childPid]; ok {
 				child.loadDetails()
@@ -214,7 +226,7 @@ func (t *procTree) processInfo(rootPid int) (searchTerms []string, activeCmd str
 			if validCwd(shellNode.cwd) {
 				cwd = shellNode.cwd
 			}
-			var nextShell *procNode
+			var nextShell *ProcNode
 			for _, grandPid := range t.children[shellNode.pid] {
 				if grand, ok := t.nodes[grandPid]; ok {
 					grand.loadDetails()
@@ -285,5 +297,9 @@ func (t *procTree) processInfo(rootPid int) (searchTerms []string, activeCmd str
 	if len(candidates) > 0 {
 		activeCmd = candidates[len(candidates)-1]
 	}
-	return searchTerms, activeCmd, cwd
+	return ProcessDetails{
+		searchTerms: searchTerms,
+		activeCmd:   activeCmd,
+		cwd:         cwd,
+	}
 }
