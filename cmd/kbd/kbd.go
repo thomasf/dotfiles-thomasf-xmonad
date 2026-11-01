@@ -313,8 +313,7 @@ func (k kbd) pick() error {
 	cmd.Stderr = os.Stderr
 	out, err := cmd.Output()
 	if err != nil {
-		var exitErr *exec.ExitError
-		if errors.As(err, &exitErr) {
+		if _, ok := errors.AsType[*exec.ExitError](err); ok {
 			return nil // cancelled
 		}
 		return fmt.Errorf("rofi: %w", err)

@@ -9,7 +9,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
+
 	"log"
 	"os"
 	"os/exec"
@@ -321,7 +321,7 @@ func runTrayer(rc RenderContext) error {
 
 func runXmobar(templ string, rc RenderContext) (string, error) {
 	tpl := template.Must(template.New("foo").Parse(templ))
-	tmpfile, err := ioutil.TempFile("", "xmobar")
+	tmpfile, err := os.CreateTemp("", "xmobar")
 	if err != nil {
 		return "", err
 	}

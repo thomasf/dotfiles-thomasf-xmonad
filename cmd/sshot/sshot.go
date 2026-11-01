@@ -281,17 +281,3 @@ func smartCrop(img image.Image) *image.NRGBA {
 	draw.Draw(resultImg, resultImg.Bounds(), nrgbaImg, bounds.Min, draw.Src)
 	return resultImg
 }
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}

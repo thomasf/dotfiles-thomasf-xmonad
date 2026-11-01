@@ -433,7 +433,7 @@ func loadFrecencyHistory(path string) map[string]frecencyEntry {
 	if err != nil {
 		return hist
 	}
-	for _, line := range strings.Split(string(data), "\n") {
+	for line := range strings.SplitSeq(string(data), "\n") {
 		fields := strings.Split(line, "\t")
 		if len(fields) < 3 {
 			continue

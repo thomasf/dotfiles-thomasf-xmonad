@@ -112,8 +112,8 @@ func (n *procNode) loadDetails() {
 	}
 	pidStr := strconv.Itoa(n.pid)
 	if data, err := os.ReadFile("/proc/" + pidStr + "/cmdline"); err == nil && len(data) > 0 {
-		raw := bytes.Split(data, []byte{0})
-		for _, b := range raw {
+		raw := bytes.SplitSeq(data, []byte{0})
+		for b := range raw {
 			if len(b) > 0 {
 				n.cmdline = append(n.cmdline, string(b))
 			}
@@ -244,7 +244,7 @@ func (t *procTree) processInfo(rootPid int) (searchTerms []string, activeCmd str
 	if validCwd(cwd) {
 		addTerm(cwd)
 		addTerm(filepath.Base(cwd))
-		for _, part := range strings.Split(cwd, "/") {
+		for part := range strings.SplitSeq(cwd, "/") {
 			if part != "" && part != "home" && part != "src" {
 				addTerm(part)
 			}
