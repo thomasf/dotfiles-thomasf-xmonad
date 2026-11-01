@@ -1,40 +1,7 @@
-#!/bin/bash
+#!/bin/sh
 #
-# Dmenu launch wrapper
-#
-# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
-# Updates to this file will probably be available at https://github.com/thomasf/dotfiles/
+# Application launcher: delegates to ws run
 #
 
-set -e
+exec ws run "$@"
 
-ppath() {
- [ -d "${1}" ] && PATH="${1}:${PATH}" || true
-}
-
-input=$(dmenu_path | grep -vFx "rofi-theme-selector" | dmenu -p launch -i -l 25)
-
-set -- nil $input
-shift
-
-cmd=$1
-shift || true
-set -x
-
-case $cmd in
-  mpdplay|pipemixer|alsamixer|pa-mixer|htop|btop|top|nvtop|ncmpcpp|dstat|ping|mtr|lazydocker|ctop|k9s|nmtui|bluetoothctl|sysz)
-    exec term-run -- $cmd $*
-    ;;
-  aptitude|iotop|powertop|iftop|nethogs|bandwhich)
-    exec term-run -n $cmd -- sudo $cmd $*
-    ;;
-  google-chrome|w)
-    exec www $*
-    ;;
-  reboot|shutdown|suspend|hibernate)
-    exec a.$cmd
-    ;;
-  *)
-    exec $cmd $*
-    ;;
-esac

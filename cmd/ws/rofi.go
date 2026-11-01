@@ -17,7 +17,7 @@ import (
 // rofiWidth is how wide rofi is, in percent of the xmonad screen, unless
 // the caller says otherwise. It is the width in config.rasi, which rofi
 // takes as a percentage of the monitor instead.
-const rofiWidth = 75
+const rofiWidth = 85
 
 // runRofi runs rofi with args, placed on the current xmonad screen. It
 // replaces ws with rofi.

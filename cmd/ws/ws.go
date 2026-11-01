@@ -19,6 +19,7 @@
 //	ws rename [name]
 //	ws window
 //	ws rofi [-width pct] [-height pct] [rofi arguments]
+//	ws run [-lines n] [-p prompt] [-width pct] [-term | -sudo | -hold] [cmd [args...]]
 //
 // A workspace name is <prefix>[.<suffix>], and the prefix is
 // <project>[@<worktree>]. In workspace hello@test.bot, the project is
@@ -142,6 +143,19 @@
 // the real one in $PATH, makes every rofi run so; ws rofi skips such a
 // wrapper when it looks for rofi. The windows of ws pick and of the
 // questions ws asks are placed the same way.
+//
+// Run lets the user choose and launch an application or command with rofi,
+// listing executables found in $PATH with fast directory caching.
+// Keyboard shortcuts in rofi:
+//
+//	Enter     launch the application
+//	Alt+t     run in a terminal window (term-run)
+//	Alt+s     run in a terminal window with sudo
+//	Alt+h     run in a terminal window in hold mode
+//
+// Terminal tools and sudo utilities are automatically run in a terminal window.
+// Run starts commands in the directory and environment of the current workspace
+// if it has one.
 package main
 
 import (
@@ -187,6 +201,8 @@ func main() {
 		err = runRename(args)
 	case "window":
 		err = runWindow(args)
+	case "run", "app":
+		err = runRun(args)
 	case "-h", "-help", "--help", "help":
 		fmt.Fprint(os.Stderr, usageText)
 		os.Exit(0)
@@ -215,6 +231,7 @@ const usageText = `usage: ws name [-p | -s]
        ws rename [name]
        ws window
        ws rofi [-width pct] [-height pct] [rofi arguments]
+       ws run [-lines n] [-p prompt] [-width pct] [-term | -sudo | -hold] [cmd [args...]]
 
 Run ws <command> -h for help on a command.
 `
