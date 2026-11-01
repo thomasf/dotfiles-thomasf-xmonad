@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+# xmonad-xmessage: Displays xmonad error and compile popups using zenity
+#
+
+msg=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -file)
+      shift
+      [ -f "$1" ] && msg=$(cat "$1")
+      ;;
+    -default|-xrm|-buttons|-center|-nearmouse|-timeout)
+      shift
+      ;;
+    -*)
+      ;;
+    *)
+      msg="$1"
+      ;;
+  esac
+  shift
+done
+
+if [ -z "$msg" ] && [ ! -t 0 ]; then
+  msg=$(cat)
+fi
+
+if [ -n "$DISPLAY$WAYLAND_DISPLAY" ] && command -v zenity >/dev/null 2>&1; then
+  # Prepend a blank line so text never touches or gets clipped by the top border
+  printf '\n%s\n' "$msg" | exec zenity \
+    --text-info \
+    --title="xmonad: compilation errors" \
+    --width=900 \
+    --height=600 \
+    --ok-label="Close"
+elif [ -n "$DISPLAY$WAYLAND_DISPLAY" ] && [ -x /usr/bin/xmessage ]; then
+  exec /usr/bin/xmessage "$@"
+else
+  echo "$msg" >&2
+fi

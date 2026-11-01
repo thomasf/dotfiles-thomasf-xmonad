@@ -156,6 +156,7 @@ fi
 dotfiles theme apply
 
 export HOST="$HOSTNAME"
+export XMONAD_XMESSAGE="xmonad-xmessage"
 
 # Set default window manger (xmonad) or try user selection
 WM=""
@@ -165,7 +166,7 @@ if hash xmonad 2>/dev/null; then
 fi
 
 [ "z" = "z$WM" ] \
-  && xmessage "!!! No window manager found/selected !!!"
+  && (command -v rofi >/dev/null 2>&1 && rofi -e "!!! No window manager found/selected !!!" || xmessage "!!! No window manager found/selected !!!")
 
 # Start the window manager
 while [ ! "" = "$WM" ]; do

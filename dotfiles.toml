@@ -40,6 +40,10 @@ src = 'config-xmonad/gtk/gtk-3.0'
 dst = '.config/gtk-3.0'
 
 [[mount]]
+src = 'config-xmonad/gtk/gtk-4.0'
+dst = '.config/gtk-4.0'
+
+[[mount]]
 src = 'config-xmonad/alacritty'
 dst = '.config/alacritty'
 

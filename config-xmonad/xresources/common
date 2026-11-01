@@ -44,13 +44,21 @@ Emacs*.internalBorder:                3
 Emacs*menubar.margin:                 0
 Emacs*shadowThickness:                1
 
-!---- Xmessage, zenburnesque {
+!---- Xmessage {
+Xmessage.center:                      true
 Xmessage*form.*.shapeStyle:           rectangle
-Xmessage*Scrollbar.width:             4
+Xmessage*message.scrollVertical:      whenNeeded
+Xmessage*message.scrollHorizontal:    whenNeeded
 Xmessage*Scrollbar.borderWidth:       0
-! Xmessage*Buttons:                     Quit
-! Xmessage*defaultButton:               Quit
-Xmessage*geometry:                    +20+20
+
+! Enable mouse wheel scrolling, arrow keys, and Escape/q to exit
+Xmessage*Text.translations:           #override \
+  <Key>Escape: exit(0) \n\
+  <Key>q: exit(0) \n\
+  <Key>Up: scroll-one-line-up() \n\
+  <Key>Down: scroll-one-line-down() \n\
+  <Btn4Down>: scroll-one-line-up() scroll-one-line-up() scroll-one-line-up() \n\
+  <Btn5Down>: scroll-one-line-down() scroll-one-line-down() scroll-one-line-down()
 
 !---- URxvt - General settings {
 URxvt*fading:                         0

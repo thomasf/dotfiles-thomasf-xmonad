@@ -8,7 +8,8 @@ if [ -x "${HOME}/bin/rofi" ]; then
 elif command -v rofi >/dev/null 2>&1; then
   cmd=rofi
 else
-  xmessage "rofi not found"
+  echo "rofi not found" >&2
+  command -v notify-send >/dev/null 2>&1 && notify-send -u critical "rofi not found"
   exit 1
 fi
 

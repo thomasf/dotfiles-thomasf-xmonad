@@ -1,3 +1,4 @@
+{{- $hidpi := expr "int(vars.dpi) >= 144"}}
 #include ".config-xmonad/xresources/common"
 
 ! The colors of the theme in use, {{.theme.name}}:{{.theme.variant}}. dotfiles
@@ -6,8 +7,32 @@
 Emacs*.background:            {{.theme.colors.bg_0}}
 Emacs*.foreground:            {{.theme.colors.fg_0}}
 
-Xmessage*background:          {{.theme.colors.bg_0}}
-Xmessage*foreground:          {{.theme.colors.fg_0}}
+Xmessage*background:                  {{.theme.colors.bg_0}}
+Xmessage*foreground:                  {{.theme.colors.fg_0}}
+Xmessage*form.background:             {{.theme.colors.bg_0}}
+Xmessage*message.background:          {{.theme.colors.bg_0}}
+Xmessage*message.foreground:          {{.theme.colors.fg_0}}
+Xmessage*Command.background:          {{.theme.colors.color0}}
+Xmessage*Command.foreground:          {{.theme.colors.fg_0}}
+Xmessage*Command.borderColor:         {{.theme.colors.dim_0}}
+Xmessage*Scrollbar.background:        {{.theme.colors.bg_0}}
+Xmessage*Scrollbar.foreground:        {{.theme.colors.dim_0}}
+
+{{- if $hidpi}}
+Xmessage*font:                        -bitstream-courier 10 pitch-medium-r-normal--28-0-0-0-m-0-iso10646-1
+Xmessage*Scrollbar.width:             28
+Xmessage*Command.internalWidth:       24
+Xmessage*Command.internalHeight:      10
+Xmessage*Command.borderWidth:         2
+Xmessage*form.defaultDistance:        16
+{{- else}}
+Xmessage*font:                        -bitstream-courier 10 pitch-medium-r-normal--16-0-0-0-m-0-iso10646-1
+Xmessage*Scrollbar.width:             14
+Xmessage*Command.internalWidth:       12
+Xmessage*Command.internalHeight:      5
+Xmessage*Command.borderWidth:         1
+Xmessage*form.defaultDistance:        8
+{{- end}}
 
 URxvt*background:             {{.theme.colors.bg_0}}
 URxvt*foreground:             {{.theme.colors.fg_0}}
