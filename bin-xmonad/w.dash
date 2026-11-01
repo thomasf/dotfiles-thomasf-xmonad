@@ -25,7 +25,6 @@ esac
 wsname -s && exit 1
 
 
-# launchTerminal "pamixer" "pamixer" "-a 2"
 # pavucontrol &
 
 

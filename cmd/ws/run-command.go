@@ -32,7 +32,6 @@ var termCommands = map[string]bool{
 	"ncmpcpp":      true,
 	"nmtui":        true,
 	"nvtop":        true,
-	"pa-mixer":     true,
 	"ping":         true,
 	"pipemixer":    true,
 	"sysz":         true,

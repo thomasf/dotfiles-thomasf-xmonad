@@ -97,9 +97,6 @@ dstat*internalBorder:                      8
 dstat*saveLines:                           1000
 dstat*scrollBar:                           8
 
-pamixer*saveLines:                         0
-pamixer*scrollBar:                         false
-
 ssh_tmux*scrollBar:                        false
 ssh_tmux*saveLines:                        0
 ! ssh_tmux.letterSpace:	                   0

@@ -6,8 +6,6 @@
 #   TODO: This file really need some cleaning up!
 #
 #
-# https://wiki.archlinux.org/index.php/ConsoleKit
-
 # Fixes OpenJDK for usage with XMonad (or other non parenting window managers)
 export _JAVA_AWT_WM_NONREPARENTING=1
 
@@ -33,13 +31,12 @@ killall -q gnome-settings-daemon
 killall -q blueman-applet
 killall -q nm-applet
 killall -q dropboxd
-killall -q pulseaudio
 killall -q dunst
 killall -q kbd
 sleep 0.3
 
 (
-  hash docker 2> /dev/null && docker stop $(docker ps -q)
+  hash docker 2> /dev/null && docker ps -q | xargs -r docker stop
 ) &
 
 # Source profile
@@ -63,7 +60,7 @@ rm -f ~/.ssh/control:*
 rm -f "${HOME}/.gnupg/S.*"
 unset GPG_AGENT_INFO; unset SSH_AUTH_SOCK; unset SSH_AGENT_PID
 if hash gpg-agent 2>/dev/null; then
-  eval $(gpg-agent --daemon --sh --enable-ssh-support)
+  gpgconf --launch gpg-agent
   SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
 elif hash ssh-agent 2>/dev/null; then
   eval $(ssh-agent -s)
