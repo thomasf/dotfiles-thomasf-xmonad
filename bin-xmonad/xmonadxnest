@@ -5,7 +5,11 @@ set -e
 cd
 
 D=23
-Xnest :$D &
+if hash Xephyr 2>/dev/null; then
+  Xephyr -br -ac -noreset -screen 1600x900 :$D &
+else
+  Xnest :$D &
+fi
 export DISPLAY=:$D.0
 sleep 2
 
@@ -16,6 +20,6 @@ sleep 2
 xclock &
 xclock &
 xclock &
-urxvt &
+term &
 
 xmonad
