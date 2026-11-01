@@ -26,7 +26,6 @@ fi
 # First, try to kill everyhing that might be started below
 # It's important that applications are launched from this
 # environment to get the right settings.
-killall -q devmon
 killall -q gpg-agent
 killall -q ssh-agent
 killall -q gnome-keyring-daemon
@@ -54,11 +53,6 @@ sleep 0.3
 # Ensure sane file permissions etc.
 [ -f "${HOME}/.bin/home-fix" ] \
   && "${HOME}/.bin/home-fix"
-
-
-# Devmon udev mounter (part of udevil)
-hash devmon 2>/dev/null \
-  && devmon &
 
 # unset gnome keyring daemon variables
 unset GNOME_KEYRING_CONTROL
