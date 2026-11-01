@@ -1,59 +1,16 @@
 #!/bin/bash
 #
-# Dmenu/rofi wrapper, changed colors
+# dmenu compatibility wrapper delegating to rofi
 #
-# Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 
-
-# palette name default prints the color name of the palette that dotfiles
-# writes for the theme in use, or default without it.
-palette() {
-  c=$(sed -n "s/^ *\"$1\": \"\(#[0-9a-fA-F]\{6\}\)\".*/\1/p" "${HOME}/.config/theme/palette.json" 2>/dev/null)
-  echo "${c:-$2}"
-}
-
-# The colors of dmenu; rofi has its own (see config-xmonad/rofi).
-bg=$(palette bg_0 "#808080")
-fg=$(palette fg_0 "#000000")
-color=$(palette yellow "#ffffff")
-
-if [ -x ${HOME}/bin/rofi ]; then
+if [ -x "${HOME}/bin/rofi" ]; then
   cmd="${HOME}/bin/rofi"
-  type=rofi
-elif [ -x /usr/bin/rofi ]; then
+elif command -v rofi >/dev/null 2>&1; then
   cmd=rofi
-  type=rofi
-elif [ -x /usr/bin/dmenu ]; then
-  cmd=/usr/bin/dmenu
-  type=dmenu
-elif [ -x /usr/local/bin/dmenu ]; then
-  type=dmenu
-  cmd=/usr/local/bin/dmenu
+else
+  xmessage "rofi not found"
+  exit 1
 fi
 
-case "${type}" in
-  rofi)
-    # if [[ -z $PLACEMENT ]]; then
-    #   ROOFI_ARGS="-lines 25 -width 50"
-    # else
-    #   IFS='x' read -r -a place <<< "$PLACEMENT"
-    #   ROOFI_ARGS="-m 1 -location 1 -xoffset ${place[0]} -yoffset ${place[1]} -width ${place[2]} -height ${place[3]}"
-    # fi
-    exec $cmd \
-         -dmenu -i "$@"
-    ;;
-  dmenu)
-    exec $cmd \
-         -nb "${bg}" -nf "${fg}" -sf "${bg}" -sb "${color}" \
-         -i "$@"
-    ;;
-  *)
-    xmessage "dmenu/rofi not found"
-    exit 1
-    ;;
-esac
+exec $cmd -dmenu -i "$@"
 
-
-# Local Variables:
-# eval: (rainbow-mode 1)
-# End:

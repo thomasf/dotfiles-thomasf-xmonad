@@ -9,7 +9,7 @@
 set -e
 
 actions="[cancel]\nleave\ndisplay-off\nsuspend\nhibernate\nreboot\nshutdown"
-action=$(echo -e "$actions" | dmenu -l 20 -p "xmenu")
+action=$(echo -e "$actions" | rofi -dmenu -i -l 20 -p "xmenu")
 
 [ -z $action ] && exit 1
 
