@@ -92,12 +92,12 @@ setupLayout font fontSize maybeMaxW msg = do
     layoutSetAlignment layout AlignCenter
     catch (void (layoutSetMarkup layout msg :: IO String))
           (\(_ :: SomeException) -> layoutSetText layout msg)
-    (PangoRectangle _ _ uw uh, _) <- layoutGetExtents layout
+    (_, PangoRectangle _ _ uw uh) <- layoutGetExtents layout
     case maybeMaxW of
       Just maxW | uw > maxW -> do
         layoutSetWrap layout WrapPartialWords
         layoutSetWidth layout (Just maxW)
-        (PangoRectangle _ _ w h, _) <- layoutGetExtents layout
+        (_, PangoRectangle _ _ w h) <- layoutGetExtents layout
         return (layout, w, h, True)
       _ -> return (layout, uw, uh, False)
 
