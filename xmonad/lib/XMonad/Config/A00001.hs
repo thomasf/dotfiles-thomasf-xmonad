@@ -53,6 +53,7 @@ import           XMonad.Hooks.SetWMName
 import           XMonad.Hooks.UrgencyHook hiding (args)
 import           XMonad.Hooks.WorkspaceHistory (workspaceHistoryHook)
 import qualified XMonad.Hooks.WorkspaceIPC as WsIPC
+import qualified XMonad.Layout.BinarySpacePartition as BSP
 import           XMonad.Layout.BoringWindows hiding (Replace, swapUp, swapDown)
 import           XMonad.Layout.Fullscreen
 import           XMonad.Layout.Grid
@@ -60,6 +61,7 @@ import           XMonad.Layout.TwoPane
 import           XMonad.Layout.ThreeColumns
 import           XMonad.Layout.LayoutCombinators
 import qualified XMonad.Layout.LayoutScreens as LS
+import           XMonad.Layout.ResizableTile
 import           XMonad.Layout.MultiToggle
 import           XMonad.Layout.MultiToggle.Instances
 import           XMonad.Layout.NoBorders
@@ -161,7 +163,7 @@ myKeys host pal xpc conf=
   , ("M-C-e",       addName "New workspace in prefix.sequence" $ newPrefixWS >> movePointer >> showWorkspaceNameFast)
   , ("M-S-<Space>", addName "reset layout"                     $ setLayout (XMonad.layoutHook conf) >> movePointer)
   ] ++
-  subtitle "Modify current workspace layout... (H/L=size ,.=)": mkNamedKeymap conf
+  subtitle "Modify current workspace layout... (,.=master count)": mkNamedKeymap conf
   [ ("M-C-<Space>", addName "Switch to the next window layout"                     $ sendMessage NextLayout >> movePointer >> showLayoutName)
   , ("M-m",         addName "Toggle fullscreen"                                    $ sendMessage (Toggle NBFULL) >> movePointer >> showLayoutName)
   , ("M-S-m",       addName "Toggle fullscreen across physical screen"             $ PF.toggleFullPhysicalScreen >> movePointer)
@@ -169,8 +171,15 @@ myKeys host pal xpc conf=
   , ("C-M-r",       addName "Toggle reflect layout direction"                      $ sendMessage (Toggle REFLECTX) >> movePointer)
   , ("M-,",         addName "Increment the number of windows in the master area"   $ sendMessage (IncMasterN 1) >> movePointer)
   , ("M-.",         addName "Decrement the number of windows in the master area"   $ sendMessage (IncMasterN (-1)) >> movePointer)
-  , ("M-h",         addName "Expand the master area"                               $ sendMessage Expand >> movePointer)
-  , ("M-l",         addName "Shrink the master area"                               $ sendMessage Shrink >> movePointer)
+  ] ++
+  subtitle "Move screen dividers (Super+Alt)": mkNamedKeymap conf
+  [ ("M-M1-l",        addName "Move divider right"             $ smartResize RzRight)
+  , ("M-M1-h",        addName "Move divider left"              $ smartResize RzLeft)
+  , ("M-M1-j",        addName "Move divider down"              $ smartResize RzDown)
+  , ("M-M1-k",        addName "Move divider up"                $ smartResize RzUp)
+  , ("M-M1-r",        addName "BSP rotate split"               $ sendMessage BSP.Rotate)
+  , ("M-M1-s",        addName "BSP swap sibling"               $ sendMessage BSP.Swap)
+  , ("M-M1-b",        addName "BSP balance tree"               $ sendMessage BSP.Equalize)
   ] ++
   subtitle "Multi media keys": mkNamedKeymap conf
   [ ("<XF86AudioPlay>",         spawnh' "mpc toggle")
@@ -444,11 +453,11 @@ myLayoutHook pal host =
     -- control
     first = wide
     standard = onTall
-               (first ||| tall ||| tcol ||| grid ||| gridWide )
-               (first ||| tall ||| tabs ||| gridWide ||| spiral ||| oneBig)
+               (first ||| tall ||| tcol ||| grid ||| gridWide ||| bsp)
+               (first ||| tall ||| tabs ||| gridWide ||| spiral ||| oneBig ||| bsp)
     alternative = onTall
-               (tcol ||| first ||| grid)
-               (first ||| tall ||| tabs ||| gridWide ||| spiral ||| oneBig)
+               (tcol ||| first ||| grid ||| bsp)
+               (first ||| tall ||| tabs ||| gridWide ||| spiral ||| oneBig ||| bsp)
     onTall = ifLayout (host `elem` tallHosts)
     -- helpers
     refmin l = mkToggle (single REFLECTX) l
@@ -458,13 +467,14 @@ myLayoutHook pal host =
     renameStar = renamed [Replace "*"]
 
     -- layouts
+    bsp = rename "bsp" . ss . refmin $ BSP.emptyBSP
     oneBig = rename "1big" . ss . refmin $ OneBig (3/4) (3/4)
     chat = rename "chat" . ss . refmin $ fullscreenFull Full
     fullBorder = rename "full" . ss . refmin $ fullscreenFull Full
     full = rename "full" $ noBorders (fullscreenFull Full)
-    wide' nm ir = rename "wide" . ss . Mirror . refmin $ Tall nm (3/100) ir
+    wide' nm ir = rename "wide" . ss . Mirror . refmin $ ResizableTall nm (3/100) ir []
     wide = onTall (wide' 1 (7/8)) (wide' 2 (4/5))
-    tall = rename "tall" . ss . refmin $ Tall 2 (3/100) (3/5)
+    tall = rename "tall" . ss . refmin $ ResizableTall 2 (3/100) (3/5) []
     tcol = rename "3col" . ss . Mirror $ ThreeColMid 1 (3/100) (4/6)
     dash = rename "dash" $ onTall tcol wide
     spiral = rename "spiral" . ss . refmin $ Spiral.spiral (6/7)
@@ -988,6 +998,37 @@ showLayoutName = do
   winset <- gets windowset
   let ld = description . W.layout . W.workspace . W.current $ winset
   showMessage 2 ("bg_0", "green") ld
+
+-- | Screen-relative divider movement (Option A)
+data ResizeDirection = RzLeft | RzRight | RzUp | RzDown
+
+smartResize :: ResizeDirection -> X ()
+smartResize dir = do
+  ld <- gets (description . W.layout . W.workspace . W.current . windowset)
+  case (ld, dir) of
+    -- Wide: horizontal is slave, vertical is master
+    ("wide", RzRight) -> sendMessage MirrorShrink
+    ("wide", RzLeft)  -> sendMessage MirrorExpand
+    ("wide", RzDown)  -> sendMessage Expand
+    ("wide", RzUp)    -> sendMessage Shrink
+
+    -- Tall: horizontal is master, vertical is slave
+    ("tall", RzRight) -> sendMessage Expand
+    ("tall", RzLeft)  -> sendMessage Shrink
+    ("tall", RzDown)  -> sendMessage MirrorShrink
+    ("tall", RzUp)    -> sendMessage MirrorExpand
+
+    -- BSP: 2D directional divider movement
+    ("bsp",  RzRight) -> sendMessage (BSP.MoveSplit BSP.R)
+    ("bsp",  RzLeft)  -> sendMessage (BSP.MoveSplit BSP.L)
+    ("bsp",  RzDown)  -> sendMessage (BSP.MoveSplit BSP.D)
+    ("bsp",  RzUp)    -> sendMessage (BSP.MoveSplit BSP.U)
+
+    -- Fallback for any other layout
+    (_,      RzRight) -> sendMessage Expand
+    (_,      RzLeft)  -> sendMessage Shrink
+    (_,      RzDown)  -> sendMessage MirrorShrink
+    (_,      RzUp)    -> sendMessage MirrorExpand
 
 -- Local Variables:
 -- fill-column: 165
