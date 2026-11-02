@@ -7,7 +7,6 @@
 //
 //	ws name [-p | -s]
 //	ws dir [-set | -unset] [-pick] [workspace]
-//	ws env [-file] [workspace]
 //	ws action [workspace]
 //	ws wt list [-l] [-pick] [workspace]
 //	ws wt add [-branch branch] [-pick] [project@]name
@@ -49,8 +48,6 @@ func main() {
 		err = runName(args)
 	case "dir":
 		err = runDir(args)
-	case "env":
-		err = runEnv(args)
 	case "action":
 		err = runAction(args)
 	case "wt":
@@ -85,7 +82,6 @@ func main() {
 
 const usageText = `usage: ws name [-p | -s]
        ws dir [-set | -unset] [-pick] [workspace]
-       ws env [-file] [workspace]
        ws action [workspace]
        ws wt list [-l] [-pick] [workspace]
        ws wt add [-branch branch] [-pick] [project@]name
