@@ -116,7 +116,7 @@ myKeys host pal xpc conf=
   , ("M-o w",       spawnhm  "www")
   , ("M-o d",       spawnhm  "www-dev")
   , ("M-o t",       spawnh   "term")
-  , ("M-o S-t",     spawnh   "env WSENV_SKIP=1 term")
+  , ("M-o S-t",     spawnh   "env PATHENV_SKIP=1 term")
   , ("M-o e",       spawnhmw "e")
   , ("M-o n",       spawnhm  "nautilus")
   , ("M-o a",       addName  "Run default workspace launcher script" $ bindOnProtectedWorkspace workspaceAction maybeWorkspaceAction)
@@ -723,9 +723,9 @@ myScratchPads = [ NS "largeTerminal" (term "largeTerminal") (res =? scratch "lar
   where
     scratch sname = "scratchpad_" ++ sname
     -- term sname = " urxvt " ++ " -name " ++ scratch sname
-    -- WSENV_SKIP keeps the shell from sourcing the environment of the
+    -- PATHENV_SKIP keeps the shell from running pathenv for the
     -- workspace the scratchpad happens to be opened on.
-    term sname = " env WSENV_SKIP=1 alacritty " ++ " --class " ++ scratch sname
+    term sname = " env PATHENV_SKIP=1 alacritty " ++ " --class " ++ scratch sname
     termScratch scmd = NS scmd (inTerm' scmd scmd) (res =? scratch scmd)
     inTerm' sname scmd = term sname ++ " -e " ++  scmd
     res = resource
