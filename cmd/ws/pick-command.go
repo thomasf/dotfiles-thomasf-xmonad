@@ -31,6 +31,7 @@ the user cancels.
     Ctrl+s      show or hide the workspaces without windows
     Ctrl+t      show or hide the worktrees of their projects that have
                 no workspace yet; listing them takes a moment
+    Ctrl+f      fill all screens with workspaces from the selected prefix
 
 With -go, it goes to the workspace instead of printing it, as ws go
 does. With -shift, it moves the focused window to the workspace instead
@@ -137,6 +138,13 @@ with spawn, rather than wait for it while rofi runs and lock up input.
 				dotted = filter
 			}
 			continue
+		}
+		if f, ok := errors.AsType[FillScreens](err); ok {
+			name := f.workspace
+			if name == dotted && !slices.Contains(names, name) {
+				name = strings.TrimSuffix(name, ".")
+			}
+			return X.sendWorkspaceMessage("WS_FILL", name)
 		}
 		if err != nil {
 			return err
@@ -347,6 +355,12 @@ type ChooseBranch struct{ project string }
 
 func (ChooseBranch) Error() string { return "choose branch" }
 
+// FillScreens is the error rofiPickWorkspace returns when the user asks
+// to fill all screens with workspaces from the selected prefix.
+type FillScreens struct{ workspace string }
+
+func (FillScreens) Error() string { return "fill screens" }
+
 // rofiPickWorkspace lets the user pick one of the workspaces in groups
 // with rofi and returns its name. The list has columns of lines rows,
 // filled from top to bottom so that groups read downwards; filter, if
@@ -365,12 +379,13 @@ func rofiPickWorkspace(prompt string, columns, lines int, filter string, worktre
 	sign := map[bool]string{false: "+", true: "-"}
 	args := []string{"-dmenu", "-i", "-matching", "fuzzy", "-markup-rows",
 		"-kb-custom-1", "Control+t", "-kb-custom-3", "Control+s",
+		"-kb-move-char-forward", "Right", "-kb-custom-4", "Control+f",
 		// rofi's own Ctrl+Space types in the row as it is shown,
 		// markup and indent included, so ws types in its name on
 		// Ctrl+Tab instead. Switching modes has no use in dmenu.
 		"-kb-row-select", "", "-kb-mode-next", "Shift+Right", "-kb-custom-2", "Control+Tab",
 		"-format", "i f", "-p", prompt,
-		"-mesg", "C-Ret typed   C-Tab complete   C-s " + sign[empty] + "empty   C-t " + sign[worktrees] + "worktrees"}
+		"-mesg", "C-Ret typed   C-Tab complete   C-f fill   C-s " + sign[empty] + "empty   C-t " + sign[worktrees] + "worktrees"}
 	if filter != "" {
 		args = append(args, "-filter", filter)
 	}
@@ -395,6 +410,11 @@ func rofiPickWorkspace(prompt string, columns, lines int, filter string, worktre
 			return "", CompleteRow{typed}
 		case 3:
 			return "", ToggleEmpty{typed}
+		case 4:
+			if nerr == nil && n >= 0 && n < len(names) {
+				return "", FillScreens{names[n]}
+			}
+			return "", FillScreens{typed}
 		}
 	}
 	if err != nil {

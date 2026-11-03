@@ -34,6 +34,8 @@ data WsIPCConfig = WsIPCConfig
   , wsIPCShift  :: WorkspaceId -> X ()
   , wsIPCRename :: WorkspaceId -> X ()
   , wsIPCFocus  :: Window -> X ()
+  , wsIPCFill   :: WorkspaceId -> X ()
+  , wsIPCClean  :: X ()
   }
 
 -- | View, shift to, rename to the workspace and focus the window.
@@ -43,10 +45,12 @@ defaultWsIPCConfig = WsIPCConfig
   , wsIPCShift  = windows . W.shift
   , wsIPCRename = DW.renameWorkspaceByName
   , wsIPCFocus  = windows . W.focusWindow
+  , wsIPCFill   = windows . W.view
+  , wsIPCClean  = return ()
   }
 
 data WsIPCAtoms = WsIPCAtoms
-  { atomGo, atomShift, atomRename, atomFocus :: !Atom }
+  { atomGo, atomShift, atomRename, atomFocus, atomFill, atomClean :: !Atom }
 
 -- | The atoms, interned on the first message: interning is a round trip
 -- to the X server, and client messages are frequent.
@@ -63,6 +67,7 @@ wsIPCAtoms = do
     Nothing -> do
       atoms <- WsIPCAtoms <$> getAtom "WS_GO" <*> getAtom "WS_SHIFT"
                        <*> getAtom "WS_RENAME" <*> getAtom "WS_FOCUS"
+                       <*> getAtom "WS_FILL" <*> getAtom "WS_CLEAN"
       XS.put (WsIPCAtomCache (Just atoms))
       return atoms
 
@@ -78,6 +83,8 @@ wsIPCEventHook cfg ClientMessageEvent {ev_message_type = mt, ev_data = a : _} = 
   if | mt == atomGo atoms     -> byName (wsIPCGo cfg)
      | mt == atomShift atoms  -> byName (wsIPCShift cfg)
      | mt == atomRename atoms -> byName (wsIPCRename cfg)
+     | mt == atomFill atoms   -> byName (wsIPCFill cfg)
+     | mt == atomClean atoms  -> wsIPCClean cfg
      | mt == atomFocus atoms  -> do
          managed <- gets (W.member w . windowset)
          when managed $ wsIPCFocus cfg w

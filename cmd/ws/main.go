@@ -15,6 +15,8 @@
 //	ws pick [-go] [-shift] [-empty] [-p prompt] [-columns n] [-lines n] [-worktrees]
 //	ws go workspace
 //	ws shift [workspace]
+//	ws fill [workspace]
+//	ws clean
 //	ws rename [name]
 //	ws window
 //	ws rofi [-width pct] [-height pct] [rofi arguments]
@@ -60,6 +62,10 @@ func main() {
 		err = runGo(args)
 	case "shift":
 		err = runShift(args)
+	case "fill":
+		err = runFill(args)
+	case "clean":
+		err = runClean(args)
 	case "rename":
 		err = runRename(args)
 	case "window":
@@ -90,6 +96,8 @@ const usageText = `usage: ws name [-p | -s]
        ws pick [-go] [-shift] [-empty] [-p prompt] [-columns n] [-lines n] [-worktrees]
        ws go workspace
        ws shift [workspace]
+       ws fill [workspace]
+       ws clean
        ws rename [name]
        ws window
        ws rofi [-width pct] [-height pct] [rofi arguments]
