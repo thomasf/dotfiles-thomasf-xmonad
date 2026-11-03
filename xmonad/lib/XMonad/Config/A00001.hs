@@ -25,7 +25,7 @@ import qualified Control.Exception as E
 import           Data.Char (isSpace, toLower)
 import           Data.List
 import qualified Data.Map as M
-import           Data.Maybe (fromMaybe)
+import           Data.Maybe (fromMaybe, isJust)
 import           Data.Monoid
 import           System.Exit ( exitSuccess )
 import           System.IO
@@ -345,7 +345,8 @@ myKeys host pal xpc conf=
 
     cycleRecentWS' = cycleWindowSets' options
      where options w = map (`W.view` w) (recentTags w)
-           recentTags w = filterSomeWorkspaces map W.tag $ W.hidden w ++ [W.workspace (W.current w)]
+           recentTags w = filterSomeWorkspaces map W.tag $
+             filter (isJust . W.stack) (W.hidden w) ++ [W.workspace (W.current w)]
 
     -- | Cycle recent ws
     myCycleRecentWs keyForward keyBackward = cycleRecentWS'

@@ -5,6 +5,7 @@ module XMonad.Actions.CycleRecentWSAddons (
                                 cycleWindowSets'
 ) where
 
+import Control.Monad (unless)
 import XMonad hiding (workspaces)
 import XMonad.StackSet
 import XMonad.Actions.CycleRecentWS
@@ -26,19 +27,20 @@ cycleWindowSets' :: (WindowSet -> [WindowSet]) -- ^ A function used to create a 
                 -> X ()
 cycleWindowSets' genOptions mods keyNext keyPrev onswitch = do
   options <- gets $ genOptions . windowset
-  XConf {theRoot = root, display = d} <- ask
-  let event = allocaXEvent $ \p -> do
-                maskEvent d (keyPressMask .|. keyReleaseMask) p
-                KeyEvent {ev_event_type = t, ev_keycode = c} <- getEvent p
-                s <- keycodeToKeysym d c 0
-                return (t, s)
-  let setOption n = do windows $ const $ options `cycref` n
-                       (t, s) <- io event
-                       case () of
-                         () | t == keyPress   && s == keyNext  -> onswitch >> setOption (n+1)
-                            | t == keyPress   && s == keyPrev  -> onswitch >> setOption (n-1)
-                            | t == keyRelease && s `elem` mods -> return ()
-                            | otherwise                        -> onswitch >> setOption n
-  io $ grabKeyboard d root False grabModeAsync grabModeAsync currentTime
-  setOption 0
-  io $ ungrabKeyboard d currentTime
+  unless (null options) $ do
+    XConf {theRoot = root, display = d} <- ask
+    let event = allocaXEvent $ \p -> do
+                  maskEvent d (keyPressMask .|. keyReleaseMask) p
+                  KeyEvent {ev_event_type = t, ev_keycode = c} <- getEvent p
+                  s <- keycodeToKeysym d c 0
+                  return (t, s)
+    let setOption n = do windows $ const $ options `cycref` n
+                         (t, s) <- io event
+                         case () of
+                           () | t == keyPress   && s == keyNext  -> onswitch >> setOption (n+1)
+                              | t == keyPress   && s == keyPrev  -> onswitch >> setOption (n-1)
+                              | t == keyRelease && s `elem` mods -> return ()
+                              | otherwise                        -> onswitch >> setOption n
+    io $ grabKeyboard d root False grabModeAsync grabModeAsync currentTime
+    setOption 0
+    io $ ungrabKeyboard d currentTime
