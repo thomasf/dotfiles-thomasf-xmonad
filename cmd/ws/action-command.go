@@ -20,7 +20,8 @@ $PATH. If there is none, or it fails, it starts what the suffix calls
 for:
 
     www, doc              www-window
-    term, terminal, bot   term
+    term, terminal        term
+    bot                   term, after asking whether to run pathenv
     emacs                 e
     files                 nautilus, in the workspace directory
 `)
@@ -71,8 +72,10 @@ func action(w Workspace) error {
 	switch suffix {
 	case "www", "doc":
 		return execLauncher("www-window")
-	case "term", "terminal", "bot":
+	case "term", "terminal":
 		return execLauncher("term")
+	case "bot":
+		return botTerm()
 	case "emacs":
 		return execLauncher("e")
 	case "files":
@@ -80,4 +83,25 @@ func action(w Workspace) error {
 		return execLauncher("nautilus", "--new-window", "--no-default-window", "--no-desktop", cmp.Or(dir, home))
 	}
 	return nil
+}
+
+// botTerm asks whether the terminal of a bot workspace should run
+// pathenv, and starts it. It starts nothing if the user cancels.
+func botTerm() error {
+	// action has changed to the directory of the workspace, if it
+	// has one, and the terminal starts where ws is.
+	msg := "Terminal"
+	if wd, err := os.Getwd(); err == nil {
+		msg += " in " + shortenHome(wd)
+	}
+	i, err := choose(msg, []string{"with pathenv", "without pathenv"})
+	if errors.Is(err, errCancelled) {
+		return nil
+	}
+	if i == 0 {
+		os.Unsetenv("PATHENV_SKIP")
+	} else {
+		os.Setenv("PATHENV_SKIP", "1")
+	}
+	return execLauncher("term")
 }
