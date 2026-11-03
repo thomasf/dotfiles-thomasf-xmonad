@@ -36,6 +36,10 @@ func accentColor() string { return paletteColor("cyan") }
 // rofi rows: blue of the theme in use.
 func visibleColor() string { return paletteColor("blue") }
 
+// selectedColor returns the color of selected items in rofi rows: magenta of the
+// theme in use.
+func selectedColor() string { return paletteColor("magenta") }
+
 // paletteColor returns the color name of the theme in use, from the
 // palette that dotfiles writes to ~/.config/theme/palette.json, or
 // from fallbackPalette (Selenized light) if the palette cannot be read.

@@ -2,14 +2,20 @@
 
 package main
 
+import "strings"
+
 func runGo(args []string) error {
-	fs := newFlagSet("go", "workspace", `
-Go asks xmonad to show a workspace, creating it if it is new, with a
-WS_GO client message that the xmonad configuration handles.
+	fs := newFlagSet("go", "workspace...", `
+Go asks xmonad to show one or more workspaces across available screens,
+creating them if new, with WS_GO / WS_GO_MANY client messages that
+the xmonad configuration handles.
 `)
 	fs.Parse(args)
-	checkArgs(fs, 1, 1)
-	return goWorkspace(fs.Arg(0))
+	checkArgs(fs, 1, -1)
+	if fs.NArg() == 1 {
+		return goWorkspace(fs.Arg(0))
+	}
+	return sendWorkspaceMessage("WS_GO_MANY", strings.Join(fs.Args(), " "))
 }
 
 func runShift(args []string) error {

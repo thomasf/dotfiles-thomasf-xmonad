@@ -31,6 +31,7 @@ import qualified XMonad.Util.ExtensibleState as XS
 -- in the first datum.
 data WsIPCConfig = WsIPCConfig
   { wsIPCGo     :: WorkspaceId -> X ()
+  , wsIPCGoMany :: [WorkspaceId] -> X ()
   , wsIPCShift  :: WorkspaceId -> X ()
   , wsIPCRename :: WorkspaceId -> X ()
   , wsIPCFocus  :: Window -> X ()
@@ -42,6 +43,7 @@ data WsIPCConfig = WsIPCConfig
 defaultWsIPCConfig :: WsIPCConfig
 defaultWsIPCConfig = WsIPCConfig
   { wsIPCGo     = windows . W.view
+  , wsIPCGoMany = mapM_ (windows . W.view)
   , wsIPCShift  = windows . W.shift
   , wsIPCRename = DW.renameWorkspaceByName
   , wsIPCFocus  = windows . W.focusWindow
@@ -50,7 +52,7 @@ defaultWsIPCConfig = WsIPCConfig
   }
 
 data WsIPCAtoms = WsIPCAtoms
-  { atomGo, atomShift, atomRename, atomFocus, atomFill, atomClean :: !Atom }
+  { atomGo, atomGoMany, atomShift, atomRename, atomFocus, atomFill, atomClean :: !Atom }
 
 -- | The atoms, interned on the first message: interning is a round trip
 -- to the X server, and client messages are frequent.
@@ -65,9 +67,10 @@ wsIPCAtoms = do
   case cached of
     Just atoms -> return atoms
     Nothing -> do
-      atoms <- WsIPCAtoms <$> getAtom "WS_GO" <*> getAtom "WS_SHIFT"
-                       <*> getAtom "WS_RENAME" <*> getAtom "WS_FOCUS"
-                       <*> getAtom "WS_FILL" <*> getAtom "WS_CLEAN"
+      atoms <- WsIPCAtoms <$> getAtom "WS_GO" <*> getAtom "WS_GO_MANY"
+                       <*> getAtom "WS_SHIFT" <*> getAtom "WS_RENAME"
+                       <*> getAtom "WS_FOCUS" <*> getAtom "WS_FILL"
+                       <*> getAtom "WS_CLEAN"
       XS.put (WsIPCAtomCache (Just atoms))
       return atoms
 
@@ -81,6 +84,7 @@ wsIPCEventHook cfg ClientMessageEvent {ev_message_type = mt, ev_data = a : _} = 
         forM_ (mfilter (not . null) name) handle
       w = fromIntegral a
   if | mt == atomGo atoms     -> byName (wsIPCGo cfg)
+     | mt == atomGoMany atoms -> byName (wsIPCGoMany cfg . words)
      | mt == atomShift atoms  -> byName (wsIPCShift cfg)
      | mt == atomRename atoms -> byName (wsIPCRename cfg)
      | mt == atomFill atoms   -> byName (wsIPCFill cfg)

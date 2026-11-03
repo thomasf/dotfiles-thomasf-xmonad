@@ -24,14 +24,37 @@ func rofiCustomKey(err error) (int, bool) {
 }
 
 func parseRofiIndex(out []byte) (int, string, error) {
-	line := strings.TrimRight(string(out), "\r\n")
-	idxStr, rest, hasRest := strings.Cut(line, " ")
-	typed := ""
-	if hasRest {
-		typed = rest
+	indices, typed, err := parseRofiIndices(out)
+	if err != nil || len(indices) == 0 {
+		return 0, typed, err
 	}
-	n, err := strconv.Atoi(idxStr)
-	return n, typed, err
+	return indices[0], typed, nil
+}
+
+func parseRofiIndices(out []byte) ([]int, string, error) {
+	trimmed := strings.TrimRight(string(out), "\r\n")
+	if trimmed == "" {
+		return nil, "", nil
+	}
+	lines := strings.Split(trimmed, "\n")
+	var indices []int
+	typed := ""
+	for _, l := range lines {
+		l = strings.TrimRight(l, "\r")
+		if l == "" {
+			continue
+		}
+		idxStr, rest, hasRest := strings.Cut(l, " ")
+		if hasRest && typed == "" {
+			typed = rest
+		}
+		n, err := strconv.Atoi(idxStr)
+		if err != nil {
+			return nil, typed, err
+		}
+		indices = append(indices, n)
+	}
+	return indices, typed, nil
 }
 
 func rofiSizeArgs(args []string) (widthPct, heightPct int, rest []string, err error) {

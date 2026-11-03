@@ -94,7 +94,7 @@ const usageText = `usage: ws name [-p | -s]
        ws wt init [-y] [-pick] [workspace]
        ws wt remove [-force] [-y] [-pick] [[project@]name]
        ws pick [-go] [-shift] [-empty] [-p prompt] [-columns n] [-lines n] [-worktrees]
-       ws go workspace
+       ws go workspace...
        ws shift [workspace]
        ws fill [workspace]
        ws clean

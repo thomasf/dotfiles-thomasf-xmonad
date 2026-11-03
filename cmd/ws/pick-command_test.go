@@ -89,6 +89,19 @@ func TestRofiPickWorkspace(t *testing.T) {
 	}
 }
 
+func TestRofiPickWorkspacesMulti(t *testing.T) {
+	groups := []PickGroup{{"hello", []PickEntry{{"hello", true, false, false, true}, {"hello.bot", true, false, false, true}}}}
+	fakeCommand(t, "rofi", "cat >/dev/null; printf '0 \\n2 \\n'")
+	got, err := rofiPickWorkspaces("ws", 3, 20, "", false, false, groups)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	want := []string{"hello", "hello.bot"}
+	if !slices.Equal(got, want) {
+		t.Errorf("got %v, want %v", got, want)
+	}
+}
+
 func TestWorktreePrefixes(t *testing.T) {
 	t.Setenv("HOME", t.TempDir())
 	hello := newRepo(t, "hello")

@@ -21,11 +21,8 @@ module XMonad.Actions.PrefixWorkspaces
     , gotoPrefixWSWith
     , gotoBaseWSWith
     , worktreePromptWith
-    , radialScreenRank
     , fillPrefixWSWith
     , fillPrefixWSWith'
-    , removeEmptyHiddenWorkspacesExcept
-    , removeEmptyHiddenWorkspacesExcept'
     ) where
 
 import           Control.Monad (unless)
@@ -35,6 +32,7 @@ import           Text.Read (readMaybe)
 import           XMonad
 import qualified XMonad.StackSet as W
 import           XMonad.Actions.CycleWS (WSType(..), Direction1D(..), findWorkspace, hiddenWS, wsTagGroup)
+import           XMonad.Actions.Workspaces
 import           XMonad.Util.WorkspaceCompare (WorkspaceSort)
 import           XMonad.Util.Run (runProcessWithInput)
 import qualified XMonad.Prompt as XP
@@ -107,44 +105,6 @@ worktreePromptWith sep xpc viewWs = do
             target = (if '@' `elem` p || p == project then p else project ++ "@" ++ p) ++ suffix
         unless (null p || target == thisWS) $ viewOrCreate viewWs target
   XP.mkXPrompt (WsPrompt ("worktree" ++ suffix ++ ": ")) xpc (XP.mkComplFunFromList' xpc prefixes) go
-
--- | Compute the ranking score for a screen rectangle based on radial distance
--- from the center of the main display area.
--- Lower score = filled first.
--- Screens on upper rows receive a high score (+100000) so they are filled last.
-radialScreenRank :: [Rectangle] -> [Rectangle] -> Rectangle -> Double
-radialScreenRank physScreens allRects r
-  | isAbove r = 100000.0 + abs (cx r - deskCenterX)
-  | otherwise = abs (cx r - deskCenterX)
-  where
-    cy rect = fromIntegral (rect_y rect) + fromIntegral (rect_height rect) / 2 :: Double
-    cx rect = fromIntegral (rect_x rect) + fromIntegral (rect_width rect) / 2 :: Double
-
-    refRects = if null physScreens then allRects else physScreens
-    cys = map cy refRects
-    minCY = if null cys then 0 else minimum cys
-    maxCY = if null cys then 0 else maximum cys
-    hasMultipleRows = maxCY - minCY > 200
-    midY = (minCY + maxCY) / 2
-    isAbove rect = hasMultipleRows && cy rect < midY
-
-    lowerPhys = filter (not . isAbove) refRects
-    sortedPhys = sortOn rect_x lowerPhys
-    numPhys = length sortedPhys
-    centerMonitor = if numPhys == 0
-                      then Rectangle 0 0 1920 1080
-                      else sortedPhys !! (numPhys `div` 2)
-    deskCenterX = fromIntegral (rect_x centerMonitor) + fromIntegral (rect_width centerMonitor) / 2 :: Double
-
--- | Remove all hidden workspaces that are empty (contain no windows),
--- except those whose tags are in the given list.
-removeEmptyHiddenWorkspacesExcept :: [WorkspaceId] -> X ()
-removeEmptyHiddenWorkspacesExcept kept = windows (removeEmptyHiddenWorkspacesExcept' kept)
-
--- | Pure transformation to remove empty hidden workspaces except those in the given list.
-removeEmptyHiddenWorkspacesExcept' :: [WorkspaceId] -> WindowSet -> WindowSet
-removeEmptyHiddenWorkspacesExcept' kept s =
-  s { W.hidden = filter (\w -> isJust (W.stack w) || W.tag w `elem` kept) (W.hidden s) }
 
 -- | Fill all screens with workspaces sharing the prefix of target workspace 'target',
 -- using automatic radial screen prioritization radiating outward from the desk center.

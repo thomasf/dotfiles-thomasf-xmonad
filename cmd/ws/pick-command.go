@@ -109,7 +109,7 @@ with spawn, rather than wait for it while rofi runs and lock up input.
 		if *withWorktrees {
 			shownWts = wts
 		}
-		name, err := rofiPickWorkspace(*prompt, *columns, *lines, filter, *withWorktrees, *withEmpty, pickGroups(current, shown, visible, hasWindows, shownWts))
+		picked, err := rofiPickWorkspaces(*prompt, *columns, *lines, filter, *withWorktrees, *withEmpty, pickGroups(current, shown, visible, hasWindows, shownWts))
 		if t, ok := errors.AsType[ToggleWorktrees](err); ok {
 			*withWorktrees = !*withWorktrees
 			filter = t.filter
@@ -121,11 +121,15 @@ with spawn, rather than wait for it while rofi runs and lock up input.
 			continue
 		}
 		if b, ok := errors.AsType[ChooseBranch](err); ok {
-			name, err = pickBranchWorktree(b.project, *columns, *lines)
-			if errors.Is(err, errCancelled) {
+			branchWs, bErr := pickBranchWorktree(b.project, *columns, *lines)
+			if errors.Is(bErr, errCancelled) {
 				filter = b.project + "@"
 				continue
 			}
+			if bErr != nil {
+				return bErr
+			}
+			picked = []string{branchWs}
 		}
 		if c, ok := errors.AsType[CompleteRow](err); ok {
 			// Completing the same name again readies it for a
@@ -151,16 +155,23 @@ with spawn, rather than wait for it while rofi runs and lock up input.
 		}
 		// Drop the dot again if nothing was typed after it, unless
 		// a workspace has that name.
-		if name == dotted && !slices.Contains(names, name) {
-			name = strings.TrimSuffix(name, ".")
+		for i, name := range picked {
+			if name == dotted && !slices.Contains(names, name) {
+				picked[i] = strings.TrimSuffix(name, ".")
+			}
 		}
 		if *goTo {
-			return X.sendWorkspaceMessage("WS_GO", name)
+			if len(picked) == 1 {
+				return X.sendWorkspaceMessage("WS_GO", picked[0])
+			}
+			return X.sendWorkspaceMessage("WS_GO_MANY", strings.Join(picked, " "))
 		}
 		if *shiftTo {
-			return X.sendWorkspaceMessage("WS_SHIFT", name)
+			return X.sendWorkspaceMessage("WS_SHIFT", picked[0])
 		}
-		fmt.Println(name)
+		for _, name := range picked {
+			fmt.Println(name)
+		}
 		return nil
 	}
 }
@@ -372,63 +383,90 @@ func (FillScreens) Error() string { return "fill screens" }
 // Ctrl+Tab returns a CompleteRow with the name of the selected row, or
 // a ChooseBranch if the user typed <project>@. It returns errFalse if
 // the user cancels.
-func rofiPickWorkspace(prompt string, columns, lines int, filter string, worktrees, empty bool, groups []PickGroup) (string, error) {
+// rofiPickWorkspaces lets the user pick one or more of the workspaces in groups
+// with rofi. It returns their names. The user may toggle showing the
+// git worktree prefixes that don't yet have a workspace with Ctrl+t,
+// which returns a ToggleWorktrees; worktrees says whether they are shown.
+// Likewise Ctrl+s returns a ToggleEmpty for the workspaces without windows;
+// empty says whether they are shown. Ctrl+Tab returns a CompleteRow with
+// the name of the selected row, or a ChooseBranch if the user typed <project>@.
+// It returns errFalse if the user cancels.
+func rofiPickWorkspaces(prompt string, columns, lines int, filter string, worktrees, empty bool, groups []PickGroup) ([]string, error) {
 	rows, names := pickRows(groups, accentColor(), visibleColor())
 	theme := fmt.Sprintf("listview { columns: %d; lines: %d; flow: vertical; fixed-columns: true; }", columns, lines)
 	// What Ctrl+s and Ctrl+t do: + shows, - hides.
 	sign := map[bool]string{false: "+", true: "-"}
-	args := []string{"-dmenu", "-i", "-matching", "fuzzy", "-markup-rows",
+	args := []string{"-dmenu", "-i", "-matching", "fuzzy", "-markup-rows", "-multi-select",
+		"-ballot-selected-str", pangoColor("* ", selectedColor()), "-ballot-unselected-str", "  ",
 		"-kb-custom-1", "Control+t", "-kb-custom-3", "Control+s",
 		"-kb-move-char-forward", "Right", "-kb-custom-4", "Control+f",
-		// rofi's own Ctrl+Space types in the row as it is shown,
-		// markup and indent included, so ws types in its name on
-		// Ctrl+Tab instead. Switching modes has no use in dmenu.
-		"-kb-row-select", "", "-kb-mode-next", "Shift+Right", "-kb-custom-2", "Control+Tab",
+		"-kb-row-select", "", "-kb-accept-alt", "Control+space,Shift+space,Shift+Return", "-kb-mode-next", "Shift+Right", "-kb-custom-2", "Control+Tab",
 		"-format", "i f", "-p", prompt,
-		"-mesg", "C-Ret typed   C-Tab complete   C-f fill   C-s " + sign[empty] + "empty   C-t " + sign[worktrees] + "worktrees"}
+		"-mesg", "C-Space mark   C-Ret typed   C-Tab complete   C-f fill   C-s " + sign[empty] + "empty   C-t " + sign[worktrees] + "worktrees"}
 	if filter != "" {
 		args = append(args, "-filter", filter)
 	}
 	cmd, err := rofiCommand(pickWidth(columns), pickHeight, theme, args...)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	cmd.Stdin = strings.NewReader(strings.Join(rows, "\n"))
 	out, err := cmd.Output()
-	n, typed, nerr := parseRofiIndex(out)
+	indices, typed, nerr := parseRofiIndices(out)
 	if key, ok := rofiCustomKey(err); ok {
+		firstIdx := -1
+		if len(indices) > 0 {
+			firstIdx = indices[0]
+		}
 		switch key {
 		case 1:
-			return "", ToggleWorktrees{typed}
+			return nil, ToggleWorktrees{typed}
 		case 2:
 			if p, ok := strings.CutSuffix(typed, "@"); ok && p != "" && !strings.ContainsAny(p, ".@ ") {
-				return "", ChooseBranch{p}
+				return nil, ChooseBranch{p}
 			}
-			if nerr == nil && n >= 0 && n < len(names) {
-				return "", CompleteRow{names[n]}
+			if firstIdx >= 0 && firstIdx < len(names) {
+				return nil, CompleteRow{names[firstIdx]}
 			}
-			return "", CompleteRow{typed}
+			return nil, CompleteRow{typed}
 		case 3:
-			return "", ToggleEmpty{typed}
+			return nil, ToggleEmpty{typed}
 		case 4:
-			if nerr == nil && n >= 0 && n < len(names) {
-				return "", FillScreens{names[n]}
+			if firstIdx >= 0 && firstIdx < len(names) {
+				return nil, FillScreens{names[firstIdx]}
 			}
-			return "", FillScreens{typed}
+			return nil, FillScreens{typed}
 		}
 	}
 	if err != nil {
-		return "", errFalse
+		return nil, errFalse
 	}
-	switch {
-	case nerr != nil:
-		return "", fmt.Errorf("rofi: unexpected output %q", out)
-	case n >= 0 && n < len(names):
-		return names[n], nil
-	case n == -1 && strings.TrimSpace(typed) != "":
-		return strings.TrimSpace(typed), nil
+	if nerr != nil {
+		return nil, fmt.Errorf("rofi: unexpected output %q", out)
 	}
-	return "", errFalse
+	var selected []string
+	for _, idx := range indices {
+		if idx >= 0 && idx < len(names) {
+			selected = append(selected, names[idx])
+		} else if idx == -1 && strings.TrimSpace(typed) != "" {
+			selected = append(selected, strings.TrimSpace(typed))
+		}
+	}
+	if len(selected) == 0 && strings.TrimSpace(typed) != "" {
+		selected = append(selected, strings.TrimSpace(typed))
+	}
+	if len(selected) == 0 {
+		return nil, errFalse
+	}
+	return selected, nil
+}
+
+func rofiPickWorkspace(prompt string, columns, lines int, filter string, worktrees, empty bool, groups []PickGroup) (string, error) {
+	ws, err := rofiPickWorkspaces(prompt, columns, lines, filter, worktrees, empty, groups)
+	if err != nil || len(ws) == 0 {
+		return "", err
+	}
+	return ws[0], nil
 }
 
 // pickWidth is how wide the picker is, in percent of the xmonad screen,

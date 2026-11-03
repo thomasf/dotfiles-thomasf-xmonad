@@ -43,6 +43,7 @@ import           XMonad.Actions.UpdatePointer
 import qualified XMonad.Actions.Warp as Warp
 import qualified XMonad.Actions.AdjacentScreens as AdjSc
 import qualified XMonad.Actions.PrefixWorkspaces as PW
+import qualified XMonad.Actions.Workspaces as WS
 import           XMonad.Actions.WithAll
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops (ewmh)
@@ -248,7 +249,7 @@ myKeys host pal xpc conf=
   , ("M-S-i",               addName "Move window to other workspace (ws pick -shift -empty)" $ spawn "ws pick -shift -empty")
   , ("M-i <Space> r",       addName "Rename current workspace (ws rename)"            $ spawn "ws rename")
   , ("M-i <Backspace>",     addName "Delete current workspace"                        $ DW.removeWorkspace >> movePointer)
-  , ("M-i C-<Backspace>",   addName "Clean empty hidden workspaces"                   $ PW.removeEmptyHiddenWorkspacesExcept keptWorkspaces)
+  , ("M-i C-<Backspace>",   addName "Clean empty hidden workspaces"                   $ WS.removeEmptyHiddenWorkspacesExcept keptWorkspaces)
   , ("M-p w",               addName ".www"                                            $ gotoPrefixWS "www" >> movePointer)
   , ("M-p d",               addName ".doc"                                            $ gotoPrefixWS "doc" >> movePointer)
   , ("M-p b",               addName ".bot"                                            $ gotoPrefixWS "bot" >> movePointer)
@@ -301,7 +302,7 @@ myKeys host pal xpc conf=
     -- | View a workspace by name, remove left over empty workspace and move pointer
     myViewWS' wsid = addName("Show " ++ wsid ++ " workspace ") $ do
       rmEmptyWs $ myViewWS wsid
-      PW.removeEmptyHiddenWorkspacesExcept keptWorkspaces
+      WS.removeEmptyHiddenWorkspacesExcept keptWorkspaces
       movePointer
     wsPrompt wsp = wsp xpc afterWSPrompt
 
@@ -330,13 +331,13 @@ myKeys host pal xpc conf=
     gotoBaseWS = do
       PF.resetPhysicalFullscreen
       rmEmptyWs $ PW.gotoBaseWSWith wsSeparator myViewWS
-      PW.removeEmptyHiddenWorkspacesExcept keptWorkspaces
+      WS.removeEmptyHiddenWorkspacesExcept keptWorkspaces
 
     gotoPrefixWS :: String -> X ()
     gotoPrefixWS suffix = do
       PF.resetPhysicalFullscreen
       rmEmptyWs $ PW.gotoPrefixWSWith wsSeparator myViewWS suffix
-      PW.removeEmptyHiddenWorkspacesExcept keptWorkspaces
+      WS.removeEmptyHiddenWorkspacesExcept keptWorkspaces
 
     worktreePrompt :: X ()
     worktreePrompt = PW.worktreePromptWith wsSeparator xpc myViewWS
@@ -563,11 +564,12 @@ noRescreenEventHook _ = mempty
 wsIPCEventHook :: Event -> X All
 wsIPCEventHook = WsIPC.wsIPCEventHook WsIPC.WsIPCConfig
   { WsIPC.wsIPCGo     = wsGo
+  , WsIPC.wsIPCGoMany = wsGoMany
   , WsIPC.wsIPCShift  = wsShift
   , WsIPC.wsIPCRename = wsRename
   , WsIPC.wsIPCFocus  = wsFocus
   , WsIPC.wsIPCFill   = wsFill
-  , WsIPC.wsIPCClean  = PW.removeEmptyHiddenWorkspacesExcept keptWorkspaces
+  , WsIPC.wsIPCClean  = WS.removeEmptyHiddenWorkspacesExcept keptWorkspaces
   }
 
 -- | Fill all screens with workspaces from the prefix of the given workspace.
@@ -591,7 +593,19 @@ wsGo n = do
       then showWorkspaceNameOld >> windows (W.view n) >> maybeWorkspaceAction >> showWorkspaceNameFast
       else myViewWS n
     movePointer
-  PW.removeEmptyHiddenWorkspacesExcept keptWorkspaces
+  WS.removeEmptyHiddenWorkspacesExcept keptWorkspaces
+
+-- | Switch multiple screens to the given workspaces.
+-- The currently focused screen gets the first workspace.
+-- Subsequent workspaces are assigned to other screens sorted radially outward from the desk center.
+wsGoMany :: [WorkspaceId] -> X ()
+wsGoMany [] = return ()
+wsGoMany [single] = wsGo single
+wsGoMany targets = do
+  PF.resetPhysicalFullscreen
+  WS.viewWorkspacesOnScreens keptWorkspaces DW.addHiddenWorkspace targets
+  movePointer
+  showWorkspaceNameFast
 
 -- | Focus the window "ws window" names, as the window search did. Its
 -- workspace is shown if need be.
