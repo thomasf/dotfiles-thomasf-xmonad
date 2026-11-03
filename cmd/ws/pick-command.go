@@ -17,9 +17,10 @@ import (
 func runPick(args []string) error {
 	fs := newFlagSet("pick", "[-go] [-shift] [-empty] [-p prompt] [-columns n] [-lines n] [-worktrees]", `
 Pick lets the user choose a workspace with rofi and prints its name. It
-lists the workspaces with windows or on another screen, other than the
-current one, grouped by project; those on other screens are in colour.
-It exits with status 1 if the user cancels.
+lists the workspaces with windows or on another screen, and the
+current one, grouped by project; those on screen are in colour, and
+the current workspace is labelled current. It exits with status 1 if
+the user cancels.
 
     Ctrl+Enter  take the name as typed, for a new workspace
     Ctrl+Tab    type in the name of the selected workspace, to edit it;
@@ -75,11 +76,13 @@ with spawn, rather than wait for it while rofi runs and lock up input.
 	onScreen := X.visibleDesktops()
 	var busy []string
 	visible := make(map[string]bool)
+	hasWindows := make(map[string]bool)
 	for i, name := range names {
-		if occupied[i] || onScreen[i] {
+		if occupied[i] || onScreen[i] || i == cur {
 			busy = append(busy, name)
 		}
 		visible[name] = onScreen[i]
+		hasWindows[name] = occupied[i]
 	}
 	// Listing the worktrees takes a while, so it is done only once
 	// they are asked for, and then only once.
@@ -105,7 +108,7 @@ with spawn, rather than wait for it while rofi runs and lock up input.
 		if *withWorktrees {
 			shownWts = wts
 		}
-		name, err := rofiPickWorkspace(*prompt, *columns, *lines, filter, *withWorktrees, *withEmpty, pickGroups(current, shown, visible, shownWts))
+		name, err := rofiPickWorkspace(*prompt, *columns, *lines, filter, *withWorktrees, *withEmpty, pickGroups(current, shown, visible, hasWindows, shownWts))
 		if t, ok := errors.AsType[ToggleWorktrees](err); ok {
 			*withWorktrees = !*withWorktrees
 			filter = t.filter
@@ -161,9 +164,11 @@ type PickGroup struct {
 }
 
 type PickEntry struct {
-	name    string
-	open    bool // whether the workspace exists; else it is a worktree without one
-	visible bool // whether a screen other than the current one shows it
+	name     string
+	open     bool // whether the workspace exists; else it is a worktree without one
+	visible  bool // whether a screen shows it
+	current  bool // whether this is the current workspace
+	occupied bool // whether it has windows
 }
 
 // projectsOf returns the projects of workspaces, each once.
@@ -177,28 +182,40 @@ func projectsOf(workspaces []string) []string {
 	return ps
 }
 
-// pickGroups groups the workspaces, other than current and the
-// scratchpad workspace NSP, and the worktree prefixes that have no
-// workspace by project. visible holds the workspaces on other screens. The project of current comes first, the others
+// pickGroups groups the workspaces, other than the scratchpad workspace NSP,
+// and the worktree prefixes that have no workspace by project. visible holds
+// the workspaces on other screens. The project of current comes first, the others
 // follow by name. Within a project, the main checkout comes before its
 // worktrees, and a workspace without suffix before numbered ones, before
 // other suffixes.
-func pickGroups(current string, workspaces []string, visible map[string]bool, worktrees []string) []PickGroup {
+func pickGroups(current string, workspaces []string, visible map[string]bool, occupied map[string]bool, worktrees []string) []PickGroup {
 	byProject := make(map[string][]PickEntry)
 	prefixes := make(map[string]bool)
 	for _, t := range workspaces {
-		if t == "" || t == current || t == "NSP" {
+		if t == "" || t == "NSP" {
 			continue
 		}
 		w := Workspace(t)
 		prefixes[w.prefix()] = true
-		byProject[w.project()] = append(byProject[w.project()], PickEntry{t, true, visible[t]})
+		byProject[w.project()] = append(byProject[w.project()], PickEntry{
+			name:     t,
+			open:     true,
+			visible:  visible[t] || t == current,
+			current:  t == current,
+			occupied: occupied[t],
+		})
 	}
 	prefixes[Workspace(current).prefix()] = true
 	for _, p := range worktrees {
 		if !prefixes[p] {
 			w := Workspace(p)
-			byProject[w.project()] = append(byProject[w.project()], PickEntry{p, false, false})
+			byProject[w.project()] = append(byProject[w.project()], PickEntry{
+				name:     p,
+				open:     false,
+				visible:  false,
+				current:  false,
+				occupied: false,
+			})
 		}
 	}
 
@@ -406,15 +423,28 @@ const pickHeight = 65
 // picks that rather than nothing. Headers match only their project when
 // the user filters, so that a filter on the rest of a name leaves the
 // workspaces at the top. Worktrees without a workspace are labelled in
-// colour, and workspaces on other screens are in visible.
+// colour, workspaces on other screens are in visible, the current
+// workspace is in visible and labelled current, and empty workspaces
+// are dimmed.
 func pickRows(groups []PickGroup, colour, visible string) (rows, names []string) {
 	for _, g := range groups {
 		rows = append(rows, pangoBold(g.project))
 		names = append(names, g.entries[0].name)
 		for _, e := range g.entries {
-			row := "  " + html.EscapeString(e.name)
-			if e.visible {
-				row = "  " + pangoColor(e.name, visible)
+			var nameHtml string
+			switch {
+			case e.visible && e.occupied:
+				nameHtml = pangoColor(e.name, visible)
+			case e.visible && !e.occupied:
+				nameHtml = pangoColorDim(e.name, visible, 60)
+			case !e.visible && !e.occupied && e.open:
+				nameHtml = pangoDim(e.name, 60)
+			default:
+				nameHtml = html.EscapeString(e.name)
+			}
+			row := "  " + nameHtml
+			if e.current {
+				row += "  " + pangoDim("current", 60)
 			}
 			if !e.open {
 				row += "  " + pangoColor("worktree", colour)

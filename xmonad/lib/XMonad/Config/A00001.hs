@@ -245,7 +245,7 @@ myKeys host pal xpc conf=
   -- , ("M-C-i M-C-i",         addName "cycle ws on next screen"                      $ holdScreenFocus $ nextScreen' >> myCycleRecentWs xK_i xK_o)
   -- , ("M-C-u M-C-u",         addName "cycle ws on prev screen"                      $ holdScreenFocus $ prevScreen' >> myCycleRecentWs xK_o xK_i)
   , ("M-i <Space> <Space>", addName "Create or change workspace prompt"               $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
-  , ("M-S-i",               addName "Move window to other workspace (ws pick -shift)" $ spawn "ws pick -shift")
+  , ("M-S-i",               addName "Move window to other workspace (ws pick -shift -empty)" $ spawn "ws pick -shift -empty")
   , ("M-i <Space> r",       addName "Rename current workspace (ws rename)"            $ spawn "ws rename")
   , ("M-i <Backspace>",     addName "Delete current workspace"                        $ DW.removeWorkspace >> movePointer)
   , ("M-p w",               addName ".www"                                            $ gotoPrefixWS "www" >> movePointer)

@@ -118,6 +118,10 @@ func pangoDim(text string, alphaPct int) string {
 	return fmt.Sprintf(`<span fgalpha="%d%%">%s</span>`, alphaPct, html.EscapeString(text))
 }
 
+func pangoColorDim(text, color string, alphaPct int) string {
+	return fmt.Sprintf(`<span foreground="%s" fgalpha="%d%%">%s</span>`, color, alphaPct, html.EscapeString(text))
+}
+
 func pangoBold(text string) string {
 	return "<b>" + html.EscapeString(text) + "</b>"
 }

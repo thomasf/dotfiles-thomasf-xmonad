@@ -16,13 +16,13 @@ func runShift(args []string) error {
 	fs := newFlagSet("shift", "[workspace]", `
 Shift moves the focused window to workspace, creating it if it is new,
 with a WS_SHIFT client message that the xmonad configuration handles.
-Without a workspace, it lets the user choose one with rofi, as ws pick -shift
+Without a workspace, it lets the user choose one with rofi, as ws pick -shift -empty
 does.
 `)
 	fs.Parse(args)
 	switch fs.NArg() {
 	case 0:
-		return runPick([]string{"-shift"})
+		return runPick([]string{"-shift", "-empty"})
 	case 1:
 		return shiftWorkspace(fs.Arg(0))
 	default:
