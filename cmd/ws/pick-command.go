@@ -121,13 +121,14 @@ with spawn, rather than wait for it while rofi runs and lock up input.
 			continue
 		}
 		if b, ok := errors.AsType[ChooseBranch](err); ok {
-			branchWs, bErr := pickBranchWorktree(b.project, *columns, *lines)
-			if errors.Is(bErr, errCancelled) {
+			var branchWs string
+			branchWs, err = pickBranchWorktree(b.project, *columns, *lines)
+			if errors.Is(err, errCancelled) {
 				filter = b.project + "@"
 				continue
 			}
-			if bErr != nil {
-				return bErr
+			if err != nil {
+				return err
 			}
 			picked = []string{branchWs}
 		}
