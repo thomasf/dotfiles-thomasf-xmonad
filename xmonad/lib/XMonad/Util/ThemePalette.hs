@@ -136,7 +136,7 @@ myFocusedColor :: Palette -> String
 myFocusedColor pal = col pal "magenta"
 
 myUrgentColor :: Palette -> String
-myUrgentColor pal = col pal "blue"
+myUrgentColor pal = M.findWithDefault (col pal "blue") "urgent" pal
 
 myNormalBorderColor :: Palette -> String
 myNormalBorderColor pal = col pal "bg_1"
