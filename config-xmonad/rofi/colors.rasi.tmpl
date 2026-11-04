@@ -15,6 +15,9 @@
   background:       @bg;
   lightfg:          @fg-dim;
   lightbg:          @bg-alt;
+  blue:             {{.theme.colors.blue}};
+  red:              {{.theme.colors.red}};
+  separatorcolor:   @bg-alt;
 
   background-color: transparent;
   text-color:       @fg;
@@ -27,6 +30,18 @@ window {
 
 prompt {
   text-color:       @accent;
+}
+
+entry {
+  placeholder-color: @fg-dim;
+}
+
+num-filtered-rows, num-rows, textbox-num-sep {
+  text-color:       @fg-dim;
+}
+
+scrollbar {
+  handle-color:     @bg-alt;
 }
 
 textbox {
@@ -45,6 +60,26 @@ element normal.normal, element alternate.normal {
 element selected.normal {
   background-color: @bg-alt;
   text-color:       @accent;
+}
+
+element normal.active, element alternate.active {
+  background-color: transparent;
+  text-color:       @blue;
+}
+
+element selected.active {
+  background-color: @bg-alt;
+  text-color:       @blue;
+}
+
+element normal.urgent, element alternate.urgent {
+  background-color: transparent;
+  text-color:       @red;
+}
+
+element selected.urgent {
+  background-color: @bg-alt;
+  text-color:       @red;
 }
 
 element-text {
