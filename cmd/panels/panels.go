@@ -77,9 +77,9 @@ var (
 		"flam": {
 			Screens: map[int]ScreenConfig{
 				0: {Top: true, Bottom: true, Trayer: true},
-				1: {Top: true, TopSimple: true},
-				2: {},
-				3: {Top: true, TopSimple: true},
+				// 1: {Top: true, TopSimple: true},
+				// 2: {},
+				// 3: {Top: true, TopSimple: true},
 			},
 			Default: ScreenConfig{},
 		},

@@ -636,18 +636,49 @@ wsRename n = do
 -- See the 'XMonad.Hooks.DynamicLog' extension for examples.
 --
 
+-- | Parse a workspace name into (project, Maybe worktree, Maybe suffix)
+-- where workspace is <project>[@<worktree>][.<suffix>]
+parseWorkspaceTag :: String -> (String, Maybe String, Maybe String)
+parseWorkspaceTag tag = (proj, wt, sfx)
+  where
+    (pfx, sfx) = split '.' (trim tag)
+    (proj, wt) = split '@' pfx
+    split c s  = case break (== c) s of
+      (a, _:b) -> (a, Just b)
+      (a, _)   -> (a, Nothing)
+
+-- | Use xmobar escape codes to output a string with the font at the given index
+xmobarFont :: Int -> String -> String
+xmobarFont index = wrap ("<fn=" ++ show index ++ ">") "</fn>"
+
+-- | Format a workspace tag using font weights (font 0 = medium for project/suffix,
+-- font 3 = light for worktree/delimiters) and an optional suffix color.
+formatWs :: String -> String -> String -> String -> String
+formatWs mainCol mainBg sfxCol tag
+  | not (null mainBg)                = xmobarColor mainCol mainBg (pad (prefix ++ suffix))
+  | null suffix || mainCol == sfxCol = pad (xmobarColor mainCol "" (prefix ++ suffix))
+  | otherwise                        = pad (xmobarColor mainCol "" prefix ++ xmobarColor sfxCol "" suffix)
+  where
+    (proj, wt, sfx) = parseWorkspaceTag tag
+    prefix = proj ++ maybe "" (\w -> xmobarFont 3 ('@':w)) wt
+    suffix = maybe "" (\s -> xmobarFont 3 "." ++ s) sfx
+    pad    = wrap "  " "  "
+
 myXmobarTopPP :: TP.Palette -> PP
 myXmobarTopPP pal = def
-  { ppCurrent = xmobarColor (TP.myFocusedColor pal) "" . wrap " " "" . trim
-  , ppVisible = wrap " " "" . trim
-  , ppHidden  = const ""
-  -- , ppUrgent  = xmobarColor (TP.myUrgentColor pal) "" . wrap " ◀"  "▶"
-  , ppUrgent  = xmobarColor (TP.myUrgentColor pal) "" . wrap "  "  ""
-  , ppTitle   = const ""
-  , ppLayout  = const ""
-  , ppSep     = " "
-  , ppSort    = mySortByXineramaPhysicalRule
+  { ppCurrent          = badge (TP.myFocusedColor pal)
+  , ppVisible          = formatWs (TP.col pal "fg_1") "" (TP.col pal "yellow")
+  , ppVisibleNoWindows = Just (formatWs (TP.col pal "dim_0") "" (TP.col pal "dim_0"))
+  , ppHidden           = const ""
+  , ppUrgent           = badge (TP.myUrgentColor pal)
+  , ppTitle            = const ""
+  , ppLayout           = const ""
+  , ppWsSep            = ""
+  , ppSep              = " "
+  , ppSort             = mySortByXineramaPhysicalRule
   }
+  where
+    badge bg = formatWs (TP.col pal "bg_0") bg ""
 
 -- | The bottom bar shows only the focused window's title, sanitized as
 -- dynamicLogString would.

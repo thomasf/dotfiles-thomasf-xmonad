@@ -1,5 +1,5 @@
-Config { font = "PT Sans Narrow Bold 28px"
-       , additionalFonts = ["PT Sans Narrow 28px", "Pragmata Pro Bold 18px"]
+Config { font = "Roboto Condensed 26px"
+       , additionalFonts = ["Roboto Condensed 26px", "Pragmata Pro Bold 18px"]
        , borderColor = "{{ .C "bg_1" }}"
        , bgColor = "{{ .C "bg_0" }}"
        , fgColor = "{{ .C "fg_1" }}"
@@ -15,13 +15,10 @@ Config { font = "PT Sans Narrow Bold 28px"
        , pickBroadest = False
        , position = BottomSize C 100 32
        , textOffset = -1
-       , commands = [ -- Run MPD ["-t", " <statei> <artist> - <title> ", "--", "-P", ">>", "-Z", "||", "-S", "><"] 10
-                    -- , Run Com "fortune" ["~/.config-base/fortunes"] "quote" 9000
-                      Run NamedXPropertyLog "_XMONAD_LOG_BOTTOM" "xm"
+       , commands = [ Run NamedXPropertyLog "_XMONAD_LOG_BOTTOM" "xm"
                     , Run Kbd [("us(intl-unicode)", "US"), ("us", "US"), ("se(nodeadkeys)", "SE"), ("se", "SE"), ("se(mac)", "SE mac")]
                     ]
 
        , sepChar = "%"
        , alignSep = "}{"
-       -- , template = "  <fn=1><fc={{ .C "fg_1" }}>%kbd%</fc></fn>   <fc={{ .C "yellow" }}>%xm%</fc> }{<fn=1><fc={{ .C "green" }}>%mpd%</fc></fn>"
        , template = "  <fn=1><fc={{ .C "fg_1" }}>%kbd%</fc></fn>   <fc={{ .C "yellow" }}>%xm%</fc>"
