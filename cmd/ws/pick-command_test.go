@@ -102,6 +102,31 @@ func TestRofiPickWorkspacesMulti(t *testing.T) {
 	}
 }
 
+func TestRofiPickWorkspacesFlags(t *testing.T) {
+	groups := []PickGroup{{"hello", []PickEntry{{"hello", true, false, false, true}}}}
+	flagsFile := filepath.Join(t.TempDir(), "flags")
+	t.Setenv("FLAGS_FILE", flagsFile)
+	fakeCommand(t, "rofi", `cat >/dev/null; printf "%s\n" "$@" > "$FLAGS_FILE"; echo '0 '`)
+	_, err := rofiPickWorkspaces("ws", 3, 20, "", false, false, groups)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	data, err := os.ReadFile(flagsFile)
+	if err != nil {
+		t.Fatalf("read flags: %v", err)
+	}
+	args := strings.Split(strings.TrimSpace(string(data)), "\n")
+	checkFlag := func(flag, want string) {
+		t.Helper()
+		idx := slices.Index(args, flag)
+		if idx == -1 || idx+1 >= len(args) || args[idx+1] != want {
+			t.Errorf("flag %s: got %q, want %q", flag, args[idx+1:], want)
+		}
+	}
+	checkFlag("-kb-accept-entry", "Control+m,Return,KP_Enter")
+	checkFlag("-kb-accept-custom", "Control+Return,Control+j")
+}
+
 func TestWorktreePrefixes(t *testing.T) {
 	t.Setenv("HOME", t.TempDir())
 	hello := newRepo(t, "hello")

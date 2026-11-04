@@ -22,7 +22,7 @@ current one, grouped by project; those on screen are in colour, and
 the current workspace is labelled current. It exits with status 1 if
 the user cancels.
 
-    Ctrl+Enter  take the name as typed, for a new workspace
+    Ctrl+Enter  take the name as typed, for a new workspace (also Ctrl+j)
     Ctrl+Tab    type in the name of the selected workspace, to edit it;
                 again on the same name, add a dot if it has none; after
                 <project>@, choose a branch of the project's repository
@@ -376,7 +376,7 @@ func (FillScreens) Error() string { return "fill screens" }
 // with rofi and returns its name. The list has columns of lines rows,
 // filled from top to bottom so that groups read downwards; filter, if
 // not empty, is typed in already. The user can also enter a name of
-// their own with Ctrl+Enter, or show or hide the worktrees without a
+// their own with Ctrl+Enter or Ctrl+j, or show or hide the worktrees without a
 // workspace with Ctrl+t, which returns a ToggleWorktrees; worktrees says
 // whether they are shown. Likewise Ctrl+s returns a ToggleEmpty for the
 // workspaces without windows; empty says whether they are shown.
@@ -384,7 +384,8 @@ func (FillScreens) Error() string { return "fill screens" }
 // a ChooseBranch if the user typed <project>@. It returns errFalse if
 // the user cancels.
 // rofiPickWorkspaces lets the user pick one or more of the workspaces in groups
-// with rofi. It returns their names. The user may toggle showing the
+// with rofi. It returns their names. The user can also enter a name of
+// their own with Ctrl+Enter or Ctrl+j. The user may toggle showing the
 // git worktree prefixes that don't yet have a workspace with Ctrl+t,
 // which returns a ToggleWorktrees; worktrees says whether they are shown.
 // Likewise Ctrl+s returns a ToggleEmpty for the workspaces without windows;
@@ -401,6 +402,7 @@ func rofiPickWorkspaces(prompt string, columns, lines int, filter string, worktr
 		"-kb-custom-1", "Control+t", "-kb-custom-3", "Control+s",
 		"-kb-move-char-forward", "Right", "-kb-custom-4", "Control+f",
 		"-kb-row-select", "", "-kb-accept-alt", "Control+space,Shift+space,Shift+Return", "-kb-mode-next", "Shift+Right", "-kb-custom-2", "Control+Tab",
+		"-kb-accept-entry", "Control+m,Return,KP_Enter", "-kb-accept-custom", "Control+Return,Control+j",
 		"-format", "i f", "-p", prompt,
 		"-mesg", "C-Space mark   C-Ret typed   C-Tab complete   C-f fill   C-s " + sign[empty] + "empty   C-t " + sign[worktrees] + "worktrees"}
 	if filter != "" {
