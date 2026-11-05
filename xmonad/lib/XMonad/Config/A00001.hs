@@ -129,8 +129,8 @@ myKeys host pal xpc conf=
   , ("M-t",        addName "Push the window into tiling mode"                    $ withFocused (windows . W.sink) >> movePointer)
   , ("M-C-c",      addName "kill"                                                  kill')
   , ("M-S-C-c",    addName "run xkill or kill all windows on special workspaces"   killPrompt')
-  , ("M-u",        addName "Focus urgent window"                                 $ focusUrgent >> movePointer)
-  , ("M-C-u",      addName "Clear all urgent window statuses"                    $ clearUrgents >> focusUrgent)
+  , ("M-u",        addName "Focus urgent window"                                   focusUrgentFlash)
+  , ("M-C-u",      addName "Clear all urgent window statuses"                    $ clearUrgents >> focusUrgentFlash)
   ] ++
   subtitle "Horizontal screen actions": mkNamedKeymap conf
   [ ("M-f",   addName "Next screen"                        $ showWorkspaceNameOld >> PF.physicalScreenGo R True >> movePointer >> showWorkspaceNameFast)
@@ -914,6 +914,22 @@ focusPointer = do
   case W.peek ws of
     Just _  -> movePointer
     Nothing -> Warp.warpToScreen (W.screen (W.current ws)) (1/2) (1/2)
+
+-- | Focus the most recent urgent window and flash workspace names.
+-- If switching screens, flashes the old workspace name on the origin screen and the new one on the target screen.
+focusUrgentFlash :: X ()
+focusUrgentFlash = withUrgents $ \urgents -> case urgents of
+  []    -> return ()
+  (u:_) -> withWindowSet $ \ws ->
+    case W.findTag u ws of
+      Nothing -> return ()
+      Just t  -> do
+        let isOtherScreen = any ((== t) . W.tag . W.workspace) (W.visible ws)
+        when isOtherScreen showWorkspaceNameOld
+        PF.resetPhysicalFullscreenIfOther u
+        windows (W.focusWindow u)
+        movePointer
+        showWorkspaceNameFast
 
 -- | 2D screen and window navigation configuration.
 myNavConfig :: AdjSc.ScreenNavConfig
