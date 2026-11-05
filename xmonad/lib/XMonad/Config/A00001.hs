@@ -402,7 +402,7 @@ mySpacerWidth :: TP.Palette -> Int
 mySpacerWidth pal = max 1 (TP.scaleDpi pal (fromIntegral myDefaultSpacerWidth))
 
 myDefaultBorderWidth :: Dimension
-myDefaultBorderWidth = 2
+myDefaultBorderWidth = 3
 myBorderWidth :: TP.Palette -> Dimension
 myBorderWidth pal = fromIntegral (max 1 (TP.scaleDpi pal (fromIntegral myDefaultBorderWidth)))
 
