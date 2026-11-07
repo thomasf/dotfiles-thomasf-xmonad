@@ -3,7 +3,51 @@
 #zenity_text_view {
     padding: 16px 20px;
 }
+
+/*
+ * Window decorations & outer borders:
+ * Removes solid-csd frames, inset shadows, and drop-shadows completely.
+ */
+window.solid-csd,
+window.solid-csd:backdrop,
+window.csd,
+window.csd:backdrop,
+window.csd decoration,
+window.csd decoration:backdrop,
+window.ssd,
+.solid-csd decoration,
+.solid-csd decoration:backdrop,
+decoration {
+    margin: 0;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    outline: none;
+    border-radius: 0;
+    --window-radius: 0px;
+}
+
+window.csd.tiled,
+window.csd.tiled-top,
+window.csd.tiled-left,
+window.csd.tiled-right,
+window.csd.tiled-bottom,
+window.csd.tiled:backdrop,
+window.csd.tiled-top:backdrop,
+window.csd.tiled-left:backdrop,
+window.csd.tiled-right:backdrop,
+window.csd.tiled-bottom:backdrop {
+    margin: 0;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    outline: none;
+    border-radius: 0;
+    --window-radius: 0px;
+}
+
 {{- if expr "hasPrefix(theme.name, 'mono')"}}
+{{/* {{- if true }} */}}
 {{- $c := .theme.colors}}
 
 /*
@@ -72,7 +116,10 @@ dialog,
 }
 
 /* Header bars & title bars */
-headerbar {
+headerbar,
+toolbarview > .top-bar,
+.top-bar,
+.titlebar {
     background-color: {{$c.bg_1}};
     color: {{$c.fg_0}};
     border-color: {{$c.bg_2}};
