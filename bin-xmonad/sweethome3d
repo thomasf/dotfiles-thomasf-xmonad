@@ -9,9 +9,8 @@
 
 export GDK_SCALE=2g
 export JAVA_TOOL_OPTIONS="-Dcom.eteks.sweethome3d.j3d.useOffScreen3DView=true"
-exec java -jar ~/.opt/SweetHome3D.jar \
-     -Dcom.eteks.sweethome3d.j3d.PhotoRenderer.highQuality.globalIllumination=path \
-     -Dcom.eteks.sweethome3d.j3d.PhotoRenderer.highQuality.diffusedBounces=8
+# exec java -jar ~/.opt/SweetHome3D.jar \
+#      -Dcom.eteks.sweethome3d.j3d.PhotoRenderer.highQuality.globalIllumination=path \
+#      -Dcom.eteks.sweethome3d.j3d.PhotoRenderer.highQuality.diffusedBounces=8
 
-     
-
+exec /usr/bin/sweethome3d
