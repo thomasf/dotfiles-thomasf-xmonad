@@ -1,0 +1,184 @@
+#zenity_text_view text,
+#zenity_text_view textview,
+#zenity_text_view {
+    padding: 16px 20px;
+}
+{{- if expr "hasPrefix(theme.name, 'mono')"}}
+{{- $c := .theme.colors}}
+
+/*
+ * GTK theme generated for the {{.theme.name}}:{{.theme.variant}} theme.
+ * Full color palette styling for GTK 3, GTK 4, and Libadwaita applications (such as Nautilus).
+ */
+
+/* GTK 3 & GTK 4 named colors */
+@define-color theme_bg_color {{$c.bg_0}};
+@define-color theme_fg_color {{$c.fg_0}};
+@define-color theme_base_color {{$c.bg_0}};
+@define-color theme_text_color {{$c.fg_0}};
+@define-color theme_selected_bg_color {{$c.bg_2}};
+@define-color theme_selected_fg_color {{$c.fg_1}};
+@define-color theme_view_bg_color {{$c.bg_0}};
+@define-color theme_view_text_color {{$c.fg_0}};
+@define-color insensitive_bg_color {{$c.bg_1}};
+@define-color insensitive_fg_color {{$c.dim_0}};
+@define-color insensitive_base_color {{$c.bg_0}};
+@define-color borders {{$c.bg_2}};
+@define-color outline_color {{$c.dim_0}};
+@define-color warning_color {{$c.yellow}};
+@define-color error_color {{$c.red}};
+@define-color success_color {{$c.green}};
+
+/* Libadwaita / GTK 4 named colors */
+@define-color accent_color {{$c.fg_1}};
+@define-color accent_bg_color {{$c.bg_2}};
+@define-color accent_fg_color {{$c.fg_1}};
+@define-color window_bg_color {{$c.bg_0}};
+@define-color window_fg_color {{$c.fg_0}};
+@define-color view_bg_color {{$c.bg_0}};
+@define-color view_fg_color {{$c.fg_0}};
+@define-color headerbar_bg_color {{$c.bg_1}};
+@define-color headerbar_fg_color {{$c.fg_0}};
+@define-color headerbar_border_color {{$c.bg_2}};
+@define-color headerbar_backdrop_color {{$c.bg_0}};
+@define-color sidebar_bg_color {{$c.bg_1}};
+@define-color sidebar_fg_color {{$c.fg_0}};
+@define-color sidebar_backdrop_color {{$c.bg_0}};
+@define-color sidebar_border_color {{$c.bg_2}};
+@define-color sidebar_shade_color {{$c.bg_2}};
+@define-color secondary_sidebar_bg_color {{$c.bg_1}};
+@define-color secondary_sidebar_fg_color {{$c.fg_0}};
+@define-color secondary_sidebar_backdrop_color {{$c.bg_0}};
+@define-color secondary_sidebar_border_color {{$c.bg_2}};
+@define-color card_bg_color {{$c.bg_1}};
+@define-color card_fg_color {{$c.fg_0}};
+@define-color card_shade_color {{$c.bg_2}};
+@define-color dialog_bg_color {{$c.bg_0}};
+@define-color dialog_fg_color {{$c.fg_0}};
+@define-color popover_bg_color {{$c.bg_1}};
+@define-color popover_fg_color {{$c.fg_0}};
+@define-color popover_shade_color {{$c.bg_2}};
+@define-color thumbnail_bg_color {{$c.bg_0}};
+@define-color thumbnail_fg_color {{$c.fg_0}};
+@define-color shade_color rgba(0, 0, 0, 0.36);
+@define-color scrollbar_outline_color {{$c.bg_0}};
+
+/* Core window & dialog styling */
+window,
+dialog,
+.background {
+    background-color: {{$c.bg_0}};
+    color: {{$c.fg_0}};
+}
+
+/* Header bars & title bars */
+headerbar {
+    background-color: {{$c.bg_1}};
+    color: {{$c.fg_0}};
+    border-color: {{$c.bg_2}};
+}
+
+headerbar:backdrop {
+    background-color: {{$c.bg_0}};
+    color: {{$c.dim_0}};
+}
+
+/* Views, grids, text and lists (Nautilus file view) */
+textview text,
+textview,
+text,
+view,
+.view,
+columnview,
+gridview,
+listview {
+    background-color: {{$c.bg_0}};
+    color: {{$c.fg_0}};
+}
+
+/* Navigation sidebar (Nautilus left panel) */
+.navigation-sidebar,
+placessidebar {
+    background-color: {{$c.bg_1}};
+    color: {{$c.fg_0}};
+}
+
+.navigation-sidebar:backdrop,
+placessidebar:backdrop {
+    background-color: {{$c.bg_0}};
+    color: {{$c.dim_0}};
+}
+
+/* Selected rows & items */
+selection,
+*:selected,
+listview row:selected,
+columnview row:selected,
+gridview item:selected,
+.navigation-sidebar row:selected {
+    background-color: {{$c.bg_2}};
+    color: {{$c.fg_1}};
+}
+
+/* Input fields */
+entry {
+    background-color: {{$c.bg_1}};
+    color: {{$c.fg_1}};
+    border-color: {{$c.bg_2}};
+}
+
+entry:focus {
+    border-color: {{$c.fg_0}};
+}
+
+/* Buttons */
+button {
+    background-color: {{$c.bg_1}};
+    color: {{$c.fg_0}};
+    border-color: {{$c.bg_2}};
+}
+
+button:hover {
+    background-color: {{$c.bg_2}};
+    color: {{$c.fg_1}};
+}
+
+button:active,
+button:checked {
+    background-color: {{$c.bg_2}};
+    color: {{$c.fg_1}};
+}
+
+button:disabled {
+    background-color: {{$c.bg_0}};
+    color: {{$c.dim_0}};
+    border-color: {{$c.bg_1}};
+}
+
+/* Scrollbars */
+scrollbar slider {
+    background-color: {{$c.bg_2}};
+}
+
+scrollbar slider:hover {
+    background-color: {{$c.dim_0}};
+}
+
+/* Popovers & menus */
+popover,
+popover > contents,
+menu {
+    background-color: {{$c.bg_1}};
+    color: {{$c.fg_0}};
+    border-color: {{$c.bg_2}};
+}
+
+/* Statusbar, infobar, search bar */
+statusbar,
+infobar,
+searchbar > revealer > box {
+    background-color: {{$c.bg_1}};
+    color: {{$c.fg_0}};
+    border-color: {{$c.bg_2}};
+}
+{{- end}}

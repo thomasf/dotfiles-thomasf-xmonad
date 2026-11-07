@@ -39,9 +39,10 @@ dst = '.config/dunst/dunstrc'
 src = 'config-xmonad/gtk/gtk-3.0'
 dst = '.config/gtk-3.0'
 
-[[mount]]
-src = 'config-xmonad/gtk/gtk-4.0'
-dst = '.config/gtk-4.0'
+[[template]]
+condition = "os == 'linux'"
+src = 'config-xmonad/gtk/gtk-4.0/gtk.css.tmpl'
+dst = '.config/gtk-4.0/gtk.css'
 
 [[mount]]
 src = 'config-xmonad/alacritty'
@@ -102,7 +103,7 @@ phase = 'pre'
 on = ['install', 'theme']
 condition = "os == 'linux'"
 src = '''
-for f in ~/.config/rofi/colors.rasi ~/.config/rofi/dark.rasi ~/.config/rofi/light.rasi ~/.config/dunst/dunstrc; do
+for f in ~/.config/rofi/colors.rasi ~/.config/rofi/dark.rasi ~/.config/rofi/light.rasi ~/.config/dunst/dunstrc ~/.config/gtk-4.0; do
   if [ -L "$f" ]; then rm "$f"; fi
 done
 '''
@@ -130,6 +131,9 @@ panels
 xrdb -merge ~/.Xresources
 if pgrep -x dunst >/dev/null; then
   dunstctl reload
+fi
+if pgrep -x nautilus >/dev/null; then
+  nautilus -q || true
 fi
 {{- if lookPath "gsettings"}}
 gsettings set org.gnome.desktop.interface color-scheme {{shellQuote (or (index .theme.apps "color_scheme") (printf "prefer-%s" .theme.mode))}}
