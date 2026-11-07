@@ -150,6 +150,10 @@ export DE
 hash www 2>/dev/null \
   && export BROWSER=www
 
+# Give D-Bus/systemd-activated apps the session's PATH and preferred programs
+hash dbus-update-activation-environment 2>/dev/null \
+  && dbus-update-activation-environment --systemd PATH BROWSER EDITOR
+
 if hash miniserv 2>/dev/null; then
   miniserv &
 fi
