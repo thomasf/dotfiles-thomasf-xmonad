@@ -1,5 +1,5 @@
-Config { font = "Roboto Condensed 26px"
-       , additionalFonts = ["Roboto Condensed 26px", "Pragmata Pro Bold 18px"]
+Config { font = "Roboto Condensed {{ .Scale 15.13 }}px"
+       , additionalFonts = ["Roboto Condensed {{ .Scale 15.13 }}px", "Pragmata Pro Bold {{ .Scale 10.47 }}px"]
        , borderColor = "{{ .C "bg_1" }}"
        , bgColor = "{{ .C "bg_0" }}"
        , fgColor = "{{ .C "fg_1" }}"
@@ -13,7 +13,7 @@ Config { font = "Roboto Condensed 26px"
        , overrideRedirect = True
        , persistent = True
        , pickBroadest = False
-       , position = BottomSize C 100 32
+       , position = BottomSize C 100 {{ .Height }}
        , textOffset = -1
        , commands = [ Run NamedXPropertyLog "_XMONAD_LOG_BOTTOM" "xm"
                     , Run Kbd [("us(intl-unicode)", "US"), ("us", "US"), ("se(nodeadkeys)", "SE"), ("se", "SE"), ("se(mac)", "SE mac")]

@@ -1,5 +1,5 @@
-Config { font = "Inter Medium 27px"
-       , additionalFonts = ["Pragmata Pro 17px", "Pragmata Pro Bold 16px", "Inter Light 27px"]
+Config { font = "Inter Medium {{ .Scale 15.7 }}px"
+       , additionalFonts = ["Pragmata Pro {{ .Scale 9.89 }}px", "Pragmata Pro Bold {{ .Scale 9.31 }}px", "Inter Light {{ .Scale 15.7 }}px"]
        , borderColor = "{{ .C "bg_0" }}"
        , bgColor = "{{ .C "bg_0" }}"
        , fgColor = "{{ .C "fg_0" }}"

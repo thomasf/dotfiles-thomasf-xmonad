@@ -19,21 +19,12 @@ Xmessage*Command.borderColor:         {{.theme.colors.dim_0}}
 Xmessage*Scrollbar.background:        {{.theme.colors.bg_0}}
 Xmessage*Scrollbar.foreground:        {{.theme.colors.dim_0}}
 
-{{- if parseBool .vars.hidpi}}
-Xmessage*font:                        -bitstream-courier 10 pitch-medium-r-normal--28-0-0-0-m-0-iso10646-1
-Xmessage*Scrollbar.width:             28
-Xmessage*Command.internalWidth:       24
-Xmessage*Command.internalHeight:      10
-Xmessage*Command.borderWidth:         2
-Xmessage*form.defaultDistance:        16
-{{- else}}
-Xmessage*font:                        -bitstream-courier 10 pitch-medium-r-normal--16-0-0-0-m-0-iso10646-1
-Xmessage*Scrollbar.width:             14
-Xmessage*Command.internalWidth:       12
-Xmessage*Command.internalHeight:      5
-Xmessage*Command.borderWidth:         1
-Xmessage*form.defaultDistance:        8
-{{- end}}
+Xmessage*font:                        -bitstream-courier 10 pitch-medium-r-normal--{{expr "int(round(16.0 * float(vars.dpi_scale)))"}}-0-0-0-m-0-iso10646-1
+Xmessage*Scrollbar.width:             {{expr "int(round(14.0 * float(vars.dpi_scale_int)))"}}
+Xmessage*Command.internalWidth:       {{expr "int(round(12.0 * float(vars.dpi_scale_int)))"}}
+Xmessage*Command.internalHeight:      {{expr "int(round(5.0 * float(vars.dpi_scale_int)))"}}
+Xmessage*Command.borderWidth:         {{expr "int(round(1.0 * float(vars.dpi_scale_int)))"}}
+Xmessage*form.defaultDistance:        {{expr "int(round(8.0 * float(vars.dpi_scale_int)))"}}
 
 URxvt*background:             {{.theme.colors.bg_0}}
 URxvt*foreground:             {{.theme.colors.fg_0}}

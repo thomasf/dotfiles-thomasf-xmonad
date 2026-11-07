@@ -69,6 +69,10 @@ merge(doc, {"colors": {
     "footer_bar": {"foreground": c["bg_0"], "background": c["blue"]},
 }})
 merge(doc, read(l + "os." + os + ".toml", default = {}))
+pad = 2 * int(vars.get("dpi_scale_int", "1"))
+merge(doc, {
+    "window": {"padding": {"x": pad, "y": pad}},
+})
 merge(doc, read(l + "host." + hostname.split(".")[0] + ".toml", default = {}))
 '''
 

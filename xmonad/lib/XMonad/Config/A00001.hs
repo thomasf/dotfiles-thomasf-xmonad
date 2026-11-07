@@ -798,7 +798,6 @@ myScratchPads = [ NS "largeTerminal" (term "largeTerminal") (res =? scratch "lar
                 ]
   where
     scratch sname = "scratchpad_" ++ sname
-    -- term sname = " urxvt " ++ " -name " ++ scratch sname
     -- PATHENV_SKIP keeps the shell from running pathenv for the
     -- workspace the scratchpad happens to be opened on.
     term sname = " env PATHENV_SKIP=1 alacritty " ++ " --class " ++ scratch sname

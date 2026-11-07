@@ -9,6 +9,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"math"
 
 	"log/slog"
 	"os"
@@ -208,34 +209,47 @@ func getScreens() (Screens, error) {
 	return ss, nil
 }
 
-// readPalette returns the colors of the theme in use, from the palette that
-// dotfiles writes to ~/.config/theme/palette.json.
-func readPalette() (map[string]string, error) {
+// PaletteConfig holds the theme colors and DPI settings loaded from palette.json.
+type PaletteConfig struct {
+	Colors   map[string]string `json:"colors"`
+	Dpi      float64           `json:"dpi"`
+	DpiScale float64           `json:"dpi_scale"`
+}
+
+// readPalette returns the colors and DPI settings of the theme in use, from the
+// palette that dotfiles writes to ~/.config/theme/palette.json.
+func readPalette() (PaletteConfig, error) {
 	home, err := homedir()
 	if err != nil {
-		return nil, err
+		return PaletteConfig{}, err
 	}
 	path := filepath.Join(home, ".config", "theme", "palette.json")
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, err
+		return PaletteConfig{}, err
 	}
-	var p struct {
-		Colors map[string]string `json:"colors"`
-	}
+	var p PaletteConfig
 	if err := json.Unmarshal(data, &p); err != nil {
-		return nil, fmt.Errorf("%s: %w", path, err)
+		return PaletteConfig{}, fmt.Errorf("%s: %w", path, err)
 	}
-	slog.Debug("palette", "path", path, "colors", len(p.Colors))
-	return p.Colors, nil
+	if p.DpiScale <= 0 {
+		if p.Dpi > 0 {
+			p.DpiScale = p.Dpi / 96.0
+		} else {
+			p.DpiScale = 1.0
+		}
+	}
+	slog.Debug("palette", "path", path, "colors", len(p.Colors), "dpi", p.Dpi, "dpi_scale", p.DpiScale)
+	return p, nil
 }
 
 func panels(hostname string) error {
 	slog.Debug("process", "pid", os.Getpid(), "ppid", os.Getppid(), "pgid", syscall.Getpgrp())
 	slog.Debug("environment", "DISPLAY", os.Getenv("DISPLAY"), "PATH", os.Getenv("PATH"))
-	palette, err := readPalette()
+	palConfig, err := readPalette()
 	if err != nil {
-		slog.Warn("palette unreadable, using grey", "err", err)
+		slog.Warn("palette unreadable, using grey and default scale", "err", err)
+		palConfig.DpiScale = 1.0
 	}
 	screens, err := getScreens()
 	if err != nil {
@@ -254,7 +268,11 @@ func panels(hostname string) error {
 			os.Remove(v)
 		}
 	}()
-	const height = 32
+	const baseHeight = 18.62
+	height := int(math.Round(baseHeight * palConfig.DpiScale))
+	if height < 16 {
+		height = 16
+	}
 
 	compConfig := getComputerConfig(hostname)
 
@@ -263,9 +281,10 @@ func panels(hostname string) error {
 
 		if sc.hasTop() {
 			rc := RenderContext{
-				Colors: palette,
-				Screen: i,
-				Height: height,
+				Colors:   palConfig.Colors,
+				Screen:   i,
+				Height:   height,
+				DpiScale: palConfig.DpiScale,
 			}
 			if sc.Trayer {
 				trayerWidth := height * 8
@@ -283,10 +302,11 @@ func panels(hostname string) error {
 		if sc.Trayer {
 			trayerWidth := height * 8
 			if err := runTrayer(RenderContext{
-				Colors: palette,
-				Width:  trayerWidth,
-				Screen: i,
-				Height: height,
+				Colors:   palConfig.Colors,
+				Width:    trayerWidth,
+				Screen:   i,
+				Height:   height,
+				DpiScale: palConfig.DpiScale,
 			}); err != nil {
 				return err
 			}
@@ -294,9 +314,10 @@ func panels(hostname string) error {
 
 		if sc.Bottom {
 			f, err := runXmobar(xmobarBottomTemplate, RenderContext{
-				Colors: palette,
-				Screen: i,
-				Height: height,
+				Colors:   palConfig.Colors,
+				Screen:   i,
+				Height:   height,
+				DpiScale: palConfig.DpiScale,
 			})
 			if err != nil {
 				return err
@@ -424,12 +445,22 @@ func main() {
 
 // RenderContext is what the xmobar templates are rendered with.
 type RenderContext struct {
-	Colors map[string]string // the palette of the theme in use
-	Width  int
-	Xpos   int
-	Ypos   int
-	Screen int
-	Height int
+	Colors   map[string]string // the palette of the theme in use
+	Width    int
+	Xpos     int
+	Ypos     int
+	Screen   int
+	Height   int
+	DpiScale float64
+}
+
+// Scale scales a base size (at standard 96 DPI) proportionally by DpiScale.
+func (rc RenderContext) Scale(base float64) int {
+	scale := rc.DpiScale
+	if scale <= 0 {
+		scale = 1.0
+	}
+	return int(math.Round(base * scale))
 }
 
 var (

@@ -1,7 +1,4 @@
 // Generated from dotfiles/xmonad/config-xmonad/rofi/config.rasi.tmpl.
-// rofi 1.7 and later read no X resources: what was in rofi.* X resources
-// is set here.
-// Colours: colors.rasi, generated from colors.rasi.tmpl with the theme in use.
 @import "colors.rasi"
 
 configuration {
@@ -15,8 +12,8 @@ configuration {
 
 window {
   width: 75%;
-  border: 4px;
-  padding: 8px;
+  border: {{expr "int(round(2.0 * float(vars.dpi_scale_int)))"}}px;
+  padding: {{expr "int(round(4.0 * float(vars.dpi_scale_int)))"}}px;
 }
 
 listview {
