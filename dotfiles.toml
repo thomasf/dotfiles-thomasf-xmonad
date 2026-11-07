@@ -1,11 +1,13 @@
 public = true
 
-[vars]
-dpi = '{{ expr `{"flam": 165, "yak": 170}[hostname] ?? 170` }}'
+[default_vars]
+dpi = '170'
 
-[[script]]
-# clean up after replacing the command with [[starlark]]
-src='rm -f ~/bin/create-alacritty-config'
+[vars]
+dpi_scale     = '{{ expr `float(vars.dpi) / 96.0` }}'
+dpi_scale_int = '{{ expr `int(round(float(vars.dpi) / 96.0))` }}'
+cursor_size   = '{{ expr `int(round(float(vars.dpi) / 96.0)) * 24` }}'
+hidpi         = '{{ expr `int(vars.dpi) >= 144` }}'
 
 [[go]]
 src = 'cmd/batt'

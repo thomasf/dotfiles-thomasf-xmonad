@@ -1,9 +1,8 @@
 # -*- mode: conf -*-
-{{- $hidpi := expr "int(vars.dpi) >= 144"}}
 Net/ThemeName "Adwaita"
 Net/IconThemeName "gnome"
 Gtk/CursorThemeName "Adwaita"
-Gtk/CursorThemeSize {{if $hidpi}}48{{else}}24{{end}}
+Gtk/CursorThemeSize {{.vars.cursor_size}}
 Gtk/FontName "Cantarell 11"
 Xft/Antialias 1
 Xft/Hinting 1

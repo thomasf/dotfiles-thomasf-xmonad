@@ -1,7 +1,6 @@
-{{- $hidpi := expr "int(vars.dpi) >= 144"}}
 #include ".config-xmonad/xresources/common"
 
-Xcursor.size:                         {{if $hidpi}}48{{else}}24{{end}}
+Xcursor.size:                         {{.vars.cursor_size}}
 
 ! The colors of the theme in use, {{.theme.name}}:{{.theme.variant}}. dotfiles
 ! rewrites this file when it switches the theme.
@@ -20,7 +19,7 @@ Xmessage*Command.borderColor:         {{.theme.colors.dim_0}}
 Xmessage*Scrollbar.background:        {{.theme.colors.bg_0}}
 Xmessage*Scrollbar.foreground:        {{.theme.colors.dim_0}}
 
-{{- if $hidpi}}
+{{- if parseBool .vars.hidpi}}
 Xmessage*font:                        -bitstream-courier 10 pitch-medium-r-normal--28-0-0-0-m-0-iso10646-1
 Xmessage*Scrollbar.width:             28
 Xmessage*Command.internalWidth:       24
