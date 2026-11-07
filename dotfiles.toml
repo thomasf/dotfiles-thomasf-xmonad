@@ -95,6 +95,11 @@ condition = "os == 'linux'"
 src = 'config-xmonad/xmonad-palette.tmpl'
 dst = '.config/theme/xmonad-palette'
 
+[[template]]
+condition = "os == 'linux'"
+src = 'config-xmonad/xsettingsd.tmpl'
+dst = '.xsettingsd'
+
 # clean up after replacing links with templates, which do not replace a
 # link: rofi's colors.rasi linked to dark.rasi or light.rasi, and dunstrc was
 # mounted
@@ -132,8 +137,8 @@ xrdb -merge ~/.Xresources
 if pgrep -x dunst >/dev/null; then
   dunstctl reload
 fi
-if pgrep -x nautilus >/dev/null; then
-  nautilus -q || true
+if pgrep -x xsettingsd >/dev/null; then
+  pkill -HUP -x xsettingsd
 fi
 {{- if lookPath "gsettings"}}
 gsettings set org.gnome.desktop.interface color-scheme {{shellQuote (or (index .theme.apps "color_scheme") (printf "prefer-%s" .theme.mode))}}

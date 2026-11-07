@@ -32,6 +32,7 @@ killall -q blueman-applet
 killall -q nm-applet
 killall -q dropboxd
 killall -q dunst
+killall -q xsettingsd
 killall -q kbd
 sleep 0.3
 
@@ -116,6 +117,10 @@ hash mountavfs 2>/dev/null \
 # dunst
 hash dunst 2>/dev/null \
   && dunst &
+
+# xsettingsd
+hash xsettingsd 2>/dev/null \
+  && xsettingsd &
 
 # Launch the polkit authentication agent (apt install mate-polkit)
 [ -x /usr/libexec/polkit-mate-authentication-agent-1 ] \
