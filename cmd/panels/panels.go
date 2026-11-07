@@ -10,13 +10,14 @@ import (
 	"fmt"
 	"io"
 
-	"log"
+	"log/slog"
 	"os"
 	"os/exec"
 	"os/user"
 	"path/filepath"
 	"strings"
 	"sync"
+	"syscall"
 	"text/template"
 	"time"
 
@@ -71,7 +72,8 @@ func (c ComputerConfig) ConfigForScreen(screenIndex int) ScreenConfig {
 }
 
 var (
-	hostFlag = flag.String("host", "", "override hostname for configuration")
+	hostFlag  = flag.String("host", "", "override hostname for configuration")
+	debugFlag = flag.Bool("log.debug", false, "log each step, and xmobar or trayer exiting while panels runs")
 
 	computerConfigs = map[string]ComputerConfig{
 		"flam": {
@@ -102,8 +104,10 @@ var (
 func getComputerConfig(hostname string) ComputerConfig {
 	hostname = strings.ToLower(strings.TrimSpace(strings.Split(hostname, ".")[0]))
 	if cfg, ok := computerConfigs[hostname]; ok {
+		slog.Debug("host config", "host", hostname, "config", cfg)
 		return cfg
 	}
+	slog.Debug("no host config, using the default", "host", hostname, "config", defaultComputerConfig)
 	return defaultComputerConfig
 }
 
@@ -132,24 +136,25 @@ func getScreens() (Screens, error) {
 
 	}
 
-	// // Iterate through all of the outputs and show some of their info.
-	// for _, output := range resources.Outputs {
-	// 	info, err := randr.GetOutputInfo(X, output, 0).Reply()
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
+	if slog.Default().Enabled(context.Background(), slog.LevelDebug) {
+		for _, output := range resources.Outputs {
+			info, err := randr.GetOutputInfo(X, output, 0).Reply()
+			if err != nil {
+				slog.Debug("cant get output info", "error", err)
+				continue
+			}
 
-	// 	if info.Connection == randr.ConnectionConnected {
-	// 		bestMode := info.Modes[0]
-	// 		for _, mode := range resources.Modes {
-	// 			if mode.Id == uint32(bestMode) {
-	// 				fmt.Printf("Width: %d, Height: %d\n",
-	// 					mode.Width, mode.Height)
-
-	// 			}
-	// 		}
-	// 	}
-	// }
+			if info.Connection == randr.ConnectionConnected {
+				bestMode := info.Modes[0]
+				for _, mode := range resources.Modes {
+					if mode.Id == uint32(bestMode) {
+						slog.Debug("size", "output", string(info.Name), "width",
+							mode.Width, "height", mode.Height)
+					}
+				}
+			}
+		}
+	}
 
 	// fmt.Println("\n")
 	var ss Screens
@@ -162,8 +167,10 @@ func getScreens() (Screens, error) {
 
 		}
 		if len(info.Outputs) == 0 {
+			slog.Debug("crtc without outputs, skipped", "crtc", crtc)
 			continue
 		}
+		slog.Debug("screen", "index", len(ss), "crtc", crtc, "x", info.X, "y", info.Y, "width", info.Width, "height", info.Height)
 
 		// log.Printf("X: %d, Y: %d, Width: %d, Height: %d %v\n",
 		// info.X, info.Y, info.Width, info.Height, info.Mode)
@@ -208,7 +215,8 @@ func readPalette() (map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	data, err := os.ReadFile(filepath.Join(home, ".config", "theme", "palette.json"))
+	path := filepath.Join(home, ".config", "theme", "palette.json")
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
@@ -216,15 +224,18 @@ func readPalette() (map[string]string, error) {
 		Colors map[string]string `json:"colors"`
 	}
 	if err := json.Unmarshal(data, &p); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s: %w", path, err)
 	}
+	slog.Debug("palette", "path", path, "colors", len(p.Colors))
 	return p.Colors, nil
 }
 
 func panels(hostname string) error {
+	slog.Debug("process", "pid", os.Getpid(), "ppid", os.Getppid(), "pgid", syscall.Getpgrp())
+	slog.Debug("environment", "DISPLAY", os.Getenv("DISPLAY"), "PATH", os.Getenv("PATH"))
 	palette, err := readPalette()
 	if err != nil {
-		log.Printf("palette: %v; using grey", err)
+		slog.Warn("palette unreadable, using grey", "err", err)
 	}
 	screens, err := getScreens()
 	if err != nil {
@@ -236,7 +247,6 @@ func panels(hostname string) error {
 		return err
 	}
 	daemonLog = openDaemonLog()
-	// spew.Dump(screens)
 
 	var xmobarConfigs []string
 	defer func() {
@@ -297,6 +307,7 @@ func panels(hostname string) error {
 
 	time.Sleep(250 * time.Millisecond)
 
+	slog.Debug("removing xmobar configs and exiting", "configs", xmobarConfigs)
 	return nil
 }
 
@@ -312,11 +323,8 @@ func runTrayer(rc RenderContext) error {
 		"--transparent", "true",
 		"--monitor", "primary",
 	)
-	cmd.Stdout = daemonLog
-	cmd.Stderr = daemonLog
-	cmd.Start()
+	start(cmd)
 	return nil
-
 }
 
 func runXmobar(templ string, rc RenderContext) (string, error) {
@@ -330,11 +338,30 @@ func runXmobar(templ string, rc RenderContext) (string, error) {
 		return "", err
 	}
 	defer tmpfile.Close()
+	slog.Debug("xmobar config", "path", tmpfile.Name(), "screen", rc.Screen,
+		"x", rc.Xpos, "y", rc.Ypos, "width", rc.Width, "height", rc.Height)
 	cmd := exec.Command("xmobar", tmpfile.Name(), "-x", fmt.Sprint(rc.Screen))
+	start(cmd)
+	return tmpfile.Name(), nil
+}
+
+// start starts cmd with its output going to daemonLog. A command that cannot
+// be started is logged, so that the other panels still are. With -log.debug,
+// an exit while panels still runs is logged as well.
+func start(cmd *exec.Cmd) {
 	cmd.Stdout = daemonLog
 	cmd.Stderr = daemonLog
-	cmd.Start()
-	return tmpfile.Name(), nil
+	if err := cmd.Start(); err != nil {
+		slog.Error("start", "cmd", cmd.String(), "err", err)
+		return
+	}
+	slog.Debug("started", "pid", cmd.Process.Pid, "cmd", cmd.String())
+	if *debugFlag {
+		go func() {
+			err := cmd.Wait()
+			slog.Warn("exited before panels did", "pid", cmd.Process.Pid, "cmd", cmd.String(), "err", err)
+		}()
+	}
 }
 
 // daemonLog is where trayer and xmobar write their output, or nil for
@@ -349,14 +376,16 @@ var daemonLog io.Writer
 func openDaemonLog() io.Writer {
 	dir, err := os.UserCacheDir()
 	if err != nil {
-		log.Printf("daemon log: %v", err)
+		slog.Error("daemon log", "err", err)
 		return nil
 	}
-	f, err := os.Create(filepath.Join(dir, "panels.log"))
+	path := filepath.Join(dir, "panels.log")
+	f, err := os.Create(path)
 	if err != nil {
-		log.Printf("daemon log: %v", err)
+		slog.Error("daemon log", "err", err)
 		return nil
 	}
+	slog.Debug("xmobar and trayer output", "path", path)
 	return f
 }
 
@@ -369,21 +398,25 @@ func homedir() (string, error) {
 }
 
 func main() {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	flag.Parse()
+	level := slog.LevelInfo
+	if *debugFlag {
+		level = slog.LevelDebug
+	}
+	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: level})))
 
 	hostname := *hostFlag
 	if hostname == "" {
 		hn, err := os.Hostname()
 		if err != nil {
-			log.Printf("hostname: %v", err)
+			slog.Error("hostname", "err", err)
 		}
 		hostname = hn
 	}
 
 	err := panels(hostname)
 	if err != nil {
-		log.Println(err)
+		slog.Error("panels", "err", err)
 		os.Exit(1)
 	}
 
@@ -424,10 +457,13 @@ loop:
 		}
 		for _, n := range names {
 			if n == name {
+				slog.Debug("killing", "name", name, "pid", p.Pid)
 				wg.Add(1)
 				go func(p *process.Process) {
 					defer wg.Done()
-					p.KillWithContext(ctx)
+					if err := p.KillWithContext(ctx); err != nil {
+						slog.Error("kill", "name", name, "pid", p.Pid, "err", err)
+					}
 				}(p)
 			}
 		}
