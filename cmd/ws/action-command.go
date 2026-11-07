@@ -6,6 +6,7 @@ import (
 	"cmp"
 	"errors"
 	"log"
+	"maps"
 	"os"
 	"os/exec"
 )
@@ -71,25 +72,21 @@ func action(w Workspace) error {
 
 	switch suffix {
 	case "www", "doc":
-		return execLauncher("www-window")
-	case "term", "terminal":
-		return execLauncher("term")
-	case "bot":
-		return botTerm()
+		return execLauncher([]string{"www-window"}, nil)
+	case "term", "terminal", "bot", "test":
+		return termWithPathenvQuestion([]string{"term"}, nil)
 	case "emacs":
-		return execLauncher("e")
+		return execLauncher([]string{"e"}, nil)
 	case "files":
 		home, _ := os.UserHomeDir()
-		return execLauncher("nautilus", "--new-window", "--no-default-window", "--no-desktop", cmp.Or(dir, home))
+		return execLauncher([]string{"nautilus", "--new-window", "--no-default-window", "--no-desktop", cmp.Or(dir, home)}, nil)
 	}
 	return nil
 }
 
-// botTerm asks whether the terminal of a bot workspace should run
+// termWithPathenvQuestion asks whether the terminal of a workspace should run
 // pathenv, and starts it. It starts nothing if the user cancels.
-func botTerm() error {
-	// action has changed to the directory of the workspace, if it
-	// has one, and the terminal starts where ws is.
+func termWithPathenvQuestion(args []string, env map[string]string) error {
 	msg := "Terminal"
 	if wd, err := os.Getwd(); err == nil {
 		msg += " in " + shortenHome(wd)
@@ -98,10 +95,17 @@ func botTerm() error {
 	if errors.Is(err, errCancelled) {
 		return nil
 	}
-	if i == 0 {
-		os.Unsetenv("PATHENV_SKIP")
-	} else {
-		os.Setenv("PATHENV_SKIP", "1")
+	if len(args) == 0 {
+		args = []string{"term"}
 	}
-	return execLauncher("term")
+	env = maps.Clone(env)
+	if env == nil {
+		env = make(map[string]string)
+	}
+	if i == 0 {
+		env["PATHENV_SKIP"] = ""
+	} else {
+		env["PATHENV_SKIP"] = "1"
+	}
+	return execLauncher(args, env)
 }

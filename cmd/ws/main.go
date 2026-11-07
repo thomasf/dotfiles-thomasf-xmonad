@@ -29,9 +29,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/exec"
 	"strings"
-	"syscall"
 )
 
 // errFalse makes ws exit with status 1 without a message, as a
@@ -152,13 +150,4 @@ func output(s string) {
 	if isTerminal(os.Stdout) {
 		fmt.Println()
 	}
-}
-
-// execLauncher replaces ws with the program name from $PATH.
-func execLauncher(name string, args ...string) error {
-	path, err := exec.LookPath(name)
-	if err != nil {
-		return err
-	}
-	return syscall.Exec(path, append([]string{name}, args...), os.Environ())
 }

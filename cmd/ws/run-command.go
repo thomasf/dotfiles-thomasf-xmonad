@@ -205,7 +205,7 @@ func execTarget(cmd string, args []string, mode LaunchMode) error {
 		}
 	}
 
-	if err := execLauncher(target, targetArgs...); err != nil {
+	if err := execLauncher(append([]string{target}, targetArgs...), nil); err != nil {
 		notifyError("", fmt.Sprintf("%s: %v", target, err))
 		return err
 	}
