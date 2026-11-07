@@ -1,6 +1,8 @@
 {{- $hidpi := expr "int(vars.dpi) >= 144"}}
 #include ".config-xmonad/xresources/common"
 
+Xcursor.size:                         {{if $hidpi}}48{{else}}24{{end}}
+
 ! The colors of the theme in use, {{.theme.name}}:{{.theme.variant}}. dotfiles
 ! rewrites this file when it switches the theme.
 

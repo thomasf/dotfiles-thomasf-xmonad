@@ -134,6 +134,7 @@ hsetroot -root {{shellQuote (printf "-%s" (or (index .theme.apps "background_mod
 {{- end}}
 panels
 xrdb -merge ~/.Xresources
+xsetroot -cursor_name left_ptr
 if pgrep -x dunst >/dev/null; then
   dunstctl reload
 fi

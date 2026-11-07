@@ -93,6 +93,10 @@ export SSH_AGENT_PID
 [ -f "${HOME}/.Xresources" ] \
   && xrdb -merge "${HOME}/.Xresources"
 
+# Set root cursor to match Xcursor theme and size
+hash xsetroot 2>/dev/null \
+  && xsetroot -cursor_name left_ptr
+
 # Start music player daemon if it's available
 (
   if hash mpd 2>/dev/null; then
