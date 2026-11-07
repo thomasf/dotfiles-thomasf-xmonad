@@ -48,6 +48,9 @@ sleep 0.3
 [ -f "${HOME}/.bashrc" ] \
   && source "${HOME}/.bashrc"
 
+hash systemctl 2>/dev/null \
+  && systemctl --user mask --now localsearch-3.service
+
 # Ensure sane file permissions etc.
 [ -f "${HOME}/.bin/home-fix" ] \
   && "${HOME}/.bin/home-fix"
