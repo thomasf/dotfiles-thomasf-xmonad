@@ -506,33 +506,35 @@ myManageHook :: ManageHook
 
 myManageHook =
   fullscreenManageHook <+> namedScratchpadManageHook myScratchPads <+> (composeOne . concat $
-  [ [resource  =? r -?>                                        doIgnore           | r <- ["desktop_window", "Panel"]]
-  , [className =? c -?>                                        doIgnore           | c <- ["Ediff", "Xfdesktop"]]
-  , [wmName    =? "Emulator" -?> doFloat]
-  , [isTooltip -?>                                             doIgnore]
-  , [className =? c <&&> skipTaskbar  -?>                      doIgnore           | c <- ["UE4Editor", "com-eteks-sweethome3d-SweetHome3D"]]
-  , [isPiP -?>                                                 doSideFloat SE]
-  , [isDialog  <&&> className =? "org.gnome.Nautilus" -?>      myCenterFloat 0.5 0.3]
-  , [resource  =? r -?>                                        doFloat            | r <- ["floating"]]
-  , [className =? "feh" -?>                                    doFloat]
-  , [role      =? "pop-up" <&&> appName =? "google-chrome" -?> doCenterFloatLarge]
-  , [role      =? "GtkFileChooserDialog" -?> doCenterFloatLarge]
-  , [role      =? "bubble" -?>                                 doIgnore]
-  , [isZenity <&&> title =? "Question" -?>                     doCenterFloat]
-  , [isZenity -?>                                              doCenterFloatLarge]
-  , [className =? c -?>                                        doCenterFloat      | c <- ["Xfce4-settings-manager", "Pinentry", "connected-app"]]
-  , [className =? c -?>                                        doCenterFloatLarge | c <-  ["Xfce4-appfinder"]]
-  , [resource  =? c -?>                                        doCenterFloatLarge | c <-  ["floating-center-large"]]
-  , [resource  =? c -?>                                        doCenterFloat      | c <-  ["floating-center"]]
-  , [className =? "Onboard"  -?>                               doIgnore]
-  , [title     =? "screenkey"  -?>                             doIgnore]
+  [ [resource   =? r -?>                                         doIgnore           | r <- ["desktop_window", "Panel"]]
+  , [className  =? c -?>                                         doIgnore           | c <- ["Ediff", "Xfdesktop"]]
+  , [wmName     =? "Emulator" -?> doFloat]
+  , [isTooltip  -?>                                              doIgnore]
+  , [className  =? c <&&> skipTaskbar -?>                        doIgnore           | c <- ["UE4Editor", "com-eteks-sweethome3d-SweetHome3D"]]
+  , [isPiP      -?>                                              doSideFloat SE]
+  , [isDialog   <&&> className =? "org.gnome.Nautilus" -?>       myCenterFloat 0.5 0.3]
+  , [wmIconName =? r -?>                                         doFloat            | r <- ["floating"]]
+  , [className  =? "feh" -?>                                     doFloat]
+  , [role       =? "pop-up" <&&> appName =? "google-chrome" -?>  doCenterFloatLarge]
+  , [role       =? "GtkFileChooserDialog" -?> doCenterFloatLarge]
+  , [role       =? "bubble" -?>                                  doIgnore]
+  , [isZenity   <&&> title =? "Question" -?>                     doCenterFloat]
+  , [isZenity   -?>                                              doCenterFloatLarge]
+  , [className  =? c -?>                                         doCenterFloat      | c <- ["Xfce4-settings-manager", "Pinentry", "connected-app"]]
+  , [className  =? c -?>                                         doCenterFloatLarge | c <-  ["Xfce4-appfinder"]]
+  , [wmIconName =? c -?>                                         doCenterFloatLarge | c <-  ["floating-center-large"]]
+  , [wmIconName =? c -?>                                         doCenterFloat      | c <-  ["floating-center"]]
+  , [className  =? "Onboard" -?>                                 doIgnore]
+  , [title      =? "screenkey" -?>                               doIgnore]
   , [transience]
-  , [resource  =? "xmessage" -?>                               doCenterFloatLarge]
+  , [resource   =? "xmessage" -?>                               doCenterFloatLarge]
   ])
   where
 
     role = stringProperty "WM_WINDOW_ROLE"
-    wmName = stringProperty "WM_WINDOW_NAME"
+    wmName = stringProperty "WM_NAME"
+    wmName' = stringProperty "WM_WINDOW_NAME" -- ??? non existent standard property
+    wmIconName = stringProperty "WM_ICON_NAME"
     doCenterFloatLarge = myCenterFloat 0.95 0.8
 
     isPiP = title =? "Picture-in-Picture"
