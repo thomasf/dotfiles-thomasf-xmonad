@@ -20,10 +20,9 @@ the workspace, if it has one, it runs the launcher w.<project> from
 $PATH. If there is none, or it fails, it starts what the suffix calls
 for:
 
-    www, doc              www-window
-    term, terminal        term
-    bot                   term, after asking whether to run pathenv
-    emacs                 e
+    www, doc                     www-window
+    term, terminal, bot, test    term, after asking whether to run pathenv
+    emacs                        e
     files                 nautilus, in the workspace directory
 `)
 	fs.Parse(args)
