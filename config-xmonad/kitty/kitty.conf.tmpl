@@ -1,0 +1,92 @@
+# kitty, set up to behave like alacritty: the same font, colors, scrollback,
+# selection and copy/paste keys, no tabs, no splits and no bell. The colors
+# are those of the theme in use ({{.theme.name}}:{{.theme.variant}}); dotfiles
+# theme rewrites this file and reloads kitty with SIGUSR1.
+#
+# Settings for the OS come after this file, then those for the host, which
+# win: os.<os>.conf and host.<hostname>.conf next to this file.
+
+font_family      PragmataPro Mono
+bold_font        auto
+italic_font      auto
+bold_italic_font auto
+font_size        12.0
+
+cursor_shape           block
+cursor_shape_unfocused hollow
+cursor_blink_interval  0
+
+scrollback_lines 100000
+
+# Alacritty's word boundaries, inverted: every printable ASCII character
+# except those that end a word there (,│`|:"' ()[]{}<>).
+select_by_word_characters !#$%&*+-./;=?@\^_~
+copy_on_select clipboard
+mouse_hide_wait -1
+
+enable_audio_bell    no
+visual_bell_duration 0
+
+window_padding_width   2
+confirm_os_window_close 0
+update_check_interval   0
+shell_integration       disabled
+allow_remote_control    no
+
+foreground {{.theme.colors.fg_0}}
+background {{.theme.colors.bg_0}}
+
+cursor            {{.theme.colors.fg_0}}
+cursor_text_color {{.theme.colors.bg_0}}
+
+selection_foreground {{.theme.colors.bg_0}}
+selection_background {{.theme.colors.orange}}
+
+url_color {{.theme.colors.violet}}
+
+color0  {{.theme.colors.color0}}
+color1  {{.theme.colors.color1}}
+color2  {{.theme.colors.color2}}
+color3  {{.theme.colors.color3}}
+color4  {{.theme.colors.color4}}
+color5  {{.theme.colors.color5}}
+color6  {{.theme.colors.color6}}
+color7  {{.theme.colors.color7}}
+
+color8  {{.theme.colors.color8}}
+color9  {{.theme.colors.color9}}
+color10 {{.theme.colors.color10}}
+color11 {{.theme.colors.color11}}
+color12 {{.theme.colors.color12}}
+color13 {{.theme.colors.color13}}
+color14 {{.theme.colors.color14}}
+color15 {{.theme.colors.color15}}
+
+# Only alacritty's keys. Keys without a map, ctrl+shift+c and ctrl+shift+v
+# among them, go to the program.
+clear_all_shortcuts yes
+
+map super+c      copy_to_clipboard
+map super+v      paste_from_clipboard
+map shift+insert paste_from_selection
+
+map shift+page_up   scroll_page_up
+map shift+page_down scroll_page_down
+map shift+home      scroll_home
+map shift+end       scroll_end
+
+# Alacritty's search and vi mode: the scrollback in less, where / searches.
+map super+s          show_scrollback
+map ctrl+shift+f     show_scrollback
+map ctrl+shift+b     show_scrollback
+map ctrl+shift+space show_scrollback
+
+map ctrl+0           change_font_size all 0
+map ctrl+equal       change_font_size all +1.0
+map ctrl+plus        change_font_size all +1.0
+map ctrl+kp_add      change_font_size all +1.0
+map ctrl+minus       change_font_size all -1.0
+map ctrl+kp_subtract change_font_size all -1.0
+
+include os.{{.os}}.conf
+globinclude host.{{ expr `split(hostname, ".")[0]` }}.conf

@@ -77,6 +77,15 @@ merge(doc, read(l + "host." + hostname.split(".")[0] + ".toml", default = {}))
 '''
 
 [[mount]]
+src = 'config-xmonad/kitty'
+dst = '.config/kitty'
+
+# kitty in the colors of the theme in use, set up like alacritty.
+[[template]]
+src = 'config-xmonad/kitty/kitty.conf.tmpl'
+dst = '.config/kitty/kitty.conf'
+
+[[mount]]
 src = 'config-xmonad/fontconfig/conf.d'
 dst = '.fonts.conf.d'
 
@@ -122,8 +131,8 @@ done
 
 # Reload the desktop when dotfiles theme switches the theme, after the files
 # of every repository are written: the root window background, the panels, X
-# resources, dunst, the GTK color scheme and xmonad. A theme without a background
-# gets its bg_0. Nothing is reloaded if no X server answers on DISPLAY, as
+# resources, dunst, kitty, the GTK color scheme and xmonad. A theme without a
+# background gets its bg_0. Nothing is reloaded if no X server answers on DISPLAY, as
 # over ssh with a stale DISPLAY: panels, for one, panics without it.
 [[script]]
 on = 'theme'
@@ -146,6 +155,9 @@ if pgrep -x dunst >/dev/null; then
 fi
 if pgrep -x xsettingsd >/dev/null; then
   pkill -HUP -x xsettingsd
+fi
+if pgrep -x kitty >/dev/null; then
+  pkill -USR1 -x kitty
 fi
 {{- if lookPath "gsettings"}}
 gsettings set org.gnome.desktop.interface color-scheme {{shellQuote (or (index .theme.apps "color_scheme") (printf "prefer-%s" .theme.mode))}}
