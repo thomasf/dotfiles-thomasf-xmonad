@@ -6,10 +6,13 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"image/png"
 	"io"
+	"math"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -107,6 +110,110 @@ func rofiPlacement(widthPct, heightPct int, theme string) []string {
 	return []string{"-m", m.name, "-theme-str", fmt.Sprintf(
 		"window { location: north west; anchor: center; x-offset: %dpx; y-offset: %dpx; width: %dpx;%s } %s",
 		sc.x-m.x, sc.y-m.y, s.w*widthPct/100, height, theme)}
+}
+
+// rofiCharWidth returns rofi's character width in pixels: measured with
+// pango-view for its configured font and dpi and cached, else estimated;
+// 0 if the configuration cannot be read.
+func rofiCharWidth() float64 {
+	dir, err := os.UserConfigDir()
+	if err != nil {
+		return 0
+	}
+	b, err := os.ReadFile(filepath.Join(dir, "rofi", "config.rasi"))
+	if err != nil {
+		return 0
+	}
+	font, dpi, ok := parseRofiFont(string(b))
+	if !ok {
+		return 0
+	}
+	key := fmt.Sprintf("%s\t%d", font, dpi)
+	cache := xdgCacheFile("char_width")
+	if w, ok := readCharWidth(cache, key); ok {
+		return w
+	}
+	w, err := measureCharWidth(font, dpi)
+	if err != nil {
+		return estimateCharWidth(font, dpi)
+	}
+	writeAtomic(cache, fmt.Appendf(nil, "%s\t%g\n", key, w), 0o644)
+	return w
+}
+
+var (
+	rofiFont = regexp.MustCompile(`(?m)^\s*font:\s*"([^"]+)"`)
+	rofiDPI  = regexp.MustCompile(`(?m)^\s*dpi:\s*([0-9]+)`)
+)
+
+// parseRofiFont returns the font and dpi set in a rofi configuration.
+func parseRofiFont(config string) (font string, dpi int, ok bool) {
+	fm, dm := rofiFont.FindStringSubmatch(config), rofiDPI.FindStringSubmatch(config)
+	if fm == nil || dm == nil {
+		return "", 0, false
+	}
+	dpi, err := strconv.Atoi(dm[1])
+	if err != nil || dpi <= 0 {
+		return "", 0, false
+	}
+	return fm[1], dpi, true
+}
+
+// readCharWidth returns the width cached in file for key.
+func readCharWidth(file, key string) (float64, bool) {
+	b, err := os.ReadFile(file)
+	if err != nil {
+		return 0, false
+	}
+	line := strings.TrimSpace(string(b))
+	i := strings.LastIndex(line, "\t")
+	if i < 0 || line[:i] != key {
+		return 0, false
+	}
+	w, err := strconv.ParseFloat(line[i+1:], 64)
+	return w, err == nil && w > 0
+}
+
+// charWidthSample is how many characters measureCharWidth renders.
+const charWidthSample = 100
+
+// measureCharWidth renders characters of font at dpi with pango-view and
+// returns their width in pixels.
+func measureCharWidth(font string, dpi int) (float64, error) {
+	dir, err := os.MkdirTemp("", "ws-char-width")
+	if err != nil {
+		return 0, err
+	}
+	defer os.RemoveAll(dir)
+	out := filepath.Join(dir, "sample.png")
+	err = exec.Command("pango-view", "--font="+font, "--dpi="+strconv.Itoa(dpi), "--margin=0", "-q",
+		"-o", out, "--text="+strings.Repeat("0", charWidthSample)).Run()
+	if err != nil {
+		return 0, err
+	}
+	f, err := os.Open(out)
+	if err != nil {
+		return 0, err
+	}
+	defer f.Close()
+	c, err := png.DecodeConfig(f)
+	if err != nil {
+		return 0, err
+	}
+	return float64(c.Width) / charWidthSample, nil
+}
+
+const pointsPerInch = 72
+
+// estimateCharWidth returns rofiCharEm of the font size at the end of
+// font, in pixels at dpi, rounded to whole pixels as hinting does; 0
+// if font has no size.
+func estimateCharWidth(font string, dpi int) float64 {
+	pt, err := strconv.ParseFloat(font[strings.LastIndex(font, " ")+1:], 64)
+	if err != nil {
+		return 0
+	}
+	return math.Round(pt * float64(dpi) / pointsPerInch * rofiCharEm)
 }
 
 func rofiPath() (string, error) {

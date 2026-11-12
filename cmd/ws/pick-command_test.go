@@ -49,6 +49,29 @@ func TestPickRows(t *testing.T) {
 	}
 }
 
+func TestPickColumnChars(t *testing.T) {
+	rows := []string{
+		"<b>a&amp;b</b>",
+		`  <span foreground="#0064e4">a&amp;b</span>  <span fgalpha="60%">current</span>`, // 14 characters
+	}
+	if got, want := pickColumnChars(rows), pickBallotChars+14+pickGapChars; got != want {
+		t.Errorf("pickColumnChars = %d, want %d", got, want)
+	}
+}
+
+func TestPickColumns(t *testing.T) {
+	for _, c := range []struct{ col, avail, want int }{
+		{20, pickMaxColumns*20 + pickChromeChars, pickMaxColumns},
+		{20, 2*20 + pickChromeChars, 2},
+		{20, 1000, pickMaxColumns},
+		{50, 10, 1},
+	} {
+		if got := pickColumns(c.col, c.avail); got != c.want {
+			t.Errorf("pickColumns(%d, %d) = %d, want %d", c.col, c.avail, got, c.want)
+		}
+	}
+}
+
 // fakeCommand puts a shell script named name, with body script, first
 // in $PATH.
 func fakeCommand(t *testing.T, name, script string) {
@@ -82,7 +105,7 @@ func TestRofiPickWorkspace(t *testing.T) {
 		{"echo '-1 typed'; exit 13", "", FillScreens{"typed"}},
 	} {
 		fakeCommand(t, "rofi", "cat >/dev/null; "+tt.script)
-		got, err := rofiPickWorkspace("ws", 3, 20, "", false, false, groups)
+		got, err := rofiPickWorkspace("ws", 20, "", false, false, groups)
 		if got != tt.want || err != tt.err {
 			t.Errorf("rofi %q: got %q, %v, want %q, %v", tt.script, got, err, tt.want, tt.err)
 		}
@@ -92,7 +115,7 @@ func TestRofiPickWorkspace(t *testing.T) {
 func TestRofiPickWorkspacesMulti(t *testing.T) {
 	groups := []PickGroup{{"hello", []PickEntry{{"hello", true, false, false, true}, {"hello.bot", true, false, false, true}}}}
 	fakeCommand(t, "rofi", "cat >/dev/null; printf '0 \\n2 \\n'")
-	got, err := rofiPickWorkspaces("ws", 3, 20, "", false, false, groups)
+	got, err := rofiPickWorkspaces("ws", 20, "", false, false, groups)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -107,7 +130,7 @@ func TestRofiPickWorkspacesFlags(t *testing.T) {
 	flagsFile := filepath.Join(t.TempDir(), "flags")
 	t.Setenv("FLAGS_FILE", flagsFile)
 	fakeCommand(t, "rofi", `cat >/dev/null; printf "%s\n" "$@" > "$FLAGS_FILE"; echo '0 '`)
-	_, err := rofiPickWorkspaces("ws", 3, 20, "", false, false, groups)
+	_, err := rofiPickWorkspaces("ws", 20, "", false, false, groups)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

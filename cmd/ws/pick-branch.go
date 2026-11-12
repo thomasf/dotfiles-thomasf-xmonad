@@ -14,10 +14,9 @@ import (
 // pickBranchWorktree lets the user choose a branch of the repository of
 // project with rofi, the last changed first, and returns the workspace
 // prefix of its worktree, which it creates if there is none. The user
-// can fetch the remotes first. rofi is as large as the picker with
-// columns columns of lines rows. It returns errCancelled if the user
+// can fetch the remotes first. rofi shows lines rows. It returns errCancelled if the user
 // cancels or the repository is not known.
-func pickBranchWorktree(project string, columns, lines int) (string, error) {
+func pickBranchWorktree(project string, lines int) (string, error) {
 	main, err := projectCheckout(project, true)
 	if err != nil {
 		log.Print(err)
@@ -38,7 +37,7 @@ func pickBranchWorktree(project string, columns, lines int) (string, error) {
 		for _, wt := range wts {
 			checkedOut[wt.branch] = wt.prefix
 		}
-		i, err = rofiPickBranch(project, columns, lines, filter, branchPickRows(infos, checkedOut, accentColor()))
+		i, err = rofiPickBranch(project, lines, filter, branchPickRows(infos, checkedOut, accentColor()))
 		if f, ok := errors.AsType[FetchBranches](err); ok {
 			filter = f.filter
 			fetchRemotes(main, project)
@@ -139,11 +138,10 @@ type FetchBranches struct{ filter string }
 func (FetchBranches) Error() string { return "fetch" }
 
 // rofiPickBranch lets the user choose one of rows, the branches of
-// project, with rofi as large as the picker with columns columns of
-// lines rows, and returns its index. filter, if not empty, is typed in
+// project, with rofi showing lines rows, and returns its index. filter, if not empty, is typed in
 // already. Ctrl+r returns a FetchBranches. It returns errCancelled if
 // the user cancels.
-func rofiPickBranch(project string, columns, lines int, filter string, rows []string) (int, error) {
+func rofiPickBranch(project string, lines int, filter string, rows []string) (int, error) {
 	theme := fmt.Sprintf("listview { columns: 1; lines: %d; }", lines)
 	args := []string{"-dmenu", "-i", "-matching", "fuzzy", "-no-custom", "-markup-rows",
 		"-kb-custom-1", "Control+r", "-format", "i f", "-p", project + "@",
@@ -151,7 +149,7 @@ func rofiPickBranch(project string, columns, lines int, filter string, rows []st
 	if filter != "" {
 		args = append(args, "-filter", filter)
 	}
-	cmd, err := rofiCommand(pickWidth(columns), pickHeight, theme, args...)
+	cmd, err := rofiCommand(pickWidth, pickHeight, theme, args...)
 	if err != nil {
 		return 0, err
 	}

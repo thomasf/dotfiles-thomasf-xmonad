@@ -8,14 +8,17 @@ import (
 	"flag"
 	"fmt"
 	"html"
+	"math"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 func runPick(args []string) error {
-	fs := newFlagSet("pick", "[-go] [-shift] [-empty] [-p prompt] [-columns n] [-lines n] [-worktrees]", `
+	fs := newFlagSet("pick", "[-go] [-shift] [-empty] [-p prompt] [-lines n] [-worktrees]", `
 Pick lets the user choose a workspace with rofi and prints its name. It
 lists the workspaces with windows or on another screen, and the
 current one, grouped by project; those on screen are in colour, and
@@ -43,7 +46,6 @@ with spawn, rather than wait for it while rofi runs and lock up input.
 	shiftTo := fs.Bool("shift", false, "move the focused window to the workspace instead of printing its name")
 	withWorktrees := fs.Bool("worktrees", false, "also list worktrees without a workspace")
 	withEmpty := fs.Bool("empty", false, "also list workspaces without windows")
-	columns := fs.Int("columns", 3, "show `n` columns")
 	lines := fs.Int("lines", 20, "show `n` rows in each column")
 	fs.Parse(args)
 	checkArgs(fs, 0, 0)
@@ -109,7 +111,7 @@ with spawn, rather than wait for it while rofi runs and lock up input.
 		if *withWorktrees {
 			shownWts = wts
 		}
-		picked, err := rofiPickWorkspaces(*prompt, *columns, *lines, filter, *withWorktrees, *withEmpty, pickGroups(current, shown, visible, hasWindows, shownWts))
+		picked, err := rofiPickWorkspaces(*prompt, *lines, filter, *withWorktrees, *withEmpty, pickGroups(current, shown, visible, hasWindows, shownWts))
 		if t, ok := errors.AsType[ToggleWorktrees](err); ok {
 			*withWorktrees = !*withWorktrees
 			filter = t.filter
@@ -122,7 +124,7 @@ with spawn, rather than wait for it while rofi runs and lock up input.
 		}
 		if b, ok := errors.AsType[ChooseBranch](err); ok {
 			var branchWs string
-			branchWs, err = pickBranchWorktree(b.project, *columns, *lines)
+			branchWs, err = pickBranchWorktree(b.project, *lines)
 			if errors.Is(err, errCancelled) {
 				filter = b.project + "@"
 				continue
@@ -375,7 +377,7 @@ func (FillScreens) Error() string { return "fill screens" }
 
 // rofiPickWorkspace lets the user pick one of the workspaces in groups
 // with rofi and returns its name. The list has columns of lines rows,
-// filled from top to bottom so that groups read downwards; filter, if
+// as many as fit up to pickMaxColumns, filled from top to bottom so that groups read downwards; filter, if
 // not empty, is typed in already. The user can also enter a name of
 // their own with Ctrl+Enter or Ctrl+j, or show or hide the worktrees without a
 // workspace with Ctrl+t, which returns a ToggleWorktrees; worktrees says
@@ -393,11 +395,14 @@ func (FillScreens) Error() string { return "fill screens" }
 // empty says whether they are shown. Ctrl+Tab returns a CompleteRow with
 // the name of the selected row, or a ChooseBranch if the user typed <project>@.
 // It returns errFalse if the user cancels.
-func rofiPickWorkspaces(prompt string, columns, lines int, filter string, worktrees, empty bool, groups []PickGroup) ([]string, error) {
+func rofiPickWorkspaces(prompt string, lines int, filter string, worktrees, empty bool, groups []PickGroup) ([]string, error) {
 	rows, names := pickRows(groups, accentColor(), visibleColor())
-	theme := fmt.Sprintf("listview { columns: %d; lines: %d; flow: vertical; fixed-columns: true; }", columns, lines)
 	// What Ctrl+s and Ctrl+t do: + shows, - hides.
 	sign := map[bool]string{false: "+", true: "-"}
+	mesg := "C-Space mark   C-Ret typed   C-Tab complete   C-f fill   C-s " + sign[empty] + "empty   C-t " + sign[worktrees] + "worktrees"
+	columns, width := pickFit(rows, mesg)
+	theme := fmt.Sprintf("listview { columns: %d; lines: %d; flow: vertical; fixed-columns: true; } window { width: %s; }",
+		columns, lines, width)
 	args := []string{"-dmenu", "-i", "-matching", "fuzzy", "-markup-rows", "-multi-select",
 		"-ballot-selected-str", pangoColor("* ", selectedColor()), "-ballot-unselected-str", "  ",
 		"-kb-custom-1", "Control+t", "-kb-custom-3", "Control+s",
@@ -405,11 +410,11 @@ func rofiPickWorkspaces(prompt string, columns, lines int, filter string, worktr
 		"-kb-row-select", "", "-kb-accept-alt", "Control+space,Shift+space,Shift+Return", "-kb-mode-next", "Shift+Right", "-kb-custom-2", "Control+Tab",
 		"-kb-accept-entry", "Control+m,Return,KP_Enter", "-kb-accept-custom", "Control+Return,Control+j",
 		"-format", "i f", "-p", prompt,
-		"-mesg", "C-Space mark   C-Ret typed   C-Tab complete   C-f fill   C-s " + sign[empty] + "empty   C-t " + sign[worktrees] + "worktrees"}
+		"-mesg", mesg}
 	if filter != "" {
 		args = append(args, "-filter", filter)
 	}
-	cmd, err := rofiCommand(pickWidth(columns), pickHeight, theme, args...)
+	cmd, err := rofiCommand(pickWidth, pickHeight, theme, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -464,19 +469,62 @@ func rofiPickWorkspaces(prompt string, columns, lines int, filter string, worktr
 	return selected, nil
 }
 
-func rofiPickWorkspace(prompt string, columns, lines int, filter string, worktrees, empty bool, groups []PickGroup) (string, error) {
-	ws, err := rofiPickWorkspaces(prompt, columns, lines, filter, worktrees, empty, groups)
+func rofiPickWorkspace(prompt string, lines int, filter string, worktrees, empty bool, groups []PickGroup) (string, error) {
+	ws, err := rofiPickWorkspaces(prompt, lines, filter, worktrees, empty, groups)
 	if err != nil || len(ws) == 0 {
 		return "", err
 	}
 	return ws[0], nil
 }
 
-// pickWidth is how wide the picker is, in percent of the xmonad screen,
-// with columns columns; pickHeight is how high.
-func pickWidth(columns int) int { return min(95, 35+20*columns) }
+const (
+	// The most the pickers take of the xmonad screen, in percent.
+	pickWidth  = 95
+	pickHeight = 70
 
-const pickHeight = 65
+	// pickMaxColumns is how many columns the workspace picker shows at most.
+	pickMaxColumns = 3
+
+	// Estimated sizes, in characters unless noted, for pickFit.
+	pickBallotChars = 2   // "* " before each row
+	pickGapChars    = 2   // between columns
+	pickChromeChars = 2   // window border and padding
+	rofiCharEm      = 0.6 // character width in em without pango-view: most monospace fonts; PragmataPro is 0.5
+)
+
+// pickFit returns how many columns of rows fit on the xmonad screen, at
+// least one, and the rofi window width, capped at pickWidth of the
+// screen.
+func pickFit(rows []string, mesg string) (int, string) {
+	col := pickColumnChars(rows)
+	columns := pickMaxColumns
+	chars := func() int { return max(columns*col, utf8.RuneCountInString(mesg)) + pickChromeChars }
+	s, _, err := currentScreen()
+	ch := rofiCharWidth()
+	if err != nil || ch == 0 {
+		return columns, fmt.Sprintf("calc( %dch min %d%% )", chars(), pickWidth)
+	}
+	px := s.w * pickWidth / 100
+	columns = pickColumns(col, int(float64(px)/ch))
+	return columns, fmt.Sprintf("%dpx", min(px, int(math.Ceil(float64(chars())*ch))))
+}
+
+// pickColumnChars returns the width of a column of rows in characters.
+func pickColumnChars(rows []string) int {
+	widest := 0
+	for _, r := range rows {
+		widest = max(widest, utf8.RuneCountInString(html.UnescapeString(pangoTag.ReplaceAllString(r, ""))))
+	}
+	return pickBallotChars + widest + pickGapChars
+}
+
+// pickColumns returns how many columns col wide fit in avail, at most
+// pickMaxColumns and at least one.
+func pickColumns(col, avail int) int {
+	return max(1, min(pickMaxColumns, (avail-pickChromeChars)/col))
+}
+
+var pangoTag = regexp.MustCompile(`<[^>]*>`)
 
 // pickRows returns the rofi rows for groups, and for each row the name
 // of its workspace. A group header stands for the first workspace of

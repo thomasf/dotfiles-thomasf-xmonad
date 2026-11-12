@@ -12,7 +12,7 @@
 //	ws wt add [-branch branch] [-pick] [project@]name
 //	ws wt init [-y] [-pick] [workspace]
 //	ws wt remove [-force] [-y] [-pick] [[project@]name]
-//	ws pick [-go] [-shift] [-empty] [-p prompt] [-columns n] [-lines n] [-worktrees]
+//	ws pick [-go] [-shift] [-empty] [-p prompt] [-lines n] [-worktrees]
 //	ws go workspace
 //	ws shift [workspace]
 //	ws fill [workspace]
@@ -91,7 +91,7 @@ const usageText = `usage: ws name [-p | -s]
        ws wt add [-branch branch] [-pick] [project@]name
        ws wt init [-y] [-pick] [workspace]
        ws wt remove [-force] [-y] [-pick] [[project@]name]
-       ws pick [-go] [-shift] [-empty] [-p prompt] [-columns n] [-lines n] [-worktrees]
+       ws pick [-go] [-shift] [-empty] [-p prompt] [-lines n] [-worktrees]
        ws go workspace...
        ws shift [workspace]
        ws fill [workspace]

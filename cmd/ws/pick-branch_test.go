@@ -77,7 +77,7 @@ func TestPickBranchWorktree(t *testing.T) {
 		{"unknown", "echo 0", "", errCancelled},
 	} {
 		fakeCommand(t, "rofi", tt.script)
-		got, err := pickBranchWorktree(tt.project, 3, 20)
+		got, err := pickBranchWorktree(tt.project, 20)
 		if got != tt.want || err != tt.err {
 			t.Errorf("%s, rofi %q: got %q, %v, want %q, %v", tt.project, tt.script, got, err, tt.want, tt.err)
 		}
@@ -97,7 +97,7 @@ func TestPickBranchWorktree(t *testing.T) {
 	state := filepath.Join(t.TempDir(), "fetched")
 	fakeCommand(t, "rofi", `if [ -e `+state+` ]; then echo "$@" >`+state+`; `+choose("fresh")+
 		`; else cat >/dev/null; touch `+state+`; echo '0 fr'; exit 10; fi`)
-	if got, err := pickBranchWorktree("hello", 3, 20); got != "hello@fresh" || err != nil {
+	if got, err := pickBranchWorktree("hello", 20); got != "hello@fresh" || err != nil {
 		t.Errorf("after fetching, got %q, %v, want hello@fresh", got, err)
 	}
 	if args, _ := os.ReadFile(state); !strings.Contains(string(args), "-filter fr") {

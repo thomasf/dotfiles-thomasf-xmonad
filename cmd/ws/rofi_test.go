@@ -4,6 +4,7 @@ package main
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"slices"
 	"testing"
@@ -52,5 +53,45 @@ func TestRofiSizeArgs(t *testing.T) {
 			t.Errorf("rofiSizeArgs(%q) = %d, %d, %q, %v, want %d, %d, %q, error %v",
 				tt.args, width, height, rest, err, tt.width, tt.height, tt.rest, tt.wantErr)
 		}
+	}
+}
+
+func TestParseRofiFont(t *testing.T) {
+	font, dpi, ok := parseRofiFont("configuration {\n  font: \"PragmataPro Mono 11\";\n  dpi: 165;\n}\n")
+	if !ok || font != "PragmataPro Mono 11" || dpi != 165 {
+		t.Errorf("parseRofiFont = %q, %d, %v", font, dpi, ok)
+	}
+	if _, _, ok := parseRofiFont("configuration {\n  font: \"PragmataPro 11\";\n}\n"); ok {
+		t.Error("parseRofiFont without dpi is ok")
+	}
+}
+
+func TestEstimateCharWidth(t *testing.T) {
+	if got := estimateCharWidth("PragmataPro Mono 11", 165); got != 15 {
+		t.Errorf("estimateCharWidth = %v, want 15", got)
+	}
+	if got := estimateCharWidth("PragmataPro", 165); got != 0 {
+		t.Errorf("estimateCharWidth without size = %v, want 0", got)
+	}
+}
+
+func TestReadCharWidth(t *testing.T) {
+	file := filepath.Join(t.TempDir(), "char_width")
+	os.WriteFile(file, []byte("PragmataPro 11\t165\t13\n"), 0o644)
+	if w, ok := readCharWidth(file, "PragmataPro 11\t165"); !ok || w != 13 {
+		t.Errorf("readCharWidth = %v, %v, want 13", w, ok)
+	}
+	if _, ok := readCharWidth(file, "PragmataPro 12\t165"); ok {
+		t.Error("readCharWidth of another font is ok")
+	}
+}
+
+func TestMeasureCharWidth(t *testing.T) {
+	if _, err := exec.LookPath("pango-view"); err != nil {
+		t.Skip("no pango-view")
+	}
+	w, err := measureCharWidth("monospace 10", 96)
+	if err != nil || w <= 0 {
+		t.Errorf("measureCharWidth = %v, %v", w, err)
 	}
 }
