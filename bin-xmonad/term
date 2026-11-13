@@ -8,6 +8,10 @@
 
 set -e
 
+if hash ws 2>/dev/null; then
+  exec ws term "$@"
+fi
+
 if hash alacritty 2>/dev/null; then
   exec alacritty "$@"
 elif [ -e /Applications/Alacritty.app/Contents/MacOS/alacritty ]; then

@@ -120,6 +120,17 @@ func currentWorkspace() (Workspace, error) {
 	return Workspace(names[cur]), nil
 }
 
+// contextWorkspace returns the workspace that a command run in a terminal
+// belongs to: $WS_WORKSPACE, which ws term sets for the terminals it starts,
+// or else the current workspace. An agent in a terminal on a workspace
+// that is not shown thereby still addresses its own workspace.
+func contextWorkspace() (Workspace, error) {
+	if w := os.Getenv("WS_WORKSPACE"); w != "" {
+		return Workspace(w), nil
+	}
+	return currentWorkspace()
+}
+
 // workspaceArg returns the workspace named by the arguments left in
 // fs, or the current workspace if there are none.
 func workspaceArg(fs *flag.FlagSet) (Workspace, error) {
