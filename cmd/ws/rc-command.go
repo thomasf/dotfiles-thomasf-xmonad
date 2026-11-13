@@ -23,7 +23,8 @@ import (
 
 const rcUsage = `usage: ws rc list [-global | -visible | target]
        ws rc send [-windows] [-paste] [-cr] target [text...]
-       ws rc read [-ansi] [-no-trim] [-lines n | -history] [-global | -visible | [-windows] target...]
+       ws rc read [-ansi] [-no-trim] [-lines n | -history] [-except target] (-global | -visible)
+       ws rc read [-ansi] [-no-trim] [-lines n | -history] [-windows] target...
 
 Rc works with the critty terminals that ws term started with remote
 control. Their names are the file names of their workspaces (see ws
@@ -210,7 +211,7 @@ func bracketedPaste(text string) string {
 }
 
 func runRcRead(args []string) error {
-	fs := newFlagSet("rc read", "[-ansi] [-no-trim] [-lines n | -history] [-global | -visible | [-windows] target...]", `
+	fs := newFlagSet("rc read", "[-ansi] [-no-trim] [-lines n | -history] ([-except target] (-global | -visible) | [-windows] target...)", `
 Read prints the screen of the primary terminal of each target, one
 after the other. With -windows it prints those of every terminal of each
 target, and with -global those of every remote control terminal on the
@@ -220,6 +221,9 @@ With -visible it prints the screen of every terminal on the workspaces
 shown on the screens, those of the current workspace first: the text
 the user sees. A terminal that does not accept remote control is named,
 but its screen cannot be read.
+
+With -global or -visible, -except leaves out every terminal of the
+workspace of target, such as .bot for the one the text is sent to.
 
 When read prints more than one screen, each follows a line naming its
 terminal.
@@ -241,6 +245,7 @@ blank lines at the top and bottom.
 	noTrim := fs.Bool("no-trim", false, "print the screens as they are, without trimming whitespace")
 	lines := fs.Int("lines", 0, "print the last `n` rows of the history and the screen")
 	history := fs.Bool("history", false, "print all of the history and the screen")
+	except := fs.String("except", "", "leave out the terminals of the workspace of `target`")
 	fs.Parse(args)
 	opts := screenReader{ReadOptions: critty.ReadOptions{Lines: *lines, ANSI: *ansi}, trim: !*noTrim}
 	if *history {
@@ -251,9 +256,21 @@ blank lines at the top and bottom.
 		usageError(fs)
 	case *global && *visible, (*global || *visible) && (*all || fs.NArg() > 0):
 		usageError(fs)
-	case *visible:
-		return readVisible(opts)
-	case !*global:
+	case *except != "" && !*global && !*visible:
+		usageError(fs)
+	}
+	var skip string
+	if *except != "" {
+		target, err := resolveRcTarget(*except)
+		if err != nil {
+			return err
+		}
+		skip, _ = splitRcName(target)
+	}
+	if *visible {
+		return readVisible(opts, skip)
+	}
+	if !*global {
 		checkArgs(fs, 1, -1)
 	}
 	terms, err := rcTerminals()
@@ -261,7 +278,9 @@ blank lines at the top and bottom.
 		return err
 	}
 	var errs []error
-	if !*global {
+	if *global {
+		terms = slices.DeleteFunc(terms, func(t rcTerminal) bool { return skip != "" && t.base == skip })
+	} else {
 		var read []rcTerminal
 		for _, target := range fs.Args() {
 			t, err := rcTargets(terms, target, *all)
@@ -324,12 +343,14 @@ func visibleTerminalWindows() ([]Window, error) {
 	return wins, nil
 }
 
-// readVisible prints the screens for ws rc read -visible, read by r.
-func readVisible(r screenReader) error {
+// readVisible prints the screens for ws rc read -visible, read by r,
+// leaving out the terminals on the workspace with file name skip.
+func readVisible(r screenReader, skip string) error {
 	wins, err := visibleTerminalWindows()
 	if err != nil {
 		return err
 	}
+	wins = slices.DeleteFunc(wins, func(w Window) bool { return skip != "" && fileName(w.workspace) == skip })
 	terms, err := rcTerminals()
 	if err != nil {
 		return err
