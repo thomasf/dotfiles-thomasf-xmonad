@@ -22,6 +22,9 @@
 //	ws rofi [-width pct] [-height pct] [rofi arguments]
 //	ws run [-lines n] [-p prompt] [-width pct] [-term | -sudo | -hold] [cmd [args...]]
 //	ws term [terminal arguments]
+//	ws rc list [-global | -visible | target]
+//	ws rc send [-windows] [-paste] [-cr] target [text...]
+//	ws rc read [-ansi] [-no-trim] [-lines n | -history] [-global | -visible | [-windows] target...]
 package main
 
 import (
@@ -73,6 +76,8 @@ func main() {
 		err = runRun(args)
 	case "term":
 		err = runTerm(args)
+	case "rc":
+		err = runRc(args)
 	case "-h", "-help", "--help", "help":
 		fmt.Fprint(os.Stdout, usageText)
 		os.Exit(0)
@@ -104,6 +109,9 @@ const usageText = `usage: ws name [-d] [-p | -s]
        ws rofi [-width pct] [-height pct] [rofi arguments]
        ws run [-lines n] [-p prompt] [-width pct] [-term | -sudo | -hold] [cmd [args...]]
        ws term [terminal arguments]
+       ws rc list [-global | -visible | target]
+       ws rc send [-windows] [-paste] [-cr] target [text...]
+       ws rc read [-ansi] [-no-trim] [-lines n | -history] [-global | -visible | [-windows] target...]
 
 Run ws <command> -h for help on a command.
 `
