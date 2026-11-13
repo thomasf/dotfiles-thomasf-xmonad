@@ -9,6 +9,7 @@ import (
 	"io/fs"
 	"os"
 	"strings"
+	"unicode"
 )
 
 // A Workspace is an xmonad workspace name, <prefix>[.<suffix>], whose
@@ -39,10 +40,32 @@ func (w Workspace) worktree() string {
 	return t
 }
 
+// fileName returns w as a file name; see [fileName].
+func (w Workspace) fileName() string {
+	return fileName(string(w))
+}
+
+// fileName returns s, a workspace name or a part of one, in the form used
+// wherever a workspace is named outside xmonad: in file and socket names and
+// as the remote control name of critty. Letters, digits and "._@+-" are kept
+// and every other character becomes "_", as does a leading "-".
+func fileName(s string) string {
+	s = strings.Map(func(r rune) rune {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) || strings.ContainsRune("._@+-", r) {
+			return r
+		}
+		return '_'
+	}, s)
+	if rest, ok := strings.CutPrefix(s, "-"); ok {
+		s = "_" + rest
+	}
+	return s
+}
+
 // wsdirsFile returns the file that stores the directory for prefix,
-// shared with the wsdir-* functions in the bash configuration.
+// named by [fileName].
 func wsdirsFile(prefix string) (string, error) {
-	return configFile("wsdirs", prefix)
+	return configFile("wsdirs", fileName(prefix))
 }
 
 // storedDir returns the directory stored for prefix, or "" if there is
@@ -85,9 +108,7 @@ func (w Workspace) setStoredDir(dir string) error {
 	return storeDir(w.prefix(), dir)
 }
 
-// currentWorkspace returns the current workspace. A "/" in its name is
-// replaced by "_", as wsname did, so that the name can be used as a
-// file name.
+// currentWorkspace returns the current workspace.
 func currentWorkspace() (Workspace, error) {
 	names, cur, err := desktops()
 	if err != nil {
@@ -96,7 +117,7 @@ func currentWorkspace() (Workspace, error) {
 	if cur >= len(names) || names[cur] == "" {
 		return "", fmt.Errorf("no name for desktop %d", cur)
 	}
-	return Workspace(strings.ReplaceAll(names[cur], "/", "_")), nil
+	return Workspace(names[cur]), nil
 }
 
 // workspaceArg returns the workspace named by the arguments left in

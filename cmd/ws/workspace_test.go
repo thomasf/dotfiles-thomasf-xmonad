@@ -37,6 +37,23 @@ func TestWorkspace(t *testing.T) {
 	}
 }
 
+func TestFileName(t *testing.T) {
+	for _, tt := range []struct{ in, want string }{
+		{"dpg@control-panel-operator-provider-refactor.bot", "dpg@control-panel-operator-provider-refactor.bot"},
+		{"a+b_c-d.1", "a+b_c-d.1"},
+		{"räksmörgås", "räksmörgås"},
+		{"feat/x.bot", "feat_x.bot"},
+		{"my ws:1", "my_ws_1"},
+		{"-x-y", "_x-y"},
+		{"a\nb", "a_b"},
+		{"", ""},
+	} {
+		if got := fileName(tt.in); got != tt.want {
+			t.Errorf("fileName(%q) = %q, want %q", tt.in, got, tt.want)
+		}
+	}
+}
+
 func TestWorktreeDir(t *testing.T) {
 	repo := newRepo(t, "hello")
 	wt := repo + "@test"
@@ -89,7 +106,14 @@ func TestWorkspaceDirStored(t *testing.T) {
 	if err := storeDir("dp", ""); err != nil {
 		t.Errorf("removing a missing stored directory: %v", err)
 	}
-	if _, err := storedDir("../x"); err == nil {
-		t.Error("storedDir(../x) succeeded")
+	if _, err := storedDir(".."); err == nil {
+		t.Error("storedDir(..) succeeded")
+	}
+
+	if err := storeDir("feat/x", "/feat"); err != nil {
+		t.Fatal(err)
+	}
+	if got, err := storedDir("feat_x"); got != "/feat" || err != nil {
+		t.Errorf("storedDir(feat_x) = %q, %v, want %q, nil", got, err, "/feat")
 	}
 }

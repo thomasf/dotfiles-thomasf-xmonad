@@ -5,7 +5,7 @@
 //
 // Usage:
 //
-//	ws name [-p | -s]
+//	ws name [-d] [-p | -s]
 //	ws dir [-set | -unset] [-pick] [workspace]
 //	ws action [workspace]
 //	ws wt list [-l] [-pick] [workspace]
@@ -84,7 +84,7 @@ func main() {
 	}
 }
 
-const usageText = `usage: ws name [-p | -s]
+const usageText = `usage: ws name [-d] [-p | -s]
        ws dir [-set | -unset] [-pick] [workspace]
        ws action [workspace]
        ws wt list [-l] [-pick] [workspace]
