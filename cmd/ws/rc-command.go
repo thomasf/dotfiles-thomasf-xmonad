@@ -6,6 +6,7 @@ import (
 	"cmp"
 	"context"
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -19,58 +20,33 @@ import (
 	"unicode"
 
 	critty "github.com/go-pa/critty-ipc"
+	"github.com/peterbourgon/ff/v3/ffcli"
 )
 
-const rcUsage = `usage: ws rc list [-global | -visible | target]
-       ws rc send [-windows] [-paste] [-cr] target [text...]
-       ws rc read [-ansi] [-no-trim] [-lines n | -history] [-except target] (-global | -visible)
-       ws rc read [-ansi] [-no-trim] [-lines n | -history] [-windows] target...
-
-Rc works with the critty terminals that ws term started with remote
-control. Their names are the file names of their workspaces (see ws
-name), with +2, +3 and so on for further terminals on a workspace.
-
-A target is relative to the workspace of the terminal ws runs in, from
-$WS_WORKSPACE, which ws term sets, or else to the current workspace.
-Here it is dpg@x.bot:
-
-    .logs      the terminals of dpg@x.logs
-    .logs+2    the second terminal of dpg@x.logs
-    +2         the second terminal of dpg@x.bot
-    dpg@y.test the terminals of another workspace, by its full name
-
-send and read address the primary terminal of a target, the one with
-the lowest number. With -global, list and read show every remote
-control terminal on the display, and with -visible every terminal on
-the workspaces shown on the screens.
-
-Run ws rc <command> -h for help on a command.
-`
-
-func runRc(args []string) error {
-	if len(args) == 0 {
-		fmt.Fprint(os.Stderr, rcUsage)
-		os.Exit(2)
+func newRcCommand() *ffcli.Command {
+	return &ffcli.Command{
+		Name:       "rc",
+		ShortUsage: "ws rc <command> [arguments]",
+		ShortHelp:  "work with critty terminals started with remote control",
+		LongHelp:   `Rc works with the critty terminals that ws term started with remote control.`,
+		UsageFunc:  commandUsage,
+		Subcommands: []*ffcli.Command{
+			newRcListCommand(),
+			newRcSendCommand(),
+			newRcReadCommand(),
+		},
 	}
-	switch cmd, args := args[0], args[1:]; cmd {
-	case "list", "ls":
-		return runRcList(args)
-	case "send":
-		return runRcSend(args)
-	case "read":
-		return runRcRead(args)
-	case "-h", "-help", "--help", "help":
-		fmt.Fprint(os.Stdout, rcUsage)
-		os.Exit(0)
-	}
-	fmt.Fprint(os.Stderr, rcUsage)
-	os.Exit(2)
-	return nil
 }
 
-func runRcList(args []string) error {
-	fs := newFlagSet("rc list", "[-global | -visible | target]", `
-List prints the remote control terminals of a target, by default those
+func newRcListCommand() *ffcli.Command {
+	fs := flag.NewFlagSet("ws rc list", flag.ContinueOnError)
+	global := fs.Bool("global", false, "list every remote control terminal on the display")
+	visible := fs.Bool("visible", false, "list the remote control terminals on the visible workspaces")
+	cmd := &ffcli.Command{
+		Name:       "list",
+		ShortUsage: "ws rc list [-global | -visible | target]",
+		ShortHelp:  "list controllable terminals with workspace, PID, CWD, and command",
+		LongHelp: `List prints the remote control terminals of a target, by default those
 of every workspace with the prefix of the current one. A target without
 a suffix, such as dpg or dpg@x, lists every workspace it is the prefix
 or project of. -global lists every remote control terminal on the
@@ -79,21 +55,142 @@ the workspaces shown on the screens, the current workspace first.
 
 The columns are the remote control name, the workspace, the process ID
 of the terminal and the working directory and command of the program in
-the foreground of its shell.
-`)
-	global := fs.Bool("global", false, "list every remote control terminal on the display")
-	visible := fs.Bool("visible", false, "list the remote control terminals on the visible workspaces")
-	fs.Parse(args)
-	checkArgs(fs, 0, 1)
-	if *global && *visible || (*global || *visible) && fs.NArg() > 0 {
-		usageError(fs)
+the foreground of its shell.`,
+		FlagSet:   fs,
+		UsageFunc: commandUsage,
 	}
+	cmd.Exec = func(ctx context.Context, args []string) error {
+		if len(args) > 1 || (*global && *visible) || ((*global || *visible) && len(args) > 0) {
+			usageError(fs)
+		}
+		target := ""
+		if len(args) == 1 {
+			target = args[0]
+		}
+		return executeRcList(*global, *visible, target)
+	}
+	return cmd
+}
+
+func newRcSendCommand() *ffcli.Command {
+	fs := flag.NewFlagSet("ws rc send", flag.ContinueOnError)
+	all := fs.Bool("windows", false, "send to every terminal of the target")
+	paste := fs.Bool("paste", false, "send the text as a bracketed paste")
+	cr := fs.Bool("cr", false, "send a carriage return after the text, as Enter does")
+	cmd := &ffcli.Command{
+		Name:       "send",
+		ShortUsage: "ws rc send [-windows] [-paste] [-cr] target [text...]",
+		ShortHelp:  "send text or keystrokes to a terminal",
+		LongHelp: `Send types text, the arguments joined by spaces or else standard input,
+into the primary terminal of target. With -windows it types into every
+terminal of the target but the one ws runs in.
+
+-paste sends the text as a bracketed paste. A program that supports
+bracketed paste, such as Claude Code or a shell, takes it as one paste,
+newlines and all, rather than as typed lines, each submitted by its
+newline.
+
+-cr sends a carriage return after the text, as pressing Enter does,
+which runs it in a shell or submits it to a program. Without it the
+text waits for the user to press Enter.`,
+		FlagSet:   fs,
+		UsageFunc: commandUsage,
+	}
+	cmd.Exec = func(ctx context.Context, args []string) error {
+		if len(args) < 1 {
+			usageError(fs)
+		}
+		return executeRcSend(args[0], args[1:], *all, *paste, *cr)
+	}
+	return cmd
+}
+
+func newRcReadCommand() *ffcli.Command {
+	fs := flag.NewFlagSet("ws rc read", flag.ContinueOnError)
+	var common commonReadFlags
+	var rc rcReadFlags
+	common.Register(fs)
+	rc.Register(fs)
+	cmd := &ffcli.Command{
+		Name:       "read",
+		ShortUsage: "ws rc read [-lines n | -full] [-no-redact] [-ansi] [-no-trim] ([-except target] (-global | -visible) | [-windows] target...)",
+		ShortHelp:  "print terminal screen contents or scrollback history",
+		LongHelp: `Read prints the screen of the primary terminal of each target, one
+after the other. With -windows it prints those of every terminal of each
+target, and with -global those of every remote control terminal on the
+display.
+
+With -visible it prints the screen of every terminal on the workspaces
+shown on the screens, those of the current workspace first: the text
+the user sees. A terminal that does not accept remote control is named,
+but its screen cannot be read.
+
+With -global or -visible, -except leaves out every terminal of the
+workspace of target, such as .bot for the one the text is sent to.
+
+When read prints more than one screen, each follows a line naming its
+terminal.
+
+By default read prints the rows visible in the terminal. -lines n prints
+the last n rows of the scrollback history and the screen instead, and
+-full all of them; both end at the bottom of the screen, wherever the
+terminal is scrolled to.
+
+Read trims what it prints unless -no-trim is given: it drops the blank
+lines at the top and bottom, the whitespace at the end of every line and
+the whitespace that all lines start with. With -ansi it only drops the
+blank lines at the top and bottom.
+
+Read redacts secrets via delemark unless -no-redact is given.`,
+		FlagSet:   fs,
+		UsageFunc: commandUsage,
+	}
+	cmd.Exec = func(ctx context.Context, args []string) error {
+		if (common.global || common.visible) && rc.windows {
+			usageError(fs)
+		}
+		if err := common.validate(fs, false); err != nil {
+			return err
+		}
+		skip, err := common.resolveRcSkip()
+		if err != nil {
+			return err
+		}
+		opts := common.screenReader()
+		if common.visible {
+			return readVisible(opts, skip, common.noRedact)
+		}
+		if !common.global && len(args) < 1 {
+			usageError(fs)
+		}
+		return executeRcRead(args, opts, common.global, rc.windows, skip, common.noRedact)
+	}
+	return cmd
+}
+
+func runRc(args []string) error {
+	return runFFCLI(newRcCommand(), args)
+}
+
+func runRcList(args []string) error {
+	return runFFCLI(newRcListCommand(), args)
+}
+
+func runRcSend(args []string) error {
+	return runFFCLI(newRcSendCommand(), args)
+}
+
+func runRcRead(args []string) error {
+	return runFFCLI(newRcReadCommand(), args)
+}
+
+func executeRcList(global, visible bool, target string) error {
 	terms, err := rcTerminals()
 	if err != nil {
 		return err
 	}
 	switch {
-	case *visible:
+	case visible:
 		wins, err := visibleTerminalWindows()
 		if err != nil {
 			return err
@@ -105,8 +202,7 @@ the foreground of its shell.
 			}
 		}
 		terms = shown
-	case !*global:
-		target := fs.Arg(0)
+	case !global:
 		if target == "" {
 			w, err := contextWorkspace()
 			if err != nil {
@@ -143,52 +239,40 @@ the foreground of its shell.
 	return tw.Flush()
 }
 
-func runRcSend(args []string) error {
-	fs := newFlagSet("rc send", "[-windows] [-paste] [-cr] target [text...]", `
-Send types text, the arguments joined by spaces or else standard input,
-into the primary terminal of target. With -windows it types into every
-terminal of the target but the one ws runs in.
+// bracketedPaste returns text wrapped in the escape sequences that mark a
+// bracketed paste, with any end-of-paste sequence in it removed so that it
+// cannot end the paste early.
+func bracketedPaste(text string) string {
+	return "\x1b[200~" + strings.ReplaceAll(text, "\x1b[201~", "") + "\x1b[201~"
+}
 
--paste sends the text as a bracketed paste. A program that supports
-bracketed paste, such as Claude Code or a shell, takes it as one paste,
-newlines and all, rather than as typed lines, each submitted by its
-newline.
-
--cr sends a carriage return after the text, as pressing Enter does,
-which runs it in a shell or submits it to a program. Without it the
-text waits for the user to press Enter.
-`)
-	all := fs.Bool("windows", false, "send to every terminal of the target")
-	paste := fs.Bool("paste", false, "send the text as a bracketed paste")
-	cr := fs.Bool("cr", false, "send a carriage return after the text, as Enter does")
-	fs.Parse(args)
-	checkArgs(fs, 1, -1)
+func executeRcSend(target string, textArgs []string, all, paste, cr bool) error {
 	terms, err := rcTerminals()
 	if err != nil {
 		return err
 	}
-	if terms, err = rcTargets(terms, fs.Arg(0), *all); err != nil {
+	if terms, err = rcTargets(terms, target, all); err != nil {
 		return err
 	}
-	if *all {
+	if all {
 		self := ancestors(os.Getpid())
 		terms = slices.DeleteFunc(terms, func(t rcTerminal) bool { return self[t.pid] })
 		if len(terms) == 0 {
-			return fmt.Errorf("no remote control terminal for %s but this one", fs.Arg(0))
+			return fmt.Errorf("no remote control terminal for %s but this one", target)
 		}
 	}
-	text := strings.Join(fs.Args()[1:], " ")
-	if fs.NArg() == 1 {
+	text := strings.Join(textArgs, " ")
+	if len(textArgs) == 0 {
 		b, err := io.ReadAll(os.Stdin)
 		if err != nil {
 			return err
 		}
 		text = string(b)
 	}
-	if *paste {
+	if paste {
 		text = bracketedPaste(text)
 	}
-	if *cr {
+	if cr {
 		text += "\r"
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -203,90 +287,18 @@ text waits for the user to press Enter.
 	return errors.Join(errs...)
 }
 
-// bracketedPaste returns text wrapped in the escape sequences that mark a
-// bracketed paste, with any end-of-paste sequence in it removed so that it
-// cannot end the paste early.
-func bracketedPaste(text string) string {
-	return "\x1b[200~" + strings.ReplaceAll(text, "\x1b[201~", "") + "\x1b[201~"
-}
-
-func runRcRead(args []string) error {
-	fs := newFlagSet("rc read", "[-ansi] [-no-trim] [-noredact] [-lines n | -history] ([-except target] (-global | -visible) | [-windows] target...)", `
-Read prints the screen of the primary terminal of each target, one
-after the other. With -windows it prints those of every terminal of each
-target, and with -global those of every remote control terminal on the
-display.
-
-With -visible it prints the screen of every terminal on the workspaces
-shown on the screens, those of the current workspace first: the text
-the user sees. A terminal that does not accept remote control is named,
-but its screen cannot be read.
-
-With -global or -visible, -except leaves out every terminal of the
-workspace of target, such as .bot for the one the text is sent to.
-
-When read prints more than one screen, each follows a line naming its
-terminal.
-
-By default read prints the rows visible in the terminal. -lines n prints
-the last n rows of the scrollback history and the screen instead, and
--history all of them; both end at the bottom of the screen, wherever the
-terminal is scrolled to.
-
-Read trims what it prints unless -no-trim is given: it drops the blank
-lines at the top and bottom, the whitespace at the end of every line and
-the whitespace that all lines start with. With -ansi it only drops the
-blank lines at the top and bottom.
-
-Read redacts secrets via delemark unless -noredact is given.
-`)
-	all := fs.Bool("windows", false, "read every terminal of each target")
-	global := fs.Bool("global", false, "read every remote control terminal on the display")
-	visible := fs.Bool("visible", false, "read every terminal on the visible workspaces")
-	ansi := fs.Bool("ansi", false, "keep colors and text attributes as ANSI escape sequences")
-	noTrim := fs.Bool("no-trim", false, "print the screens as they are, without trimming whitespace")
-	noRedact := fs.Bool("noredact", false, "do not redact secrets via delemark")
-	lines := fs.Int("lines", 0, "print the last `n` rows of the history and the screen")
-	history := fs.Bool("history", false, "print all of the history and the screen")
-	except := fs.String("except", "", "leave out the terminals of the workspace of `target`")
-	fs.Parse(args)
-	opts := screenReader{ReadOptions: critty.ReadOptions{Lines: *lines, ANSI: *ansi}, trim: !*noTrim}
-	if *history {
-		opts.Lines = -1
-	}
-	switch {
-	case *lines < 0, *history && *lines != 0:
-		usageError(fs)
-	case *global && *visible, (*global || *visible) && (*all || fs.NArg() > 0):
-		usageError(fs)
-	case *except != "" && !*global && !*visible:
-		usageError(fs)
-	}
-	var skip string
-	if *except != "" {
-		target, err := resolveRcTarget(*except)
-		if err != nil {
-			return err
-		}
-		skip, _ = splitRcName(target)
-	}
-	if *visible {
-		return readVisible(opts, skip, *noRedact)
-	}
-	if !*global {
-		checkArgs(fs, 1, -1)
-	}
+func executeRcRead(targets []string, opts screenReader, global, windows bool, skip string, noRedact bool) error {
 	terms, err := rcTerminals()
 	if err != nil {
 		return err
 	}
 	var errs []error
-	if *global {
+	if global {
 		terms = slices.DeleteFunc(terms, func(t rcTerminal) bool { return skip != "" && t.base == skip })
 	} else {
 		var read []rcTerminal
-		for _, target := range fs.Args() {
-			t, err := rcTargets(terms, target, *all)
+		for _, target := range targets {
+			t, err := rcTargets(terms, target, windows)
 			if err != nil {
 				errs = append(errs, err)
 				continue
@@ -313,7 +325,7 @@ Read redacts secrets via delemark unless -noredact is given.
 			}
 			fmt.Printf("==> %s <==\n", t.name)
 		}
-		if !*noRedact {
+		if !noRedact {
 			screen = redact(screen)
 		}
 		fmt.Print(screen)

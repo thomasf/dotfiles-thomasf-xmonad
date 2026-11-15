@@ -3,6 +3,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"log"
 	"maps"
@@ -13,6 +14,7 @@ import (
 	"strings"
 
 	critty "github.com/go-pa/critty-ipc"
+	"github.com/peterbourgon/ff/v3/ffcli"
 )
 
 // terminals are the terminal emulators runTerm starts, in order of preference.
@@ -21,6 +23,22 @@ var terminals = []string{"critty", "alacritty", "kitty", "urxvt", "ptyxis", "xte
 // remoteControlSuffixes are the suffixes of the workspaces whose terminals
 // accept remote control.
 var remoteControlSuffixes = []string{"bot", "logs", "test"}
+
+func newTermCommand() *ffcli.Command {
+	return &ffcli.Command{
+		Name:       "term",
+		ShortUsage: "ws term [terminal arguments]",
+		ShortHelp:  "start a terminal emulator in the current workspace",
+		LongHelp: `Term starts the first terminal emulator found in $PATH, passing it args
+unparsed. It sets WS_WORKSPACE to the current workspace, where the
+terminal opens. On a workspace with a suffix in .bot, .logs, or .test
+it lets critty accept remote control.`,
+		UsageFunc: commandUsage,
+		Exec: func(ctx context.Context, args []string) error {
+			return runTerm(args)
+		},
+	}
+}
 
 // runTerm starts the first terminal emulator found in $PATH, passing it args
 // unparsed. It sets WS_WORKSPACE to the current workspace, where the

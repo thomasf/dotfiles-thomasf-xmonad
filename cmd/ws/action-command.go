@@ -4,16 +4,24 @@ package main
 
 import (
 	"cmp"
+	"context"
 	"errors"
+	"flag"
 	"log"
 	"maps"
 	"os"
 	"os/exec"
+
+	"github.com/peterbourgon/ff/v3/ffcli"
 )
 
-func runAction(args []string) error {
-	fs := newFlagSet("action", "[workspace]", `
-Action is run by xmonad when it opens an empty workspace, by default
+func newActionCommand() *ffcli.Command {
+	fs := flag.NewFlagSet("ws action", flag.ContinueOnError)
+	cmd := &ffcli.Command{
+		Name:       "action",
+		ShortUsage: "ws action [workspace]",
+		ShortHelp:  "start what an empty workspace needs",
+		LongHelp: `Action is run by xmonad when it opens an empty workspace, by default
 the current one. For a workspace in a worktree that does not exist
 yet, it first offers to create it, as wt init does. In the directory of
 the workspace, if it has one, it runs the launcher w.<project> from
@@ -23,14 +31,31 @@ for:
     www, doc                     www-window
     term, terminal, bot, test    term, after asking whether to run pathenv
     emacs                        e
-    files                 nautilus, in the workspace directory
-`)
-	fs.Parse(args)
-	w, err := workspaceArg(fs)
-	if err != nil {
-		return err
+    files                 nautilus, in the workspace directory`,
+		FlagSet:   fs,
+		UsageFunc: commandUsage,
 	}
-	return action(w)
+	cmd.Exec = func(ctx context.Context, args []string) error {
+		if len(args) > 1 {
+			usageError(fs)
+		}
+		var w Workspace
+		var err error
+		if len(args) == 1 {
+			w = Workspace(args[0])
+		} else {
+			w, err = currentWorkspace()
+			if err != nil {
+				return err
+			}
+		}
+		return action(w)
+	}
+	return cmd
+}
+
+func runAction(args []string) error {
+	return runFFCLI(newActionCommand(), args)
 }
 
 // action starts what workspace w needs when xmonad opens it empty. For

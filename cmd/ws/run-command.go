@@ -3,13 +3,17 @@
 package main
 
 import (
+	"context"
 	"errors"
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/peterbourgon/ff/v3/ffcli"
 )
 
 var runBlacklist = map[string]bool{
@@ -68,9 +72,19 @@ const (
 	modeHoldTerm
 )
 
-func runRun(args []string) error {
-	fs := newFlagSet("run", "[-p prompt] [-lines n] [-width pct] [-term | -sudo | -hold] [cmd [args...]]", `
-Run lets the user choose and launch an application or command with rofi,
+func newRunCommand() *ffcli.Command {
+	fs := flag.NewFlagSet("ws run", flag.ContinueOnError)
+	prompt := fs.String("p", "launch", "rofi `prompt`")
+	lines := fs.Int("lines", 25, "rofi `lines`")
+	width := fs.Int("width", rofiWidth, "rofi `width` percent")
+	flagTerm := fs.Bool("term", false, "force run in a terminal window")
+	flagSudo := fs.Bool("sudo", false, "force run in a terminal window with sudo")
+	flagHold := fs.Bool("hold", false, "force run in a terminal window in hold mode")
+	cmd := &ffcli.Command{
+		Name:       "run",
+		ShortUsage: "ws run [-p prompt] [-lines n] [-width pct] [-term | -sudo | -hold] [cmd [args...]]",
+		ShortHelp:  "choose and launch an application or command with rofi",
+		LongHelp: `Run lets the user choose and launch an application or command with rofi,
 listing executables found in $PATH with fast directory caching.
 
     Enter     launch the application
@@ -79,38 +93,43 @@ listing executables found in $PATH with fast directory caching.
     Alt+h     run in a terminal window in hold mode
 
 Terminal tools and sudo utilities are automatically run in a terminal window.
-Run starts commands in the directory of the current workspace if it has one.
-`)
-	prompt := fs.String("p", "launch", "rofi `prompt`")
-	lines := fs.Int("lines", 25, "rofi `lines`")
-	width := fs.Int("width", rofiWidth, "rofi `width` percent")
-	flagTerm := fs.Bool("term", false, "force run in a terminal window")
-	flagSudo := fs.Bool("sudo", false, "force run in a terminal window with sudo")
-	flagHold := fs.Bool("hold", false, "force run in a terminal window in hold mode")
-	fs.Parse(args)
-
-	nFlags := 0
-	for _, b := range []*bool{flagTerm, flagSudo, flagHold} {
-		if *b {
-			nFlags++
+Run starts commands in the directory of the current workspace if it has one.`,
+		FlagSet:   fs,
+		UsageFunc: commandUsage,
+	}
+	cmd.Exec = func(ctx context.Context, args []string) error {
+		nFlags := 0
+		for _, b := range []*bool{flagTerm, flagSudo, flagHold} {
+			if *b {
+				nFlags++
+			}
 		}
-	}
-	if nFlags > 1 {
-		return errors.New("cannot specify more than one of -term, -sudo, -hold")
-	}
+		if nFlags > 1 {
+			return errors.New("cannot specify more than one of -term, -sudo, -hold")
+		}
 
-	mode := modeDefault
-	switch {
-	case *flagSudo:
-		mode = modeSudoTerm
-	case *flagHold:
-		mode = modeHoldTerm
-	case *flagTerm:
-		mode = modeTerm
-	}
+		mode := modeDefault
+		switch {
+		case *flagSudo:
+			mode = modeSudoTerm
+		case *flagHold:
+			mode = modeHoldTerm
+		case *flagTerm:
+			mode = modeTerm
+		}
 
-	if fs.NArg() > 0 {
-		return execTarget(fs.Arg(0), fs.Args()[1:], mode)
+		return executeRun(*prompt, *lines, *width, mode, args)
+	}
+	return cmd
+}
+
+func runRun(args []string) error {
+	return runFFCLI(newRunCommand(), args)
+}
+
+func executeRun(prompt string, lines, width int, mode LaunchMode, args []string) error {
+	if len(args) > 0 {
+		return execTarget(args[0], args[1:], mode)
 	}
 
 	bins, err := pathBinaries()
@@ -122,14 +141,14 @@ Run starts commands in the directory of the current workspace if it has one.
 	rofiArgs := []string{
 		"-dmenu",
 		"-i",
-		"-p", *prompt,
-		"-l", strconv.Itoa(*lines),
+		"-p", prompt,
+		"-l", strconv.Itoa(lines),
 		"-kb-custom-1", "Alt+t",
 		"-kb-custom-2", "Alt+s",
 		"-kb-custom-3", "Alt+h",
 	}
 
-	cmd, err := rofiCommand(*width, 0, "", rofiArgs...)
+	cmd, err := rofiCommand(width, 0, "", rofiArgs...)
 	if err != nil {
 		return err
 	}

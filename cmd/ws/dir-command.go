@@ -3,19 +3,30 @@
 package main
 
 import (
+	"context"
 	"errors"
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/peterbourgon/ff/v3/ffcli"
 )
 
 // errNoDir reports that a workspace has no directory.
 var errNoDir = errors.New("no directory")
 
-func runDir(args []string) error {
-	fs := newFlagSet("dir", "[-set | -unset] [-pick] [workspace]", `
-Dir prints the directory a workspace works in, by default the current
+func newDirCommand() *ffcli.Command {
+	fs := flag.NewFlagSet("ws dir", flag.ContinueOnError)
+	set := fs.Bool("set", false, "store the working directory for the workspace prefix")
+	unset := fs.Bool("unset", false, "remove the directory stored for the workspace prefix")
+	pick := fs.Bool("pick", false, "choose with rofi between repositories with the same name")
+	cmd := &ffcli.Command{
+		Name:       "dir",
+		ShortUsage: "ws dir [-set | -unset] [-pick] [workspace]",
+		ShortHelp:  "print the directory a workspace works in",
+		LongHelp: `Dir prints the directory a workspace works in, by default the current
 one. It is the directory stored for the prefix with -set, if there is
 one. Else it is the directory stored for the project, or the ghq
 repository named like the project. For a worktree, the directory is
@@ -23,35 +34,49 @@ the sibling of the project's main checkout named <repo>@<worktree>, at
 the same place within it.
 
 -set stores the working directory for the prefix, in ~/.config/wsdirs,
-and -unset removes it.
-`)
-	set := fs.Bool("set", false, "store the working directory for the workspace prefix")
-	unset := fs.Bool("unset", false, "remove the directory stored for the workspace prefix")
-	pick := fs.Bool("pick", false, "choose with rofi between repositories with the same name")
-	fs.Parse(args)
-	w, err := workspaceArg(fs)
-	if err != nil {
-		return err
+and -unset removes it.`,
+		FlagSet:   fs,
+		UsageFunc: commandUsage,
 	}
-	if *set && *unset {
-		return errors.New("cannot specify both -set and -unset")
-	}
-	switch {
-	case *set:
-		wd, err := os.Getwd()
+	cmd.Exec = func(ctx context.Context, args []string) error {
+		if len(args) > 1 {
+			usageError(fs)
+		}
+		var w Workspace
+		var err error
+		if len(args) == 1 {
+			w = Workspace(args[0])
+		} else {
+			w, err = currentWorkspace()
+			if err != nil {
+				return err
+			}
+		}
+		if *set && *unset {
+			return errors.New("cannot specify both -set and -unset")
+		}
+		switch {
+		case *set:
+			wd, err := os.Getwd()
+			if err != nil {
+				return err
+			}
+			return w.setStoredDir(wd)
+		case *unset:
+			return w.setStoredDir("")
+		}
+		dir, err := workspaceDir(w, resolvePicker(*pick))
 		if err != nil {
 			return err
 		}
-		return w.setStoredDir(wd)
-	case *unset:
-		return w.setStoredDir("")
+		output(dir)
+		return nil
 	}
-	dir, err := workspaceDir(w, resolvePicker(*pick))
-	if err != nil {
-		return err
-	}
-	output(dir)
-	return nil
+	return cmd
+}
+
+func runDir(args []string) error {
+	return runFFCLI(newDirCommand(), args)
 }
 
 // resolvePicker returns rofiPick if pick is true, or noPick if false.

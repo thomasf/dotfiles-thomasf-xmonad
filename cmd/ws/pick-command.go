@@ -4,6 +4,7 @@ package main
 
 import (
 	"cmp"
+	"context"
 	"errors"
 	"flag"
 	"fmt"
@@ -15,11 +16,23 @@ import (
 	"strconv"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/peterbourgon/ff/v3/ffcli"
 )
 
-func runPick(args []string) error {
-	fs := newFlagSet("pick", "[-go] [-shift] [-empty] [-p prompt] [-lines n] [-worktrees]", `
-Pick lets the user choose a workspace with rofi and prints its name. It
+func newPickCommand() *ffcli.Command {
+	fs := flag.NewFlagSet("ws pick", flag.ContinueOnError)
+	prompt := fs.String("p", "workspace", "rofi `prompt`")
+	goTo := fs.Bool("go", false, "go to the workspace instead of printing its name")
+	shiftTo := fs.Bool("shift", false, "move the focused window to the workspace instead of printing its name")
+	withWorktrees := fs.Bool("worktrees", false, "also list worktrees without a workspace")
+	withEmpty := fs.Bool("empty", false, "also list workspaces without windows")
+	lines := fs.Int("lines", 20, "show `n` rows in each column")
+	cmd := &ffcli.Command{
+		Name:       "pick",
+		ShortUsage: "ws pick [-go] [-shift] [-empty] [-p prompt] [-lines n] [-worktrees]",
+		ShortHelp:  "choose a workspace with rofi",
+		LongHelp: `Pick lets the user choose a workspace with rofi and prints its name. It
 lists the workspaces with windows or on another screen, and the
 current one, grouped by project; those on screen are in colour, and
 the current workspace is labelled current. It exits with status 1 if
@@ -39,31 +52,38 @@ the user cancels.
 With -go, it goes to the workspace instead of printing it, as ws go
 does. With -shift, it moves the focused window to the workspace instead
 of printing its name, as ws shift does; this way xmonad can start it
-with spawn, rather than wait for it while rofi runs and lock up input.
-`)
-	prompt := fs.String("p", "workspace", "rofi `prompt`")
-	goTo := fs.Bool("go", false, "go to the workspace instead of printing its name")
-	shiftTo := fs.Bool("shift", false, "move the focused window to the workspace instead of printing its name")
-	withWorktrees := fs.Bool("worktrees", false, "also list worktrees without a workspace")
-	withEmpty := fs.Bool("empty", false, "also list workspaces without windows")
-	lines := fs.Int("lines", 20, "show `n` rows in each column")
-	fs.Parse(args)
-	checkArgs(fs, 0, 0)
-	hasPrompt := false
-	fs.Visit(func(f *flag.Flag) {
-		if f.Name == "p" {
-			hasPrompt = true
+with spawn, rather than wait for it while rofi runs and lock up input.`,
+		FlagSet:   fs,
+		UsageFunc: commandUsage,
+	}
+	cmd.Exec = func(ctx context.Context, args []string) error {
+		if len(args) > 0 {
+			usageError(fs)
 		}
-	})
-	if *shiftTo && !hasPrompt {
-		*prompt = "move to"
+		hasPrompt := false
+		fs.Visit(func(f *flag.Flag) {
+			if f.Name == "p" {
+				hasPrompt = true
+			}
+		})
+		if *shiftTo && !hasPrompt {
+			*prompt = "move to"
+		}
+		X, err := openX()
+		if err != nil {
+			return err
+		}
+		defer X.close()
+		return pickWorkspace(X, *prompt, *goTo, *shiftTo, *withWorktrees, *withEmpty, *lines)
 	}
-	X, err := openX()
-	if err != nil {
-		return err
-	}
-	defer X.close()
+	return cmd
+}
 
+func runPick(args []string) error {
+	return runFFCLI(newPickCommand(), args)
+}
+
+func pickWorkspace(X *X11Client, prompt string, goTo, shiftTo, withWorktrees, withEmpty bool, lines int) error {
 	names, cur, err := X.desktops()
 	if err != nil {
 		return err
@@ -95,7 +115,7 @@ with spawn, rather than wait for it while rofi runs and lock up input.
 	// dotted is the last name that Ctrl+Tab typed in with a dot added.
 	dotted := ""
 	for {
-		if *withWorktrees && !listed {
+		if withWorktrees && !listed {
 			wts, listed = worktreePrefixes(projectsOf(names)), true
 			// pickGroups sees only the workspaces shown, so leave out
 			// the worktrees of hidden ones here.
@@ -104,27 +124,27 @@ with spawn, rather than wait for it while rofi runs and lock up input.
 			})
 		}
 		shown := busy
-		if *withEmpty {
+		if withEmpty {
 			shown = names
 		}
 		var shownWts []string
-		if *withWorktrees {
+		if withWorktrees {
 			shownWts = wts
 		}
-		picked, err := rofiPickWorkspaces(*prompt, *lines, filter, *withWorktrees, *withEmpty, pickGroups(current, shown, visible, hasWindows, shownWts))
+		picked, err := rofiPickWorkspaces(prompt, lines, filter, withWorktrees, withEmpty, pickGroups(current, shown, visible, hasWindows, shownWts))
 		if t, ok := errors.AsType[ToggleWorktrees](err); ok {
-			*withWorktrees = !*withWorktrees
+			withWorktrees = !withWorktrees
 			filter = t.filter
 			continue
 		}
 		if t, ok := errors.AsType[ToggleEmpty](err); ok {
-			*withEmpty = !*withEmpty
+			withEmpty = !withEmpty
 			filter = t.filter
 			continue
 		}
 		if b, ok := errors.AsType[ChooseBranch](err); ok {
 			var branchWs string
-			branchWs, err = pickBranchWorktree(b.project, *lines)
+			branchWs, err = pickBranchWorktree(b.project, lines)
 			if errors.Is(err, errCancelled) {
 				filter = b.project + "@"
 				continue
@@ -163,13 +183,13 @@ with spawn, rather than wait for it while rofi runs and lock up input.
 				picked[i] = strings.TrimSuffix(name, ".")
 			}
 		}
-		if *goTo {
+		if goTo {
 			if len(picked) == 1 {
 				return X.sendWorkspaceMessage("WS_GO", picked[0])
 			}
 			return X.sendWorkspaceMessage("WS_GO_MANY", strings.Join(picked, " "))
 		}
-		if *shiftTo {
+		if shiftTo {
 			return X.sendWorkspaceMessage("WS_SHIFT", picked[0])
 		}
 		for _, name := range picked {

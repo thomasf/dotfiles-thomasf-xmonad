@@ -6,8 +6,10 @@ import (
 	"bytes"
 	"cmp"
 	"context"
+	_ "embed"
 	"encoding/base64"
 	"errors"
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
@@ -18,130 +20,163 @@ import (
 	"sync"
 	"text/tabwriter"
 	"time"
+
+	"github.com/peterbourgon/ff/v3/ffcli"
 )
 
-const emacsUsage = `list [-global | -visible | target]
-       ws emacs [-noheader] [-noredact] [-global] [target] (region | visible)`
+//go:embed elisp/server-meta.el
+var elispServerMeta string
 
-const emacsHelp = `
-Emacs prints text from Emacs servers or lists them. By default it addresses
+//go:embed elisp/buffer-text.el
+var elispBufferText string
+
+//go:embed elisp/extract-viewport.el
+var elispExtractViewport string
+
+//go:embed elisp/extract-full.el
+var elispExtractFull string
+
+//go:embed elisp/extract-lines.el
+var elispExtractLines string
+
+//go:embed elisp/region-text.el
+var elispRegionText string
+
+//go:embed elisp/eval-wrapper.el
+var elispEvalWrapper string
+
+func emacsTextExpr(full bool, lines int, allFrames bool) string {
+	frameList := "(visible-frame-list)"
+	if allFrames {
+		frameList = "(frame-list)"
+	}
+
+	substringExpr := strings.TrimSpace(elispExtractViewport)
+	if full {
+		substringExpr = strings.TrimSpace(elispExtractFull)
+	} else if lines > 0 {
+		substringExpr = strings.TrimSpace(fmt.Sprintf(elispExtractLines, lines))
+	}
+
+	return fmt.Sprintf(strings.TrimSpace(elispBufferText), frameList, substringExpr)
+}
+
+func newEmacsCommand() *ffcli.Command {
+	return &ffcli.Command{
+		Name:       "emacs",
+		ShortUsage: "ws emacs <command> [arguments]",
+		ShortHelp:  "work with running Emacs servers",
+		LongHelp: `Emacs works with running Emacs servers. By default it addresses
 the server named after the file name of the workspace prefix (see ws name -p),
 for the workspace that contextWorkspace resolves: that of $WS_WORKSPACE,
-which ws term sets, or else the current one.
-
-    list       list running Emacs servers with their workspace, PID,
-               working directory, and selected buffer
-    region     the marked text: the active region of the selected
-               window, else of another window on a visible frame,
-               after a line naming its file and lines. If nothing is
-               marked in the workspace's Emacs, other visible Emacs
-               servers are checked.
-    visible    the text of every window on the visible frames across
-               all running Emacs servers, each after a line naming
-               its buffer
-    global     the text of all windows on all frames across all
-               running Emacs servers
-
-With -global, visible and region inspect all running Emacs servers,
-not just those on visible workspaces.
-
-When multiple servers have text to show, each server's section begins
-with a line '==> emacs:<server> <=='.
-
-Emacs redacts secrets via delemark unless -noredact is given.
-`
-
-const emacsAllFramesExpr = `(let ((text ""))
-  (dolist (frame (frame-list))
-    (when (null (frame-parent frame))
-      (dolist (window (window-list frame (quote no-minibuffer)))
-        (with-current-buffer (window-buffer window)
-          (setq text (concat text
-                             (format "\n--- Buffer: %s ---\n" (buffer-name))
-                             (buffer-substring-no-properties
-                              (window-start window)
-                              (window-end window))))))))
-  text)`
-
-func runEmacs(args []string) error {
-	if len(args) > 0 && args[0] == "list" {
-		return runEmacsList(args[1:])
-	}
-
-	fs := newFlagSet("emacs", emacsUsage, emacsHelp)
-	noHeader := fs.Bool("noheader", false, "print the region without the line naming its file and lines")
-	noRedact := fs.Bool("noredact", false, "do not redact secrets via delemark")
-	global := fs.Bool("global", false, "collect from all Emacs servers, not just visible ones")
-	fs.Parse(args)
-	checkArgs(fs, 1, 2)
-
-	var cmd, target string
-	for _, arg := range fs.Args() {
-		switch arg {
-		case "region", "visible", "global":
-			if cmd != "" {
-				usageError(fs)
-			}
-			cmd = arg
-		default:
-			if target != "" {
-				usageError(fs)
-			}
-			target = arg
-		}
-	}
-	if cmd == "" {
-		usageError(fs)
-	}
-	if cmd == "global" {
-		*global = true
-		cmd = "visible"
-	}
-
-	if target != "" {
-		var err error
-		target, err = resolveEmacsTarget(target)
-		if err != nil {
-			return err
-		}
-	}
-
-	switch cmd {
-	case "region":
-		return runEmacsRegion(target, *noHeader, *noRedact, *global)
-	case "visible":
-		return runEmacsVisible(target, *noRedact, *global)
-	default:
-		usageError(fs)
-		return nil
+which ws term sets, or else the current one.`,
+		UsageFunc: commandUsage,
+		Subcommands: []*ffcli.Command{
+			newEmacsListCommand(),
+			newEmacsReadCommand(),
+		},
 	}
 }
 
-func runEmacsList(args []string) error {
-	fs := newFlagSet("emacs list", "[-global | -visible | target]", `
-List prints running Emacs servers, by default that of the current
+func newEmacsListCommand() *ffcli.Command {
+	fs := flag.NewFlagSet("ws emacs list", flag.ContinueOnError)
+	global := fs.Bool("global", false, "list every running Emacs server")
+	visible := fs.Bool("visible", false, "list the Emacs servers on the visible workspaces")
+	cmd := &ffcli.Command{
+		Name:       "list",
+		ShortUsage: "ws emacs list [-global | -visible | target]",
+		ShortHelp:  "list running Emacs servers with workspace, PID, CWD, and buffer",
+		LongHelp: `List prints running Emacs servers, by default that of the current
 workspace prefix. With -global it lists every running Emacs server,
 and with -visible those on the visible workspaces.
 
 The columns are the server name, workspace, process ID, working directory,
-and selected buffer.
-`)
-	global := fs.Bool("global", false, "list every running Emacs server")
-	visible := fs.Bool("visible", false, "list the Emacs servers on the visible workspaces")
-	fs.Parse(args)
-	checkArgs(fs, 0, 1)
-	if *global && *visible || (*global || *visible) && fs.NArg() > 0 {
-		usageError(fs)
+and selected buffer.`,
+		FlagSet:   fs,
+		UsageFunc: commandUsage,
 	}
+	cmd.Exec = func(ctx context.Context, args []string) error {
+		if len(args) > 1 || (*global && *visible) || ((*global || *visible) && len(args) > 0) {
+			usageError(fs)
+		}
+		target := ""
+		if len(args) == 1 {
+			target = args[0]
+		}
+		return executeEmacsList(*global, *visible, target)
+	}
+	return cmd
+}
 
+func newEmacsReadCommand() *ffcli.Command {
+	fs := flag.NewFlagSet("ws emacs read", flag.ContinueOnError)
+	var common commonReadFlags
+	var emacs emacsReadFlags
+	common.Register(fs)
+	emacs.Register(fs)
+	cmd := &ffcli.Command{
+		Name:       "read",
+		ShortUsage: "ws emacs read [-lines n | -full] [-no-header] [-no-redact] [-ansi] [-no-trim] [-region] ([-except target] (-global | -visible) | target...)",
+		ShortHelp:  "print text from Emacs buffers or the marked active region",
+		LongHelp: `Read prints the text of windows on visible frames across running Emacs
+servers, or the marked active region.
+
+With -region, it prints the active marked selection. By default it checks
+the Emacs server of the current workspace prefix, falling back to other
+visible Emacs servers if no text is marked. With -global, it checks all
+running Emacs servers. A line naming the file and lines precedes the text
+unless -no-header is given.
+
+Without -region, read prints the text of windows on the visible frames
+across running Emacs servers, each after a line naming its buffer. With
+-full it prints the entire buffer contents. With -lines n it prints the
+last n lines of each buffer. With -global it prints all windows across
+all running Emacs servers.
+
+With -except, read leaves out the Emacs server of target (such as .bot).
+
+Target(s) address specific Emacs servers by workspace or server name.
+
+Read redacts secrets via delemark unless -no-redact is given.`,
+		FlagSet:   fs,
+		UsageFunc: commandUsage,
+	}
+	cmd.Exec = func(ctx context.Context, args []string) error {
+		if err := common.validate(fs, true); err != nil {
+			return err
+		}
+		skip, err := common.resolveEmacsSkip()
+		if err != nil {
+			return err
+		}
+		if emacs.region {
+			return runEmacsRegion(args, skip, emacs.noHeader, common.noRedact, common.global)
+		}
+		return runEmacsBuffers(args, skip, common)
+	}
+	return cmd
+}
+
+func runEmacs(args []string) error {
+	return runFFCLI(newEmacsCommand(), args)
+}
+
+func runEmacsList(args []string) error {
+	return runFFCLI(newEmacsListCommand(), args)
+}
+
+func runEmacsRead(args []string) error {
+	return runFFCLI(newEmacsReadCommand(), args)
+}
+
+func executeEmacsList(global, visible bool, target string) error {
 	servers := runningEmacsServers()
 	if len(servers) == 0 {
 		return errors.New("emacs: no running Emacs servers found")
 	}
 
 	switch {
-	case !*global && !*visible:
-		target := fs.Arg(0)
+	case !global && !visible:
 		if target == "" {
 			w, err := contextWorkspace()
 			if err != nil {
@@ -172,7 +207,7 @@ and selected buffer.
 		visible   bool
 	}
 
-	const metaExpr = `(format "%d\t%s\t%s\t%s" (emacs-pid) (if (visible-frame-list) "yes" "no") (abbreviate-file-name default-directory) (buffer-name (window-buffer (selected-window))))`
+	metaExpr := strings.TrimSpace(elispServerMeta)
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
@@ -204,7 +239,7 @@ and selected buffer.
 	var list []*emacsServerInfo
 	for _, info := range infos {
 		if info != nil {
-			if *visible && !info.visible {
+			if visible && !info.visible {
 				continue
 			}
 			list = append(list, info)
@@ -212,7 +247,7 @@ and selected buffer.
 	}
 
 	if len(list) == 0 {
-		if *visible {
+		if visible {
 			return nil
 		}
 		return errors.New("emacs: no running Emacs servers found")
@@ -258,30 +293,55 @@ func resolveEmacsTarget(target string) (string, error) {
 	return fileName(Workspace(target).prefix()), nil
 }
 
-func runEmacsRegion(target string, noHeader, noRedact, global bool) error {
-	expr := fmt.Sprintf("(my-region-text %s)", map[bool]string{true: "t", false: "nil"}[noHeader])
+func runEmacsRegion(targets []string, skip string, noHeader, noRedact, global bool) error {
+	expr := fmt.Sprintf(strings.TrimSpace(elispRegionText), map[bool]string{true: "t", false: "nil"}[noHeader])
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
-	if target != "" {
-		text, err := emacsEval(ctx, target, expr)
-		if err != nil {
-			return err
+	if len(targets) > 0 {
+		var errs []error
+		for _, target := range targets {
+			s, err := resolveEmacsTarget(target)
+			if err != nil {
+				errs = append(errs, err)
+				continue
+			}
+			if s == skip {
+				continue
+			}
+			text, err := emacsEval(ctx, s, expr)
+			if err != nil {
+				errs = append(errs, err)
+				continue
+			}
+			if text != "" {
+				return printEmacsText(text, noRedact)
+			}
 		}
-		return printEmacsText(text, noRedact)
+		if len(errs) > 0 {
+			return errors.Join(errs...)
+		}
+		return errors.New("emacs: No marked text")
 	}
 
 	servers := runningEmacsServers()
-	ordered := orderEmacsServers(servers)
-	if len(ordered) == 0 {
+	if skip != "" {
+		servers = slices.DeleteFunc(servers, func(s string) bool { return s == skip })
+	}
+	var toCheck []string
+	if global {
+		toCheck = orderEmacsServers(servers)
+	} else {
+		toCheck = visibleEmacsServers(servers)
+	}
+	if len(toCheck) == 0 {
 		if w, err := contextWorkspace(); err == nil {
 			return fmt.Errorf("emacs: no Emacs server %s", fileName(w.prefix()))
 		}
 		return errors.New("emacs: no running Emacs servers found")
 	}
 
-	// Try each server in order; return the first one with marked text.
-	for _, s := range ordered {
+	for _, s := range toCheck {
 		text, err := emacsEval(ctx, s, expr)
 		if err == nil && text != "" {
 			return printEmacsText(text, noRedact)
@@ -290,40 +350,68 @@ func runEmacsRegion(target string, noHeader, noRedact, global bool) error {
 	return errors.New("emacs: No marked text")
 }
 
-func runEmacsVisible(target string, noRedact, global bool) error {
+func runEmacsBuffers(targets []string, skip string, flags commonReadFlags) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
-	expr := "(my-visible-text)"
-	if global {
-		expr = emacsAllFramesExpr
-	}
-
-	if target != "" {
-		text, err := emacsEval(ctx, target, expr)
-		if err != nil {
-			return err
-		}
-		return printEmacsText(text, noRedact)
-	}
-
 	servers := runningEmacsServers()
 	if len(servers) == 0 {
-		if w, err := contextWorkspace(); err == nil {
-			return fmt.Errorf("emacs: no Emacs server %s", fileName(w.prefix()))
+		if flags.visible {
+			return nil
+		}
+		if len(targets) > 0 {
+			return fmt.Errorf("emacs: no running Emacs servers found for %s", strings.Join(targets, ", "))
 		}
 		return errors.New("emacs: no running Emacs servers found")
 	}
-	ordered := orderEmacsServers(servers)
+
+	if skip != "" {
+		servers = slices.DeleteFunc(servers, func(s string) bool { return s == skip })
+	}
+
+	expr := emacsTextExpr(flags.full, flags.lines, false)
+	var toQuery []string
+
+	if len(targets) > 0 {
+		expr = emacsTextExpr(flags.full, flags.lines, true)
+		var errs []error
+		for _, target := range targets {
+			s, err := resolveEmacsTarget(target)
+			if err != nil {
+				errs = append(errs, err)
+				continue
+			}
+			if s == skip {
+				continue
+			}
+			if slices.Contains(servers, s) && !slices.Contains(toQuery, s) {
+				toQuery = append(toQuery, s)
+			} else if !slices.Contains(servers, s) {
+				errs = append(errs, fmt.Errorf("emacs: no running Emacs server %s", s))
+			}
+		}
+		if len(toQuery) == 0 && len(errs) > 0 {
+			return errors.Join(errs...)
+		}
+	} else if flags.global {
+		expr = emacsTextExpr(flags.full, flags.lines, true)
+		toQuery = orderEmacsServers(servers)
+	} else { // visible
+		toQuery = visibleEmacsServers(servers)
+	}
+
+	if len(toQuery) == 0 {
+		return nil
+	}
 
 	type serverResult struct {
 		server string
 		text   string
 	}
-	results := make([]serverResult, len(ordered))
+	results := make([]serverResult, len(toQuery))
 	var wg sync.WaitGroup
 
-	for i, s := range ordered {
+	for i, s := range toQuery {
 		wg.Add(1)
 		go func(idx int, server string) {
 			defer wg.Done()
@@ -342,15 +430,16 @@ func runEmacsVisible(target string, noRedact, global bool) error {
 		}
 	}
 
+	showHeader := len(active) > 1 || flags.global || len(targets) > 1
 	for i, r := range active {
 		if i > 0 {
 			fmt.Println()
 		}
-		if len(active) > 1 || global {
+		if showHeader {
 			fmt.Printf("==> emacs:%s <==\n", r.server)
 		}
 		text := r.text
-		if !noRedact {
+		if !flags.noRedact {
 			text = redact(text)
 		}
 		fmt.Print(text)
@@ -359,6 +448,34 @@ func runEmacsVisible(target string, noRedact, global bool) error {
 		}
 	}
 	return nil
+}
+
+func visibleEmacsServers(servers []string) []string {
+	curPrefix := ""
+	if w, err := contextWorkspace(); err == nil {
+		curPrefix = fileName(w.prefix())
+	}
+	visibleMap := make(map[string]bool)
+	if curPrefix != "" {
+		visibleMap[curPrefix] = true
+	}
+	if x, err := openX(); err == nil {
+		defer x.close()
+		if names, cur, err := x.desktops(); err == nil {
+			shown := x.visibleDesktops()
+			if shown == nil {
+				shown = make(map[int]bool)
+			}
+			shown[cur] = true
+			for i, name := range names {
+				if shown[i] {
+					visibleMap[fileName(Workspace(name).prefix())] = true
+				}
+			}
+		}
+	}
+	ordered := orderEmacsServers(servers)
+	return slices.DeleteFunc(ordered, func(s string) bool { return !visibleMap[s] })
 }
 
 func printEmacsText(text string, noRedact bool) error {
@@ -469,7 +586,7 @@ func orderEmacsServers(servers []string) []string {
 // server named server and returns the string. The string travels base64
 // encoded, as emacsclient prints values as Lisp, quoted and escaped.
 func emacsEval(ctx context.Context, server, expr string) (string, error) {
-	expr = fmt.Sprintf("(base64-encode-string (encode-coding-string %s 'utf-8 t) t)", expr)
+	expr = fmt.Sprintf(strings.TrimSpace(elispEvalWrapper), expr)
 	// --alternate-editor=false keeps emacsclient from starting a daemon
 	// when there is no server, as an empty $ALTERNATE_EDITOR would.
 	cmd := exec.CommandContext(ctx, "emacsclient", "--alternate-editor=false", "-s", server, "-e", expr)

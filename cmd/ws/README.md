@@ -73,7 +73,7 @@ Target names resolve relative to the caller's current workspace (via `$WS_WORKSP
 | `ws rc send` | Send text or keystrokes to a terminal. `-paste` uses bracketed paste mode; `-cr` appends Enter. |
 | `ws read` | Read text from Emacs buffers and controllable terminals across workspaces and screens. Defaults to visible on-screen sources. |
 | `ws emacs list` | List running Emacs servers with their workspace, PID, working directory, and selected buffer. |
-| `ws emacs` | Query Emacs servers for the currently marked region (`region`) or the text of visible windows (`visible`). Supports `-global` and targeting a specific server. |
+| `ws emacs read` | Read visible window text, full buffer (`-full`), recent lines (`-lines <n>`), or active marked region (`-region`). |
 
 This allows scripts and background agents (e.g. running in `.bot`) to inspect logs, run tests, and read Emacs buffers across the desktop:
 
@@ -86,9 +86,13 @@ ws read                                # Everything visible on screen (Emacs + t
 ws read -except .bot                   # Everything visible except the caller's terminal
 ws read -global                        # All Emacs buffers and terminals across all workspaces
 ws emacs list -global                  # List all running Emacs servers across workspaces
-ws emacs region                        # Active selection in Emacs (workspace or visible)
-ws emacs visible                       # Text of all visible windows across running Emacs servers
-ws emacs -global visible               # All windows across all running Emacs servers
+ws emacs read -region                  # Active selection in Emacs (workspace or visible)
+ws emacs read                          # Text of all visible windows across running Emacs servers
+ws emacs read -full                    # Complete buffer contents
+ws emacs read -lines 100               # Last 100 lines of buffer
+ws emacs read -global                  # All windows across all running Emacs servers
+ws emacs read -region -no-header       # Region without file/line header
+ws emacs read dotfiles                 # Buffers from the 'dotfiles' Emacs server
 ```
 
 ## Configuration and Cache Files

@@ -4,88 +4,107 @@ package main
 
 import (
 	"cmp"
+	"context"
 	"errors"
+	"flag"
 	"fmt"
 	"html"
-	"os"
 	"strconv"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/peterbourgon/ff/v3/ffcli"
 )
 
-const wtUsage = `usage: ws wt <command> [arguments]
-
-Wt manages the worktrees of a project, by default the project of the
+func newWtCommand() *ffcli.Command {
+	removeCmd := newWtRemoveCommand()
+	rmCmd := newWtRemoveCommand()
+	rmCmd.Name = "rm"
+	rmCmd.ShortHelp = "remove a worktree (alias for remove)"
+	return &ffcli.Command{
+		Name:       "wt",
+		ShortUsage: "ws wt <command> [arguments]",
+		ShortHelp:  "manage the worktrees of a project",
+		LongHelp: `Wt manages the worktrees of a project, by default the project of the
 current workspace. Worktree name of a repository is the directory
 <repo>@<name> beside its main checkout. A name cannot contain "/", ".",
-"@" or spaces: worktree feat-x is the usual name for branch feat/x.
-
-Commands:
-    list    print the workspace prefixes of the worktrees
-    add     create a worktree on a given branch, without asking
-    init    create a worktree, choosing its branch
-    remove  remove a worktree (or rm)
-
-Run ws wt <command> -h for help on a command.
-`
+"@" or spaces: worktree feat-x is the usual name for branch feat/x.`,
+		UsageFunc: commandUsage,
+		Subcommands: []*ffcli.Command{
+			newWtListCommand(),
+			newWtAddCommand(),
+			newWtInitCommand(),
+			removeCmd,
+			rmCmd,
+		},
+	}
+}
 
 func runWt(args []string) error {
-	if len(args) == 0 {
-		fmt.Fprint(os.Stderr, wtUsage)
-		os.Exit(2)
+	return runFFCLI(newWtCommand(), args)
+}
+
+func newWtListCommand() *ffcli.Command {
+	fs := flag.NewFlagSet("ws wt list", flag.ContinueOnError)
+	long := fs.Bool("l", false, "also print the directory and branch of each worktree")
+	pick := fs.Bool("pick", false, "choose with rofi between repositories with the same name")
+	cmd := &ffcli.Command{
+		Name:       "list",
+		ShortUsage: "ws wt list [-l] [-pick] [workspace]",
+		ShortHelp:  "print the workspace prefixes of the worktrees",
+		LongHelp: `List prints the workspace prefix of the main checkout of the project of
+a workspace, by default the current one, and of each of its worktrees,
+one per line.`,
+		FlagSet:   fs,
+		UsageFunc: commandUsage,
 	}
-	switch cmd, args := args[0], args[1:]; cmd {
-	case "list":
-		return runWtList(args)
-	case "add":
-		return runWtAdd(args)
-	case "init":
-		return runWtInit(args)
-	case "remove", "rm":
-		return runWtRemove(args)
-	case "-h", "-help", "--help", "help":
-		fmt.Fprint(os.Stdout, wtUsage)
-		os.Exit(0)
+	cmd.Exec = func(ctx context.Context, args []string) error {
+		if len(args) > 1 {
+			usageError(fs)
+		}
+		var w Workspace
+		var err error
+		if len(args) == 1 {
+			w = Workspace(args[0])
+		} else {
+			w, err = currentWorkspace()
+			if err != nil {
+				return err
+			}
+		}
+		main, err := projectCheckout(w.project(), *pick)
+		if err != nil {
+			return err
+		}
+		wts, err := main.listWorktrees(w.project())
+		if err != nil {
+			return err
+		}
+		for _, wt := range wts {
+			if *long {
+				fmt.Printf("%s\t%s\t%s\n", wt.prefix, wt.dir, wt.branch)
+			} else {
+				fmt.Println(wt.prefix)
+			}
+		}
+		return nil
 	}
-	fmt.Fprint(os.Stderr, wtUsage)
-	os.Exit(2)
-	return nil
+	return cmd
 }
 
 func runWtList(args []string) error {
-	fs := newFlagSet("wt list", "[-l] [-pick] [workspace]", `
-List prints the workspace prefix of the main checkout of the project of
-a workspace, by default the current one, and of each of its worktrees,
-one per line.
-`)
-	long := fs.Bool("l", false, "also print the directory and branch of each worktree")
-	pick := fs.Bool("pick", false, "choose with rofi between repositories with the same name")
-	fs.Parse(args)
-	w, err := workspaceArg(fs)
-	if err != nil {
-		return err
-	}
-	main, err := projectCheckout(w.project(), *pick)
-	if err != nil {
-		return err
-	}
-	wts, err := main.listWorktrees(w.project())
-	if err != nil {
-		return err
-	}
-	for _, wt := range wts {
-		if *long {
-			fmt.Printf("%s\t%s\t%s\n", wt.prefix, wt.dir, wt.branch)
-		} else {
-			fmt.Println(wt.prefix)
-		}
-	}
-	return nil
+	return runFFCLI(newWtListCommand(), args)
 }
 
-func runWtAdd(args []string) error {
-	fs := newFlagSet("wt add", "[-branch branch] [-pick] [project@]name", `
-Add creates the worktree <repo>@<name> beside the main checkout <repo>
+func newWtAddCommand() *ffcli.Command {
+	fs := flag.NewFlagSet("ws wt add", flag.ContinueOnError)
+	branch := fs.String("branch", "", "check out `branch` instead of the branch named like the worktree")
+	pick := fs.Bool("pick", false, "choose with rofi between repositories with the same name")
+	cmd := &ffcli.Command{
+		Name:       "add",
+		ShortUsage: "ws wt add [-branch branch] [-pick] [project@]name",
+		ShortHelp:  "create a worktree on a given branch, without asking",
+		LongHelp: `Add creates the worktree <repo>@<name> beside the main checkout <repo>
 of project, by default the project of the current workspace, and prints
 its workspace prefix project@name. It never asks. It checks out branch
 name, or -branch: the local branch, else the branch on a remote,
@@ -103,88 +122,107 @@ Examples:
     ws wt add repo@spike                # ../repo@spike on branch spike,
                                         # new from HEAD if there is none
     ws wt add repo@feat/x               # ../repo@feat-x on branch feat/x
-    ws wt add -branch feat/x repo@x     # ../repo@x on branch feat/x
-`)
-	branch := fs.String("branch", "", "check out `branch` instead of the branch named like the worktree")
-	pick := fs.Bool("pick", false, "choose with rofi between repositories with the same name")
-	fs.Parse(args)
-	if fs.NArg() != 1 {
-		usageError(fs)
+    ws wt add -branch feat/x repo@x     # ../repo@x on branch feat/x`,
+		FlagSet:   fs,
+		UsageFunc: commandUsage,
 	}
-	project, name, argBranch, err := worktreeArg(fs.Arg(0))
-	if err != nil {
-		return err
+	cmd.Exec = func(ctx context.Context, args []string) error {
+		if len(args) != 1 {
+			usageError(fs)
+		}
+		project, name, argBranch, err := worktreeArg(args[0])
+		if err != nil {
+			return err
+		}
+		main, err := projectCheckout(project, *pick)
+		if err != nil {
+			return err
+		}
+		if err := main.addWorktree(name, main.exactBranch(cmp.Or(*branch, argBranch))); err != nil {
+			return err
+		}
+		fmt.Println(project + "@" + name)
+		return nil
 	}
-	main, err := projectCheckout(project, *pick)
-	if err != nil {
-		return err
-	}
-	if err := main.addWorktree(name, main.exactBranch(cmp.Or(*branch, argBranch))); err != nil {
-		return err
-	}
-	fmt.Println(project + "@" + name)
-	return nil
+	return cmd
 }
 
-func runWtRemove(args []string) error {
-	fs := newFlagSet("wt remove", "[-force] [-y] [-pick] [[project@]name]", `
-Remove removes worktree name, by default the worktree of the current
+func runWtAdd(args []string) error {
+	return runFFCLI(newWtAddCommand(), args)
+}
+
+func newWtRemoveCommand() *ffcli.Command {
+	fs := flag.NewFlagSet("ws wt remove", flag.ContinueOnError)
+	force := fs.Bool("force", false, "remove the worktree even if it has changes")
+	yes := fs.Bool("y", false, "remove the worktree without asking")
+	pick := fs.Bool("pick", false, "choose with rofi between repositories with the same name")
+	cmd := &ffcli.Command{
+		Name:       "remove",
+		ShortUsage: "ws wt remove [-force] [-y] [-pick] [[project@]name]",
+		ShortHelp:  "remove a worktree",
+		LongHelp: `Remove removes worktree name, by default the worktree of the current
 workspace, and the directory stored for its workspace prefix. The
 branch is kept, and it prints the git command to delete it.
 
 It asks first, where init asks, unless -y is given. If the worktree has
 changes, agreeing discards them; with -y, git refuses to remove it
-unless -force is given.
-`)
-	force := fs.Bool("force", false, "remove the worktree even if it has changes")
-	yes := fs.Bool("y", false, "remove the worktree without asking")
-	pick := fs.Bool("pick", false, "choose with rofi between repositories with the same name")
-	fs.Parse(args)
-	var project, name string
-	switch fs.NArg() {
-	case 0:
-		w, err := currentWorkspace()
+unless -force is given.`,
+		FlagSet:   fs,
+		UsageFunc: commandUsage,
+	}
+	cmd.Exec = func(ctx context.Context, args []string) error {
+		if len(args) > 1 {
+			usageError(fs)
+		}
+		var project, name string
+		switch len(args) {
+		case 0:
+			w, err := currentWorkspace()
+			if err != nil {
+				return err
+			}
+			project, name = w.project(), w.worktree()
+			if name == "" {
+				return fmt.Errorf("workspace %s is not in a worktree", w)
+			}
+		case 1:
+			var err error
+			if project, name, _, err = worktreeArg(args[0]); err != nil {
+				return err
+			}
+		}
+		main, err := projectCheckout(project, *pick)
 		if err != nil {
 			return err
 		}
-		project, name = w.project(), w.worktree()
-		if name == "" {
-			return fmt.Errorf("workspace %s is not in a worktree", w)
+		if !*yes {
+			ok, discard, err := confirmRemove(main, project+"@"+name, name)
+			if err != nil {
+				return err
+			}
+			if !ok {
+				return errCancelled
+			}
+			*force = *force || discard
 		}
-	case 1:
-		var err error
-		if project, name, _, err = worktreeArg(fs.Arg(0)); err != nil {
+		// The branch is kept; look it up now, as the worktree is gone after.
+		branch, _ := Repository(main.worktreePath(name)).currentBranch()
+		if err := main.removeWorktree(name, *force); err != nil {
 			return err
 		}
-	default:
-		usageError(fs)
-	}
-	main, err := projectCheckout(project, *pick)
-	if err != nil {
-		return err
-	}
-	if !*yes {
-		ok, discard, err := confirmRemove(main, project+"@"+name, name)
-		if err != nil {
+		if err := storeDir(project+"@"+name, ""); err != nil {
 			return err
 		}
-		if !ok {
-			return errCancelled
+		if branch != "" {
+			fmt.Printf("\nBranch %s was kept. To delete it:\n\n  git -C %s branch -d %s\n\n", branch, main, branch)
 		}
-		*force = *force || discard
+		return nil
 	}
-	// The branch is kept; look it up now, as the worktree is gone after.
-	branch, _ := Repository(main.worktreePath(name)).currentBranch()
-	if err := main.removeWorktree(name, *force); err != nil {
-		return err
-	}
-	if err := storeDir(project+"@"+name, ""); err != nil {
-		return err
-	}
-	if branch != "" {
-		fmt.Printf("\nBranch %s was kept. To delete it:\n\n  git -C %s branch -d %s\n\n", branch, main, branch)
-	}
-	return nil
+	return cmd
+}
+
+func runWtRemove(args []string) error {
+	return runFFCLI(newWtRemoveCommand(), args)
 }
 
 // confirmRemove asks the user whether to remove worktree name, with
@@ -208,9 +246,15 @@ func confirmRemove(main Repository, prefix, name string) (ok, discard bool, err 
 	return confirm(msg, "remove, discarding changes"), true, nil
 }
 
-func runWtInit(args []string) error {
-	fs := newFlagSet("wt init", "[-y] [-pick] [workspace]", `
-Init creates the worktree of a workspace, letting the user choose a
+func newWtInitCommand() *ffcli.Command {
+	fs := flag.NewFlagSet("ws wt init", flag.ContinueOnError)
+	yes := fs.Bool("y", false, "create the worktree without asking, on the first branch found")
+	pick := fs.Bool("pick", false, "choose with rofi between repositories with the same name")
+	cmd := &ffcli.Command{
+		Name:       "init",
+		ShortUsage: "ws wt init [-y] [-pick] [workspace]",
+		ShortHelp:  "create a worktree, choosing its branch",
+		LongHelp: `Init creates the worktree of a workspace, letting the user choose a
 branch resembling its name, or where a new branch starts.
 
 Examples:
@@ -218,20 +262,35 @@ Examples:
     ws wt init                 # worktree of the current workspace
     ws wt init repo@feat-x     # offers feat/x, or a new branch feat-x
     ws wt init repo@x          # offers branches ending in /x, like feat/x
-    ws wt init -y repo@feat-x  # first match, else a new branch from HEAD
-`)
-	yes := fs.Bool("y", false, "create the worktree without asking, on the first branch found")
-	pick := fs.Bool("pick", false, "choose with rofi between repositories with the same name")
-	fs.Parse(args)
-	w, err := workspaceArg(fs)
-	if err != nil {
-		return err
+    ws wt init -y repo@feat-x  # first match, else a new branch from HEAD`,
+		FlagSet:   fs,
+		UsageFunc: commandUsage,
 	}
-	if err := initWorktree(w, *yes, *pick); err != nil {
-		return err
+	cmd.Exec = func(ctx context.Context, args []string) error {
+		if len(args) > 1 {
+			usageError(fs)
+		}
+		var w Workspace
+		var err error
+		if len(args) == 1 {
+			w = Workspace(args[0])
+		} else {
+			w, err = currentWorkspace()
+			if err != nil {
+				return err
+			}
+		}
+		if err := initWorktree(w, *yes, *pick); err != nil {
+			return err
+		}
+		fmt.Println(w.prefix())
+		return nil
 	}
-	fmt.Println(w.prefix())
-	return nil
+	return cmd
+}
+
+func runWtInit(args []string) error {
+	return runFFCLI(newWtInitCommand(), args)
 }
 
 // initWorktree creates the worktree of workspace w, as ws wt init does.

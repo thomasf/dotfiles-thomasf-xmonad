@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"slices"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	"time"
 
 	critty "github.com/go-pa/critty-ipc"
+	"github.com/peterbourgon/ff/v3/ffcli"
 )
 
 type readSection struct {
@@ -18,133 +20,104 @@ type readSection struct {
 	text   string
 }
 
-func runRead(args []string) error {
-	fs := newFlagSet("read", "[-ansi] [-no-trim] [-noredact] [-lines n | -history] [-except target] [-emacs] [-rc] [-global | -visible | target...]", `
-Read prints text from Emacs buffers and remote control terminals across
+func newReadCommand() *ffcli.Command {
+	fs := flag.NewFlagSet("ws read", flag.ContinueOnError)
+	var common commonReadFlags
+	var emacsOpts emacsReadFlags
+	var srcOpts sourceFlags
+	common.Register(fs)
+	emacsOpts.Register(fs)
+	srcOpts.Register(fs)
+	cmd := &ffcli.Command{
+		Name:       "read",
+		ShortUsage: "ws read [-lines n | -full] [-no-redact] [-ansi] [-no-trim] [-region] [-no-header] [-except target] [-emacs] [-rc] [-global | -visible | target...]",
+		ShortHelp:  "read text from Emacs buffers and controllable terminals",
+		LongHelp: `Read prints text from Emacs buffers and remote control terminals across
 workspaces and screens.
 
 By default, read prints visible sources on the active screens (like
--visible), querying both Emacs and critty terminals.
-
-    -visible        read sources visible on the active screens (default)
-    -global         read sources across all workspaces and daemons
-    target...       read sources of the given workspace prefix(es)
-
-Sources (defaults to both when neither is specified):
-    -emacs          include Emacs buffers
-    -rc             include remote control terminals
-
-Options:
-    -except target  leave out terminals on workspaces matching target
-                    (such as .bot)
-    -lines n        rows of terminal output (default: visible screen rows)
-    -history        all of terminal scrollback and screen
-    -ansi           keep terminal ANSI color codes
-    -no-trim        do not trim empty lines from terminals
-    -noredact       do not redact secrets via delemark
-`)
-	ansi := fs.Bool("ansi", false, "keep terminal ANSI escape codes")
-	noTrim := fs.Bool("no-trim", false, "do not trim terminal screens")
-	noRedact := fs.Bool("noredact", false, "do not redact secrets via delemark")
-	lines := fs.Int("lines", 0, "rows of terminal output to read")
-	history := fs.Bool("history", false, "all of terminal scrollback and the screen")
-	except := fs.String("except", "", "leave out terminals of target")
-	global := fs.Bool("global", false, "read sources across all workspaces")
-	visible := fs.Bool("visible", false, "read sources on visible workspaces")
-	emacs := fs.Bool("emacs", false, "include Emacs buffers")
-	rc := fs.Bool("rc", false, "include remote control terminals")
-	fs.Parse(args)
-
-	if *global && *visible || (*global || *visible) && fs.NArg() > 0 {
-		usageError(fs)
+-visible), querying both Emacs and critty terminals.`,
+		FlagSet:   fs,
+		UsageFunc: commandUsage,
 	}
-	if *history && *lines > 0 {
-		usageError(fs)
-	}
-
-	// Default to visible if neither global nor targets are specified
-	if !*global && fs.NArg() == 0 {
-		*visible = true
-	}
-
-	// If neither source is explicitly chosen, default to both Emacs and RC terminals
-	if !*emacs && !*rc {
-		*emacs = true
-		*rc = true
-	}
-
-	opts := screenReader{
-		ReadOptions: critty.ReadOptions{
-			Lines: *lines,
-			ANSI:  *ansi,
-		},
-		trim: !*noTrim,
-	}
-	if *history {
-		opts.Lines = -1
-	}
-
-	var skip string
-	if *except != "" {
-		target, err := resolveRcTarget(*except)
+	cmd.Exec = func(ctx context.Context, args []string) error {
+		if err := common.validate(fs, true); err != nil {
+			return err
+		}
+		opts := common.screenReader()
+		skip, err := common.resolveRcSkip()
 		if err != nil {
 			return err
 		}
-		skip, _ = splitRcName(target)
-	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	var sections []readSection
-
-	// 1. Emacs
-	if *emacs {
-		emacsSections := collectEmacsSections(ctx, *visible, *global, fs.Args())
-		sections = append(sections, emacsSections...)
-	}
-
-	// 2. RC Terminals
-	if *rc {
-		rcSections, err := collectRcSections(ctx, opts, *visible, *global, skip, fs.Args())
-		if err == nil {
-			sections = append(sections, rcSections...)
+		emacs := srcOpts.emacs
+		rc := srcOpts.rc
+		if !emacs && !rc {
+			emacs = true
+			rc = true
 		}
-	}
 
-	// Print all sections
-	for i, s := range sections {
-		if i > 0 {
-			fmt.Println()
-		}
-		fmt.Printf("==> %s <==\n", s.header)
-		text := s.text
-		if !*noRedact {
-			text = redact(text)
-		}
-		fmt.Print(text)
-		if !strings.HasSuffix(text, "\n") {
-			fmt.Println()
-		}
-	}
+		ctxTimeout, cancel := context.WithTimeout(ctx, 5*time.Second)
+		defer cancel()
 
-	return nil
+		var sections []readSection
+
+		// 1. Emacs
+		if emacs {
+			emacsSections := collectEmacsSections(ctxTimeout, common, emacsOpts.region, emacsOpts.noHeader, args)
+			sections = append(sections, emacsSections...)
+		}
+
+		// 2. RC Terminals
+		if rc {
+			rcSections, err := collectRcSections(ctxTimeout, opts, common.visible, common.global, skip, args)
+			if err == nil {
+				sections = append(sections, rcSections...)
+			}
+		}
+
+		// Print all sections
+		for i, s := range sections {
+			if i > 0 {
+				fmt.Println()
+			}
+			fmt.Printf("==> %s <==\n", s.header)
+			text := s.text
+			if !common.noRedact {
+				text = redact(text)
+			}
+			fmt.Print(text)
+			if !strings.HasSuffix(text, "\n") {
+				fmt.Println()
+			}
+		}
+		return nil
+	}
+	return cmd
 }
 
-func collectEmacsSections(ctx context.Context, visible, global bool, targets []string) []readSection {
+func runRead(args []string) error {
+	return runFFCLI(newReadCommand(), args)
+}
+
+func collectEmacsSections(ctx context.Context, flags commonReadFlags, region, noHeader bool, targets []string) []readSection {
 	servers := runningEmacsServers()
 	if len(servers) == 0 {
 		return nil
 	}
 
-	expr := "(my-visible-text)"
-	if global {
-		expr = emacsAllFramesExpr
+	expr := emacsTextExpr(flags.full, flags.lines, false)
+	if region {
+		expr = fmt.Sprintf(strings.TrimSpace(elispRegionText), map[bool]string{true: "t", false: "nil"}[noHeader])
+	} else if flags.global || len(targets) > 0 {
+		expr = emacsTextExpr(flags.full, flags.lines, true)
 	}
 
 	var toQuery []string
-	if global || visible {
+	if flags.global {
 		toQuery = orderEmacsServers(servers)
+	} else if flags.visible {
+		toQuery = visibleEmacsServers(servers)
 	} else {
 		for _, target := range targets {
 			resolved, err := resolveEmacsTarget(target)

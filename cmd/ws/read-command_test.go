@@ -14,7 +14,7 @@ func TestCollectEmacsSectionsNoServers(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
 	defer cancel()
 
-	sections := collectEmacsSections(ctx, true, false, nil)
+	sections := collectEmacsSections(ctx, commonReadFlags{visible: true}, false, false, nil)
 	if len(sections) != 0 {
 		t.Errorf("collectEmacsSections() with no servers got %v, want empty", sections)
 	}

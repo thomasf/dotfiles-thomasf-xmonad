@@ -85,3 +85,52 @@ func TestRunEmacsListNoServers(t *testing.T) {
 		t.Errorf("runEmacsList() err = %v, want 'no running Emacs servers found'", err)
 	}
 }
+
+func TestRunEmacsReadNoServers(t *testing.T) {
+	tmpDir := t.TempDir()
+	t.Setenv("XDG_RUNTIME_DIR", tmpDir)
+	// Empty directory, -visible returns nil (no visible servers to show)
+	err := runEmacsBuffers(nil, "", commonReadFlags{visible: true})
+	if err != nil {
+		t.Errorf("runEmacsBuffers(visible) err = %v, want nil", err)
+	}
+
+	// -global returns error
+	err = runEmacsBuffers(nil, "", commonReadFlags{global: true})
+	if err == nil || err.Error() != "emacs: no running Emacs servers found" {
+		t.Errorf("runEmacsBuffers(global) err = %v, want 'no running Emacs servers found'", err)
+	}
+
+	// target returns error
+	err = runEmacsBuffers([]string{"dotfiles"}, "", commonReadFlags{})
+	if err == nil || err.Error() != "emacs: no running Emacs servers found for dotfiles" {
+		t.Errorf("runEmacsBuffers(target) err = %v, want 'no running Emacs servers found for dotfiles'", err)
+	}
+}
+
+func TestEmacsTextExpr(t *testing.T) {
+	visibleExpr := emacsTextExpr(false, 0, false)
+	if !slices.Contains([]byte(visibleExpr), byte('(')) {
+		t.Errorf("emacsTextExpr returned invalid expression")
+	}
+
+	fullExpr := emacsTextExpr(true, 0, false)
+	if !slices.Contains([]byte(fullExpr), byte('(')) {
+		t.Errorf("emacsTextExpr(full) returned invalid expression")
+	}
+
+	linesExpr := emacsTextExpr(false, 20, false)
+	if !slices.Contains([]byte(linesExpr), byte('(')) {
+		t.Errorf("emacsTextExpr(lines) returned invalid expression")
+	}
+}
+
+func TestVisibleEmacsServers(t *testing.T) {
+	t.Setenv("WS_WORKSPACE", "ws.bot")
+	servers := []string{"alpha", "ws", "beta"}
+	got := visibleEmacsServers(servers)
+	// In test environment without X, contextWorkspace is ws.bot -> prefix "ws"
+	if len(got) != 1 || got[0] != "ws" {
+		t.Errorf("visibleEmacsServers(%v) = %v, want [ws]", servers, got)
+	}
+}

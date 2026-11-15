@@ -3,13 +3,24 @@
 package main
 
 import (
+	"context"
+	"flag"
 	"fmt"
 	"strings"
+
+	"github.com/peterbourgon/ff/v3/ffcli"
 )
 
-func runWindow(args []string) error {
-	fs := newFlagSet("window", "[-all] [-width pct] [-height pct]", `
-Window lets the user choose a window with rofi, listed with its class,
+func newWindowCommand() *ffcli.Command {
+	fs := flag.NewFlagSet("ws window", flag.ContinueOnError)
+	withAll := fs.Bool("all", false, "include all windows (including dash and NSP)")
+	width := fs.Int("width", 95, "rofi `width` percent")
+	height := fs.Int("height", 85, "rofi `height` percent")
+	cmd := &ffcli.Command{
+		Name:       "window",
+		ShortUsage: "ws window [-all] [-width pct] [-height pct]",
+		ShortHelp:  "choose and focus a window with rofi",
+		LongHelp: `Window lets the user choose a window with rofi, listed with its class,
 workspace, and running processes, and asks xmonad to focus it, switching
 to its workspace, with a WS_FOCUS client message that the xmonad
 configuration handles.
@@ -19,67 +30,74 @@ configuration handles.
     Alt+k    close the window
     Alt+a    toggle showing all windows (including dash and NSP)
 
-With -all, it starts by showing all windows.
-`)
-	withAll := fs.Bool("all", false, "include all windows (including dash and NSP)")
-	width := fs.Int("width", 95, "rofi `width` percent")
-	height := fs.Int("height", 85, "rofi `height` percent")
-	fs.Parse(args)
-	checkArgs(fs, 0, 0)
-	X, err := openX()
-	if err != nil {
-		return err
+With -all, it starts by showing all windows.`,
+		FlagSet:   fs,
+		UsageFunc: commandUsage,
 	}
-	defer X.close()
-
-	names, cur, err := X.desktops()
-	if err != nil {
-		return err
-	}
-
-	tree := readProcTree()
-	wins, err := X.listWindows(names, tree)
-	if err != nil {
-		return err
-	}
-	if len(wins) == 0 {
-		return nil
-	}
-
-	onScreen := X.visibleDesktops()
-	showAll := *withAll
-	for {
-		var displayed []Window
-		for _, w := range wins {
-			if !showAll && (w.workspace == "NSP" || w.workspace == "dash") {
-				continue
-			}
-			displayed = append(displayed, w)
+	cmd.Exec = func(ctx context.Context, args []string) error {
+		if len(args) > 0 {
+			usageError(fs)
 		}
-		if len(displayed) == 0 {
-			if !showAll {
-				showAll = true
-				continue
-			}
-			return nil
-		}
-		w, action, err := rofiPickWindow(displayed, onScreen, cur, showAll, *width, *height)
+		X, err := openX()
 		if err != nil {
 			return err
 		}
-		switch action {
-		case actionToggleAll:
-			showAll = !showAll
-			continue
-		case actionFocus:
-			return w.focus(X)
-		case actionBring:
-			return w.bring(X, cur)
-		case actionClose:
-			return w.close(X)
+		defer X.close()
+
+		names, cur, err := X.desktops()
+		if err != nil {
+			return err
 		}
-		return nil
+
+		tree := readProcTree()
+		wins, err := X.listWindows(names, tree)
+		if err != nil {
+			return err
+		}
+		if len(wins) == 0 {
+			return nil
+		}
+
+		onScreen := X.visibleDesktops()
+		showAll := *withAll
+		for {
+			var displayed []Window
+			for _, w := range wins {
+				if !showAll && (w.workspace == "NSP" || w.workspace == "dash") {
+					continue
+				}
+				displayed = append(displayed, w)
+			}
+			if len(displayed) == 0 {
+				if !showAll {
+					showAll = true
+					continue
+				}
+				return nil
+			}
+			w, action, err := rofiPickWindow(displayed, onScreen, cur, showAll, *width, *height)
+			if err != nil {
+				return err
+			}
+			switch action {
+			case actionToggleAll:
+				showAll = !showAll
+				continue
+			case actionFocus:
+				return w.focus(X)
+			case actionBring:
+				return w.bring(X, cur)
+			case actionClose:
+				return w.close(X)
+			}
+			return nil
+		}
 	}
+	return cmd
+}
+
+func runWindow(args []string) error {
+	return runFFCLI(newWindowCommand(), args)
 }
 
 // rofiPickWindow lets the user pick one of wins with rofi and returns

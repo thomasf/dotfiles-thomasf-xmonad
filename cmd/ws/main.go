@@ -23,130 +23,72 @@
 //	ws run [-lines n] [-p prompt] [-width pct] [-term | -sudo | -hold] [cmd [args...]]
 //	ws term [terminal arguments]
 //	ws emacs list [-global | -visible | target]
-//	ws emacs [-noheader] [-noredact] [-global] [target] (region | visible)
+//	ws emacs read [-lines n | -full] [-no-header] [-no-redact] [-ansi] [-no-trim] [-region] [-except target] (-global | -visible)
+//	ws emacs read [-lines n | -full] [-no-header] [-no-redact] [-ansi] [-no-trim] [-region] target...
 //	ws rc list [-global | -visible | target]
 //	ws rc send [-windows] [-paste] [-cr] target [text...]
-//	ws rc read [-ansi] [-no-trim] [-lines n | -history] [-global | -visible | [-windows] target...]
-//	ws read [-ansi] [-no-trim] [-noredact] [-lines n | -history] [-except target] [-emacs] [-rc] [-global | -visible | target...]
+//	ws rc read [-lines n | -full] [-no-redact] [-ansi] [-no-trim] [-except target] (-global | -visible)
+//	ws rc read [-lines n | -full] [-no-redact] [-ansi] [-no-trim] [-windows] target...
+//	ws read [-lines n | -full] [-no-redact] [-ansi] [-no-trim] [-region] [-no-header] [-except target] [-emacs] [-rc] [-global | -visible | target...]
 package main
 
 import (
+	"context"
 	"errors"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"strings"
+	"text/tabwriter"
+
+	"github.com/peterbourgon/ff/v3/ffcli"
 )
 
 // errFalse makes ws exit with status 1 without a message, as a
 // test that fails does.
 var errFalse = errors.New("false")
 
+func newWsCommand() *ffcli.Command {
+	return &ffcli.Command{
+		Name:       "ws",
+		ShortUsage: "ws <command> [arguments]",
+		ShortHelp:  "handle xmonad workspaces outside xmonad",
+		LongHelp: `Ws handles xmonad workspaces outside xmonad: their names, the
+directories they work in and what is started when one is opened.`,
+		UsageFunc: commandUsage,
+		Subcommands: []*ffcli.Command{
+			newNameCommand(),
+			newDirCommand(),
+			newActionCommand(),
+			newWtCommand(),
+			newPickCommand(),
+			newRofiCommand(),
+			newGoCommand(),
+			newShiftCommand(),
+			newFillCommand(),
+			newCleanCommand(),
+			newRenameCommand(),
+			newWindowCommand(),
+			newRunCommand(),
+			newTermCommand(),
+			newEmacsCommand(),
+			newRcCommand(),
+			newReadCommand(),
+		},
+	}
+}
+
 func main() {
 	log.SetFlags(0)
 	log.SetPrefix("ws: ")
-	if len(os.Args) < 2 {
-		usage()
-	}
-	var err error
-	switch cmd, args := os.Args[1], os.Args[2:]; cmd {
-	case "name":
-		err = runName(args)
-	case "dir":
-		err = runDir(args)
-	case "action":
-		err = runAction(args)
-	case "wt":
-		err = runWt(args)
-	case "pick":
-		err = runPick(args)
-	case "rofi":
-		err = runRofi(args)
-	case "go":
-		err = runGo(args)
-	case "shift":
-		err = runShift(args)
-	case "fill":
-		err = runFill(args)
-	case "clean":
-		err = runClean(args)
-	case "rename":
-		err = runRename(args)
-	case "window":
-		err = runWindow(args)
-	case "run":
-		err = runRun(args)
-	case "term":
-		err = runTerm(args)
-	case "rc":
-		err = runRc(args)
-	case "emacs":
-		err = runEmacs(args)
-	case "read":
-		err = runRead(args)
-	case "-h", "-help", "--help", "help":
-		fmt.Fprint(os.Stdout, usageText)
-		os.Exit(0)
-	default:
-		usage()
-	}
-	if errors.Is(err, errFalse) {
-		os.Exit(1)
-	}
-	if err != nil {
+	root := newWsCommand()
+	if err := runFFCLI(root, os.Args[1:]); err != nil {
+		if errors.Is(err, errFalse) {
+			os.Exit(1)
+		}
 		log.Fatal(err)
 	}
-}
-
-const usageText = `usage: ws name [-d] [-p | -s]
-       ws dir [-set | -unset] [-pick] [workspace]
-       ws action [workspace]
-       ws wt list [-l] [-pick] [workspace]
-       ws wt add [-branch branch] [-pick] [project@]name
-       ws wt init [-y] [-pick] [workspace]
-       ws wt remove [-force] [-y] [-pick] [[project@]name]
-       ws pick [-go] [-shift] [-empty] [-p prompt] [-lines n] [-worktrees]
-       ws go workspace...
-       ws shift [workspace]
-       ws fill [workspace]
-       ws clean
-       ws rename [name]
-       ws window
-       ws rofi [-width pct] [-height pct] [rofi arguments]
-       ws run [-lines n] [-p prompt] [-width pct] [-term | -sudo | -hold] [cmd [args...]]
-       ws term [terminal arguments]
-       ws emacs list [-global | -visible | target]
-       ws emacs [-noheader] [-noredact] [-global] [target] (region | visible)
-       ws rc list [-global | -visible | target]
-       ws rc send [-windows] [-paste] [-cr] target [text...]
-       ws rc read [-ansi] [-no-trim] [-lines n | -history] [-global | -visible | [-windows] target...]
-       ws read [-ansi] [-no-trim] [-noredact] [-lines n | -history] [-except target] [-emacs] [-rc] [-global | -visible | target...]
-
-Run ws <command> -h for help on a command.
-`
-
-func usage() {
-	fmt.Fprint(os.Stderr, usageText)
-	os.Exit(2)
-}
-
-// newFlagSet returns the flag set of command name, taking arguments
-// args. On -h, or by usageError, it prints the usage line, help and
-// flags of the command.
-func newFlagSet(name, args, help string) *flag.FlagSet {
-	fs := flag.NewFlagSet("ws "+name, flag.ExitOnError)
-	fs.Usage = func() {
-		w := fs.Output()
-		fmt.Fprintf(w, "usage: %s\n\n%s\n", strings.TrimSpace(fs.Name()+" "+args), strings.TrimSpace(help))
-		hasFlags := false
-		fs.VisitAll(func(*flag.Flag) { hasFlags = true })
-		if hasFlags {
-			fmt.Fprintln(w, "\nFlags:")
-			fs.PrintDefaults()
-		}
-	}
-	return fs
 }
 
 // usageError prints the usage of the command of fs and exits with
@@ -156,15 +98,6 @@ func usageError(fs *flag.FlagSet) {
 	os.Exit(2)
 }
 
-// checkArgs verifies that fs has between minArgs and maxArgs arguments.
-// If maxArgs is negative, no upper bound is enforced. On violation, it calls usageError.
-func checkArgs(fs *flag.FlagSet, minArgs, maxArgs int) {
-	n := fs.NArg()
-	if n < minArgs || (maxArgs >= 0 && n > maxArgs) {
-		usageError(fs)
-	}
-}
-
 // output prints s, followed by a newline only on a terminal: callers
 // such as Emacs's shell-command-to-string use the output as it is.
 func output(s string) {
@@ -172,4 +105,82 @@ func output(s string) {
 	if isTerminal(os.Stdout) {
 		fmt.Println()
 	}
+}
+
+// prepareArgs adjusts args for commands that pass arbitrary flags through.
+func prepareArgs(args []string) []string {
+	if len(args) < 2 {
+		return args
+	}
+	switch args[0] {
+	case "term", "rofi":
+		if args[1] == "--" {
+			return args
+		}
+		switch args[1] {
+		case "-h", "-help", "--help", "help":
+			return args
+		default:
+			return append([]string{args[0], "--"}, args[1:]...)
+		}
+	}
+	return args
+}
+
+// runFFCLI parses and executes a hierarchical ffcli.Command tree.
+func runFFCLI(cmd *ffcli.Command, args []string) error {
+	args = prepareArgs(args)
+	var noExec ffcli.NoExecError
+	err := cmd.Parse(args)
+	if errors.Is(err, flag.ErrHelp) {
+		os.Exit(0)
+	}
+	if errors.As(err, &noExec) {
+		fmt.Fprint(os.Stderr, noExec.Command.UsageFunc(noExec.Command))
+		os.Exit(2)
+	}
+	if err != nil {
+		os.Exit(2)
+	}
+	err = cmd.Run(context.Background())
+	if errors.Is(err, flag.ErrHelp) {
+		os.Exit(0)
+	}
+	if errors.As(err, &noExec) {
+		fmt.Fprint(os.Stderr, noExec.Command.UsageFunc(noExec.Command))
+		os.Exit(2)
+	}
+	return err
+}
+
+// commandUsage formats command usage, long help, subcommands, and flags
+// in the coherent ws style.
+func commandUsage(c *ffcli.Command) string {
+	var b strings.Builder
+	fmt.Fprintf(&b, "usage: %s\n\n%s\n", strings.TrimSpace(c.ShortUsage), strings.TrimSpace(c.LongHelp))
+	if len(c.Subcommands) > 0 {
+		fmt.Fprintf(&b, "\nCommands:\n")
+		tw := tabwriter.NewWriter(&b, 0, 4, 2, ' ', 0)
+		for _, sub := range c.Subcommands {
+			fmt.Fprintf(tw, "    %s\t%s\n", sub.Name, sub.ShortHelp)
+		}
+		tw.Flush()
+		if c.Name == "ws" {
+			fmt.Fprintf(&b, "\nRun ws <command> -h for help on a command.\n")
+		} else {
+			fmt.Fprintf(&b, "\nRun ws %s <command> -h for help on a command.\n", c.Name)
+		}
+	}
+	hasFlags := false
+	if c.FlagSet != nil {
+		c.FlagSet.VisitAll(func(*flag.Flag) { hasFlags = true })
+		if hasFlags {
+			fmt.Fprintln(&b, "\nFlags:")
+			oldOutput := c.FlagSet.Output()
+			c.FlagSet.SetOutput(&b)
+			c.FlagSet.PrintDefaults()
+			c.FlagSet.SetOutput(oldOutput)
+		}
+	}
+	return strings.TrimSpace(b.String()) + "\n"
 }

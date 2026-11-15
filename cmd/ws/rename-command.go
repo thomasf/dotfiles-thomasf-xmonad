@@ -3,48 +3,66 @@
 package main
 
 import (
+	"context"
 	"errors"
+	"flag"
 	"fmt"
 	"html"
 	"os"
 	"slices"
 	"strings"
+
+	"github.com/peterbourgon/ff/v3/ffcli"
 )
 
-func runRename(args []string) error {
-	fs := newFlagSet("rename", "[name]", `
-Rename renames the current workspace, asking with rofi if name is not given,
-with a WS_RENAME client message that the xmonad configuration handles.
-`)
-	fs.Parse(args)
-	checkArgs(fs, 0, 1)
-	if fs.NArg() == 1 {
-		return renameWorkspace(fs.Arg(0))
+func newRenameCommand() *ffcli.Command {
+	fs := flag.NewFlagSet("ws rename", flag.ContinueOnError)
+	cmd := &ffcli.Command{
+		Name:       "rename",
+		ShortUsage: "ws rename [name]",
+		ShortHelp:  "rename the current workspace",
+		LongHelp: `Rename renames the current workspace, asking with rofi if name is not given,
+with a WS_RENAME client message that the xmonad configuration handles.`,
+		FlagSet:   fs,
+		UsageFunc: commandUsage,
 	}
-	cur, err := currentWorkspace()
-	if err != nil {
-		return err
-	}
-	if isTerminal(os.Stdin) {
-		name, _ := readPromptLine(fmt.Sprintf("Rename workspace %s to: ", cur))
+	cmd.Exec = func(ctx context.Context, args []string) error {
+		if len(args) > 1 {
+			usageError(fs)
+		}
+		if len(args) == 1 {
+			return renameWorkspace(args[0])
+		}
+		cur, err := currentWorkspace()
+		if err != nil {
+			return err
+		}
+		if isTerminal(os.Stdin) {
+			name, _ := readPromptLine(fmt.Sprintf("Rename workspace %s to: ", cur))
+			if name == "" || name == string(cur) {
+				return nil
+			}
+			return renameWorkspace(name)
+		}
+		candidates := renameCandidates(string(cur))
+		name, err := rofiRename(string(cur), candidates)
+		if err != nil {
+			if errors.Is(err, errFalse) || errors.Is(err, errCancelled) {
+				return nil
+			}
+			return err
+		}
+		name = strings.TrimSpace(name)
 		if name == "" || name == string(cur) {
 			return nil
 		}
 		return renameWorkspace(name)
 	}
-	candidates := renameCandidates(string(cur))
-	name, err := rofiRename(string(cur), candidates)
-	if err != nil {
-		if errors.Is(err, errFalse) || errors.Is(err, errCancelled) {
-			return nil
-		}
-		return err
-	}
-	name = strings.TrimSpace(name)
-	if name == "" || name == string(cur) {
-		return nil
-	}
-	return renameWorkspace(name)
+	return cmd
+}
+
+func runRename(args []string) error {
+	return runFFCLI(newRenameCommand(), args)
 }
 
 // renameWorkspace asks xmonad to rename the current workspace to name
