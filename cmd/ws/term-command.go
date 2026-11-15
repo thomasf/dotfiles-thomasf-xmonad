@@ -20,9 +20,12 @@ import (
 // terminals are the terminal emulators runTerm starts, in order of preference.
 var terminals = []string{"critty", "alacritty", "kitty", "urxvt", "ptyxis", "xterm"}
 
-// remoteControlSuffixes are the suffixes of the workspaces whose terminals
-// accept remote control.
-var remoteControlSuffixes = []string{"bot", "logs", "test"}
+var (
+	// remoteControlSuffixes are the suffixes of the workspaces whose terminals
+	// accept remote control.
+	remoteControlSuffixes = []string{"bot", "logs", "test"}
+	alwaysRemoteControl   = true
+)
 
 func newTermCommand() *ffcli.Command {
 	return &ffcli.Command{
@@ -51,7 +54,8 @@ func runTerm(args []string) error {
 		log.Print(err)
 	} else {
 		env["WS_WORKSPACE"] = string(w)
-		if suffix, _ := w.suffix(); os.Getenv("CRITTY_REMOTE_CONTROL") == "" && slices.Contains(remoteControlSuffixes, suffix) {
+		if suffix, _ := w.suffix(); os.Getenv("CRITTY_REMOTE_CONTROL") == "" &&
+			(alwaysRemoteControl || slices.Contains(remoteControlSuffixes, suffix)) {
 			maps.Copy(env, remoteControlEnv(w))
 		}
 	}
