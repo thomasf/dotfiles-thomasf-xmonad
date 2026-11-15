@@ -71,6 +71,7 @@ Target names resolve relative to the caller's current workspace (via `$WS_WORKSP
 | `ws rc list` | List controllable terminals with their workspace, PID, working directory, and running command. |
 | `ws rc read` | Dump terminal screen contents. Use `-lines <n>` or `-history` for scrollback, or `-visible` to capture all on-screen terminals. |
 | `ws rc send` | Send text or keystrokes to a terminal. `-paste` uses bracketed paste mode; `-cr` appends Enter. |
+| `ws read` | Read text from Emacs buffers and controllable terminals across workspaces and screens. Defaults to visible on-screen sources. |
 | `ws emacs list` | List running Emacs servers with their workspace, PID, working directory, and selected buffer. |
 | `ws emacs` | Query Emacs servers for the currently marked region (`region`) or the text of visible windows (`visible`). Supports `-global` and targeting a specific server. |
 
@@ -81,6 +82,9 @@ ws rc read .test                       # Screen of this project's test terminal
 ws rc read -lines 200 .logs            # Last 200 lines from the logs terminal
 ws rc read -visible -except .bot       # All visible terminals except the caller
 ws rc send -cr .test 'go test ./...'   # Trigger a test run in the test terminal
+ws read                                # Everything visible on screen (Emacs + terminals)
+ws read -except .bot                   # Everything visible except the caller's terminal
+ws read -global                        # All Emacs buffers and terminals across all workspaces
 ws emacs list -global                  # List all running Emacs servers across workspaces
 ws emacs region                        # Active selection in Emacs (workspace or visible)
 ws emacs visible                       # Text of all visible windows across running Emacs servers
