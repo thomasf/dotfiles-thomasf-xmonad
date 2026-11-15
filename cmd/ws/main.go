@@ -22,7 +22,8 @@
 //	ws rofi [-width pct] [-height pct] [rofi arguments]
 //	ws run [-lines n] [-p prompt] [-width pct] [-term | -sudo | -hold] [cmd [args...]]
 //	ws term [terminal arguments]
-//	ws emacs [-noheader] region | visible
+//	ws emacs list [-global | -visible | target]
+//	ws emacs [-noheader] [-noredact] [-global] [target] (region | visible)
 //	ws rc list [-global | -visible | target]
 //	ws rc send [-windows] [-paste] [-cr] target [text...]
 //	ws rc read [-ansi] [-no-trim] [-lines n | -history] [-global | -visible | [-windows] target...]
@@ -112,7 +113,8 @@ const usageText = `usage: ws name [-d] [-p | -s]
        ws rofi [-width pct] [-height pct] [rofi arguments]
        ws run [-lines n] [-p prompt] [-width pct] [-term | -sudo | -hold] [cmd [args...]]
        ws term [terminal arguments]
-       ws emacs [-noheader] region | visible
+       ws emacs list [-global | -visible | target]
+       ws emacs [-noheader] [-noredact] [-global] [target] (region | visible)
        ws rc list [-global | -visible | target]
        ws rc send [-windows] [-paste] [-cr] target [text...]
        ws rc read [-ansi] [-no-trim] [-lines n | -history] [-global | -visible | [-windows] target...]
