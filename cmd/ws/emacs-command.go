@@ -12,7 +12,7 @@ import (
 )
 
 func runEmacs(args []string) error {
-	fs := newFlagSet("emacs", "[-noheader] region | visible", `
+	fs := newFlagSet("emacs", "[-noheader] [-noredact] region | visible", `
 Emacs prints text from the Emacs of the workspace, the server named
 after the file name of its prefix (see ws name -p), for the workspace
 that contextWorkspace resolves: that of $WS_WORKSPACE, which ws term
@@ -26,8 +26,11 @@ sets, or else the current one.
 
 It exits with status 1 if no text is marked or the workspace has no
 Emacs.
+
+Emacs redacts secrets via delemark unless -noredact is given.
 `)
 	noHeader := fs.Bool("noheader", false, "print the region without the line naming its file and lines")
+	noRedact := fs.Bool("noredact", false, "do not redact secrets via delemark")
 	fs.Parse(args)
 	checkArgs(fs, 1, 1)
 	var expr string
@@ -46,6 +49,9 @@ Emacs.
 	text, err := emacsEval(fileName(w.prefix()), expr)
 	if err != nil {
 		return err
+	}
+	if !*noRedact {
+		text = redact(text)
 	}
 	fmt.Print(text)
 	if text != "" && !strings.HasSuffix(text, "\n") {

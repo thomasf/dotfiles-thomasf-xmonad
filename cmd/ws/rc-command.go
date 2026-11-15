@@ -211,7 +211,7 @@ func bracketedPaste(text string) string {
 }
 
 func runRcRead(args []string) error {
-	fs := newFlagSet("rc read", "[-ansi] [-no-trim] [-lines n | -history] ([-except target] (-global | -visible) | [-windows] target...)", `
+	fs := newFlagSet("rc read", "[-ansi] [-no-trim] [-noredact] [-lines n | -history] ([-except target] (-global | -visible) | [-windows] target...)", `
 Read prints the screen of the primary terminal of each target, one
 after the other. With -windows it prints those of every terminal of each
 target, and with -global those of every remote control terminal on the
@@ -237,12 +237,15 @@ Read trims what it prints unless -no-trim is given: it drops the blank
 lines at the top and bottom, the whitespace at the end of every line and
 the whitespace that all lines start with. With -ansi it only drops the
 blank lines at the top and bottom.
+
+Read redacts secrets via delemark unless -noredact is given.
 `)
 	all := fs.Bool("windows", false, "read every terminal of each target")
 	global := fs.Bool("global", false, "read every remote control terminal on the display")
 	visible := fs.Bool("visible", false, "read every terminal on the visible workspaces")
 	ansi := fs.Bool("ansi", false, "keep colors and text attributes as ANSI escape sequences")
 	noTrim := fs.Bool("no-trim", false, "print the screens as they are, without trimming whitespace")
+	noRedact := fs.Bool("noredact", false, "do not redact secrets via delemark")
 	lines := fs.Int("lines", 0, "print the last `n` rows of the history and the screen")
 	history := fs.Bool("history", false, "print all of the history and the screen")
 	except := fs.String("except", "", "leave out the terminals of the workspace of `target`")
@@ -268,7 +271,7 @@ blank lines at the top and bottom.
 		skip, _ = splitRcName(target)
 	}
 	if *visible {
-		return readVisible(opts, skip)
+		return readVisible(opts, skip, *noRedact)
 	}
 	if !*global {
 		checkArgs(fs, 1, -1)
@@ -310,6 +313,9 @@ blank lines at the top and bottom.
 			}
 			fmt.Printf("==> %s <==\n", t.name)
 		}
+		if !*noRedact {
+			screen = redact(screen)
+		}
 		fmt.Print(screen)
 	}
 	return errors.Join(errs...)
@@ -345,7 +351,8 @@ func visibleTerminalWindows() ([]Window, error) {
 
 // readVisible prints the screens for ws rc read -visible, read by r,
 // leaving out the terminals on the workspace with file name skip.
-func readVisible(r screenReader, skip string) error {
+// Unless noRedact, screens are filtered through delemark.
+func readVisible(r screenReader, skip string, noRedact bool) error {
 	wins, err := visibleTerminalWindows()
 	if err != nil {
 		return err
@@ -372,6 +379,9 @@ func readVisible(r screenReader, skip string) error {
 		if err != nil {
 			errs = append(errs, err)
 			continue
+		}
+		if !noRedact {
+			screen = redact(screen)
 		}
 		fmt.Print(screen)
 	}
