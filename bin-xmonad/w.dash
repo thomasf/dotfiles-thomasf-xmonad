@@ -14,7 +14,7 @@ launchTerminal(){
     fi
 }
 
-case $(wsname -s) in
+case $(command -v ws >/dev/null 2>&1 && ws name -s 2>/dev/null) in
   io)
     launchTerminal "iotop" sudo iotop
     launchTerminal "dstat" dstat -avf
@@ -22,7 +22,7 @@ case $(wsname -s) in
   ;;
 esac
 
-wsname -s && exit 1
+command -v ws >/dev/null 2>&1 && ws name -s >/dev/null 2>&1 && exit 1
 
 
 # pavucontrol &

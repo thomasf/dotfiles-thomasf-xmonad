@@ -1,7 +1,0 @@
-#!/bin/sh
-#
-# Application launcher: delegates to ws run
-#
-
-exec ws run "$@"
-

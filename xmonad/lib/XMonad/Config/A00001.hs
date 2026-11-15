@@ -109,7 +109,7 @@ myKeys host pal xpc conf=
   , ("M-S-k",           addName "Swap focused with previous on workspace" _windowSwapUp)
   ] ++
   subtitle "Application launching": mkNamedKeymap conf
-  [ ("M-o o",       spawnh   "appmenu")
+  [ ("M-o o",       spawnh   "ws run")
   , ("M-o <Space>", addName  "Goto workspace by window search (ws window)"   $ spawn "ws window")
   , ("M-o c",       spawnhm  "google-chrome")
   , ("M-o f",       spawnhm  "firefox")

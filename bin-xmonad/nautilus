@@ -13,8 +13,8 @@ if [ $# -eq 0 ]; then
 
     source ~/.config-base/bash/common
 
-    if [ $(which wsname) ]; then
-        name="$(wsname -p)"
+    if command -v ws >/dev/null 2>&1; then
+        name="$(ws name -p 2>/dev/null)"
         case $name in
             home|temp|chat|nodes|dash|NSP)
                 cd ${HOME}

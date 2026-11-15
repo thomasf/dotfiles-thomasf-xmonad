@@ -5,7 +5,7 @@
 # Author: Thomas Frössman  ( thomasf@jossystem.se / http://thomas.jossystem.se )
 #
 
-wsname -s && exit 1
+command -v ws >/dev/null 2>&1 && ws name -s >/dev/null 2>&1 && exit 1
 
 if [ $(which emacs-home) ]; then
     notify-send -a short "lauching emacs-home..."
