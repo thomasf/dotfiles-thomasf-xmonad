@@ -78,7 +78,9 @@ By default, read prints visible sources on the active screens (like
 		// 2. RC Terminals
 		if rc {
 			rcSections, err := collectRcSections(ctxTimeout, opts, common.visible, common.global, skip, args)
-			if err == nil {
+			if err != nil {
+				vlog("read: collectRcSections error: %v", err)
+			} else {
 				sections = append(sections, rcSections...)
 			}
 		}
@@ -133,6 +135,7 @@ func collectEmacsSections(ctx context.Context, flags commonReadFlags, region, no
 			}
 		}
 	}
+	vlog("read: emacs servers to query: %v", toQuery)
 
 	type result struct {
 		server string
@@ -165,6 +168,7 @@ func collectEmacsSections(ctx context.Context, flags commonReadFlags, region, no
 			})
 		}
 	}
+	vlog("read: collected %d emacs section(s)", len(sections))
 	return sections
 }
 
@@ -237,5 +241,6 @@ func collectRcSections(ctx context.Context, r screenReader, visible, global bool
 		}
 	}
 
+	vlog("read: collected %d rc section(s)", len(sections))
 	return sections, nil
 }

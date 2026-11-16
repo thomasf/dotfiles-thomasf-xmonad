@@ -138,6 +138,7 @@ var commonShells = map[string]bool{
 }
 
 var terminalComms = map[string]bool{
+	"critty":          true,
 	"alacritty":       true,
 	"kitty":           true,
 	"wezterm":         true,
