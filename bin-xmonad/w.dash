@@ -24,15 +24,7 @@ esac
 
 command -v ws >/dev/null 2>&1 && ws name -s >/dev/null 2>&1 && exit 1
 
-
-# pavucontrol &
-
-
-if hash pipmix 2>/dev/null; then
-   launchTerminal "pipmix" "pipmix"
-else
-  launchTerminal "pipemixer" "pipemixer"
-fi
+launchTerminal "pipmix" "pipmix"
 
 sleep 0.15
 
