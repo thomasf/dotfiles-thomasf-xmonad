@@ -16,7 +16,7 @@ Workspaces sharing the same prefix represent different views of the same project
 
 ## Commands
 
-Run `ws <command> -h` for full flag descriptions and options.
+Run `ws <command> -h` for full flag descriptions and options. Pass the root flag `-v` (`ws -v <command>`) for verbose diagnostic logging on standard error (such as resolving directories, launching commands, or stumbling upon missing preferred external tools like `delemark`, `critty`, or `pango-view`).
 
 ### Workspaces and Windows
 

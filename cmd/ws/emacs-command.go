@@ -510,9 +510,12 @@ func emacsSocketDirs() []string {
 func runningEmacsServers() []string {
 	var servers []string
 	seen := make(map[string]bool)
-	for _, dir := range emacsSocketDirs() {
+	dirs := emacsSocketDirs()
+	vlog("emacs: scanning socket directories: %v", dirs)
+	for _, dir := range dirs {
 		entries, err := os.ReadDir(dir)
 		if err != nil {
+			vlog("emacs: could not read socket directory %s: %v", dir, err)
 			continue
 		}
 		for _, e := range entries {
@@ -522,6 +525,7 @@ func runningEmacsServers() []string {
 			}
 			info, err := e.Info()
 			if err != nil {
+				vlog("emacs: socket %s stat error: %v", filepath.Join(dir, name), err)
 				continue
 			}
 			if info.Mode()&os.ModeSocket != 0 {
@@ -531,6 +535,7 @@ func runningEmacsServers() []string {
 		}
 	}
 	slices.Sort(servers)
+	vlog("emacs: found %d running Emacs server(s): %v", len(servers), servers)
 	return servers
 }
 
@@ -586,6 +591,11 @@ func orderEmacsServers(servers []string) []string {
 // server named server and returns the string. The string travels base64
 // encoded, as emacsclient prints values as Lisp, quoted and escaped.
 func emacsEval(ctx context.Context, server, expr string) (string, error) {
+	vlog("emacs: evaluating expression in server %q", server)
+	if _, err := exec.LookPath("emacsclient"); err != nil {
+		vlog("emacs: preferred command %q not found in $PATH: %v", "emacsclient", err)
+		return "", fmt.Errorf("emacsclient: %w", err)
+	}
 	expr = fmt.Sprintf(strings.TrimSpace(elispEvalWrapper), expr)
 	// --alternate-editor=false keeps emacsclient from starting a daemon
 	// when there is no server, as an empty $ALTERNATE_EDITOR would.
@@ -594,6 +604,7 @@ func emacsEval(ctx context.Context, server, expr string) (string, error) {
 	cmd.Stderr = &stderr
 	out, err := cmd.Output()
 	if err != nil {
+		vlog("emacs: emacsclient failed on server %q: %v (stderr: %q)", server, err, strings.TrimSpace(stderr.String()))
 		if !errors.As(err, new(*exec.ExitError)) {
 			return "", err
 		}
@@ -605,7 +616,9 @@ func emacsEval(ctx context.Context, server, expr string) (string, error) {
 	}
 	b, err := base64.StdEncoding.DecodeString(string(bytes.Trim(bytes.TrimSpace(out), `"`)))
 	if err != nil {
+		vlog("emacs: base64 decode error from server %q: %v", server, err)
 		return "", fmt.Errorf("emacsclient: %w", err)
 	}
+	vlog("emacs: server %q returned %d bytes", server, len(b))
 	return string(b), nil
 }

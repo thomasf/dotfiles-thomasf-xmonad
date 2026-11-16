@@ -88,9 +88,12 @@ func rofiSizeArgs(args []string) (widthPct, heightPct int, rest []string, err er
 func rofiCommand(widthPct, heightPct int, theme string, args ...string) (*exec.Cmd, error) {
 	path, err := rofiPath()
 	if err != nil {
+		vlog("rofiCommand: could not find rofi path: %v", err)
 		return nil, err
 	}
-	return exec.Command(path, append(rofiPlacement(widthPct, heightPct, theme), args...)...), nil
+	cmdArgs := append(rofiPlacement(widthPct, heightPct, theme), args...)
+	vlog("rofiCommand: preparing %s %v", path, cmdArgs)
+	return exec.Command(path, cmdArgs...), nil
 }
 
 func rofiPlacement(widthPct, heightPct int, theme string) []string {
@@ -135,7 +138,9 @@ func rofiCharWidth() float64 {
 	}
 	w, err := measureCharWidth(font, dpi)
 	if err != nil {
-		return estimateCharWidth(font, dpi)
+		est := estimateCharWidth(font, dpi)
+		vlog("rofiCharWidth: measureCharWidth failed: %v; falling back to estimated character width: %g px", err, est)
+		return est
 	}
 	writeAtomic(cache, fmt.Appendf(nil, "%s\t%g\n", key, w), 0o644)
 	return w
@@ -180,8 +185,13 @@ const charWidthSample = 100
 // measureCharWidth renders characters of font at dpi with pango-view and
 // returns their width in pixels.
 func measureCharWidth(font string, dpi int) (float64, error) {
+	if _, err := exec.LookPath("pango-view"); err != nil {
+		vlog("measureCharWidth: preferred command %q not found in $PATH: %v", "pango-view", err)
+		return 0, err
+	}
 	dir, err := os.MkdirTemp("", "ws-char-width")
 	if err != nil {
+		vlog("measureCharWidth: failed to create temp dir: %v", err)
 		return 0, err
 	}
 	defer os.RemoveAll(dir)
@@ -189,18 +199,23 @@ func measureCharWidth(font string, dpi int) (float64, error) {
 	err = exec.Command("pango-view", "--font="+font, "--dpi="+strconv.Itoa(dpi), "--margin=0", "-q",
 		"-o", out, "--text="+strings.Repeat("0", charWidthSample)).Run()
 	if err != nil {
+		vlog("measureCharWidth: running pango-view failed: %v", err)
 		return 0, err
 	}
 	f, err := os.Open(out)
 	if err != nil {
+		vlog("measureCharWidth: failed to open rendered sample: %v", err)
 		return 0, err
 	}
 	defer f.Close()
 	c, err := png.DecodeConfig(f)
 	if err != nil {
+		vlog("measureCharWidth: failed to decode png: %v", err)
 		return 0, err
 	}
-	return float64(c.Width) / charWidthSample, nil
+	w := float64(c.Width) / charWidthSample
+	vlog("measureCharWidth: measured character width %g px with pango-view", w)
+	return w, nil
 }
 
 const pointsPerInch = 72
@@ -223,8 +238,10 @@ func rofiPath() (string, error) {
 		if err != nil || fi.IsDir() || fi.Mode()&0o111 == 0 || isRofiWrapper(p) {
 			continue
 		}
+		vlog("rofiPath: found rofi at %s", p)
 		return p, nil
 	}
+	vlog("rofiPath: rofi executable not found in $PATH")
 	return "", errors.New("no rofi in $PATH")
 }
 

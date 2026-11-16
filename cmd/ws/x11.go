@@ -26,6 +26,7 @@ type X11Client struct {
 func openX() (*X11Client, error) {
 	conn, err := xgb.NewConn()
 	if err != nil {
+		vlog("openX: failed to connect to X server: %v", err)
 		return nil, err
 	}
 	return &X11Client{

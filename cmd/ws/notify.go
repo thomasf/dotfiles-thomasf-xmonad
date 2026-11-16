@@ -16,6 +16,10 @@ import (
 // on a terminal, failures are left to the caller to report. The notification
 // replaces the one whose id is replace, unless that is "".
 func notifySend(replace string, failed bool, msg string) string {
+	vlog("notifySend: failed=%v replace=%q msg=%q", failed, replace, msg)
+	if _, err := exec.LookPath("notify-send"); err != nil {
+		vlog("notifySend: preferred command %q not found in $PATH: %v", "notify-send", err)
+	}
 	if isTerminal(os.Stdin) {
 		if !failed {
 			fmt.Fprintln(os.Stderr, msg)

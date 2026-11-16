@@ -63,47 +63,68 @@ func runAction(args []string) error {
 // create the worktree. On success, it does not return if it starts a
 // launcher for the suffix.
 func action(w Workspace) error {
+	vlog("action: starting action for workspace %q", w)
 	dir, err := workspaceDir(w, rofiPick)
 	if errors.Is(err, errNoDir) && w.worktree() != "" {
 		// A new worktree workspace: offer to create the worktree.
+		vlog("action: worktree directory does not exist for %q; offering to initialize worktree", w)
 		err = initWorktree(w, false, true)
 		if err == nil {
 			dir, err = workspaceDir(w, rofiPick)
 		} else if errors.Is(err, errCancelled) {
+			vlog("action: worktree initialization cancelled by user")
 			err = errNoDir
 		}
 	}
 	switch {
 	case err == nil:
+		vlog("action: changing directory to %q", dir)
 		if err := os.Chdir(dir); err != nil {
+			vlog("action: failed to chdir to %q: %v", dir, err)
 			return err
 		}
 	case errors.Is(err, errNoDir):
+		vlog("action: workspace %q has no directory; remaining in current directory", w)
 	default:
 		// A workspace whose directory cannot be found still gets its
 		// launchers, started where ws was.
+		vlog("action: error resolving directory for workspace %q: %v", w, err)
 		log.Print(err)
 	}
 	suffix, _ := w.suffix()
 
-	if path, err := exec.LookPath("w." + w.project()); err == nil {
+	launcher := "w." + w.project()
+	if path, err := exec.LookPath(launcher); err == nil {
+		vlog("action: running preferred project launcher %q (%s)", launcher, path)
 		cmd := exec.Command(path)
 		cmd.Stdout, cmd.Stderr = os.Stdout, os.Stderr
-		if cmd.Run() == nil {
+		if err := cmd.Run(); err == nil {
+			vlog("action: project launcher %q completed successfully", launcher)
 			return nil
+		} else {
+			vlog("action: project launcher %q failed: %v; falling back to suffix launcher", launcher, err)
 		}
+	} else {
+		vlog("action: preferred project launcher %q not found in $PATH: %v", launcher, err)
 	}
 
 	switch suffix {
 	case "www", "doc":
+		vlog("action: starting suffix launcher %q for suffix %q", "www-window", suffix)
 		return execLauncher([]string{"www-window"}, nil)
 	case "term", "terminal", "bot", "test":
+		vlog("action: starting suffix launcher %q for suffix %q", "term", suffix)
 		return termWithPathenvQuestion([]string{"term"}, nil)
 	case "emacs":
+		vlog("action: starting suffix launcher %q for suffix %q", "e", suffix)
 		return execLauncher([]string{"e"}, nil)
 	case "files":
 		home, _ := os.UserHomeDir()
-		return execLauncher([]string{"nautilus", "--new-window", "--no-default-window", "--no-desktop", cmp.Or(dir, home)}, nil)
+		target := cmp.Or(dir, home)
+		vlog("action: starting suffix launcher %q for suffix %q in %q", "nautilus", suffix, target)
+		return execLauncher([]string{"nautilus", "--new-window", "--no-default-window", "--no-desktop", target}, nil)
+	default:
+		vlog("action: no suffix launcher configured for suffix %q", suffix)
 	}
 	return nil
 }

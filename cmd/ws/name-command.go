@@ -39,22 +39,29 @@ it can be used as it is.`,
 		if *prefix && *suffix {
 			return errors.New("cannot specify both -p and -s")
 		}
+		vlog("name: querying current workspace (display=%v, prefix=%v, suffix=%v)", *display, *prefix, *suffix)
 		w, err := currentWorkspace()
 		if err != nil {
+			vlog("name: currentWorkspace error: %v", err)
 			return err
 		}
+		vlog("name: current workspace is %q", w)
 		s := string(w)
 		switch {
 		case *prefix:
 			s = w.prefix()
+			vlog("name: prefix is %q", s)
 		case *suffix:
 			var ok bool
 			if s, ok = w.suffix(); !ok {
+				vlog("name: workspace %q has no suffix", w)
 				return errFalse
 			}
+			vlog("name: suffix is %q", s)
 		}
 		if !*display {
 			s = fileName(s)
+			vlog("name: normalized filename is %q", s)
 		}
 		output(s)
 		return nil

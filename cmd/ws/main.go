@@ -5,31 +5,31 @@
 //
 // Usage:
 //
-//	ws name [-d] [-p | -s]
-//	ws dir [-set | -unset] [-pick] [workspace]
-//	ws action [workspace]
-//	ws wt list [-l] [-pick] [workspace]
-//	ws wt add [-branch branch] [-pick] [project@]name
-//	ws wt init [-y] [-pick] [workspace]
-//	ws wt remove [-force] [-y] [-pick] [[project@]name]
-//	ws pick [-go] [-shift] [-empty] [-p prompt] [-lines n] [-worktrees]
-//	ws go workspace
-//	ws shift [workspace]
-//	ws fill [workspace]
-//	ws clean
-//	ws rename [name]
-//	ws window
-//	ws rofi [-width pct] [-height pct] [rofi arguments]
-//	ws run [-lines n] [-p prompt] [-width pct] [-term | -sudo | -hold] [cmd [args...]]
-//	ws term [terminal arguments]
-//	ws emacs list [-global | -visible | target]
-//	ws emacs read [-lines n | -full] [-no-header] [-no-redact] [-ansi] [-no-trim] [-region] [-except target] (-global | -visible)
-//	ws emacs read [-lines n | -full] [-no-header] [-no-redact] [-ansi] [-no-trim] [-region] target...
-//	ws rc list [-global | -visible | target]
-//	ws rc send [-windows] [-paste] [-cr] target [text...]
-//	ws rc read [-lines n | -full] [-no-redact] [-ansi] [-no-trim] [-except target] (-global | -visible)
-//	ws rc read [-lines n | -full] [-no-redact] [-ansi] [-no-trim] [-windows] target...
-//	ws read [-lines n | -full] [-no-redact] [-ansi] [-no-trim] [-region] [-no-header] [-except target] [-emacs] [-rc] [-global | -visible | target...]
+//	ws [-v] name [-d] [-p | -s]
+//	ws [-v] dir [-set | -unset] [-pick] [workspace]
+//	ws [-v] action [workspace]
+//	ws [-v] wt list [-l] [-pick] [workspace]
+//	ws [-v] wt add [-branch branch] [-pick] [project@]name
+//	ws [-v] wt init [-y] [-pick] [workspace]
+//	ws [-v] wt remove [-force] [-y] [-pick] [[project@]name]
+//	ws [-v] pick [-go] [-shift] [-empty] [-p prompt] [-lines n] [-worktrees]
+//	ws [-v] go workspace
+//	ws [-v] shift [workspace]
+//	ws [-v] fill [workspace]
+//	ws [-v] clean
+//	ws [-v] rename [name]
+//	ws [-v] window
+//	ws [-v] rofi [-width pct] [-height pct] [rofi arguments]
+//	ws [-v] run [-lines n] [-p prompt] [-width pct] [-term | -sudo | -hold] [cmd [args...]]
+//	ws [-v] term [terminal arguments]
+//	ws [-v] emacs list [-global | -visible | target]
+//	ws [-v] emacs read [-lines n | -full] [-no-header] [-no-redact] [-ansi] [-no-trim] [-region] [-except target] (-global | -visible)
+//	ws [-v] emacs read [-lines n | -full] [-no-header] [-no-redact] [-ansi] [-no-trim] [-region] target...
+//	ws [-v] rc list [-global | -visible | target]
+//	ws [-v] rc send [-windows] [-paste] [-cr] target [text...]
+//	ws [-v] rc read [-lines n | -full] [-no-redact] [-ansi] [-no-trim] [-except target] (-global | -visible)
+//	ws [-v] rc read [-lines n | -full] [-no-redact] [-ansi] [-no-trim] [-windows] target...
+//	ws [-v] read [-lines n | -full] [-no-redact] [-ansi] [-no-trim] [-region] [-no-header] [-except target] [-emacs] [-rc] [-global | -visible | target...]
 package main
 
 import (
@@ -45,17 +45,37 @@ import (
 	"github.com/peterbourgon/ff/v3/ffcli"
 )
 
+var verbose bool
+
+func init() {
+	log.SetFlags(0)
+	log.SetPrefix("ws: ")
+}
+
+func isVerbose() bool {
+	return verbose || os.Getenv("WS_VERBOSE") == "1" || os.Getenv("WS_VERBOSE") == "true"
+}
+
+func vlog(format string, args ...any) {
+	if isVerbose() {
+		log.Printf(format, args...)
+	}
+}
+
 // errFalse makes ws exit with status 1 without a message, as a
 // test that fails does.
 var errFalse = errors.New("false")
 
 func newWsCommand() *ffcli.Command {
+	fs := flag.NewFlagSet("ws", flag.ContinueOnError)
+	fs.BoolVar(&verbose, "v", false, "log what the command is doing and issues encountered")
 	return &ffcli.Command{
 		Name:       "ws",
-		ShortUsage: "ws <command> [arguments]",
+		ShortUsage: "ws [-v] <command> [arguments]",
 		ShortHelp:  "handle xmonad workspaces outside xmonad",
 		LongHelp: `Ws handles xmonad workspaces outside xmonad: their names, the
 directories they work in and what is started when one is opened.`,
+		FlagSet:   fs,
 		UsageFunc: commandUsage,
 		Subcommands: []*ffcli.Command{
 			newNameCommand(),
@@ -107,21 +127,38 @@ func output(s string) {
 	}
 }
 
-// prepareArgs adjusts args for commands that pass arbitrary flags through.
+// prepareArgs adjusts args for commands that pass arbitrary flags through,
+// taking into account root flags like -v.
 func prepareArgs(args []string) []string {
-	if len(args) < 2 {
+	subIdx := -1
+	for i, arg := range args {
+		if arg == "-v" || arg == "--v" {
+			continue
+		}
+		if strings.HasPrefix(arg, "-v=") || strings.HasPrefix(arg, "--v=") {
+			continue
+		}
+		subIdx = i
+		break
+	}
+	if subIdx == -1 || subIdx >= len(args)-1 {
 		return args
 	}
-	switch args[0] {
+	switch args[subIdx] {
 	case "term", "rofi":
-		if args[1] == "--" {
+		next := args[subIdx+1]
+		if next == "--" {
 			return args
 		}
-		switch args[1] {
+		switch next {
 		case "-h", "-help", "--help", "help":
 			return args
 		default:
-			return append([]string{args[0], "--"}, args[1:]...)
+			result := make([]string, 0, len(args)+1)
+			result = append(result, args[:subIdx+1]...)
+			result = append(result, "--")
+			result = append(result, args[subIdx+1:]...)
+			return result
 		}
 	}
 	return args
@@ -142,6 +179,7 @@ func runFFCLI(cmd *ffcli.Command, args []string) error {
 	if err != nil {
 		os.Exit(2)
 	}
+	vlog("executing ws %s", strings.Join(args, " "))
 	err = cmd.Run(context.Background())
 	if errors.Is(err, flag.ErrHelp) {
 		os.Exit(0)

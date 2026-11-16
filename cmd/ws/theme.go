@@ -54,17 +54,21 @@ func paletteColor(name string) string {
 var palette = sync.OnceValue(func() map[string]string {
 	file, err := configFile("theme", "palette.json")
 	if err != nil {
+		vlog("theme: failed to determine palette config path: %v", err)
 		return nil
 	}
 	data, err := os.ReadFile(file)
 	if err != nil {
+		vlog("theme: failed to read %s: %v; using fallback palette", file, err)
 		return nil
 	}
 	var p struct {
 		Colors map[string]string `json:"colors"`
 	}
 	if err := json.Unmarshal(data, &p); err != nil {
+		vlog("theme: failed to parse %s: %v; using fallback palette", file, err)
 		return nil
 	}
+	vlog("theme: loaded palette from %s", file)
 	return p.Colors
 })

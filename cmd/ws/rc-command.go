@@ -185,10 +185,13 @@ func runRcRead(args []string) error {
 }
 
 func executeRcList(global, visible bool, target string) error {
+	vlog("rc list: global=%v visible=%v target=%q", global, visible, target)
 	terms, err := rcTerminals()
 	if err != nil {
+		vlog("rc list: failed to get terminals: %v", err)
 		return err
 	}
+	vlog("rc list: discovered %d remote control terminal(s)", len(terms))
 	switch {
 	case visible:
 		wins, err := visibleTerminalWindows()
@@ -279,8 +282,10 @@ func executeRcSend(target string, textArgs []string, all, paste, cr bool) error 
 	defer cancel()
 	var errs []error
 	for _, t := range terms {
+		vlog("rc send: sending text to terminal %q via critty IPC", t.name)
 		c := critty.Client{Socket: critty.RemoteControlSocket(t.name)}
 		if err := c.SendText(ctx, 0, text); err != nil {
+			vlog("rc send: error sending to %q: %v", t.name, err)
 			errs = append(errs, fmt.Errorf("%s: %w", t.name, err))
 		}
 	}
@@ -288,8 +293,10 @@ func executeRcSend(target string, textArgs []string, all, paste, cr bool) error 
 }
 
 func executeRcRead(targets []string, opts screenReader, global, windows bool, skip string, noRedact bool) error {
+	vlog("rc read: targets=%v global=%v windows=%v skip=%q noRedact=%v", targets, global, windows, skip, noRedact)
 	terms, err := rcTerminals()
 	if err != nil {
+		vlog("rc read: failed to query terminals: %v", err)
 		return err
 	}
 	var errs []error
@@ -409,11 +416,15 @@ type screenReader struct {
 // read returns the text of window w of the terminal with remote control
 // name, the window with the lowest ID if w is 0.
 func (r screenReader) read(ctx context.Context, name string, w critty.Window) (string, error) {
-	c := critty.Client{Socket: critty.RemoteControlSocket(name)}
+	socket := critty.RemoteControlSocket(name)
+	vlog("rc read: querying socket %s (window=%v)", socket, w)
+	c := critty.Client{Socket: socket}
 	text, err := c.ReadText(ctx, w, r.ReadOptions)
 	if err != nil {
+		vlog("rc read: error reading from %s: %v", name, err)
 		return "", fmt.Errorf("%s: %w", name, err)
 	}
+	vlog("rc read: received %d bytes from %s", len(text), name)
 	if r.trim {
 		text = trimScreen(text, r.ANSI)
 	}

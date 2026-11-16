@@ -41,13 +41,19 @@ By default, read prints visible sources on the active screens (like
 		UsageFunc: commandUsage,
 	}
 	cmd.Exec = func(ctx context.Context, args []string) error {
+		vlog("read: starting read command with args %v", args)
 		if err := common.validate(fs, true); err != nil {
+			vlog("read: flag validation error: %v", err)
 			return err
 		}
 		opts := common.screenReader()
 		skip, err := common.resolveRcSkip()
 		if err != nil {
+			vlog("read: resolveRcSkip error: %v", err)
 			return err
+		}
+		if skip != "" {
+			vlog("read: skipping caller terminal on %q", skip)
 		}
 
 		emacs := srcOpts.emacs
@@ -56,6 +62,7 @@ By default, read prints visible sources on the active screens (like
 			emacs = true
 			rc = true
 		}
+		vlog("read: targets emacs=%v rc=%v", emacs, rc)
 
 		ctxTimeout, cancel := context.WithTimeout(ctx, 5*time.Second)
 		defer cancel()
@@ -138,7 +145,11 @@ func collectEmacsSections(ctx context.Context, flags commonReadFlags, region, no
 		go func(idx int, server string) {
 			defer wg.Done()
 			txt, err := emacsEval(ctx, server, expr)
-			if err == nil && strings.TrimSpace(txt) != "" {
+			if err != nil {
+				vlog("read: emacsEval error on server %q: %v", server, err)
+				return
+			}
+			if strings.TrimSpace(txt) != "" {
 				results[idx] = result{server: server, text: txt}
 			}
 		}(i, s)
@@ -178,7 +189,11 @@ func collectRcSections(ctx context.Context, r screenReader, visible, global bool
 				continue
 			}
 			screen, err := r.read(ctx, terms[j].name, critty.Window(w.id))
-			if err == nil && strings.TrimSpace(screen) != "" {
+			if err != nil {
+				vlog("read: rc read error on terminal %q: %v", terms[j].name, err)
+				continue
+			}
+			if strings.TrimSpace(screen) != "" {
 				sections = append(sections, readSection{
 					header: fmt.Sprintf("term:%s on %s", terms[j].name, w.workspace),
 					text:   screen,

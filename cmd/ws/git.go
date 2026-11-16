@@ -18,11 +18,14 @@ import (
 type Repository string
 
 func (r Repository) git(args ...string) (string, error) {
+	vlog("git: running git -C %s %s", r, strings.Join(args, " "))
 	out, err := exec.Command("git", append([]string{"-C", string(r)}, args...)...).Output()
 	if ee, ok := errors.AsType[*exec.ExitError](err); ok && len(ee.Stderr) > 0 {
+		vlog("git: error executing git -C %s %s: %s", r, strings.Join(args, " "), bytes.TrimSpace(ee.Stderr))
 		return "", fmt.Errorf("git %s in %s: %s", strings.Join(args, " "), r, bytes.TrimSpace(ee.Stderr))
 	}
 	if err != nil {
+		vlog("git: failed executing git -C %s %s: %v", r, strings.Join(args, " "), err)
 		return "", fmt.Errorf("git %s in %s: %w", strings.Join(args, " "), r, err)
 	}
 	return strings.TrimSpace(string(out)), nil

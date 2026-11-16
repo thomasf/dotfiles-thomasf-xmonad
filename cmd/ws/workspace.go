@@ -112,11 +112,14 @@ func (w Workspace) setStoredDir(dir string) error {
 func currentWorkspace() (Workspace, error) {
 	names, cur, err := desktops()
 	if err != nil {
+		vlog("currentWorkspace: desktops query failed: %v", err)
 		return "", err
 	}
 	if cur >= len(names) || names[cur] == "" {
+		vlog("currentWorkspace: no name for desktop %d (total desktops: %d)", cur, len(names))
 		return "", fmt.Errorf("no name for desktop %d", cur)
 	}
+	vlog("currentWorkspace: active desktop is %d (%s)", cur, names[cur])
 	return Workspace(names[cur]), nil
 }
 
@@ -126,8 +129,10 @@ func currentWorkspace() (Workspace, error) {
 // that is not shown thereby still addresses its own workspace.
 func contextWorkspace() (Workspace, error) {
 	if w := os.Getenv("WS_WORKSPACE"); w != "" {
+		vlog("contextWorkspace: resolved from $WS_WORKSPACE: %q", w)
 		return Workspace(w), nil
 	}
+	vlog("contextWorkspace: $WS_WORKSPACE not set; querying current workspace")
 	return currentWorkspace()
 }
 

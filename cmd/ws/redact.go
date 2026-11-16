@@ -16,6 +16,7 @@ func redact(text string) string {
 	}
 	path, err := exec.LookPath("delemark")
 	if err != nil {
+		vlog("redact: preferred command %q not found in $PATH: %v; skipping redaction", "delemark", err)
 		return text
 	}
 	cmd := exec.Command(path)
@@ -23,7 +24,9 @@ func redact(text string) string {
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	if err := cmd.Run(); err != nil {
+		vlog("redact: command %q failed: %v; skipping redaction", path, err)
 		return text
 	}
+	vlog("redact: redacted output using %s", path)
 	return out.String()
 }

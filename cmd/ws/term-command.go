@@ -49,21 +49,37 @@ it lets critty accept remote control.`,
 // remoteControlSuffixes it lets critty accept remote control; see
 // [remoteControlName].
 func runTerm(args []string) error {
+	vlog("term: starting terminal with args %v", args)
 	env := make(map[string]string)
 	if w, err := currentWorkspace(); err != nil {
+		vlog("term: failed to get current workspace: %v", err)
 		log.Print(err)
 	} else {
+		vlog("term: current workspace is %q", w)
 		env["WS_WORKSPACE"] = string(w)
 		if suffix, _ := w.suffix(); os.Getenv("CRITTY_REMOTE_CONTROL") == "" &&
 			(alwaysRemoteControl || slices.Contains(remoteControlSuffixes, suffix)) {
+			vlog("term: setting up remote control environment for workspace %q (suffix: %q)", w, suffix)
 			maps.Copy(env, remoteControlEnv(w))
 		}
 	}
-	for _, name := range terminals {
-		if _, err := exec.LookPath(name); err == nil {
+	for i, name := range terminals {
+		if path, err := exec.LookPath(name); err == nil {
+			if i > 0 {
+				vlog("term: preferred terminal %q not found in $PATH; falling back to %q (%s)", terminals[0], name, path)
+			} else {
+				vlog("term: using preferred terminal %q (%s)", name, path)
+			}
 			return execLauncher(append([]string{name}, args...), env)
+		} else {
+			if i == 0 {
+				vlog("term: preferred terminal %q not found in $PATH: %v", name, err)
+			} else {
+				vlog("term: fallback terminal %q not found in $PATH: %v", name, err)
+			}
 		}
 	}
+	vlog("term: no terminal found in $PATH (%s)", strings.Join(terminals, ", "))
 	return errors.New("no terminal found: " + strings.Join(terminals, ", "))
 }
 
@@ -72,10 +88,13 @@ func runTerm(args []string) error {
 func remoteControlEnv(w Workspace) map[string]string {
 	taken, err := critty.RemoteControlNames()
 	if err != nil {
+		vlog("term: failed to query critty remote control names: %v", err)
 		log.Print(err)
 		return nil
 	}
-	return map[string]string{"CRITTY_REMOTE_CONTROL": remoteControlName(w, taken)}
+	name := remoteControlName(w, taken)
+	vlog("term: assigned critty remote control name %q", name)
+	return map[string]string{"CRITTY_REMOTE_CONTROL": name}
 }
 
 // remoteControlName returns the remote control name for a terminal on

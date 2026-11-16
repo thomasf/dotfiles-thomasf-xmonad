@@ -20,8 +20,10 @@ func execLauncher(args []string, env map[string]string) error {
 	}
 	path, err := exec.LookPath(args[0])
 	if err != nil {
+		vlog("execLauncher: command %q not found in $PATH: %v", args[0], err)
 		return err
 	}
+	vlog("execLauncher: executing %s with args %v", path, args[1:])
 	return syscall.Exec(path, args, environWithOverrides(env))
 }
 
