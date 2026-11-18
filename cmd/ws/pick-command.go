@@ -27,10 +27,11 @@ func newPickCommand() *ffcli.Command {
 	shiftTo := fs.Bool("shift", false, "move the focused window to the workspace instead of printing its name")
 	withWorktrees := fs.Bool("worktrees", false, "also list worktrees without a workspace")
 	withEmpty := fs.Bool("empty", false, "also list workspaces without windows")
+	withDirs := fs.Bool("dirs", false, "also list stored workspace prefixes without a workspace")
 	lines := fs.Int("lines", 20, "show `n` rows in each column")
 	cmd := &ffcli.Command{
 		Name:       "pick",
-		ShortUsage: "ws pick [-go] [-shift] [-empty] [-p prompt] [-lines n] [-worktrees]",
+		ShortUsage: "ws pick [-go] [-shift] [-empty] [-worktrees] [-dirs] [-p prompt] [-lines n]",
 		ShortHelp:  "choose a workspace with rofi",
 		LongHelp: `Pick lets the user choose a workspace with rofi and prints its name. It
 lists the workspaces with windows or on another screen, and the
@@ -47,6 +48,8 @@ the user cancels.
     Ctrl+s      show or hide the workspaces without windows
     Ctrl+t      show or hide the worktrees of their projects that have
                 no workspace yet; listing them takes a moment
+    Ctrl+d      show or hide the stored workspace prefixes with a
+                directory that have no workspace yet
     Ctrl+f      fill all screens with workspaces from the selected prefix
 
 With -go, it goes to the workspace instead of printing it, as ws go
@@ -74,7 +77,7 @@ with spawn, rather than wait for it while rofi runs and lock up input.`,
 			return err
 		}
 		defer X.close()
-		return pickWorkspace(X, *prompt, *goTo, *shiftTo, *withWorktrees, *withEmpty, *lines)
+		return pickWorkspace(X, *prompt, *goTo, *shiftTo, *withWorktrees, *withEmpty, *withDirs, *lines)
 	}
 	return cmd
 }
@@ -83,7 +86,7 @@ func runPick(args []string) error {
 	return runFFCLI(newPickCommand(), args)
 }
 
-func pickWorkspace(X *X11Client, prompt string, goTo, shiftTo, withWorktrees, withEmpty bool, lines int) error {
+func pickWorkspace(X *X11Client, prompt string, goTo, shiftTo, withWorktrees, withEmpty, withDirs bool, lines int) error {
 	names, cur, err := X.desktops()
 	if err != nil {
 		return err
@@ -111,6 +114,8 @@ func pickWorkspace(X *X11Client, prompt string, goTo, shiftTo, withWorktrees, wi
 	// they are asked for, and then only once.
 	var wts []string
 	listed := false
+	var dirs []string
+	dirsListed := false
 	filter := ""
 	// dotted is the last name that Ctrl+Tab typed in with a dot added.
 	dotted := ""
@@ -123,6 +128,17 @@ func pickWorkspace(X *X11Client, prompt string, goTo, shiftTo, withWorktrees, wi
 				return slices.ContainsFunc(names, func(t string) bool { return Workspace(t).prefix() == p })
 			})
 		}
+		if withDirs && !dirsListed {
+			sdirs, err := storedDirs()
+			if err == nil {
+				for _, sd := range sdirs {
+					if !slices.ContainsFunc(names, func(t string) bool { return Workspace(t).prefix() == sd.Prefix }) {
+						dirs = append(dirs, sd.Prefix)
+					}
+				}
+			}
+			dirsListed = true
+		}
 		shown := busy
 		if withEmpty {
 			shown = names
@@ -131,7 +147,11 @@ func pickWorkspace(X *X11Client, prompt string, goTo, shiftTo, withWorktrees, wi
 		if withWorktrees {
 			shownWts = wts
 		}
-		picked, err := rofiPickWorkspaces(prompt, lines, filter, withWorktrees, withEmpty, pickGroups(current, shown, visible, hasWindows, shownWts))
+		var shownDirs []string
+		if withDirs {
+			shownDirs = dirs
+		}
+		picked, err := rofiPickWorkspaces(prompt, lines, filter, withWorktrees, withEmpty, withDirs, pickGroups(current, shown, visible, hasWindows, shownWts, shownDirs))
 		if t, ok := errors.AsType[ToggleWorktrees](err); ok {
 			withWorktrees = !withWorktrees
 			filter = t.filter
@@ -139,6 +159,11 @@ func pickWorkspace(X *X11Client, prompt string, goTo, shiftTo, withWorktrees, wi
 		}
 		if t, ok := errors.AsType[ToggleEmpty](err); ok {
 			withEmpty = !withEmpty
+			filter = t.filter
+			continue
+		}
+		if t, ok := errors.AsType[ToggleDirs](err); ok {
+			withDirs = !withDirs
 			filter = t.filter
 			continue
 		}
@@ -207,10 +232,11 @@ type PickGroup struct {
 
 type PickEntry struct {
 	name     string
-	open     bool // whether the workspace exists; else it is a worktree without one
+	open     bool // whether the workspace exists; else it is a worktree or stored dir without one
 	visible  bool // whether a screen shows it
 	current  bool // whether this is the current workspace
 	occupied bool // whether it has windows
+	tag      string
 }
 
 // projectsOf returns the projects of workspaces, each once.
@@ -225,12 +251,13 @@ func projectsOf(workspaces []string) []string {
 }
 
 // pickGroups groups the workspaces, other than the scratchpad workspace NSP,
-// and the worktree prefixes that have no workspace by project. visible holds
+// the worktree prefixes that have no workspace, and the stored dir prefixes
+// that have no workspace by project. visible holds
 // the workspaces on other screens. The project of current comes first, the others
 // follow by name. Within a project, the main checkout comes before its
 // worktrees, and a workspace without suffix before numbered ones, before
 // other suffixes.
-func pickGroups(current string, workspaces []string, visible map[string]bool, occupied map[string]bool, worktrees []string) []PickGroup {
+func pickGroups(current string, workspaces []string, visible map[string]bool, occupied map[string]bool, worktrees []string, storedDirs []string) []PickGroup {
 	byProject := make(map[string][]PickEntry)
 	prefixes := make(map[string]bool)
 	for _, t := range workspaces {
@@ -250,6 +277,7 @@ func pickGroups(current string, workspaces []string, visible map[string]bool, oc
 	prefixes[Workspace(current).prefix()] = true
 	for _, p := range worktrees {
 		if !prefixes[p] {
+			prefixes[p] = true
 			w := Workspace(p)
 			byProject[w.project()] = append(byProject[w.project()], PickEntry{
 				name:     p,
@@ -257,6 +285,21 @@ func pickGroups(current string, workspaces []string, visible map[string]bool, oc
 				visible:  false,
 				current:  false,
 				occupied: false,
+				tag:      "worktree",
+			})
+		}
+	}
+	for _, p := range storedDirs {
+		if !prefixes[p] {
+			prefixes[p] = true
+			w := Workspace(p)
+			byProject[w.project()] = append(byProject[w.project()], PickEntry{
+				name:     p,
+				open:     false,
+				visible:  false,
+				current:  false,
+				occupied: false,
+				tag:      "dir",
 			})
 		}
 	}
@@ -376,6 +419,13 @@ type ToggleEmpty struct{ filter string }
 
 func (ToggleEmpty) Error() string { return "toggle empty workspaces" }
 
+// ToggleDirs is the error rofiPickWorkspace returns when the user asks
+// to show or hide the stored workspace prefixes with a directory that
+// have no workspace yet. filter is what the user had typed.
+type ToggleDirs struct{ filter string }
+
+func (ToggleDirs) Error() string { return "toggle stored dirs" }
+
 // CompleteRow is the error rofiPickWorkspace returns when the user asks
 // to type in the name of the selected row. filter is that name, or what
 // the user had typed if no row was selected.
@@ -412,14 +462,16 @@ func (FillScreens) Error() string { return "fill screens" }
 // git worktree prefixes that don't yet have a workspace with Ctrl+t,
 // which returns a ToggleWorktrees; worktrees says whether they are shown.
 // Likewise Ctrl+s returns a ToggleEmpty for the workspaces without windows;
-// empty says whether they are shown. Ctrl+Tab returns a CompleteRow with
+// empty says whether they are shown. Ctrl+d returns a ToggleDirs for the
+// stored workspace prefixes with a directory that don't yet have a workspace;
+// dirs says whether they are shown. Ctrl+Tab returns a CompleteRow with
 // the name of the selected row, or a ChooseBranch if the user typed <project>@.
 // It returns errFalse if the user cancels.
-func rofiPickWorkspaces(prompt string, lines int, filter string, worktrees, empty bool, groups []PickGroup) ([]string, error) {
+func rofiPickWorkspaces(prompt string, lines int, filter string, worktrees, empty, dirs bool, groups []PickGroup) ([]string, error) {
 	rows, names := pickRows(groups, accentColor(), visibleColor())
-	// What Ctrl+s and Ctrl+t do: + shows, - hides.
+	// What Ctrl+s, Ctrl+t, and Ctrl+d do: + shows, - hides.
 	sign := map[bool]string{false: "+", true: "-"}
-	mesg := "C-Space mark   C-Ret typed   C-Tab complete   C-f fill   C-s " + sign[empty] + "empty   C-t " + sign[worktrees] + "worktrees"
+	mesg := "C-Space mark   C-Ret typed   C-Tab complete   C-f fill   C-s " + sign[empty] + "empty   C-t " + sign[worktrees] + "worktrees   C-d " + sign[dirs] + "dirs"
 	columns, width := pickFit(rows, mesg)
 	theme := fmt.Sprintf("listview { columns: %d; lines: %d; flow: vertical; fixed-columns: true; } window { width: %s; }",
 		columns, lines, width)
@@ -427,6 +479,7 @@ func rofiPickWorkspaces(prompt string, lines int, filter string, worktrees, empt
 		"-ballot-selected-str", pangoColor("* ", selectedColor()), "-ballot-unselected-str", "  ",
 		"-kb-custom-1", "Control+t", "-kb-custom-3", "Control+s",
 		"-kb-move-char-forward", "Right", "-kb-custom-4", "Control+f",
+		"-kb-custom-5", "Control+d", "-kb-remove-char-forward", "Delete",
 		"-kb-row-select", "", "-kb-accept-alt", "Control+space,Shift+space,Shift+Return", "-kb-mode-next", "Shift+Right", "-kb-custom-2", "Control+Tab",
 		"-kb-accept-entry", "Control+m,Return,KP_Enter", "-kb-accept-custom", "Control+Return,Control+j",
 		"-format", "i f", "-p", prompt,
@@ -464,6 +517,8 @@ func rofiPickWorkspaces(prompt string, lines int, filter string, worktrees, empt
 				return nil, FillScreens{names[firstIdx]}
 			}
 			return nil, FillScreens{typed}
+		case 5:
+			return nil, ToggleDirs{typed}
 		}
 	}
 	if err != nil {
@@ -489,8 +544,8 @@ func rofiPickWorkspaces(prompt string, lines int, filter string, worktrees, empt
 	return selected, nil
 }
 
-func rofiPickWorkspace(prompt string, lines int, filter string, worktrees, empty bool, groups []PickGroup) (string, error) {
-	ws, err := rofiPickWorkspaces(prompt, lines, filter, worktrees, empty, groups)
+func rofiPickWorkspace(prompt string, lines int, filter string, worktrees, empty, dirs bool, groups []PickGroup) (string, error) {
+	ws, err := rofiPickWorkspaces(prompt, lines, filter, worktrees, empty, dirs, groups)
 	if err != nil || len(ws) == 0 {
 		return "", err
 	}
@@ -576,7 +631,11 @@ func pickRows(groups []PickGroup, colour, visible string) (rows, names []string)
 				row += "  " + pangoDim("current", 60)
 			}
 			if !e.open {
-				row += "  " + pangoColor("worktree", colour)
+				tag := e.tag
+				if tag == "" {
+					tag = "worktree"
+				}
+				row += "  " + pangoColor(tag, colour)
 			}
 			rows = append(rows, row)
 			names = append(names, e.name)

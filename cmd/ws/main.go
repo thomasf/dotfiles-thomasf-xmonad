@@ -6,13 +6,13 @@
 // Usage:
 //
 //	ws [-v] name [-d] [-p | -s]
-//	ws [-v] dir [-set | -unset] [-pick] [workspace]
+//	ws [-v] dir <command> [arguments]
 //	ws [-v] action [workspace]
 //	ws [-v] wt list [-l] [-pick] [workspace]
 //	ws [-v] wt add [-branch branch] [-pick] [project@]name
 //	ws [-v] wt init [-y] [-pick] [workspace]
 //	ws [-v] wt remove [-force] [-y] [-pick] [[project@]name]
-//	ws [-v] pick [-go] [-shift] [-empty] [-p prompt] [-lines n] [-worktrees]
+//	ws [-v] pick [-go] [-shift] [-empty] [-worktrees] [-dirs] [-p prompt] [-lines n]
 //	ws [-v] go workspace
 //	ws [-v] shift [workspace]
 //	ws [-v] fill [workspace]

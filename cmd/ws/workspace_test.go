@@ -116,4 +116,21 @@ func TestWorkspaceDirStored(t *testing.T) {
 	if got, err := storedDir("feat_x"); got != "/feat" || err != nil {
 		t.Errorf("storedDir(feat_x) = %q, %v, want %q, nil", got, err, "/feat")
 	}
+
+	dirs, err := storedDirs()
+	if err != nil {
+		t.Fatalf("storedDirs failed: %v", err)
+	}
+	wantDirs := []StoredDir{
+		{"dp@other", "/elsewhere"},
+		{"feat_x", "/feat"},
+	}
+	if len(dirs) != len(wantDirs) {
+		t.Fatalf("storedDirs len = %d, want %d: %v", len(dirs), len(wantDirs), dirs)
+	}
+	for i := range dirs {
+		if dirs[i] != wantDirs[i] {
+			t.Errorf("storedDirs[%d] = %v, want %v", i, dirs[i], wantDirs[i])
+		}
+	}
 }

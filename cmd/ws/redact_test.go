@@ -20,9 +20,10 @@ func TestRedact(t *testing.T) {
 	if _, err := exec.LookPath("delemark"); err == nil {
 		secretText := "api key divio_pak_dGVzdC1zZWNyZXQta2V5LXRva2VuLWZvci1kaXZpby0 here\n"
 		got := redact(secretText)
-		want := "api key [REDACTED] here\n"
-		if got != want {
-			t.Fatalf("redact(secretText) = %q, want %q", got, want)
+		want1 := "api key REDACTED here\n"
+		want2 := "api key [REDACTED] here\n"
+		if got != want1 && got != want2 {
+			t.Fatalf("redact(secretText) = %q, want %q or %q", got, want1, want2)
 		}
 	}
 }

@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"text/tabwriter"
 
 	"github.com/peterbourgon/ff/v3/ffcli"
 )
@@ -17,68 +18,188 @@ import (
 // errNoDir reports that a workspace has no directory.
 var errNoDir = errors.New("no directory")
 
-func newDirCommand() *ffcli.Command {
-	fs := flag.NewFlagSet("ws dir", flag.ContinueOnError)
-	set := fs.Bool("set", false, "store the working directory for the workspace prefix")
-	unset := fs.Bool("unset", false, "remove the directory stored for the workspace prefix")
+func runDirList(ctx context.Context, args []string) error {
+	sdirs, err := storedDirs()
+	if err != nil {
+		vlog("dir list: failed to read stored directories: %v", err)
+		return err
+	}
+	if len(sdirs) == 0 {
+		return nil
+	}
+	if isTerminal(os.Stdout) {
+		tw := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
+		fmt.Fprintln(tw, "PREFIX\tDIRECTORY")
+		for _, sd := range sdirs {
+			fmt.Fprintf(tw, "%s\t%s\n", sd.Prefix, shortenHome(sd.Dir))
+		}
+		return tw.Flush()
+	}
+	for _, sd := range sdirs {
+		fmt.Printf("%s\t%s\n", sd.Prefix, sd.Dir)
+	}
+	return nil
+}
+
+func newDirListCommand() *ffcli.Command {
+	fs := flag.NewFlagSet("ws dir list", flag.ContinueOnError)
+	return &ffcli.Command{
+		Name:       "list",
+		ShortUsage: "ws dir list",
+		ShortHelp:  "list all stored workspace directories",
+		LongHelp:   "List prints all stored workspace directories from ~/.config/wsdirs.",
+		FlagSet:    fs,
+		UsageFunc:  commandUsage,
+		Exec: func(ctx context.Context, args []string) error {
+			if len(args) > 0 {
+				usageError(fs)
+			}
+			return runDirList(ctx, args)
+		},
+	}
+}
+
+func newDirSetCommand() *ffcli.Command {
+	fs := flag.NewFlagSet("ws dir set", flag.ContinueOnError)
+	workspace := fs.String("workspace", "", "workspace prefix to store directory for")
+	return &ffcli.Command{
+		Name:       "set",
+		ShortUsage: "ws dir set [-workspace name] [workspace]",
+		ShortHelp:  "store the working directory for a workspace prefix",
+		LongHelp: `Set stores the current working directory for the workspace prefix,
+by default the current workspace, in ~/.config/wsdirs.`,
+		FlagSet:   fs,
+		UsageFunc: commandUsage,
+		Exec: func(ctx context.Context, args []string) error {
+			if len(args) > 1 {
+				usageError(fs)
+			}
+			var w Workspace
+			var err error
+			if *workspace != "" {
+				if len(args) > 0 && args[0] != *workspace {
+					return fmt.Errorf("conflicting workspace arguments: flag %q vs argument %q", *workspace, args[0])
+				}
+				w = Workspace(*workspace)
+			} else if len(args) == 1 {
+				w = Workspace(args[0])
+			} else {
+				w, err = currentWorkspace()
+				if err != nil {
+					return err
+				}
+			}
+			wd, err := os.Getwd()
+			if err != nil {
+				vlog("dir set: failed to get working directory: %v", err)
+				return err
+			}
+			vlog("dir set: storing working directory %q for prefix %q", wd, w.prefix())
+			return w.setStoredDir(wd)
+		},
+	}
+}
+
+func newDirUnsetCommand() *ffcli.Command {
+	fs := flag.NewFlagSet("ws dir unset", flag.ContinueOnError)
+	workspace := fs.String("workspace", "", "workspace prefix to remove stored directory for")
+	return &ffcli.Command{
+		Name:       "unset",
+		ShortUsage: "ws dir unset [-workspace name] [workspace]",
+		ShortHelp:  "remove the directory stored for a workspace prefix",
+		LongHelp: `Unset removes the directory stored for the workspace prefix, by
+default the current workspace, from ~/.config/wsdirs.`,
+		FlagSet:   fs,
+		UsageFunc: commandUsage,
+		Exec: func(ctx context.Context, args []string) error {
+			if len(args) > 1 {
+				usageError(fs)
+			}
+			var w Workspace
+			var err error
+			if *workspace != "" {
+				if len(args) > 0 && args[0] != *workspace {
+					return fmt.Errorf("conflicting workspace arguments: flag %q vs argument %q", *workspace, args[0])
+				}
+				w = Workspace(*workspace)
+			} else if len(args) == 1 {
+				w = Workspace(args[0])
+			} else {
+				w, err = currentWorkspace()
+				if err != nil {
+					return err
+				}
+			}
+			vlog("dir unset: removing stored directory for prefix %q", w.prefix())
+			return w.setStoredDir("")
+		},
+	}
+}
+
+func newDirGetCommand() *ffcli.Command {
+	fs := flag.NewFlagSet("ws dir get", flag.ContinueOnError)
 	pick := fs.Bool("pick", false, "choose with rofi between repositories with the same name")
-	cmd := &ffcli.Command{
-		Name:       "dir",
-		ShortUsage: "ws dir [-set | -unset] [-pick] [workspace]",
+	workspace := fs.String("workspace", "", "workspace to operate on instead of the current one")
+	return &ffcli.Command{
+		Name:       "get",
+		ShortUsage: "ws dir get [-workspace name] [-pick] [workspace]",
 		ShortHelp:  "print the directory a workspace works in",
-		LongHelp: `Dir prints the directory a workspace works in, by default the current
-one. It is the directory stored for the prefix with -set, if there is
+		LongHelp: `Get prints the directory a workspace works in, by default the current
+one. It is the directory stored for the prefix with set, if there is
 one. Else it is the directory stored for the project, or the ghq
 repository named like the project. For a worktree, the directory is
 the sibling of the project's main checkout named <repo>@<worktree>, at
-the same place within it.
-
--set stores the working directory for the prefix, in ~/.config/wsdirs,
-and -unset removes it.`,
+the same place within it.`,
 		FlagSet:   fs,
 		UsageFunc: commandUsage,
-	}
-	cmd.Exec = func(ctx context.Context, args []string) error {
-		if len(args) > 1 {
-			usageError(fs)
-		}
-		var w Workspace
-		var err error
-		if len(args) == 1 {
-			w = Workspace(args[0])
-		} else {
-			w, err = currentWorkspace()
+		Exec: func(ctx context.Context, args []string) error {
+			if len(args) > 1 {
+				usageError(fs)
+			}
+			var w Workspace
+			var err error
+			if *workspace != "" {
+				if len(args) > 0 && args[0] != *workspace {
+					return fmt.Errorf("conflicting workspace arguments: flag %q vs argument %q", *workspace, args[0])
+				}
+				w = Workspace(*workspace)
+			} else if len(args) == 1 {
+				w = Workspace(args[0])
+			} else {
+				w, err = currentWorkspace()
+				if err != nil {
+					return err
+				}
+			}
+			vlog("dir get: resolving directory for workspace %q (pick=%v)", w, *pick)
+			dir, err := workspaceDir(w, resolvePicker(*pick))
 			if err != nil {
+				vlog("dir get: failed to resolve directory for workspace %q: %v", w, err)
 				return err
 			}
-		}
-		vlog("dir: resolving directory for workspace %q (set=%v, unset=%v, pick=%v)", w, *set, *unset, *pick)
-		if *set && *unset {
-			return errors.New("cannot specify both -set and -unset")
-		}
-		switch {
-		case *set:
-			wd, err := os.Getwd()
-			if err != nil {
-				vlog("dir: failed to get working directory: %v", err)
-				return err
-			}
-			vlog("dir: storing working directory %q for prefix %q", wd, w.prefix())
-			return w.setStoredDir(wd)
-		case *unset:
-			vlog("dir: removing stored directory for prefix %q", w.prefix())
-			return w.setStoredDir("")
-		}
-		dir, err := workspaceDir(w, resolvePicker(*pick))
-		if err != nil {
-			vlog("dir: failed to resolve directory for workspace %q: %v", w, err)
-			return err
-		}
-		vlog("dir: workspace %q directory is %q", w, dir)
-		output(dir)
-		return nil
+			vlog("dir get: workspace %q directory is %q", w, dir)
+			output(dir)
+			return nil
+		},
 	}
-	return cmd
+}
+
+func newDirCommand() *ffcli.Command {
+	return &ffcli.Command{
+		Name:       "dir",
+		ShortUsage: "ws dir <command> [arguments]",
+		ShortHelp:  "manage and print workspace directories",
+		LongHelp: `Dir handles workspace directories: printing the directory a workspace
+works in, listing stored directories, or storing and clearing custom
+directory overrides for workspace prefixes.`,
+		UsageFunc: commandUsage,
+		Subcommands: []*ffcli.Command{
+			newDirGetCommand(),
+			newDirListCommand(),
+			newDirSetCommand(),
+			newDirUnsetCommand(),
+		},
+	}
 }
 
 func runDir(args []string) error {

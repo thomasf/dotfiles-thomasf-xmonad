@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"path/filepath"
+	"slices"
 	"strings"
 	"unicode"
 )
@@ -60,6 +62,58 @@ func fileName(s string) string {
 		s = "_" + rest
 	}
 	return s
+}
+
+// StoredDir associates a workspace prefix with its stored directory.
+type StoredDir struct {
+	Prefix string
+	Dir    string
+}
+
+// wsdirsDir returns the path to ~/.config/wsdirs.
+func wsdirsDir() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(home, ".config", "wsdirs"), nil
+}
+
+// storedDirs returns all stored workspace prefixes and their directories,
+// sorted by prefix.
+func storedDirs() ([]StoredDir, error) {
+	dir, err := wsdirsDir()
+	if err != nil {
+		return nil, err
+	}
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	var res []StoredDir
+	for _, e := range entries {
+		if e.IsDir() || strings.HasPrefix(e.Name(), ".") {
+			continue
+		}
+		content, err := os.ReadFile(filepath.Join(dir, e.Name()))
+		if err != nil {
+			continue
+		}
+		target := strings.TrimSpace(string(content))
+		if target != "" {
+			res = append(res, StoredDir{
+				Prefix: e.Name(),
+				Dir:    target,
+			})
+		}
+	}
+	slices.SortFunc(res, func(a, b StoredDir) int {
+		return strings.Compare(a.Prefix, b.Prefix)
+	})
+	return res, nil
 }
 
 // wsdirsFile returns the file that stores the directory for prefix,

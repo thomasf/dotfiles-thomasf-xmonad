@@ -8,7 +8,7 @@ XMonad invokes `ws` through keybindings and workspace event hooks. In turn, `ws`
 
 Workspace names follow the format `<project>[@<worktree>][.<suffix>]`, where `<project>[@<worktree>]` forms the prefix. For example, in `hello@test.bot`:
 
-- **Project** (`hello`): Determines the working directory. Defaults to the ghq repository matching the project name, or an explicit override saved via `ws dir -set`.
+- **Project** (`hello`): Determines the working directory. Defaults to the ghq repository matching the project name, or an explicit override saved via `ws dir set`.
 - **Worktree** (`test`): Selects the git worktree `<repo>@<worktree>` located alongside the main repository checkout.
 - **Suffix** (`bot`): Dictates what `ws action` launches when opening an empty workspace, and whether critty terminals enable socket remote control.
 
@@ -34,7 +34,7 @@ Run `ws <command> -h` for full flag descriptions and options. Pass the root flag
 | Command | Description |
 |---|---|
 | `ws name` | Print the current workspace name normalized for file names and sockets. Use `-d` for the raw display name, `-p` for the prefix, and `-s` for the suffix. |
-| `ws dir` | Print the root directory for a workspace. Use `-set` / `-unset` to save or clear custom prefix mappings. |
+| `ws dir` | Manage workspace directories (`get`, `list`, `set`, `unset`). `ws dir get` prints the root directory for a workspace. |
 | `ws action` | Run the startup action for an empty workspace. Executes `w.<project>` from `$PATH` if present, falling back to suffix rules. |
 | `ws run` | Launch an executable from `$PATH` in the workspace directory via rofi. Keybindings: `Alt+t` runs in a terminal, `Alt+s` runs with `sudo`, and `Alt+h` keeps the terminal open after exit. |
 | `ws term` | Launch a terminal emulator (prefers critty) with `$WS_WORKSPACE` set to the target workspace. |
@@ -97,7 +97,7 @@ ws emacs read dotfiles                 # Buffers from the 'dotfiles' Emacs serve
 
 ## Configuration and Cache Files
 
-- `~/.config/wsdirs/<prefix>`: Custom workspace directory mappings saved with `ws dir -set`.
+- `~/.config/wsdirs/<prefix>`: Custom workspace directory mappings saved with `ws dir set`.
 - `~/.config/theme/palette.json`: Theme colors used for rofi menus.
 - `$XDG_CACHE_HOME/ws/` (`~/.cache/ws/` by default): Cached `$PATH` binaries, launch history for `ws run`, and rofi font character width metrics.
 

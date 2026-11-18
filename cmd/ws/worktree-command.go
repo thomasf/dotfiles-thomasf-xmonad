@@ -113,7 +113,7 @@ name with "/" is a branch: feat/x checks out branch feat/x in worktree
 feat-x.
 
 The project must be the name of a ghq repository, or have a directory
-stored with ws dir -set; ws dir project prints the checkout found. The
+stored with ws dir set; ws dir get project prints the checkout found. The
 directory <repo>@<name> must not exist.
 
 Examples:

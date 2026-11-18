@@ -13,15 +13,17 @@ import (
 func TestPickGroups(t *testing.T) {
 	workspaces := []string{"work", "pi.2", "NSP", "hello@test.bot", "hello.10", "hello.bot", "hello", "hello.2", "pi", "hello@a"}
 	worktrees := []string{"hello@test", "hello@new", "pi@x"}
+	dirs := []string{"custom"}
 	occupied := map[string]bool{"pi": true, "hello.2": true, "hello": true}
-	got := pickGroups("pi", workspaces, map[string]bool{"hello.2": true}, occupied, worktrees)
+	got := pickGroups("pi", workspaces, map[string]bool{"hello.2": true}, occupied, worktrees, dirs)
 	want := []PickGroup{
-		{"pi", []PickEntry{{"pi", true, true, true, true}, {"pi.2", true, false, false, false}, {"pi@x", false, false, false, false}}},
+		{"pi", []PickEntry{{"pi", true, true, true, true, ""}, {"pi.2", true, false, false, false, ""}, {"pi@x", false, false, false, false, "worktree"}}},
+		{"custom", []PickEntry{{"custom", false, false, false, false, "dir"}}},
 		{"hello", []PickEntry{
-			{"hello", true, false, false, true}, {"hello.2", true, true, false, true}, {"hello.10", true, false, false, false}, {"hello.bot", true, false, false, false},
-			{"hello@a", true, false, false, false}, {"hello@new", false, false, false, false}, {"hello@test.bot", true, false, false, false},
+			{"hello", true, false, false, true, ""}, {"hello.2", true, true, false, true, ""}, {"hello.10", true, false, false, false, ""}, {"hello.bot", true, false, false, false, ""},
+			{"hello@a", true, false, false, false, ""}, {"hello@new", false, false, false, false, "worktree"}, {"hello@test.bot", true, false, false, false, ""},
 		}},
-		{"work", []PickEntry{{"work", true, false, false, false}}},
+		{"work", []PickEntry{{"work", true, false, false, false, ""}}},
 	}
 	if !slices.EqualFunc(got, want, func(a, b PickGroup) bool {
 		return a.project == b.project && slices.Equal(a.entries, b.entries)
@@ -32,10 +34,11 @@ func TestPickGroups(t *testing.T) {
 
 func TestPickRows(t *testing.T) {
 	rows, names := pickRows([]PickGroup{{"a&b", []PickEntry{
-		{"a&b", true, true, true, true},
-		{"a&b.2", true, true, false, false},
-		{"a&b.3", true, false, false, false},
-		{"a&b@x", false, false, false, false},
+		{"a&b", true, true, true, true, ""},
+		{"a&b.2", true, true, false, false, ""},
+		{"a&b.3", true, false, false, false, ""},
+		{"a&b@x", false, false, false, false, "worktree"},
+		{"a&b@d", false, false, false, false, "dir"},
 	}}}, "#009c8f", "#0064e4")
 	wantRows := []string{
 		"<b>a&amp;b</b>",
@@ -43,8 +46,9 @@ func TestPickRows(t *testing.T) {
 		`  <span foreground="#0064e4" fgalpha="60%">a&amp;b.2</span>`,
 		`  <span fgalpha="60%">a&amp;b.3</span>`,
 		`  a&amp;b@x  <span foreground="#009c8f">worktree</span>`,
+		`  a&amp;b@d  <span foreground="#009c8f">dir</span>`,
 	}
-	if !slices.Equal(rows, wantRows) || !slices.Equal(names, []string{"a&b", "a&b", "a&b.2", "a&b.3", "a&b@x"}) {
+	if !slices.Equal(rows, wantRows) || !slices.Equal(names, []string{"a&b", "a&b", "a&b.2", "a&b.3", "a&b@x", "a&b@d"}) {
 		t.Errorf("pickRows = %q, %q", rows, names)
 	}
 }
@@ -84,7 +88,7 @@ func fakeCommand(t *testing.T, name, script string) {
 }
 
 func TestRofiPickWorkspace(t *testing.T) {
-	groups := []PickGroup{{"hello", []PickEntry{{"hello", true, false, false, true}, {"hello.bot", true, false, false, true}}}}
+	groups := []PickGroup{{"hello", []PickEntry{{"hello", true, false, false, true, ""}, {"hello.bot", true, false, false, true, ""}}}}
 	for _, tt := range []struct {
 		script, want string
 		err          error
@@ -103,9 +107,10 @@ func TestRofiPickWorkspace(t *testing.T) {
 		{"echo '2 a.b@'; exit 11", "", CompleteRow{"hello.bot"}},
 		{"echo '2 hello.bot'; exit 13", "", FillScreens{"hello.bot"}},
 		{"echo '-1 typed'; exit 13", "", FillScreens{"typed"}},
+		{"echo '1 he'; exit 14", "", ToggleDirs{"he"}},
 	} {
 		fakeCommand(t, "rofi", "cat >/dev/null; "+tt.script)
-		got, err := rofiPickWorkspace("ws", 20, "", false, false, groups)
+		got, err := rofiPickWorkspace("ws", 20, "", false, false, false, groups)
 		if got != tt.want || err != tt.err {
 			t.Errorf("rofi %q: got %q, %v, want %q, %v", tt.script, got, err, tt.want, tt.err)
 		}
@@ -113,9 +118,9 @@ func TestRofiPickWorkspace(t *testing.T) {
 }
 
 func TestRofiPickWorkspacesMulti(t *testing.T) {
-	groups := []PickGroup{{"hello", []PickEntry{{"hello", true, false, false, true}, {"hello.bot", true, false, false, true}}}}
+	groups := []PickGroup{{"hello", []PickEntry{{"hello", true, false, false, true, ""}, {"hello.bot", true, false, false, true, ""}}}}
 	fakeCommand(t, "rofi", "cat >/dev/null; printf '0 \\n2 \\n'")
-	got, err := rofiPickWorkspaces("ws", 20, "", false, false, groups)
+	got, err := rofiPickWorkspaces("ws", 20, "", false, false, false, groups)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -126,11 +131,11 @@ func TestRofiPickWorkspacesMulti(t *testing.T) {
 }
 
 func TestRofiPickWorkspacesFlags(t *testing.T) {
-	groups := []PickGroup{{"hello", []PickEntry{{"hello", true, false, false, true}}}}
+	groups := []PickGroup{{"hello", []PickEntry{{"hello", true, false, false, true, ""}}}}
 	flagsFile := filepath.Join(t.TempDir(), "flags")
 	t.Setenv("FLAGS_FILE", flagsFile)
 	fakeCommand(t, "rofi", `cat >/dev/null; printf "%s\n" "$@" > "$FLAGS_FILE"; echo '0 '`)
-	_, err := rofiPickWorkspaces("ws", 20, "", false, false, groups)
+	_, err := rofiPickWorkspaces("ws", 20, "", false, false, false, groups)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -148,6 +153,8 @@ func TestRofiPickWorkspacesFlags(t *testing.T) {
 	}
 	checkFlag("-kb-accept-entry", "Control+m,Return,KP_Enter")
 	checkFlag("-kb-accept-custom", "Control+Return,Control+j")
+	checkFlag("-kb-custom-5", "Control+d")
+	checkFlag("-kb-remove-char-forward", "Delete")
 }
 
 func TestWorktreePrefixes(t *testing.T) {
