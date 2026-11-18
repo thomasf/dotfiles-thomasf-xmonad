@@ -41,6 +41,19 @@ func runDirList(ctx context.Context, args []string) error {
 	return nil
 }
 
+// dirWorkspace returns the workspace named by args, the arguments of a
+// dir command, or else the current one.
+func dirWorkspace(fs *flag.FlagSet, args []string) (Workspace, error) {
+	switch len(args) {
+	case 0:
+		return currentWorkspace()
+	case 1:
+		return Workspace(args[0]), nil
+	}
+	usageError(fs)
+	return "", nil
+}
+
 func newDirListCommand() *ffcli.Command {
 	fs := flag.NewFlagSet("ws dir list", flag.ContinueOnError)
 	return &ffcli.Command{
@@ -61,33 +74,18 @@ func newDirListCommand() *ffcli.Command {
 
 func newDirSetCommand() *ffcli.Command {
 	fs := flag.NewFlagSet("ws dir set", flag.ContinueOnError)
-	workspace := fs.String("workspace", "", "workspace prefix to store directory for")
 	return &ffcli.Command{
 		Name:       "set",
-		ShortUsage: "ws dir set [-workspace name] [workspace]",
+		ShortUsage: "ws dir set [workspace]",
 		ShortHelp:  "store the working directory for a workspace prefix",
 		LongHelp: `Set stores the current working directory for the workspace prefix,
 by default the current workspace, in ~/.config/wsdirs.`,
 		FlagSet:   fs,
 		UsageFunc: commandUsage,
 		Exec: func(ctx context.Context, args []string) error {
-			if len(args) > 1 {
-				usageError(fs)
-			}
-			var w Workspace
-			var err error
-			if *workspace != "" {
-				if len(args) > 0 && args[0] != *workspace {
-					return fmt.Errorf("conflicting workspace arguments: flag %q vs argument %q", *workspace, args[0])
-				}
-				w = Workspace(*workspace)
-			} else if len(args) == 1 {
-				w = Workspace(args[0])
-			} else {
-				w, err = currentWorkspace()
-				if err != nil {
-					return err
-				}
+			w, err := dirWorkspace(fs, args)
+			if err != nil {
+				return err
 			}
 			wd, err := os.Getwd()
 			if err != nil {
@@ -102,33 +100,18 @@ by default the current workspace, in ~/.config/wsdirs.`,
 
 func newDirUnsetCommand() *ffcli.Command {
 	fs := flag.NewFlagSet("ws dir unset", flag.ContinueOnError)
-	workspace := fs.String("workspace", "", "workspace prefix to remove stored directory for")
 	return &ffcli.Command{
 		Name:       "unset",
-		ShortUsage: "ws dir unset [-workspace name] [workspace]",
+		ShortUsage: "ws dir unset [workspace]",
 		ShortHelp:  "remove the directory stored for a workspace prefix",
 		LongHelp: `Unset removes the directory stored for the workspace prefix, by
 default the current workspace, from ~/.config/wsdirs.`,
 		FlagSet:   fs,
 		UsageFunc: commandUsage,
 		Exec: func(ctx context.Context, args []string) error {
-			if len(args) > 1 {
-				usageError(fs)
-			}
-			var w Workspace
-			var err error
-			if *workspace != "" {
-				if len(args) > 0 && args[0] != *workspace {
-					return fmt.Errorf("conflicting workspace arguments: flag %q vs argument %q", *workspace, args[0])
-				}
-				w = Workspace(*workspace)
-			} else if len(args) == 1 {
-				w = Workspace(args[0])
-			} else {
-				w, err = currentWorkspace()
-				if err != nil {
-					return err
-				}
+			w, err := dirWorkspace(fs, args)
+			if err != nil {
+				return err
 			}
 			vlog("dir unset: removing stored directory for prefix %q", w.prefix())
 			return w.setStoredDir("")
@@ -139,10 +122,9 @@ default the current workspace, from ~/.config/wsdirs.`,
 func newDirGetCommand() *ffcli.Command {
 	fs := flag.NewFlagSet("ws dir get", flag.ContinueOnError)
 	pick := fs.Bool("pick", false, "choose with rofi between repositories with the same name")
-	workspace := fs.String("workspace", "", "workspace to operate on instead of the current one")
 	return &ffcli.Command{
 		Name:       "get",
-		ShortUsage: "ws dir get [-workspace name] [-pick] [workspace]",
+		ShortUsage: "ws dir get [-pick] [workspace]",
 		ShortHelp:  "print the directory a workspace works in",
 		LongHelp: `Get prints the directory a workspace works in, by default the current
 one. It is the directory stored for the prefix with set, if there is
@@ -153,23 +135,9 @@ the same place within it.`,
 		FlagSet:   fs,
 		UsageFunc: commandUsage,
 		Exec: func(ctx context.Context, args []string) error {
-			if len(args) > 1 {
-				usageError(fs)
-			}
-			var w Workspace
-			var err error
-			if *workspace != "" {
-				if len(args) > 0 && args[0] != *workspace {
-					return fmt.Errorf("conflicting workspace arguments: flag %q vs argument %q", *workspace, args[0])
-				}
-				w = Workspace(*workspace)
-			} else if len(args) == 1 {
-				w = Workspace(args[0])
-			} else {
-				w, err = currentWorkspace()
-				if err != nil {
-					return err
-				}
+			w, err := dirWorkspace(fs, args)
+			if err != nil {
+				return err
 			}
 			vlog("dir get: resolving directory for workspace %q (pick=%v)", w, *pick)
 			dir, err := workspaceDir(w, resolvePicker(*pick))

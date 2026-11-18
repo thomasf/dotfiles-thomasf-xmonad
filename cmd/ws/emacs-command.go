@@ -116,7 +116,7 @@ func newEmacsReadCommand() *ffcli.Command {
 	emacs.Register(fs)
 	cmd := &ffcli.Command{
 		Name:       "read",
-		ShortUsage: "ws emacs read [-lines n | -full] [-no-header] [-no-redact] [-ansi] [-no-trim] [-region] ([-except target] (-global | -visible) | target...)",
+		ShortUsage: "ws emacs read [-lines n | -full] [-no-redact] [-ansi] [-no-trim] [-region] [-no-header] ([-except target] (-global | -visible) | target...)",
 		ShortHelp:  "print text from Emacs buffers or the marked active region",
 		LongHelp: `Read prints the text of windows on visible frames across running Emacs
 servers, or the marked active region.

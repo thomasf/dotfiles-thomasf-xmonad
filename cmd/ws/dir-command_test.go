@@ -45,12 +45,12 @@ func TestDirSubcommands(t *testing.T) {
 	origWd, _ := os.Getwd()
 	defer os.Chdir(origWd)
 
-	// Test set with -workspace
+	// Test set
 	if err := os.Chdir(dirA); err != nil {
 		t.Fatal(err)
 	}
 	cmd := newDirCommand()
-	if err := cmd.Parse([]string{"set", "-workspace", "projA"}); err != nil {
+	if err := cmd.Parse([]string{"set", "projA"}); err != nil {
 		t.Fatalf("parse failed: %v", err)
 	}
 	if err := cmd.Run(t.Context()); err != nil {
@@ -69,9 +69,9 @@ func TestDirSubcommands(t *testing.T) {
 		t.Fatalf("run failed: %v", err)
 	}
 
-	// Test get with -workspace
+	// Test get
 	cmd = newDirCommand()
-	if err := cmd.Parse([]string{"get", "-workspace", "projA"}); err != nil {
+	if err := cmd.Parse([]string{"get", "projA"}); err != nil {
 		t.Fatalf("parse failed: %v", err)
 	}
 	out := captureOutput(func() {
@@ -121,9 +121,9 @@ func TestDirSubcommands(t *testing.T) {
 		}
 	}
 
-	// Test unset with -workspace
+	// Test unset
 	cmd = newDirCommand()
-	if err := cmd.Parse([]string{"unset", "-workspace", "projA"}); err != nil {
+	if err := cmd.Parse([]string{"unset", "projA"}); err != nil {
 		t.Fatalf("parse failed: %v", err)
 	}
 	if err := cmd.Run(t.Context()); err != nil {
@@ -165,15 +165,6 @@ func TestDirSubcommands(t *testing.T) {
 	})
 	if strings.TrimSpace(out) != "" {
 		t.Errorf("expected empty list, got %q", out)
-	}
-
-	// Test conflicting workspace flag vs arg on get
-	cmd = newDirCommand()
-	if err := cmd.Parse([]string{"get", "-workspace", "foo", "bar"}); err != nil {
-		t.Fatalf("parse failed: %v", err)
-	}
-	if err := cmd.Run(t.Context()); err == nil {
-		t.Error("expected error for conflicting flag and arg, got nil")
 	}
 
 	// Test bare ws dir has no exec (returns NoExecError on parse)

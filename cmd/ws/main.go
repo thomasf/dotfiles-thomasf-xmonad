@@ -6,29 +6,32 @@
 // Usage:
 //
 //	ws [-v] name [-d] [-p | -s]
-//	ws [-v] dir <command> [arguments]
+//	ws [-v] dir get [-pick] [workspace]
+//	ws [-v] dir list
+//	ws [-v] dir set [workspace]
+//	ws [-v] dir unset [workspace]
 //	ws [-v] action [workspace]
-//	ws [-v] wt list [-l] [-pick] [workspace]
+//	ws [-v] wt list [-long] [-pick] [workspace | .]
 //	ws [-v] wt add [-branch branch] [-pick] [project@]name
-//	ws [-v] wt init [-y] [-pick] [workspace]
-//	ws [-v] wt remove [-force] [-y] [-pick] [[project@]name]
-//	ws [-v] pick [-go] [-shift] [-empty] [-worktrees] [-dirs] [-p prompt] [-lines n]
-//	ws [-v] go workspace
+//	ws [-v] wt init [-yes] [-pick] [workspace]
+//	ws [-v] wt remove [-force] [-delete-branch] [-yes] [-pick] [[project@]name | .]
+//	ws [-v] pick [-go] [-shift] [-empty] [-worktrees] [-dirs] [-prompt prompt] [-lines n]
+//	ws [-v] rofi [-width pct] [-height pct] [rofi arguments]
+//	ws [-v] go workspace...
 //	ws [-v] shift [workspace]
 //	ws [-v] fill [workspace]
 //	ws [-v] clean
 //	ws [-v] rename [name]
-//	ws [-v] window
-//	ws [-v] rofi [-width pct] [-height pct] [rofi arguments]
-//	ws [-v] run [-lines n] [-p prompt] [-width pct] [-term | -sudo | -hold] [cmd [args...]]
+//	ws [-v] window [-all] [-width pct] [-height pct]
+//	ws [-v] run [-prompt prompt] [-lines n] [-width pct] [-term | -sudo | -hold] [cmd [args...]]
 //	ws [-v] term [terminal arguments]
 //	ws [-v] emacs list [-global | -visible | target]
-//	ws [-v] emacs read [-lines n | -full] [-no-header] [-no-redact] [-ansi] [-no-trim] [-region] [-except target] (-global | -visible)
-//	ws [-v] emacs read [-lines n | -full] [-no-header] [-no-redact] [-ansi] [-no-trim] [-region] target...
+//	ws [-v] emacs read [-lines n | -full] [-no-redact] [-ansi] [-no-trim] [-region] [-no-header] [-except target] (-global | -visible)
+//	ws [-v] emacs read [-lines n | -full] [-no-redact] [-ansi] [-no-trim] [-region] [-no-header] target...
 //	ws [-v] rc list [-global | -visible | target]
-//	ws [-v] rc send [-windows] [-paste] [-cr] target [text...]
+//	ws [-v] rc send [-all] [-paste] [-cr] target [text...]
 //	ws [-v] rc read [-lines n | -full] [-no-redact] [-ansi] [-no-trim] [-except target] (-global | -visible)
-//	ws [-v] rc read [-lines n | -full] [-no-redact] [-ansi] [-no-trim] [-windows] target...
+//	ws [-v] rc read [-lines n | -full] [-no-redact] [-ansi] [-no-trim] [-all] target...
 //	ws [-v] read [-lines n | -full] [-no-redact] [-ansi] [-no-trim] [-region] [-no-header] [-except target] [-emacs] [-rc] [-global | -visible | target...]
 package main
 

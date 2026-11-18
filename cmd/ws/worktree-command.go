@@ -49,11 +49,11 @@ func runWt(args []string) error {
 
 func newWtListCommand() *ffcli.Command {
 	fs := flag.NewFlagSet("ws wt list", flag.ContinueOnError)
-	long := fs.Bool("l", false, "also print the directory and branch of each worktree")
+	long := fs.Bool("long", false, "also print the directory and branch of each worktree")
 	pick := fs.Bool("pick", false, "choose with rofi between repositories with the same name")
 	cmd := &ffcli.Command{
 		Name:       "list",
-		ShortUsage: "ws wt list [-l] [-pick] [workspace | .]",
+		ShortUsage: "ws wt list [-long] [-pick] [workspace | .]",
 		ShortHelp:  "print the workspace prefixes of the worktrees",
 		LongHelp: `List prints the workspace prefix of the main checkout of the project of
 a workspace, by default the one it runs in, and of each of its
@@ -163,11 +163,11 @@ func newWtRemoveCommand() *ffcli.Command {
 	fs := flag.NewFlagSet("ws wt remove", flag.ContinueOnError)
 	force := fs.Bool("force", false, "remove the worktree even if it has changes")
 	deleteBranch := fs.Bool("delete-branch", false, "also delete the branch of the worktree, if it is merged")
-	yes := fs.Bool("y", false, "remove the worktree without asking")
+	yes := fs.Bool("yes", false, "remove the worktree without asking")
 	pick := fs.Bool("pick", false, "choose with rofi between repositories with the same name")
 	cmd := &ffcli.Command{
 		Name:       "remove",
-		ShortUsage: "ws wt remove [-force] [-delete-branch] [-y] [-pick] [[project@]name | .]",
+		ShortUsage: "ws wt remove [-force] [-delete-branch] [-yes] [-pick] [[project@]name | .]",
 		ShortHelp:  "remove a worktree",
 		LongHelp: `Remove removes worktree name, by default the worktree of the workspace
 it runs in, and the directory stored for its workspace prefix. With
@@ -178,8 +178,8 @@ The branch is kept, and it prints the git command to delete it. With
 the branch is merged into its upstream, or else into the HEAD of the
 main checkout. -force does not apply to the branch.
 
-It asks first, where init asks, unless -y is given. If the worktree has
-changes, agreeing discards them; with -y, git refuses to remove it
+It asks first, where init asks, unless -yes is given. If the worktree has
+changes, agreeing discards them; with -yes, git refuses to remove it
 unless -force is given.
 
 Examples:
@@ -352,11 +352,11 @@ func checkoutProject(main Repository) string {
 
 func newWtInitCommand() *ffcli.Command {
 	fs := flag.NewFlagSet("ws wt init", flag.ContinueOnError)
-	yes := fs.Bool("y", false, "create the worktree without asking, on the first branch found")
+	yes := fs.Bool("yes", false, "create the worktree without asking, on the first branch found")
 	pick := fs.Bool("pick", false, "choose with rofi between repositories with the same name")
 	cmd := &ffcli.Command{
 		Name:       "init",
-		ShortUsage: "ws wt init [-y] [-pick] [workspace]",
+		ShortUsage: "ws wt init [-yes] [-pick] [workspace]",
 		ShortHelp:  "create a worktree, choosing its branch",
 		LongHelp: `Init creates the worktree of a workspace, by default the one it runs
 in, letting the user choose a branch resembling its name, or where a
@@ -364,10 +364,10 @@ new branch starts.
 
 Examples:
 
-    ws wt init                 # worktree of the current workspace
-    ws wt init repo@feat-x     # offers feat/x, or a new branch feat-x
-    ws wt init repo@x          # offers branches ending in /x, like feat/x
-    ws wt init -y repo@feat-x  # first match, else a new branch from HEAD`,
+    ws wt init                   # worktree of the current workspace
+    ws wt init repo@feat-x       # offers feat/x, or a new branch feat-x
+    ws wt init repo@x            # offers branches ending in /x, like feat/x
+    ws wt init -yes repo@feat-x  # first match, else a new branch from HEAD`,
 		FlagSet:   fs,
 		UsageFunc: commandUsage,
 	}

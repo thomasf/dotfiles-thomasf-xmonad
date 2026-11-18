@@ -417,13 +417,13 @@ func TestRemoveWorkingWorktree(t *testing.T) {
 	}
 
 	t.Chdir(repoDir)
-	if err := runWtRemove([]string{"-y", "."}); err == nil {
+	if err := runWtRemove([]string{"-yes", "."}); err == nil {
 		t.Error("removing the main checkout succeeded")
 	}
 
 	// A merged branch is deleted with the worktree.
 	t.Chdir(filepath.Join(repoDir+"@test", "sub"))
-	if err := runWtRemove([]string{"-y", "-delete-branch", "."}); err != nil {
+	if err := runWtRemove([]string{"-yes", "-delete-branch", "."}); err != nil {
 		t.Fatal(err)
 	}
 	if fileExists(repoDir + "@test") {
@@ -435,7 +435,7 @@ func TestRemoveWorkingWorktree(t *testing.T) {
 
 	// An unmerged branch is kept, even with -force.
 	t.Chdir(repoDir + "@ahead")
-	if err := runWtRemove([]string{"-y", "-force", "-delete-branch", "."}); err == nil {
+	if err := runWtRemove([]string{"-yes", "-force", "-delete-branch", "."}); err == nil {
 		t.Error("removing worktree ahead and its unmerged branch: no error")
 	}
 	if fileExists(repoDir + "@ahead") {

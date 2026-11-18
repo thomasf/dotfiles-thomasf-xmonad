@@ -22,7 +22,7 @@ import (
 
 func newPickCommand() *ffcli.Command {
 	fs := flag.NewFlagSet("ws pick", flag.ContinueOnError)
-	prompt := fs.String("p", "workspace", "rofi `prompt`")
+	prompt := fs.String("prompt", "workspace", "rofi `prompt`")
 	goTo := fs.Bool("go", false, "go to the workspace instead of printing its name")
 	shiftTo := fs.Bool("shift", false, "move the focused window to the workspace instead of printing its name")
 	withWorktrees := fs.Bool("worktrees", false, "also list worktrees without a workspace")
@@ -31,7 +31,7 @@ func newPickCommand() *ffcli.Command {
 	lines := fs.Int("lines", 20, "show `n` rows in each column")
 	cmd := &ffcli.Command{
 		Name:       "pick",
-		ShortUsage: "ws pick [-go] [-shift] [-empty] [-worktrees] [-dirs] [-p prompt] [-lines n]",
+		ShortUsage: "ws pick [-go] [-shift] [-empty] [-worktrees] [-dirs] [-prompt prompt] [-lines n]",
 		ShortHelp:  "choose a workspace with rofi",
 		LongHelp: `Pick lets the user choose a workspace with rofi and prints its name. It
 lists the workspaces with windows or on another screen, and the

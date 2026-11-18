@@ -91,11 +91,11 @@ func (e *emacsReadFlags) Register(fs *flag.FlagSet) {
 
 // rcReadFlags defines options specific to remote control terminals.
 type rcReadFlags struct {
-	windows bool
+	all bool
 }
 
 func (r *rcReadFlags) Register(fs *flag.FlagSet) {
-	fs.BoolVar(&r.windows, "windows", false, "read every terminal of each target")
+	fs.BoolVar(&r.all, "all", false, "read every terminal of each target")
 }
 
 // sourceFlags defines source selection options for ws read.

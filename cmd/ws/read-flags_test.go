@@ -84,12 +84,12 @@ func TestRcReadFlags(t *testing.T) {
 	var rc rcReadFlags
 	rc.Register(fs)
 
-	if err := fs.Parse([]string{"-windows"}); err != nil {
+	if err := fs.Parse([]string{"-all"}); err != nil {
 		t.Fatal(err)
 	}
 
-	if !rc.windows {
-		t.Errorf("rc.windows = false, want true")
+	if !rc.all {
+		t.Errorf("rc.all = false, want true")
 	}
 }
 

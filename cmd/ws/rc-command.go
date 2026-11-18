@@ -74,15 +74,15 @@ the foreground of its shell.`,
 
 func newRcSendCommand() *ffcli.Command {
 	fs := flag.NewFlagSet("ws rc send", flag.ContinueOnError)
-	all := fs.Bool("windows", false, "send to every terminal of the target")
+	all := fs.Bool("all", false, "send to every terminal of the target")
 	paste := fs.Bool("paste", false, "send the text as a bracketed paste")
 	cr := fs.Bool("cr", false, "send a carriage return after the text, as Enter does")
 	cmd := &ffcli.Command{
 		Name:       "send",
-		ShortUsage: "ws rc send [-windows] [-paste] [-cr] target [text...]",
+		ShortUsage: "ws rc send [-all] [-paste] [-cr] target [text...]",
 		ShortHelp:  "send text or keystrokes to a terminal",
 		LongHelp: `Send types text, the arguments joined by spaces or else standard input,
-into the primary terminal of target. With -windows it types into every
+into the primary terminal of target. With -all it types into every
 terminal of the target but the one ws runs in.
 
 -paste sends the text as a bracketed paste. A program that supports
@@ -113,10 +113,10 @@ func newRcReadCommand() *ffcli.Command {
 	rc.Register(fs)
 	cmd := &ffcli.Command{
 		Name:       "read",
-		ShortUsage: "ws rc read [-lines n | -full] [-no-redact] [-ansi] [-no-trim] ([-except target] (-global | -visible) | [-windows] target...)",
+		ShortUsage: "ws rc read [-lines n | -full] [-no-redact] [-ansi] [-no-trim] ([-except target] (-global | -visible) | [-all] target...)",
 		ShortHelp:  "print terminal screen contents or scrollback history",
 		LongHelp: `Read prints the screen of the primary terminal of each target, one
-after the other. With -windows it prints those of every terminal of each
+after the other. With -all it prints those of every terminal of each
 target, and with -global those of every remote control terminal on the
 display.
 
@@ -146,7 +146,7 @@ Read redacts secrets via delemark unless -no-redact is given.`,
 		UsageFunc: commandUsage,
 	}
 	cmd.Exec = func(ctx context.Context, args []string) error {
-		if (common.global || common.visible) && rc.windows {
+		if (common.global || common.visible) && rc.all {
 			usageError(fs)
 		}
 		if err := common.validate(fs, false); err != nil {
@@ -163,7 +163,7 @@ Read redacts secrets via delemark unless -no-redact is given.`,
 		if !common.global && len(args) < 1 {
 			usageError(fs)
 		}
-		return executeRcRead(args, opts, common.global, rc.windows, skip, common.noRedact)
+		return executeRcRead(args, opts, common.global, rc.all, skip, common.noRedact)
 	}
 	return cmd
 }

@@ -55,7 +55,7 @@ Default suffix actions (when no `w.<project>` script exists):
 
 | Command | Description |
 |---|---|
-| `ws wt list` | List workspace prefixes for the main checkout and all worktrees. Pass `-l` to include paths and branches, and `.` for the repository of the working directory. |
+| `ws wt list` | List workspace prefixes for the main checkout and all worktrees. Pass `-long` to include paths and branches, and `.` for the repository of the working directory. |
 | `ws wt add` | Non-interactively create a worktree, checking in order for an existing local branch, a matching remote tracking branch, or creating a new branch from `HEAD`. |
 | `ws wt init` | Interactively set up a worktree for a workspace, selecting an existing branch or specifying the start point for a new branch. (Offered automatically by `ws action` when a worktree directory is missing). |
 | `ws wt remove` | Remove a worktree directory and its stored path mapping; `.` removes the worktree of the working directory. The git branch is retained, and `ws` prints the command to delete it, unless `-delete-branch` is given: then the branch is deleted if it is merged (as `git branch -d` does), and kept otherwise. |
@@ -69,7 +69,7 @@ Target names resolve relative to the caller's current workspace (via `$WS_WORKSP
 | Command | Description |
 |---|---|
 | `ws rc list` | List controllable terminals with their workspace, PID, working directory, and running command. |
-| `ws rc read` | Dump terminal screen contents. Use `-lines <n>` or `-history` for scrollback, or `-visible` to capture all on-screen terminals. |
+| `ws rc read` | Dump terminal screen contents. Use `-lines <n>` or `-full` for scrollback, or `-visible` to capture all on-screen terminals. |
 | `ws rc send` | Send text or keystrokes to a terminal. `-paste` uses bracketed paste mode; `-cr` appends Enter. |
 | `ws read` | Read text from Emacs buffers and controllable terminals across workspaces and screens. Defaults to visible on-screen sources. |
 | `ws emacs list` | List running Emacs servers with their workspace, PID, working directory, and selected buffer. |

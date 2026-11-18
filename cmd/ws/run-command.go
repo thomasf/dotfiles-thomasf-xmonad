@@ -74,15 +74,15 @@ const (
 
 func newRunCommand() *ffcli.Command {
 	fs := flag.NewFlagSet("ws run", flag.ContinueOnError)
-	prompt := fs.String("p", "launch", "rofi `prompt`")
-	lines := fs.Int("lines", 25, "rofi `lines`")
+	prompt := fs.String("prompt", "launch", "rofi `prompt`")
+	lines := fs.Int("lines", 25, "show `n` rows")
 	width := fs.Int("width", rofiWidth, "rofi `width` percent")
 	flagTerm := fs.Bool("term", false, "force run in a terminal window")
 	flagSudo := fs.Bool("sudo", false, "force run in a terminal window with sudo")
 	flagHold := fs.Bool("hold", false, "force run in a terminal window in hold mode")
 	cmd := &ffcli.Command{
 		Name:       "run",
-		ShortUsage: "ws run [-p prompt] [-lines n] [-width pct] [-term | -sudo | -hold] [cmd [args...]]",
+		ShortUsage: "ws run [-prompt prompt] [-lines n] [-width pct] [-term | -sudo | -hold] [cmd [args...]]",
 		ShortHelp:  "choose and launch an application or command with rofi",
 		LongHelp: `Run lets the user choose and launch an application or command with rofi,
 listing executables found in $PATH with fast directory caching.
