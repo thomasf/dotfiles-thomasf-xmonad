@@ -366,3 +366,82 @@ func TestBranchSourceText(t *testing.T) {
 		t.Errorf("branchRows =\n%s\nwant\n%s", strings.Join(got, "\n"), strings.Join(wantRows, "\n"))
 	}
 }
+
+func TestDirWorktree(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	repoDir := newRepo(t, "dpg")
+	gitT(t, repoDir, "worktree", "add", "-q", "-b", "other", "../unrelated")
+
+	for _, tt := range []struct {
+		dir, project, name string
+	}{
+		{filepath.Join(repoDir, "sub"), "dpg", ""},
+		{filepath.Join(repoDir+"@test", "sub"), "dpg", "test"},
+	} {
+		main, project, name, err := dirWorktree(tt.dir)
+		if err != nil || main != Repository(repoDir) || project != tt.project || name != tt.name {
+			t.Errorf("dirWorktree(%s) = %q, %q, %q, %v, want %q, %q, %q", tt.dir, main, project, name, err, repoDir, tt.project, tt.name)
+		}
+	}
+	if _, _, _, err := dirWorktree(filepath.Join(filepath.Dir(repoDir), "unrelated")); err == nil {
+		t.Error("dirWorktree(unrelated): no error")
+	}
+
+	// A project stored for the main checkout names it; one stored for
+	// a worktree prefix does not.
+	if err := storeDir("dp@test", repoDir); err != nil {
+		t.Fatal(err)
+	}
+	if err := storeDir("dp", repoDir); err != nil {
+		t.Fatal(err)
+	}
+	if _, project, _, err := dirWorktree(repoDir + "@test"); err != nil || project != "dp" {
+		t.Errorf("with dp stored, dirWorktree project = %q, %v, want dp", project, err)
+	}
+}
+
+func TestRemoveWorkingWorktree(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	repoDir := newRepo(t, "dpg")
+	r := Repository(repoDir)
+	head := gitT(t, repoDir, "branch", "--show-current")
+	if err := r.addWorktree("ahead", r.exactBranch("ahead")); err != nil {
+		t.Fatal(err)
+	}
+	gitT(t, repoDir+"@ahead", "-c", "user.name=t", "-c", "user.email=t@example.com", "commit", "-q", "--allow-empty", "-m", "a")
+	if n, ref := r.unmergedCommits("test"); n != 0 || ref != head {
+		t.Errorf("unmergedCommits(test) = %d, %q, want 0, %q", n, ref, head)
+	}
+	if n, ref := r.unmergedCommits("ahead"); n != 1 || ref != head {
+		t.Errorf("unmergedCommits(ahead) = %d, %q, want 1, %q", n, ref, head)
+	}
+
+	t.Chdir(repoDir)
+	if err := runWtRemove([]string{"-y", "."}); err == nil {
+		t.Error("removing the main checkout succeeded")
+	}
+
+	// A merged branch is deleted with the worktree.
+	t.Chdir(filepath.Join(repoDir+"@test", "sub"))
+	if err := runWtRemove([]string{"-y", "-delete-branch", "."}); err != nil {
+		t.Fatal(err)
+	}
+	if fileExists(repoDir + "@test") {
+		t.Error("worktree test was not removed")
+	}
+	if out := gitT(t, repoDir, "branch", "--list", "test"); out != "" {
+		t.Error("branch test was not deleted")
+	}
+
+	// An unmerged branch is kept, even with -force.
+	t.Chdir(repoDir + "@ahead")
+	if err := runWtRemove([]string{"-y", "-force", "-delete-branch", "."}); err == nil {
+		t.Error("removing worktree ahead and its unmerged branch: no error")
+	}
+	if fileExists(repoDir + "@ahead") {
+		t.Error("worktree ahead was not removed")
+	}
+	if out := gitT(t, repoDir, "branch", "--list", "ahead"); out == "" {
+		t.Error("unmerged branch ahead was deleted")
+	}
+}

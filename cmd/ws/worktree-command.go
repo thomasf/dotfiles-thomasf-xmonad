@@ -9,6 +9,8 @@ import (
 	"flag"
 	"fmt"
 	"html"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -26,7 +28,8 @@ func newWtCommand() *ffcli.Command {
 		ShortUsage: "ws wt <command> [arguments]",
 		ShortHelp:  "manage the worktrees of a project",
 		LongHelp: `Wt manages the worktrees of a project, by default the project of the
-current workspace. Worktree name of a repository is the directory
+workspace the command runs in: $WS_WORKSPACE, else the current
+workspace. Worktree name of a repository is the directory
 <repo>@<name> beside its main checkout. A name cannot contain "/", ".",
 "@" or spaces: worktree feat-x is the usual name for branch feat/x.`,
 		UsageFunc: commandUsage,
@@ -50,11 +53,12 @@ func newWtListCommand() *ffcli.Command {
 	pick := fs.Bool("pick", false, "choose with rofi between repositories with the same name")
 	cmd := &ffcli.Command{
 		Name:       "list",
-		ShortUsage: "ws wt list [-l] [-pick] [workspace]",
+		ShortUsage: "ws wt list [-l] [-pick] [workspace | .]",
 		ShortHelp:  "print the workspace prefixes of the worktrees",
 		LongHelp: `List prints the workspace prefix of the main checkout of the project of
-a workspace, by default the current one, and of each of its worktrees,
-one per line.`,
+a workspace, by default the one it runs in, and of each of its
+worktrees, one per line. With ".", the project is the repository of the
+working directory.`,
 		FlagSet:   fs,
 		UsageFunc: commandUsage,
 	}
@@ -62,21 +66,25 @@ one per line.`,
 		if len(args) > 1 {
 			usageError(fs)
 		}
-		var w Workspace
+		var main Repository
+		var project string
 		var err error
-		if len(args) == 1 {
-			w = Workspace(args[0])
+		if len(args) == 1 && args[0] == "." {
+			main, project, _, err = workingWorktree()
 		} else {
-			w, err = currentWorkspace()
-			if err != nil {
+			w := Workspace("")
+			if len(args) == 1 {
+				w = Workspace(args[0])
+			} else if w, err = contextWorkspace(); err != nil {
 				return err
 			}
+			project = w.project()
+			main, err = projectCheckout(project, *pick)
 		}
-		main, err := projectCheckout(w.project(), *pick)
 		if err != nil {
 			return err
 		}
-		wts, err := main.listWorktrees(w.project())
+		wts, err := main.listWorktrees(project)
 		if err != nil {
 			return err
 		}
@@ -105,7 +113,7 @@ func newWtAddCommand() *ffcli.Command {
 		ShortUsage: "ws wt add [-branch branch] [-pick] [project@]name",
 		ShortHelp:  "create a worktree on a given branch, without asking",
 		LongHelp: `Add creates the worktree <repo>@<name> beside the main checkout <repo>
-of project, by default the project of the current workspace, and prints
+of project, by default the project of the workspace it runs in, and prints
 its workspace prefix project@name. It never asks. It checks out branch
 name, or -branch: the local branch, else the branch on a remote,
 tracking it, else a new branch from the HEAD of the main checkout. A
@@ -154,19 +162,31 @@ func runWtAdd(args []string) error {
 func newWtRemoveCommand() *ffcli.Command {
 	fs := flag.NewFlagSet("ws wt remove", flag.ContinueOnError)
 	force := fs.Bool("force", false, "remove the worktree even if it has changes")
+	deleteBranch := fs.Bool("delete-branch", false, "also delete the branch of the worktree, if it is merged")
 	yes := fs.Bool("y", false, "remove the worktree without asking")
 	pick := fs.Bool("pick", false, "choose with rofi between repositories with the same name")
 	cmd := &ffcli.Command{
 		Name:       "remove",
-		ShortUsage: "ws wt remove [-force] [-y] [-pick] [[project@]name]",
+		ShortUsage: "ws wt remove [-force] [-delete-branch] [-y] [-pick] [[project@]name | .]",
 		ShortHelp:  "remove a worktree",
-		LongHelp: `Remove removes worktree name, by default the worktree of the current
-workspace, and the directory stored for its workspace prefix. The
-branch is kept, and it prints the git command to delete it.
+		LongHelp: `Remove removes worktree name, by default the worktree of the workspace
+it runs in, and the directory stored for its workspace prefix. With
+".", it removes the worktree the working directory is in.
+
+The branch is kept, and it prints the git command to delete it. With
+-delete-branch, it deletes the branch as git branch -d does: only if
+the branch is merged into its upstream, or else into the HEAD of the
+main checkout. -force does not apply to the branch.
 
 It asks first, where init asks, unless -y is given. If the worktree has
 changes, agreeing discards them; with -y, git refuses to remove it
-unless -force is given.`,
+unless -force is given.
+
+Examples:
+
+    ws wt remove                        # worktree of this workspace
+    ws wt remove .                      # worktree of the working directory
+    ws wt remove -delete-branch feat/x  # worktree feat-x and branch feat/x`,
 		FlagSet:   fs,
 		UsageFunc: commandUsage,
 	}
@@ -174,29 +194,15 @@ unless -force is given.`,
 		if len(args) > 1 {
 			usageError(fs)
 		}
-		var project, name string
-		switch len(args) {
-		case 0:
-			w, err := currentWorkspace()
-			if err != nil {
-				return err
-			}
-			project, name = w.project(), w.worktree()
-			if name == "" {
-				return fmt.Errorf("workspace %s is not in a worktree", w)
-			}
-		case 1:
-			var err error
-			if project, name, _, err = worktreeArg(args[0]); err != nil {
-				return err
-			}
-		}
-		main, err := projectCheckout(project, *pick)
+		main, project, name, err := removeTarget(args, *pick)
 		if err != nil {
 			return err
 		}
+		dir := main.worktreePath(name)
+		// Look the branch up now, as the worktree is gone after.
+		branch, _ := Repository(dir).currentBranch()
 		if !*yes {
-			ok, discard, err := confirmRemove(main, project+"@"+name, name)
+			ok, discard, err := confirmRemove(main, project+"@"+name, name, branch, *deleteBranch)
 			if err != nil {
 				return err
 			}
@@ -205,17 +211,30 @@ unless -force is given.`,
 			}
 			*force = *force || discard
 		}
-		// The branch is kept; look it up now, as the worktree is gone after.
-		branch, _ := Repository(main.worktreePath(name)).currentBranch()
+		wd, _ := os.Getwd()
+		wd, _ = filepath.EvalSymlinks(wd)
 		if err := main.removeWorktree(name, *force); err != nil {
 			return err
 		}
 		if err := storeDir(project+"@"+name, ""); err != nil {
 			return err
 		}
-		if branch != "" {
-			fmt.Printf("\nBranch %s was kept. To delete it:\n\n  git -C %s branch -d %s\n\n", branch, main, branch)
+		if wd == dir || strings.HasPrefix(wd, dir+"/") {
+			fmt.Printf("\nThe working directory was in the worktree. To leave it:\n\n  cd %s\n", main)
 		}
+		if branch == "" {
+			return nil
+		}
+		if !*deleteBranch {
+			fmt.Printf("\nBranch %s was kept. To delete it:\n\n  git -C %s branch -d %s\n\n", branch, main, branch)
+			return nil
+		}
+		if _, err := main.git("branch", "-d", branch); err != nil {
+			n, ref := main.unmergedCommits(branch)
+			fmt.Printf("\nBranch %s was kept, with %s not on %s. To delete it anyway:\n\n  git -C %s branch -D %s\n\n", branch, formatCommits(n), ref, main, branch)
+			return fmt.Errorf("branch %s not deleted: not merged", branch)
+		}
+		fmt.Printf("\nDeleted branch %s.\n", branch)
 		return nil
 	}
 	return cmd
@@ -225,25 +244,110 @@ func runWtRemove(args []string) error {
 	return runFFCLI(newWtRemoveCommand(), args)
 }
 
-// confirmRemove asks the user whether to remove worktree name, with
-// workspace prefix prefix, of the main checkout main. If the worktree
-// has changes, agreeing means discarding them too.
-func confirmRemove(main Repository, prefix, name string) (ok, discard bool, err error) {
-	dir := main.worktreePath(name)
-	branch, err := Repository(dir).currentBranch()
-	if err != nil {
-		return false, false, err
+// removeTarget returns the main checkout, project and name of the
+// worktree that ws wt remove args, its arguments, names.
+func removeTarget(args []string, pick bool) (main Repository, project, name string, err error) {
+	switch {
+	case len(args) == 1 && args[0] == ".":
+		main, project, name, err = workingWorktree()
+		if err == nil && name == "" {
+			err = fmt.Errorf("%s is the main checkout of %s, not a worktree", main, project)
+		}
+		return main, project, name, err
+	case len(args) == 1:
+		if project, name, _, err = worktreeArg(args[0]); err != nil {
+			return "", "", "", err
+		}
+	default:
+		w, err := contextWorkspace()
+		if err != nil {
+			return "", "", "", err
+		}
+		project, name = w.project(), w.worktree()
+		if name == "" {
+			return "", "", "", fmt.Errorf("workspace %s is not in a worktree", w)
+		}
 	}
+	main, err = projectCheckout(project, pick)
+	return main, project, name, err
+}
+
+// confirmRemove asks the user whether to remove worktree name, with
+// workspace prefix prefix and branch branch, of the main checkout main,
+// and to delete the branch too if deleteBranch is set. If the worktree
+// has changes, agreeing means discarding them too.
+func confirmRemove(main Repository, prefix, name, branch string, deleteBranch bool) (ok, discard bool, err error) {
+	dir := main.worktreePath(name)
 	status, err := Repository(dir).git("status", "--porcelain")
 	if err != nil {
 		return false, false, err
 	}
-	msg := fmt.Sprintf("Worktree %s\n  directory   %s\n  branch      %s (kept)", prefix, dir, cmp.Or(branch, "(detached)"))
+	what := "(detached)"
+	if branch != "" {
+		what = branch + " (kept)"
+		if deleteBranch {
+			what = branch + " (deleted)"
+			if n, ref := main.unmergedCommits(branch); n > 0 {
+				what = branch + " (kept: " + formatCommits(n) + " not on " + ref + ")"
+			}
+		}
+	}
+	msg := fmt.Sprintf("Worktree %s\n  directory   %s\n  branch      %s", prefix, dir, what)
 	if status == "" {
 		return confirm(msg, "remove"), false, nil
 	}
 	msg += fmt.Sprintf("\n  changes     %d files", len(strings.Split(status, "\n")))
 	return confirm(msg, "remove, discarding changes"), true, nil
+}
+
+// workingWorktree returns the worktree that the working directory is
+// in, as dirWorktree does.
+func workingWorktree() (main Repository, project, name string, err error) {
+	wd, err := os.Getwd()
+	if err != nil {
+		return "", "", "", err
+	}
+	return dirWorktree(wd)
+}
+
+// dirWorktree returns the main checkout of the repository that dir is
+// in, the project of the checkout, and the name of the worktree <repo>@<name>
+// that dir is in, or "" if dir is in the main checkout. The project is
+// the one whose stored directory is the main checkout, else the name of
+// the main checkout's directory, as ghq names it.
+func dirWorktree(dir string) (main Repository, project, name string, err error) {
+	main, _, err = mainCheckout(dir)
+	if err != nil {
+		return "", "", "", err
+	}
+	top, err := Repository(dir).git("rev-parse", "--show-toplevel")
+	if err != nil {
+		return "", "", "", err
+	}
+	project = checkoutProject(main)
+	if top == string(main) {
+		return main, project, "", nil
+	}
+	name, ok := main.parseWorktreeDir(top)
+	if !ok {
+		return "", "", "", fmt.Errorf("%s is a worktree of %s, but not named %s@<name> beside it", top, main, filepath.Base(string(main)))
+	}
+	return main, project, name, nil
+}
+
+// checkoutProject returns the project of main checkout main: the
+// project whose stored directory it is, else the name of its directory.
+func checkoutProject(main Repository) string {
+	sdirs, _ := storedDirs()
+	for _, sd := range sdirs {
+		if strings.Contains(sd.Prefix, "@") {
+			continue
+		}
+		if dir, err := filepath.EvalSymlinks(sd.Dir); err == nil && dir == string(main) {
+			return sd.Prefix
+		}
+	}
+	return filepath.Base(string(main))
 }
 
 func newWtInitCommand() *ffcli.Command {
@@ -254,8 +358,9 @@ func newWtInitCommand() *ffcli.Command {
 		Name:       "init",
 		ShortUsage: "ws wt init [-y] [-pick] [workspace]",
 		ShortHelp:  "create a worktree, choosing its branch",
-		LongHelp: `Init creates the worktree of a workspace, letting the user choose a
-branch resembling its name, or where a new branch starts.
+		LongHelp: `Init creates the worktree of a workspace, by default the one it runs
+in, letting the user choose a branch resembling its name, or where a
+new branch starts.
 
 Examples:
 
@@ -275,7 +380,7 @@ Examples:
 		if len(args) == 1 {
 			w = Workspace(args[0])
 		} else {
-			w, err = currentWorkspace()
+			w, err = contextWorkspace()
 			if err != nil {
 				return err
 			}
@@ -474,12 +579,12 @@ func newBranches(main Repository, name string) (srcs []BranchSource, def int, er
 
 // worktreeArg returns the project and worktree name in arg,
 // [project@]name, and the branch it names. Without a project, it is
-// the project of the current workspace. name can be a branch with "/",
+// the project of the workspace it runs in, as contextWorkspace finds it. name can be a branch with "/",
 // such as feat/x, which names worktree feat-x.
 func worktreeArg(arg string) (project, name, branch string, err error) {
 	project, branch, ok := strings.Cut(arg, "@")
 	if !ok {
-		w, err := currentWorkspace()
+		w, err := contextWorkspace()
 		if err != nil {
 			return "", "", "", err
 		}

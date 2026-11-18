@@ -304,6 +304,21 @@ func (r Repository) aheadBehind(a, b string) (ahead, behind int) {
 	return ahead, behind
 }
 
+// unmergedCommits returns the number of commits on branch that git
+// branch -d would refuse to lose: those not on the upstream of branch,
+// if it has one, else not on the HEAD of r. ref names what they are not
+// on.
+func (r Repository) unmergedCommits(branch string) (n int, ref string) {
+	rev, err := r.git("rev-parse", "--abbrev-ref", "refs/heads/"+branch+"@{upstream}")
+	ref = rev
+	if err != nil {
+		b, _ := r.currentBranch()
+		rev, ref = "HEAD", cmp.Or(b, "HEAD")
+	}
+	n, _ = r.aheadBehind("refs/heads/"+branch, rev)
+	return n, ref
+}
+
 func formatCommits(n int) string {
 	if n == 1 {
 		return "1 commit"

@@ -51,14 +51,14 @@ Default suffix actions (when no `w.<project>` script exists):
 
 ### Git Worktrees (`ws wt`)
 
-`ws wt` manages git worktrees associated with a project. A worktree named `name` lives at `<repo>@<name>` alongside the main checkout, with corresponding workspace prefixes named `project@name` (e.g. branch `feat/x` maps to worktree `feat-x`).
+`ws wt` manages git worktrees associated with a project. A worktree named `name` lives at `<repo>@<name>` alongside the main checkout, with corresponding workspace prefixes named `project@name` (e.g. branch `feat/x` maps to worktree `feat-x`). Without a project, commands use the project of the workspace they run in: `$WS_WORKSPACE`, else the current workspace.
 
 | Command | Description |
 |---|---|
-| `ws wt list` | List workspace prefixes for the main checkout and all worktrees. Pass `-l` to include paths and branches. |
+| `ws wt list` | List workspace prefixes for the main checkout and all worktrees. Pass `-l` to include paths and branches, and `.` for the repository of the working directory. |
 | `ws wt add` | Non-interactively create a worktree, checking in order for an existing local branch, a matching remote tracking branch, or creating a new branch from `HEAD`. |
 | `ws wt init` | Interactively set up a worktree for a workspace, selecting an existing branch or specifying the start point for a new branch. (Offered automatically by `ws action` when a worktree directory is missing). |
-| `ws wt remove` | Remove a worktree directory and its stored path mapping. The underlying git branch is retained, and `ws` prints the command to delete it manually if desired. |
+| `ws wt remove` | Remove a worktree directory and its stored path mapping; `.` removes the worktree of the working directory. The git branch is retained, and `ws` prints the command to delete it, unless `-delete-branch` is given: then the branch is deleted if it is merged (as `git branch -d` does), and kept otherwise. |
 
 ### Terminals and Emacs (`ws rc`, `ws emacs`)
 
