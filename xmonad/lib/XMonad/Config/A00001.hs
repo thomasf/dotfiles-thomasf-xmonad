@@ -248,7 +248,7 @@ myKeys host pal xpc conf=
   , ("M-i <Space> <Space>", addName "Create or change workspace prompt"               $ rmEmptyWs $ selectWorkspacePrompt >> maybeWorkspaceAction >> movePointer)
   , ("M-S-i",               addName "Move window to other workspace (ws pick -shift -empty)" $ spawn "ws pick -shift -empty")
   , ("M-i <Space> r",       addName "Rename current workspace (ws rename)"            $ spawn "ws rename")
-  , ("M-i <Backspace>",     addName "Delete current workspace"                        $ DW.removeWorkspace >> movePointer)
+  -- , ("M-i <Backspace>",     addName "Delete current workspace"                        $ DW.removeWorkspace >> movePointer)
   , ("M-i C-<Backspace>",   addName "Clean empty hidden workspaces"                   $ WS.removeEmptyHiddenWorkspacesExcept keptWorkspaces)
   , ("M-p w",               addName ".www"                                            $ gotoPrefixWS "www" >> movePointer)
   , ("M-p d",               addName ".doc"                                            $ gotoPrefixWS "doc" >> movePointer)
